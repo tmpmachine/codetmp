@@ -1,0 +1,88 @@
+html,body{height:100%;}
+
+
+/*global*/
+/*body{background:#111;}*/
+.tapx{user-select:none;-webkit-tap-highlight-color:transparent;}
+
+.in-window{position:absolute;top:0;left:0;right:0;bottom:0;}
+
+/*colors*/
+.btn-material{color:#fff;}
+.btn-material:hover{color:#ffc107!important;}
+.btn-material.active:hover .i-btn-in,.btn-material.active:hover .l-btn-in{color:#ffc107;}
+.in-content{background:#eee;}
+.in-block{background:#000;background:rgba(0,0,0,0.8);}
+
+/*transition*/
+.i-btn-in{transition:transform 150ms;font-size:2.5em!important;}
+.i-btn-in.active{transform:scale(0.8);color:dodgerblue;}
+/*.l-btn-in{transition:transform 150ms;}*/
+.l-btn-in.active{color:dodgerblue;}
+
+/*#in-dependencies{transition:transform 300ms;transform:translateX(-100%);}*/
+.in-content{transform:translateX(-100%);}
+/*#in-dependencies.active{transform:translateX(0);}*/
+.in-content.active{transform:translateX(0);}
+.in-block{transform:translateX(-100%);opacity:0.7;}
+.in-block.active{transform:translateX(0);}
+
+/*padding,margin,etc*/
+.btn-material{text-align:center;cursor:pointer;overflow:hidden;padding:0.5em;}
+.l-btn-in{font-size:0.7em;font-weight:bold;font-family:sans-serif;position:relative;z-index:-1;display:block}
+
+/*dependenciess & screen*/
+.in-block{cursor:pointer;}
+
+/*layer*/
+
+
+
+#nav{user-select:none;}
+/*.btn-material{cursor:pointer}*/
+.w3-button{outline:none;}
+#header{position:relative;}
+
+.limbo{overflow:hidden;height:0;}
+
+
+#in-menu{transform:translateX(-100%);transition:transform 300ms;}
+#in-menu.active{transform:translateX(0);}
+
+#in-blocker{transform:translateX(-100%);transition:transform 150ms;}
+#in-blocker.active{transform:translateX(0);}
+
+
+#header{z-index:1;}
+#info{z-index:20;}
+#in-blocker{z-index:22;}
+#in-menu{z-index:23;}
+#nav{z-index:25;}
+
+
+
+
+
+#sidebar{z-index:50000;}
+.in-content{z-index:23;}
+.in-block{z-index:22;}
+#file-title{z-index:21;}
+#in-info,#in-assets{z-index:20;}
+#in-info-block,#in-assets-block{z-index:19;}
+
+.ace_scrollbar::-webkit-scrollbar { width: 5px; }
+.ace_scrollbar::-webkit-scrollbar-track { background: #ddd; }
+.ace_scrollbar::-webkit-scrollbar-thumb { background: #666; }
+.ace_scrollbar { scrollbar-color: dark; }
+
+#main-editor { transition: transform 300ms; transform: translateX(0%); }
+#main-editor.hide { transform: translateX(-100%); }
+
+#btn-back-to-editor { transition: transform 300ms; transform: translateX(0%); }
+#btn-back-to-editor.hide { transform: translateX(-100%); }
+
+#my-osk { transition: transform 300ms; transform: translateY(0%); }
+#my-osk.hide { transform: translateY(100%); }
+
+
+.osk {width:60px;text-align:center;border:1px solid #888;}
