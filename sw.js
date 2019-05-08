@@ -4,13 +4,14 @@ self.addEventListener('message',function(e){
 });
 
 
-var cacheVersion = '2.140';
+var cacheVersion = '2.141';
 var cacheItem = 'b-thor-v'+cacheVersion;
 
 self.addEventListener('install',function(event){
   var urls = [
     '/',
     '/preview.html',
+    '/404.html',
     '/css/style.css',
     '/ace/theme-monokai.js',
     '/ace/mode-html.js',
@@ -74,17 +75,35 @@ self.addEventListener('activate',function(e){
   );
 });
 
-self.addEventListener('fetch',function(e){
-  e.respondWith(
-    caches.match(e.request).then(function(resp){
-      if (resp)
-        return resp;
-      
-      return fetch(e.request).then(function(r){
-        return r;
-      }).catch(function(){
-        console.error('Check connection.');
-      });
-    })
-  );
+self.addEventListener('fetch', function(e) {
+  if (location.pathname !== '/' && location.pathname.indexOf('preview.html') < -1)
+  {
+    e.respondWith(
+      caches.match(location.origin+'/preview.html').then(function(resp) {
+        if (resp)
+          return resp;
+        
+        return fetch(e.request).then(function(r) {
+          return r;
+        }).catch(function() {
+          console.error('Check connection.');
+        });
+      })
+    );
+  }
+  else
+  {
+    e.respondWith(
+      caches.match(e.request).then(function(resp) {
+        if (resp)
+          return resp;
+        
+        return fetch(e.request).then(function(r) {
+          return r;
+        }).catch(function() {
+          console.error('Check connection.');
+        });
+      })
+    );
+  }
 });
