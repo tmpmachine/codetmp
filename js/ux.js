@@ -121,6 +121,18 @@ const ui = {
       $('#btn-close').classList.toggle('w3-hide', false);
       $('#icon-rename').classList.toggle('w3-hide', true);
       $('#btn-info').classList.toggle('w3-hide', false);
+      
+      if (file.name.endsWith('.js'))
+        $('#editor').env.editor.session.setMode("ace/mode/javascript");
+      else if (file.name.endsWith('.php'))
+        $('#editor').env.editor.session.setMode("ace/mode/php");
+      else if (file.name.endsWith('.css'))
+        $('#editor').env.editor.session.setMode("ace/mode/css");
+      else if (file.name.endsWith('.json'))
+        $('#editor').env.editor.session.setMode("ace/mode/json");
+      else
+        $('#editor').env.editor.session.setMode("ace/mode/html");
+      
       activeFile = file;
     },
     deleteFile: function(fid) {

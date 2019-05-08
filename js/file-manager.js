@@ -439,6 +439,7 @@ function fileClose() {
   
   $('#editor').env.editor.getSession().setUndoManager(new ace.UndoManager());
   $('#editor').env.editor.focus();
+  $('#editor').env.editor.session.setMode("ace/mode/html");
   
   $('#in-blog-name').value = '';
 	$('#in-eid').value = '';

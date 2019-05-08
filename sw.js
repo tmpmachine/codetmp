@@ -4,7 +4,7 @@ self.addEventListener('message',function(e){
 });
 
 
-var cacheVersion = '2.139';
+var cacheVersion = '2.140';
 var cacheItem = 'b-thor-v'+cacheVersion;
 
 self.addEventListener('install',function(event){
