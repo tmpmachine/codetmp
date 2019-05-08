@@ -270,7 +270,7 @@ const drive = {
       L(error);
       drive.syncToDrive.enabled = false;
       $('#action-info').textContent = 'Refreshing authentication...';
-      oblog.requestRoken(() => {
+      oblog.requestToken(() => {
         $('#action-info').textContent = '';
         syncToDrive();
       })
