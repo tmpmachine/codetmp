@@ -261,7 +261,8 @@ function openFolderConfirm(el) {
     selectedFile.splice(0, 1);
     
     doubleClick = false;
-    openFolder(el);
+    let folderId = Number(el.getAttribute('data'))
+    openFolder(folderId);
     el.classList.toggle('w3-light-blue', false);
     el.classList.toggle('w3-hover-light-blue', false);
     
@@ -655,7 +656,7 @@ function chooseDeploy() {
     let bibibib = '';
     
     if (isMore)
-      more = '<!--more-->';
+      more = '<!--more--> ';
     if (isBibibi)
       bibibib = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
       
@@ -681,9 +682,11 @@ function chooseDeploy() {
 }
 
 
-function openFolder(el) {
-  activeFolder = Number(el.getAttribute('data'));
-  title = el.getAttribute('title');
+function openFolder(folderId) {
+  activeFolder = folderId;
+  
+  let folder = odin.dataOf(folderId, fs.data.folders, 'fid');
+  title = folder.name;
   breadcrumbs.push({folderId:activeFolder, title: title})
   
   fileList();
