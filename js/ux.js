@@ -85,10 +85,10 @@ const ui = {
     newFile: function() {
       
       let name;
-      if ($('#file-name').textContent === 'Untitled File')
-        name = window.prompt('File name', $('#file-name').textContent);
+      if ($('.file-name')[activeTab].textContent === 'Untitled File')
+        name = window.prompt('File name', $('.file-name')[activeTab].textContent);
       else
-        name = $('#file-name').textContent;
+        name = $('.file-name')[activeTab].textContent;
         
       if (name === null)
         return;
@@ -117,9 +117,8 @@ const ui = {
       fileList();
       
       $('#editor').addEventListener('keydown', saveListener);
-      $('#file-name').textContent = file.name;
-      $('#btn-close').classList.toggle('w3-hide', false);
-      $('#icon-rename').classList.toggle('w3-hide', true);
+      $('.file-name')[activeTab].textContent = file.name;
+      $('.icon-rename')[activeTab].textContent = 'close';
       $('#btn-info').classList.toggle('w3-hide', false);
       
       if (file.name.endsWith('.js'))
@@ -148,8 +147,7 @@ const ui = {
       if (activeFile && data.fid === activeFile.fid)
       {
         activeFile = undefined;
-        $('#btn-close').classList.toggle('w3-hide', true);
-        $('#icon-rename').classList.toggle('w3-hide', false);
+        $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
         $('#editor').addEventListener('keydown', saveListener);
       }
       
@@ -272,7 +270,7 @@ window.addEventListener('paste', function(e) {
   pasteFile();
 });
 
-window.addEventListener('keydown',function(e){
+window.addEventListener('keydown',function(e) {
   switch (e.keyCode)
   {
     case 46:
@@ -326,9 +324,32 @@ window.addEventListener('keydown',function(e){
         e.preventDefault();
         fileSave();
       }
-      break;
+    break;
+    case 87: // letter w
+      if (keyPress[18])
+      {
+        e.preventDefault();
+        
+        fileClose(String(fileTab[activeTab]));
+      }
+    break;
   }
 });
+
+window.onbeforeunload = function(e) {
+  var notSaved = false;
+  for (let icon of $('.icon-rename'))
+  {
+    if (icon.textContent !== 'close')
+    {
+      notSaved = true;
+      break;
+    }
+  }
+  
+  if (notSaved)
+    return 'Changes you made may not be saved';
+}
 
 window.addEventListener('keyup', function(e) {
   switch (e.keyCode)
@@ -376,10 +397,12 @@ function saveListener(event, bypass = false) {
     keyPress[17] && event.keyCode === 82 ||
     keyPress[18] && event.keyCode === 13 ||
     event.altKey && event.key === 'd' ||
+    event.altKey && event.key === 'w' ||
     keyPress[17] && event.keyCode === 13) return;
   }
   
-  $('#icon-rename').classList.toggle('w3-hide', false);
+  $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
+  $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
   $('#editor').env.editor.removeEventListener('keydown', saveListener);
 }
   

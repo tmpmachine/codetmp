@@ -41,7 +41,6 @@ const THOR = (function() {
 
       o.click({
         // feature
-        'btn-export-blog-template':[exportTemplate],
         'btn-blogsphere-login':[THOR.blogsphereLogin],
         'btn-menu-template': [toggleInsertSnippet],
         'btn-reset': [function() {
@@ -69,7 +68,6 @@ const THOR = (function() {
         'btn-new-folder':[ui.fm.newFolder],
         'btn-rename-folder':[ui.fm.renameFolder],
         // 'btn-edit': [fileRename],
-        'btn-close': [fileClose],
         'btn-deploy': [chooseDeploy],
         'btn-delete-file': [function() {
           ui.fm.deleteFile(activeFile.fid);
@@ -127,6 +125,17 @@ const THOR = (function() {
         // load plugins here
         THOR.plugins.loadEditor(false);
         THOR.plugins.dragDrop();
+        
+        let el = o.cel('div', {
+          innerHTML: o.creps('tmp-file-tab', {
+            fid: '-1',
+            name: 'Untitled File'
+          })
+        })
+        
+        el.firstElementChild.lastElementChild.style.background = '#154358';
+        $('#file-title').appendChild(el.firstElementChild)
+        
         
         if ($('#btn-save').offsetWidth > 100)
         {

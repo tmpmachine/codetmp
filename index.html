@@ -56,19 +56,7 @@
       [ .in-window {ov:hidden;}
         [ {pos:relative;h:100%;}
           [ +black {pos:relative;} @file-title .menu-overflow-header
-            [ +button +left @btn-edit +hover-text-blue +hover-none
-              [ "Untitled File" {col:#fff!;} +small @file-name +padding-small {fw:bold;} +left]
-              [M "fiber_manual_record" +medium +text-purple @icon-rename +padding-small]
-            ]
-            [M "close" +right +button @btn-close +hide]
-            [ +button +right @btn-export-blog-template +hide
-              [ "Export blog template" +small +padding-small +left]
-              [M "get_app"]
-            ]
-            [ +button +right @btn-download-file +hover-text-blue +hover-none
-              [ "Download" {col:#fff!;} +small +padding-small {fw:bold;} +left]
-              [M "input" +medium +padding-small {transform:rotate(90deg)}]
-            ]
+            <!--[ {h:0.25rem;bg:#212121;pos:absolute;b:0;l:0;w:100%;}]-->
             <!--plate-ninja-space-->
           ]
           [ @editor-wrapper +padding spellcheck="false" {pos:absolute;w:100%;h:100%;} .menu-overflow-content
@@ -272,7 +260,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build 2.141" +opacity]
+            [c +half "Developer Build 2.148" +opacity]
           ]
           [ @breadcrumbs +small +padding]
           [ @file-list +padding]
@@ -355,6 +343,11 @@
       
       [ @menu-basic
         
+        [ +button @btn-download-file +border +margin-bottom +block
+          [ "Download" +small +padding-small {fw:bold;} +left]
+          [M "input" +medium +padding-small {transform:rotate(90deg)}]
+        ]
+        
         [btn "Deploy" @btn-deploy +button +border +margin-bottom +block]
         
         [ +tiny "Blog name"]
@@ -404,7 +397,7 @@
     [ @limbo-element .limbo]
   </template>
   <template id="plate-ninja-space">
-    [ +button +right {visibility:hidden;}
+    [ {p:6px 10px;} +right {visibility:hidden;}
       [M "close" ]
     ]
   </template>
@@ -508,6 +501,19 @@
           ]
         ]
       ]
+    ]
+  </template>
+  <template id="tmp-file-tab">
+    [ +left {w:180px;bg:#101113;pos:relative;z:1;} .file-tab
+      [
+        [ {p:6px 10px;} +right
+          [M +right "fiber_manual_record" +button +hover-none +hover-text-light-grey +medium +text-gray .icon-rename onclick="fileClose('__fid__')" {p:4px 0 4px 9px;}]
+        ]
+        [x {pos:relative;p:18px 24px;}
+          [ "__name__" onclick="focusTab('__fid__')" {pos:absolute;l:0;t:0;w:100%;col:#fff!;} .tapx +small .file-name {p:10px 10px 10px 19px;} {fw:bold;} +left]
+        ]
+      ]
+      [ {h:0.25rem;bg:#202020;}]
     ]
   </template>
   

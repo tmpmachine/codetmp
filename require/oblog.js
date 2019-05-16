@@ -1,14 +1,15 @@
+// v0.056 - 20 apr 19 -- login iframe now will not display
 // v0.055 - 19 mar 19 -- fix refreshToken
 // v0.054 - 18 mar 19 -- remove message listener on logout, remove revoke token
-/*v0.053 - 19 jan 19 -- fix authentication failed : reset auth data */
-/*v0.052 - 17 jan 19 -- added postUserinfos method */
-/*v0.051 - 16 jan 19 -- added getByPath method for posts */
-/*v0.050 - 24 dec 18 -- change API from XMLHttpRequest to fetch, add more flexibility to use Blogger API */
-/*v0.042 - 19 dec 18 -- fill null input secret key  */
-/*v0.041 - 3 dec 18 -- update lsdb.js  */
-/*v0.040 - 17 sep 18 - added getApiUrl for dynamic blogId change2  */
-/*v0.039 - 13 sep 18 - o.js change  */
-/*v0.038 - 4 sep 18 - added 6th state  */
+// v0.053 - 19 jan 19 -- fix authentication failed : reset auth data
+// v0.052 - 17 jan 19 -- added postUserinfos method
+// v0.051 - 16 jan 19 -- added getByPath method for posts
+// v0.050 - 24 dec 18 -- change API from XMLHttpRequest to fetch, add more flexibility to use Blogger API
+// v0.042 - 19 dec 18 -- fill null input secret key
+// v0.041 - 3 dec 18 -- update lsdb.js
+// v0.040 - 17 sep 18 - added getApiUrl for dynamic blogId change2
+// v0.039 - 13 sep 18 - o.js change
+// v0.038 - 4 sep 18 - added 6th state
 
 const oblog = {
   apiURL: 'https://www.googleapis.com/blogger/v3/',
@@ -138,7 +139,9 @@ const oblog = {
   },
   onMessage: function(event) {
     oblog.messageListener(event.data);
-    document.body.removeChild(document.getElementById('oblogPortal'));
+    var iframe = document.getElementById('oblogPortal');
+    if (iframe !== null)
+      document.body.removeChild(iframe);
   },
   requestToken: function(callback) {
     oblog.callback = callback;
@@ -148,6 +151,8 @@ const oblog = {
     
     var el = document.createElement('iframe');
     el.setAttribute('id','oblogPortal');
+    el.setAttribute('height','0');
+    el.setAttribute('style','display:none;');
     if (oblog.state(2))
       window.open(loginUrl+')');
     else
