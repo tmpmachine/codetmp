@@ -34,11 +34,140 @@ const fm = {
 };
 
 
-function changeRev(revId) {
+function rollbackRevision(id) {
+  
+  aww.pop('Downloading rollback resource...')
+  
+  fetch(drive.apiUrl+'files/'+activeFile.id+'/revisions/'+id+'?alt=media', {
+    method:'GET',
+    headers: {
+      'Authorization':'Bearer '+oblog.auth.data.token
+    }
+  }).then(function(r) {
+    if (r.ok)
+      return r.text();
+    else
+      throw r.status;
+  }).then((media) => {
+    
+    // if (window.confirm('Successfully download required file. Apply rollback?'))
+    // {
+      aww.pop('Successfully rollback to selected revision');
+      // activeFile.content = media;
+      // fs.save();
+      $('#editor').env.editor.setValue(media);
+      // openFile(activeFile.fid);
+    // }
+    
+  }).catch(() => {
+    
+    aww.pop('Could not download required file: '+data.name);
+    
+  });
+  
+  
+  // if (!window.confirm('Delete selected revision?')) return
   
   
   
 }
+
+function deleteRevision(id, el) {
+  
+  if (!window.confirm('Delete selected revision?')) return
+  
+   fetch(drive.apiUrl+'files/'+activeFile.id+'/revisions/'+id, {
+    method:'DELETE',
+    headers: {
+      'Authorization':'Bearer '+oblog.auth.data.token
+    }
+  }).then(function(result) {
+    
+    return result;
+  }).then(function() {
+    // console.log(json)
+    
+    L('empty response body')
+    el.parentElement.parentElement.removeChild(el.parentElement);
+    // json.revisions.forEach((rev) => {
+      // L(rev)
+    // });
+    
+    // $('list-revisions').innerHTML = o.creps('tmp-list-revision', json.revisions);
+    
+  });
+  
+}
+
+function keepRevision() {
+  
+  aww.pop('please wait...')
+  fetch(drive.apiUrl+'files/'+activeFile.id+'?fields=headRevisionId', {
+    headers: {
+      'Authorization':'Bearer '+oblog.auth.data.token
+    }
+  }).then(function(r) {
+    
+    return r.json();
+    
+  }).then(function(json) {
+    
+    aww.pop('saving revision...')
+    
+    
+    // let form = new FormData();
+    // form.append('metadata', new Blob([JSON.stringify({
+      // keepForever: true
+    // })], { type: 'application/json' }));
+    
+    fetch(drive.apiUrl+'files/'+activeFile.id+'/revisions/'+json.headRevisionId+'?fileds=id', {
+      method: 'PATCH',
+      headers: {
+        'Authorization':'Bearer '+oblog.auth.data.token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "keepForever": true
+      })
+    }).then(function(r) {
+      
+      return r.json();
+      
+    }).then(function(json) {
+      
+      aww.pop('Ok')
+      
+    });
+    
+  });
+  
+}
+
+function listRevisions() {
+  
+  fetch(drive.apiUrl+'files/'+activeFile.id+'/revisions?fields=revisions(id,modifiedTime,keepForever)', {
+    method:'GET',
+    headers: {
+      'Authorization':'Bearer '+oblog.auth.data.token
+    }
+  }).then(function(result) {
+    return result.json();
+  }).then(function(json) {
+    let keepForever = []
+    
+    json.revisions.forEach((rev) => {
+      if (rev.keepForever)
+        // L(rev)
+        keepForever.push(rev)
+    });
+    
+    $('#list-revisions').innerHTML = o.creps('tmp-list-revision', keepForever);
+    
+  });
+  
+  
+}
+
 
 function handleSync(sync) {
   
@@ -336,7 +465,6 @@ function openFile(fid) {
   //   $('#btn-menu-project').click();
   //   return;
   // }
-  
   activeFile = f;
   
   Promise.all([
@@ -482,15 +610,6 @@ function openFile(fid) {
     $('#editor').env.editor.getSession().setScrollTop(fileTab[activeTab].scrollTop);
     
     
-    $('#sel-revisions').innerHTML = '';
-    for (let rev of f.revisions)
-    {
-      $('#sel-revisions').appendChild( o.cel('option', {
-        innerHTML: rev.name,
-        value: rev.id
-      }) )
-    }
-    
     let x = patob(activeFile.description);
     if (f.name.endsWith('.blogger'))
     {
@@ -625,12 +744,14 @@ function fileSave() {
       }, '*');
     }
     
+    
     handleSync({
       fid: activeFile.fid,
       action: 'update',
       metadata: ['media', 'description'],
       type: 'files'
     })
+    
     drive.syncToDrive();
     
     fs.save();

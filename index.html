@@ -329,7 +329,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build 2.176" +opacity]
+            [c +half "Developer Build 2.18" +opacity]
           ]
           [ @breadcrumbs +small +padding]
           [ @file-list +padding]
@@ -444,10 +444,11 @@
         
         [hr]
         
-        [sel onchange="changeRev(this.value)" +input @sel-revisions]
-        
-        [btn @btn-new-rev "New revision" +button +border +margin-top]
-
+        [btn @btn-backup-revision "Backup Revision" +button +border +margin-top]
+        [btn @btn-list-revisions "List Revisions" +button +border +margin-top]
+        [hr]
+        [ @list-revisions]
+      
       ]
       
       [ @menu-blogger +hide
@@ -485,6 +486,14 @@
   </template>
 
   
+  <template id="tmp-list-revision">
+    [
+      [ "__id__"]
+      [ +small "__modifiedTime__"]
+      [btn "Delete" +button onclick="deleteRevision('__id__',this)"]
+      [btn "Rollback" +button onclick="rollbackRevision('__id__')"]
+    ]
+  </template>
   <template id="tmp-list-blog">
     [ +padding
       __id__ : __name__

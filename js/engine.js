@@ -67,6 +67,16 @@ const THOR = (function() {
         // files
         'btn-new-folder':[ui.fm.newFolder],
         'btn-rename-folder':[ui.fm.renameFolder],
+        'btn-backup-revision': [function() {
+          
+          keepRevision()
+          
+        }],
+        'btn-list-revisions': [function() {
+          
+          listRevisions()
+          
+        }],
         // 'btn-edit': [fileRename],
         'btn-deploy': [chooseDeploy],
         'btn-delete-file': [function() {
