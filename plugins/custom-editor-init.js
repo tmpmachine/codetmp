@@ -1,6 +1,50 @@
 var liquidOSK = false;
 
 function insertAtCaret(areaId, text) {
+  
+  if (text === '~')
+    $('#editor').env.editor.session.insert($('#editor').env.editor.getCursorPosition(), '\t');
+  else if (text.trim() === 'keyboard_arrow_up')
+  {
+    let pos = $('#editor').env.editor.getCursorPosition();
+    $('#editor').env.editor.gotoLine(pos.row, pos.column, true);
+  }
+  else if (text.trim() === 'keyboard_arrow_down')
+  {
+    let pos = $('#editor').env.editor.getCursorPosition();
+    $('#editor').env.editor.gotoLine(pos.row+2, pos.column, true);
+  }
+  else if (text.trim() === 'keyboard_arrow_left')
+  {
+    let pos = $('#editor').env.editor.getCursorPosition();
+    $('#editor').env.editor.gotoLine(pos.row+1, pos.column-1, true);
+  }
+  else if (text.trim() === 'keyboard_arrow_right')
+  {
+    let pos = $('#editor').env.editor.getCursorPosition();
+    $('#editor').env.editor.gotoLine(pos.row+1, pos.column+1, true);
+  }
+  else if (text.trim() === 'arrow_upward')
+    $('#editor').env.editor.moveLinesUp();
+  else if (text.trim() === 'arrow_downward')
+    $('#editor').env.editor.moveLinesDown();
+  else if (text.trim() === 'calendar_view_day')
+    $('#editor').env.editor.duplicateSelection()
+  else if (text.trim() === 'mode_comment')
+    $('#editor').env.editor.toggleCommentLines()
+  else if (text.trim() === 'keyboard')
+    $('#my-osk').classList.toggle('w3-top');
+  else if (text.trim() === 'bug_report')
+  {
+    o.classList.toggle($('.osk'), 'w3-opacity-max');
+    o.classList.toggle($('#btn-osk-opacity'), 'w3-opacity-max', false);
+  }
+  else
+    $('#editor').env.editor.session.insert($('#editor').env.editor.getCursorPosition(), text);
+  
+  return
+  
+  
   var txtarea = document.getElementById(areaId);
   if (!txtarea) {
     return;

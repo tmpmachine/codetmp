@@ -116,23 +116,32 @@ const ui = {
       fs.save();
       fileList();
       
-      $('#editor').addEventListener('keydown', saveListener);
-      $('.file-name')[activeTab].textContent = file.name;
-      $('.icon-rename')[activeTab].textContent = 'close';
-      $('#btn-info').classList.toggle('w3-hide', false);
+      // $('#editor').addEventListener('keydown', saveListener);
+      // $('.file-name')[activeTab].textContent = file.name;
+      // $('.icon-rename')[activeTab].textContent = 'close';
+      // $('#btn-info').classList.toggle('w3-hide', false);
       
-      if (file.name.endsWith('.js'))
-        $('#editor').env.editor.session.setMode("ace/mode/javascript");
-      else if (file.name.endsWith('.php'))
-        $('#editor').env.editor.session.setMode("ace/mode/php");
-      else if (file.name.endsWith('.css'))
-        $('#editor').env.editor.session.setMode("ace/mode/css");
-      else if (file.name.endsWith('.json'))
-        $('#editor').env.editor.session.setMode("ace/mode/json");
-      else
-        $('#editor').env.editor.session.setMode("ace/mode/html");
+      // if (file.name.endsWith('.js'))
+      //   $('#editor').env.editor.session.setMode("ace/mode/javascript");
+      // else if (file.name.endsWith('.php'))
+      //   $('#editor').env.editor.session.setMode("ace/mode/php");
+      // else if (file.name.endsWith('.css'))
+      //   $('#editor').env.editor.session.setMode("ace/mode/css");
+      // else if (file.name.endsWith('.json'))
+      //   $('#editor').env.editor.session.setMode("ace/mode/json");
+      // else
+      //   $('#editor').env.editor.session.setMode("ace/mode/html");
       
-      activeFile = file;
+      // activeFile = file;
+      
+      activeTab = -2;
+      openFile(file.fid);
+      // fileTab.push({
+      //   fid: activeFile.fid,
+      //   scrollTop: 0,
+      //   content: activeFile.content,
+      //   fiber: 'close'
+      // });
     },
     deleteFile: function(fid) {
       
@@ -271,6 +280,7 @@ window.addEventListener('paste', function(e) {
 });
 
 window.addEventListener('keydown',function(e) {
+  // L(e.keyCode);
   switch (e.keyCode)
   {
     case 46:
@@ -288,7 +298,7 @@ window.addEventListener('keydown',function(e) {
         cantLock = true;
         
         if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null)
-          previewWindow = window.open('preview.html'+currentPage, 'preview');
+          previewWindow = window.open('https://b-thor.firebaseapp.com/preview.html'+currentPage, 'preview');
         else
           renderBlog();
         
@@ -306,7 +316,7 @@ window.addEventListener('keydown',function(e) {
         cantLock = true;
         
         if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null)
-          previewWindow = window.open('preview.html'+currentPage, 'preview');
+          previewWindow = window.open('https://b-thor.firebaseapp.com/preview.html'+currentPage, 'preview');
         else
           renderBlog();
       }
@@ -330,7 +340,47 @@ window.addEventListener('keydown',function(e) {
       {
         e.preventDefault();
         
-        fileClose(String(fileTab[activeTab]));
+        fileClose(String(fileTab[activeTab].fid));
+      }
+    break;
+    case 74: // letter j
+      if (keyPress[18])
+      {
+        e.preventDefault();
+        if (fileTab.length === 0) return;
+        
+        $('#editor').env.editor.blur();
+        let fid;
+        if (activeTab-1 >= 0)
+          fid = fileTab[activeTab-1].fid
+        else
+          fid = fileTab[fileTab.length-1].fid
+        
+        focusTab(fid);
+      }
+    break;
+    case 76: // letter l
+      if (keyPress[18])
+      {
+        e.preventDefault();
+        if (fileTab.length === 0) return;
+        
+        $('#editor').env.editor.blur();
+        let fid;
+        if (activeTab+1 === fileTab.length)
+          fid = fileTab[0].fid
+        else
+          fid = fileTab[activeTab+1].fid
+          
+        focusTab(fid);
+      }
+    break;
+    case 78: // letter n
+      if (keyPress[18])
+      {
+        e.preventDefault();
+        
+        // new tab
       }
     break;
   }
@@ -398,6 +448,9 @@ function saveListener(event, bypass = false) {
     keyPress[18] && event.keyCode === 13 ||
     event.altKey && event.key === 'd' ||
     event.altKey && event.key === 'w' ||
+    event.altKey && event.key === 'n' ||
+    event.altKey && event.key === 'l' ||
+    event.altKey && event.key === 'j' ||
     keyPress[17] && event.keyCode === 13) return;
   }
   
@@ -430,6 +483,7 @@ function fixCss(callback, total = 0, epoch = 5) {
     epoch -= 1;
   
   $('#my-osk').style.width = 'calc(100% - '+$('#sidebar').offsetWidth+'px)';
+  $('#my-osk-wrapper').style.width = 11*50+'px';
   $('#my-osk').style.left = $('#sidebar').offsetWidth+'px';
   
   if (epoch >= 0)

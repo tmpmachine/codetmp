@@ -72,6 +72,10 @@ const THOR = (function() {
         'btn-delete-file': [function() {
           ui.fm.deleteFile(activeFile.fid);
         }],
+        'btn-open-directory': [function() {
+          openFolder(activeFile.parentFolderId);
+          $('#btn-menu-project').click();
+        }],
         'btn-download-file': [fileDownload],
         'btn-refresh-sync': [drive.syncFromDrive],
         'btn-save':[fileSave],
@@ -79,14 +83,15 @@ const THOR = (function() {
         // sidebar
         '.btn-material': [ui.toggleMenu],
         '.osk': [function() {
-          if (this.textContent === '~')
-            insertAtCaret('editor', '\t');
-          else
+          // if (this.textContent === '~')
+            // insertAtCaret('editor', '\t');
+          // else
             insertAtCaret('editor', this.textContent);
+            $('#editor').env.editor.focus();
         }],
         'btn-preview':[function() {
           if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null)
-            previewWindow = window.open('preview.html'+currentPage, 'preview');
+            previewWindow = window.open('https://b-thor.firebaseapp.com/preview.html'+currentPage, 'preview');
         
           renderBlog();
         }],
@@ -135,7 +140,6 @@ const THOR = (function() {
         
         el.firstElementChild.lastElementChild.style.background = '#154358';
         $('#file-title').appendChild(el.firstElementChild)
-        
         
         if ($('#btn-save').offsetWidth > 100)
         {

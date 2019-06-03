@@ -1,3 +1,4 @@
+// v1.30 - 22 May 19 - added more css shorthand
 // v1.29 - 2 May 19 - added skips for php
 // v1.28 - 11 Apr 19 - reduced code from 922 to 757 line
 // v1.27 - 2 Apr 19 - removing empty space after cook, rollback from let to var and const
@@ -70,6 +71,8 @@ const plate = {
     ['ta:','text-align:'],
     ['ws:','white-space:'],
     
+    ['fl:','float:left;'],
+    ['fr:','float:right;'],
     ['f:','float:'],
     ['o:','outline:'],
     ['ov:','overflow:'],
@@ -107,8 +110,15 @@ const plate = {
     ['bor-w:','border-width:'],
     ['bor-c:','border-color:'],
     
+    ['posr:','position:relative;'],
+    ['posa:','position:absolute;'],
+    ['posf:','position:fixed;'],
     ['pos:','position:'],
     ['z:','z-index:'],
+    ['t0:','top:0;'],
+    ['l0:','left:0;'],
+    ['r0:','right:0;'],
+    ['b0:','bottom:0;'],
     ['t:','top:'],
     ['l:','left:'],
     ['r:','right:'],

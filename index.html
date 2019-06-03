@@ -17,36 +17,91 @@
   
   <link rel="shortcut icon" sizes="16x16" type='image/x-icon' href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII=">
   
+  <meta content='Offline development environment for Blogsphere' name='Description'/>
+  <meta content='Offline development environment for Blogsphere' property='og:description'/>
+  <meta content='B-THOR: Blogsphere Dev Environment' property='og:title'/>
+  <meta content='notranslate' name='google'/>
+  
 </head>
 <body>
+  <script>
+    if (location.href === 'https://b-thor.firebaseapp.com/')
+      location.href = 'https://b-thor.web.app/'
+  </script>
+  
+  <template>
+    <img src='/images/192.png'/>
+  </template>
+  
   <style id="preload-style">
     body { color:#fff; }
   </style>
-  
-  [ {pos:fixed;b:0;z:8177;} +padding .hide @my-osk {bg:#222;} +opacity-min
-    
-    [ "[" +left +padding-large +grey  .osk]
-    [ "]" +left +padding-large +grey  .osk]
-    [ "{" +left +padding-large +grey  .osk]
-    [ "}" +left +padding-large +grey  .osk]
-    [ "@" +left +padding-large +grey  .osk]
-    [ "#" +left +padding-large +grey  .osk]
-    [ "+" +left +padding-large +grey  .osk]
-    [ "." +left +padding-large +grey  .osk]
-    [ "<" +left +padding-large +grey  .osk]
-    [ ">" +left +padding-large +grey  .osk]
-    [ ":" +left +padding-large +grey  .osk]
-    [ ";" +left +padding-large +grey  .osk]
-    [ "(" +left +padding-large +grey  .osk]
-    [ ")" +left +padding-large +grey  .osk]
-    [ "~" +left +padding-large +grey  .osk]
-    [ "^" +left +padding-large +grey  .osk]
-    
+
+  [
+  [ {pos:fixed;b:0;z:8177;} +padding {ov:scroll!;margin-top:40px;} .hide @my-osk {bg:#222;} +opacity-min
+    [ @my-osk-wrapper
+      [ +margin-bottom
+        [
+          [ +left +grey  .osk
+            [M "keyboard_arrow_up"]
+          ]
+          [ +left +grey  .osk
+            [M "keyboard_arrow_down"]
+          ]
+          [ +left +grey  .osk
+            [M "keyboard_arrow_left"]
+          ]
+          [ +left +grey  .osk
+            [M "keyboard_arrow_right"]
+          ]
+          [ +margin-left +left +grey .osk @btn-osk-opacity
+            [M "bug_report"]
+          ]
+        ]
+        
+        [ +margin-top
+          [ +left +grey  .osk
+            [M "mode_comment"]
+          ]
+          [ +left +grey  .osk
+            [M "arrow_upward"]
+          ]
+          [ +left +grey  .osk
+            [M "arrow_downward"]
+          ]
+          [ +left +grey  .osk
+            [M "calendar_view_day"]
+          ]
+          [ +margin-left +left +grey  .osk
+            [M "keyboard"]
+          ]
+        ]
+      ]
+      [ "[" +left +padding-large +grey  .osk]
+      [ "]" +left +padding-large +grey  .osk]
+      [ "=" +left +padding-large +grey  .osk]
+      [ "'" +left +padding-large +grey  .osk]
+      [ '"' +left +padding-large +grey  .osk]
+      [ "{" +left +padding-large +grey  .osk]
+      [ "}" +left +padding-large +grey  .osk]
+      [ "@" +left +padding-large +grey  .osk]
+      [ "#" +left +padding-large +grey  .osk]
+      [ "+" +left +padding-large +grey  .osk]
+      [ "." +left +padding-large +grey  .osk]
+      [ "<" +left +padding-large +grey  .osk]
+      [ ">" +left +padding-large +grey  .osk]
+      [ ":" +left +padding-large +grey  .osk]
+      [ ";" +left +padding-large +grey  .osk]
+      [ "(" +left +padding-large +grey  .osk]
+      [ ")" +left +padding-large +grey  .osk]
+      [ "~" +left +padding-large +grey  .osk]
+    ]
+  ]
   ]
   
   
   [ {h:100%;} @main-editor
-    [ +left {pos:relative;h:100%;ov:hidden;} +black +animate-left @sidebar +card-4
+    [ +left {pos:relative;h:100%;ov-x:hidden;ov-y:scroll;} +black +animate-left @sidebar +card-4
       <!--plate-sidebar-->
       [ +black {pos:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;}]
     ]
@@ -55,9 +110,15 @@
       
       [ .in-window {ov:hidden;}
         [ {pos:relative;h:100%;}
+          [ +blue +hide {pos:fixed;z:2;h:calc(100% - 41px);r:0;w:200px;ov-y:scroll;t:41px;} onscroll="$('#editor').env.editor.getSession().setScrollTop(this.scrollTop)"
+            [ @scroll-chair {w:200px;bg:linear-gradient(dodgerblue,lightblue);}]
+          ]
+          <!--$('#scroll-chair').style.height = $('#editor').env.editor.getSession().getLength()*17+'px'-->
+          [ @file-title-wrapper
           [ +black {pos:relative;} @file-title .menu-overflow-header
-            <!--[ {h:0.25rem;bg:#212121;pos:absolute;b:0;l:0;w:100%;}]-->
-            <!--plate-ninja-space-->
+              <!--[ {h:0.25rem;bg:#212121;pos:absolute;b:0;l:0;w:100%;}]-->
+              <!--plate-ninja-space-->
+          ]
           ]
           [ @editor-wrapper +padding spellcheck="false" {pos:absolute;w:100%;h:100%;} .menu-overflow-content
             [ @ex-editor {pos:absolute;top:0;bottom:0;left:0;right:0;}]
@@ -195,6 +256,14 @@
       [M "settings" .i-btn-in]
       [l "Settings" .l-btn-in]
     ]
+    [ .btn-material .tapx menu="in-osk" onclick="$('#my-osk').classList.toggle('hide')" +hide-large
+      [M "keyboard" .i-btn-in]
+      [l "Keyboard" .l-btn-in]
+    ]
+    [ .btn-material .tapx menu="in-osk" onclick="$('.search-box')[0].classList.toggle('w3-hide');if (!$('.search-box')[0].classList.contains('w3-hide')) $('#search-input').focus()" +hide-large
+      [M "extension" .i-btn-in]
+      [l "Templates" .l-btn-in]
+    ]
     [ +padding-small +center +tiny +black @syncing]
   </template>
   <template id="plate-interact-menu">
@@ -260,7 +329,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build 2.148" +opacity]
+            [c +half "Developer Build 2.176" +opacity]
           ]
           [ @breadcrumbs +small +padding]
           [ @file-list +padding]
@@ -343,12 +412,15 @@
       
       [ @menu-basic
         
+        [ +button @btn-open-directory +border +margin-bottom +block
+          [ "Open Directory" +small +padding-small {fw:bold;} +left]
+        ]
+        
         [ +button @btn-download-file +border +margin-bottom +block
           [ "Download" +small +padding-small {fw:bold;} +left]
           [M "input" +medium +padding-small {transform:rotate(90deg)}]
         ]
         
-        [btn "Deploy" @btn-deploy +button +border +margin-bottom +block]
         
         [ +tiny "Blog name"]
         [in @in-blog-name {w:100%;} .description name='blog']
@@ -365,7 +437,17 @@
         [
           [in type="checkbox" @chk-in-pre .description name='pre'] [l for="chk-in-pre" "In-pre"]
         ]
-      
+        
+        [ +button @btn-deploy +border +margin-top +block
+          [ "Deploy" +small +padding-small {fw:bold;} +left]
+        ]
+        
+        [hr]
+        
+        [sel onchange="changeRev(this.value)" +input @sel-revisions]
+        
+        [btn @btn-new-rev "New revision" +button +border +margin-top]
+
       ]
       
       [ @menu-blogger +hide
@@ -509,7 +591,7 @@
         [ {p:6px 10px;} +right
           [M +right "fiber_manual_record" +button +hover-none +hover-text-light-grey +medium +text-gray .icon-rename onclick="fileClose('__fid__')" {p:4px 0 4px 9px;}]
         ]
-        [x {pos:relative;p:18px 24px;}
+        [x {pos:relative;p:18px 24px;lh:1.5em;}
           [ "__name__" onclick="focusTab('__fid__')" {pos:absolute;l:0;t:0;w:100%;col:#fff!;} .tapx +small .file-name {p:10px 10px 10px 19px;} {fw:bold;} +left]
         ]
       ]

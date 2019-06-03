@@ -44,7 +44,7 @@ const drive = {
 
       if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100)
       {
-        L(f.name+' updated');
+        // L(f.name+' updated');
         f.name = name;
         f.modifiedTime = modifiedTime;
       }
@@ -253,7 +253,7 @@ const drive = {
     
     drive.syncFile(sync).then((json) => {
 
-      L(json)
+      // L(json)
       $('#action-info').innerHTML = '&nbsp;';
       if (json.action === 'create' || json.action === 'copy')
       {

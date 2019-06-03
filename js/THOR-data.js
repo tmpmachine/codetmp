@@ -90,6 +90,15 @@ const fs = new lsdb('B-THOR-fs', {
     content: '',
     description: '',
     trashed: false,
+    
+    revisions: [{
+      id: 'latest',
+      name: 'Latest'
+    }]
+  },
+  revisions: {
+    id: '',
+    name: ''
   },
   sync: {
     action: '',

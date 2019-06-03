@@ -216,12 +216,20 @@ function replaceLocal(body, preParent = -1) {
     if (locked === -1 || (activeFile && locked === activeFile.fid))
     {
       body = $('#editor').env.editor.getValue();
+      
       preParent = activeFile ? activeFile.parentId : activeFolder;
     }
     else
     {
       let file = odin.dataOf(locked, fs.data.files, 'fid');
-      body = file.content;
+      
+      // body = file.content;
+      let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
+      if (tabIdx >= 0)
+        body = fileTab[tabIdx].content;
+      else
+        body = file.content;
+      
       preParent = file.parentId;
     }
   }
@@ -274,9 +282,18 @@ function replaceLocal(body, preParent = -1) {
           break;
       }
       
-      let content = (activeFile && activeFile.fid === data.fid) ? $('#editor').env.editor.getValue() : data.content;
-      let split = body.split(match[0]);
-      body = split.shift()+ot+replaceLocal(content, parentId)+ct+split.join('');
+      // let content = (activeFile && activeFile.fid === data.fid) ? $('#editor').env.editor.getValue() : data.content;
+      let tabIdx = odin.idxOf(data.fid, fileTab, 'fid');
+      let content;
+      if (tabIdx >= 0)
+        content = (activeFile && activeFile.fid === data.fid) ? $('#editor').env.editor.getValue() : fileTab[tabIdx].content;
+      else
+        content = data.content;
+    
+      // let split = body.split(match[0]);
+      let swap = ot+replaceLocal(content, parentId)+ct;
+      // body = split[1]+ot+replaceLocal(content, parentId)+ct+split[2];
+      body = body.replace(new RegExp(match[0], 'g'), swap);
     }
    
     
@@ -507,7 +524,7 @@ function init(blogData) {
       core.data = result;
       aww.pop('Blog data loaded')
     }
-    data.blog.homepageUrl = 'preview.html';
+    data.blog.homepageUrl = 'https://b-thor.firebaseapp.com/preview.html';
     
   })
   
@@ -633,12 +650,12 @@ function blogWidget(xml,data) {
         if (start >= data.maxPosts)
         {
           if (start == data.maxPosts)
-            data.newerPageUrl = 'preview.html?q='+param('q').replace(/"/g,'&quot;');
+            data.newerPageUrl = 'https://b-thor.firebaseapp.com/preview.html?q='+param('q').replace(/"/g,'&quot;');
           else
-            data.newerPageUrl = 'preview.html?q='+param('q').replace(/"/g,'&quot;')+'&start='+(start-data.maxPosts);
+            data.newerPageUrl = 'https://b-thor.firebaseapp.com/preview.html?q='+param('q').replace(/"/g,'&quot;')+'&start='+(start-data.maxPosts);
         }
         if (data.posts[start+data.maxPosts] !== undefined)
-          data.olderPageUrl = 'preview.html?q='+param('q').replace(/"/g,'&quot;')+'&start='+(start+data.maxPosts);
+          data.olderPageUrl = 'https://b-thor.firebaseapp.com/preview.html?q='+param('q').replace(/"/g,'&quot;')+'&start='+(start+data.maxPosts);
         
         data.posts = data.posts.slice(start,start+data.maxPosts)
       }

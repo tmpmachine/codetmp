@@ -34,6 +34,12 @@ const fm = {
 };
 
 
+function changeRev(revId) {
+  
+  
+  
+}
+
 function handleSync(sync) {
   
   if (sync.action === 'create' || sync.action === 'copy')
@@ -312,8 +318,12 @@ function focusTab(fid) {
   for (let tab of $('.file-tab'))
     tab.lastElementChild.style.background = '#202020';
   
-  let idx = fileTab.indexOf(String(fid));
+  let idx = odin.idxOf(String(fid), fileTab, 'fid');
   $('.file-tab')[idx].lastElementChild.style.background = '#154358';
+  
+  fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
+  fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
+  fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
   
   openFile(fid);
 }
@@ -370,13 +380,19 @@ function openFile(fid) {
   ]).then(function() {
     
     // if (fileTab.includes(fid))
-    if (fileTab.length === 0)
+    if (fileTab.length === 0 && $('#editor').env.editor.getValue().trim().length === 0 || activeTab === -2)
       $('#file-title').removeChild($('.file-tab')[0]);
+    else if (activeTab >= 0)
+    {
+      fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
+      fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
+      fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
+    }
     
     for (let e of $('.file-tab'))
       e.lastElementChild.style.background = '#202020';
       
-    let tabIdx = fileTab.indexOf(fid);
+    let tabIdx = odin.idxOf(fid, fileTab, 'fid');
     if (tabIdx >= 0)
     {
       activeTab = tabIdx;
@@ -394,14 +410,41 @@ function openFile(fid) {
       el.firstElementChild.lastElementChild.style.background = '#154358';
       $('#file-title').appendChild(el.firstElementChild)
       // {
-      fileTab.push(fid);
+      fileTab.push({
+        fid,
+        scrollTop: 0,
+        content: f.content,
+        fiber: 'close'
+      });
       activeTab = fileTab.length-1;
       // }
+      
+      let offset = $('#file-title-wrapper').offsetWidth-50;
+      let width = $('.file-tab').length * 180;
+      
+      if (offset < width)
+      {
+        if (offset/$('.file-tab').length >= 100)
+        {
+          for (let tab of $('.file-tab'))
+          {
+            tab.style.maxWidth = offset/$('.file-tab').length + 'px';
+          }
+        }
+        else
+        {
+          for (let tab of $('.file-tab'))
+            tab.style.maxWidth = (width-50)/3+'px';
+            
+          $('#file-title-wrapper').style.overflowX = 'scroll';
+          $('#file-title').style.width = (width+50)+'px';
+        }
+      }
     }
     
     $('.file-name')[activeTab].textContent = f.name;
     
-    $('#editor').env.editor.setValue(activeFile.content);
+    $('#editor').env.editor.setValue(fileTab[activeTab].content);
     $('#editor').env.editor.clearSelection();
     // $('#editor').env.editor.focus()
     // $('#editor').env.editor.gotoLine(0,0);
@@ -429,14 +472,24 @@ function openFile(fid) {
     if ($('#btn-menu-project').classList.contains('active'))
       $('#btn-menu-project').click();
     
-    $('.icon-rename')[activeTab].textContent = 'close';
     $('#btn-info').classList.toggle('w3-hide', false)
     $('#btn-assets').classList.toggle('w3-hide', false)
     
     $('#editor').env.editor.getSession().setUndoManager(new ace.UndoManager())
     $('#editor').addEventListener('keydown', saveListener);
     
+    $('.icon-rename')[activeTab].textContent = fileTab[activeTab].fiber;
+    $('#editor').env.editor.getSession().setScrollTop(fileTab[activeTab].scrollTop);
     
+    
+    $('#sel-revisions').innerHTML = '';
+    for (let rev of f.revisions)
+    {
+      $('#sel-revisions').appendChild( o.cel('option', {
+        innerHTML: rev.name,
+        value: rev.id
+      }) )
+    }
     
     let x = patob(activeFile.description);
     if (f.name.endsWith('.blogger'))
@@ -469,9 +522,9 @@ function openFile(fid) {
 
 
 function fileClose(fid) {
-  let idx = fileTab.indexOf(String(fid));
+  let idx = odin.idxOf(String(fid), fileTab, 'fid');
   
-  if ($('.icon-rename')[activeTab].textContent !== 'close')
+  if ($('.icon-rename')[idx].textContent !== 'close')
   {
     if (!window.confirm('Changes you made may not be saved'))
       return
@@ -482,16 +535,42 @@ function fileClose(fid) {
     $('#file-title').removeChild($('.file-tab')[idx]);
     fileTab.splice(idx, 1);
     
-    if (idx === 0)
+    let offset = $('#file-title-wrapper').offsetWidth-50;
+    let width = $('.file-tab').length * 180;
+    
+    if (offset < width)
     {
-      openFile(fileTab[0]);
-      activeTab = 0;
+      if (offset/$('.file-tab').length >= 100)
+      {
+        for (let tab of $('.file-tab'))
+        {
+          tab.style.maxWidth = offset/$('.file-tab').length + 'px';
+        }
+        
+        $('#file-title-wrapper').style.overflowX = 'auto';
+        $('#file-title').style.width = $('#file-title-wrapper').offsetWidth+'px';
+      }
+      else
+      {
+        for (let tab of $('.file-tab'))
+          tab.style.maxWidth = (width-50)/3+'px';
+          
+        $('#file-title-wrapper').style.overflowX = 'scroll';
+        $('#file-title').style.width = (width+50)+'px';
+      }
     }
     else
     {
-      openFile(fileTab[idx-1]);
-      activeTab = idx-1;
+      for (let tab of $('.file-tab'))
+        tab.style.maxWidth = '';
     }
+    
+    
+    activeTab = -1;
+    if (idx === 0)
+      openFile(fileTab[0].fid);
+    else
+      openFile(fileTab[idx-1].fid);
   }
   else
   {
@@ -528,7 +607,6 @@ function fileSave() {
     ui.fm.newFile();
   else
   {
-    
     activeFile.content = $('#editor').env.editor.getValue();
     activeFile.modifiedTime = modifiedTime;
     
@@ -636,6 +714,7 @@ function chooseDeploy() {
     isMore = ob.more;
     isBibibi = ob.bibibi;
     summary = ob.summary.trim();
+    summary = summary.substring(1, summary.length-1)
     
     if (summary === '""')
       summary = "";

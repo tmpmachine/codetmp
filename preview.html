@@ -8,6 +8,7 @@
 <body>
   
   <script>
+  
     window.addEventListener('message', thorReceiver, false);
     
     function thorRunJS(js) {
@@ -54,7 +55,10 @@
         let data = thorGetJS(e.data.xml);
         
         document.open();
-        document.write(data.xml)
+        let head = data.xml.match(/<head>(\s|\S)*?<\/head>/);
+        document.write(data.xml.replace(/<head>(\s|\S)*?<\/head>/,''));
+        if (head)
+          document.head.innerHTML = head[0].substring(6,head[0].length-7);
         document.close();
         
         if (document.readyState == 'complete')
@@ -86,6 +90,42 @@
     if (window.opener !== null)
       window.opener.postMessage({type: 'loaded'},'*')
       // window.opener.postMessage({type:'loaded', page:this.location.href.split('?')[1]},'*')
+      
+    navigator.serviceWorker.register('/sw.js').then(function(swo) {
+      if (!navigator.serviceWorker.controller)
+        return
+
+      if (swo.waiting)
+      {
+        if (window.confirm('App updated. Reload?'))
+          swo.waiting.postMessage({action:'skipWaiting'});
+        return
+      }
+
+      if (swo.installing)
+      {
+        swo.installing.addEventListener('statechange', function(e) {
+          if (swo.installing.state == 'installed')
+          {
+            if (window.confirm('App updated. Reload?'))
+              swo.waiting.postMessage({action:'skipWaiting'});
+          }
+        })
+        return
+      }
+      
+      swo.addEventListener('updatefound', function() {
+        swo.installing.addEventListener('statechange', function(e) {
+          if (this.state == 'installed')
+          {
+            if (window.confirm('App updated. Reload?'))
+              swo.waiting.postMessage({action:'skipWaiting'});
+          }
+        })
+      })
+    }).catch(function(e) {
+      console.error("Could not register service worker.")
+    });
   </script>
   
 </body>

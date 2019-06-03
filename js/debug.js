@@ -71,6 +71,27 @@ const debug = {
       });
     });
   },
+  
+  revs: function(id) {
+    // let queryParents = '('+ids.join(' in parents or ')+' in parents)';
+    // fetch(drive.apiUrl+'files?q=('+escape(queryParents)+')&fields=files(name, id, trashed, parents, mimeType, modifiedTime)', {
+    fetch(drive.apiUrl+'files/'+id+'/revisions?fields=revisions(id)&q=(keepForevers = true)', {
+      method:'GET',
+      headers: {
+        'Authorization':'Bearer '+oblog.auth.data.token
+      }
+    }).then(function(result) {
+      return result.json();
+    }).then(function(json) {
+      console.log(json)
+      
+      json.revisions.forEach((rev) => {
+        L(rev)
+      });
+      
+    });
+  },
+  
   file: function(id) {
     
     fetch(drive.apiUrl+'files/'+id+'?fields=parents,id,name,trashed,webContentLink,webViewLink,headRevisionId', {
