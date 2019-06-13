@@ -1,8 +1,8 @@
-# B-THOR
+# TMPmachine
 A simple development environment for those who loves web apps prototyping and need high mobility.
 
 # Official Site
-[https://b-thor.firebaseapp.com/][b-thor]
+[https://tmpmachine.web.app/][tmpmachine]
 
 # Everything You Need To Know
 ## Keyboard Shortcut
@@ -57,14 +57,4 @@ You can deploy your web app directly to your blog account hosted on Blogger :
 4. Fill your blog name and entry ID (e.g. pacolemon, 890222087503965875)
 5. Deploy (wait until you see notification "File deployed")
 
-# Upcoming Features
-Upcoming features, hidden under Settings menu
-
-| Name                        | Availability                   |                               |
-| :-------                    | :----------------              | :----------------             |
-| Google Drive sync           | x                              | Secret Key : 20               |
-| Multiple window file        | x                              |                               |
-| Custom snippets             | x                              |                               |
-
-
-[b-thor]: http://b-thor.firebaseapp.com
+[tmpmachine]: http://tmpmachine.web.app
