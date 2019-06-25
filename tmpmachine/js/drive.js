@@ -272,8 +272,8 @@ const drive = {
       $('#action-info').textContent = 'Refreshing authentication...';
       oblog.authModule.requestToken(() => {
         $('#action-info').textContent = '';
-        syncToDrive();
-      })
+        drive.syncToDrive();
+      }, true)
 
     });
   },

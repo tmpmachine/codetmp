@@ -1,3 +1,4 @@
+// v0.04 - 16 june 19 -- fix redirect and onready
 // v0.03 - 13 june 19 -- add redirect, public, and private portal support
 // v0.02 - 7 june 19 -- unique lsdb name
 // v0.01 - 5 june 19 -- project started
