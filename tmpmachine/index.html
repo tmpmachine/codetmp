@@ -1,0 +1,833 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  
+  <title>TMPmachine: Temporary Web App Code Editor</title>
+  
+  <meta charset='utf-8'/>
+  
+  <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" sizes="128x128" href="images/128ap.png">
+  <link rel="manifest" href="manifest.json"/>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  
+  <link rel="shortcut icon" sizes="16x16" type='image/x-icon' href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII=">
+  
+  <meta content='PWA (Progressive Web App) code editor for single page web app development' name='Description'/>
+  <meta content='PWA (Progressive Web App) code editor for single page web app development' property='og:description'/>
+  <meta content='TMPmachine: Temporary Web App Code Editor' property='og:title'/>
+  <meta content='notranslate' name='google'/>
+  
+  <meta content='/images/site.png' property='og:image'/>
+  
+</head>
+<body>
+  <template>
+    <img src='/images/192.png'/>
+  </template>
+  
+  <style id="preload-style">
+    body { color:#fff; }
+  </style>
+
+  <template id="plate-homepage">
+  [ +padding
+    [ +right-align
+      [in +check type="checkbox" checked oninput="changePersonal(this.checked)" @check-show] Show homepage first
+    ]
+    [h3 {fw:bold;} "What is TMPmachine?"]
+    [p
+      [s {fw:bold;} "PWA"] [s +tiny "(Progressive Web App)"] code editor for [s {fw:bold;} "single page web app"] development.
+      
+      [ +tiny
+        Psstt! PWA simply means you can access it <u>offline</u>!!
+      ]
+    ]
+    
+    ---
+    
+    [ +padding-16
+      [btn +button "Start Coding" onclick="$('#btn-home').click()" +blue +round]
+    ]
+    [p +small
+      Notes : Your files are stored locally in browser storage. Login to synchronize with Google Drive.
+      [br]
+    ]
+    Keyboard shortcuts :
+    [ul
+      [li
+        Ctrl + Enter : Preview code
+      ]
+      [li
+        Ctrl + S     : Save file
+      ]
+    ]
+    
+    ---
+    
+    [h3 {fw:bold;} "Links"]
+    [ul
+      [li
+        <u>[a href="/PP.html" "Privacy Policy"]</u>
+      ]
+      [li
+        <u>[a href="/TOS.html" "Terms of service"]</u>
+      ]
+      [li
+        <u>[a href="https://github.com/tmpmachine/tmpmachine" "GitHub Page"]</u>
+      ]
+    ]
+    
+    ---
+    
+    [h3 {fw:bold;} "Why it exists?"]
+    [p
+      My ancient laptop HDD goes "berserk" [s +small {fw:bold} "i.e. bad sector"] and I need a place to store my overwhelming JavaScript files and access it from public area at the time. So goes the Google Drive synchronization idea come to live and here comes the temporary code editor so called my IGN, <b>TMPmachine</b>... I know, it's a lame name, deal with it!
+    ]
+    [ +padding]
+    
+  ]
+  </template>
+  
+
+  [
+  [ {pos:fixed;b:0;z:8177;} +padding {ov:scroll!;margin-top:40px;} .hide @my-osk {bg:#222;} +opacity-min
+    [ @my-osk-wrapper
+      [ +margin-bottom
+        [
+          [ +left +grey  .osk
+            [M "keyboard_arrow_up"]
+          ]
+          [ +left +grey  .osk
+            [M "keyboard_arrow_down"]
+          ]
+          [ +left +grey  .osk
+            [M "keyboard_arrow_left"]
+          ]
+          [ +left +grey  .osk
+            [M "keyboard_arrow_right"]
+          ]
+          [ +margin-left +left +grey .osk @btn-osk-opacity
+            [M "bug_report"]
+          ]
+        ]
+        
+        [ +margin-top
+          [ +left +grey  .osk
+            [M "mode_comment"]
+          ]
+          [ +left +grey  .osk
+            [M "arrow_upward"]
+          ]
+          [ +left +grey  .osk
+            [M "arrow_downward"]
+          ]
+          [ +left +grey  .osk
+            [M "calendar_view_day"]
+          ]
+          [ +margin-left +left +grey  .osk
+            [M "keyboard"]
+          ]
+        ]
+      ]
+      [ "[" +left +padding-large +grey  .osk]
+      [ "]" +left +padding-large +grey  .osk]
+      [ "=" +left +padding-large +grey  .osk]
+      [ "'" +left +padding-large +grey  .osk]
+      [ '"' +left +padding-large +grey  .osk]
+      [ "{" +left +padding-large +grey  .osk]
+      [ "}" +left +padding-large +grey  .osk]
+      [ "@" +left +padding-large +grey  .osk]
+      [ "#" +left +padding-large +grey  .osk]
+      [ "+" +left +padding-large +grey  .osk]
+      [ "." +left +padding-large +grey  .osk]
+      [ "<" +left +padding-large +grey  .osk]
+      [ ">" +left +padding-large +grey  .osk]
+      [ ":" +left +padding-large +grey  .osk]
+      [ ";" +left +padding-large +grey  .osk]
+      [ "(" +left +padding-large +grey  .osk]
+      [ ")" +left +padding-large +grey  .osk]
+      [ "~" +left +padding-large +grey  .osk]
+    ]
+  ]
+  ]
+  
+  
+  [ {h:100%;} @main-editor
+    [ +left {pos:relative;h:100%;ov-x:hidden;ov-y:scroll;} +black +animate-left @sidebar +card-4
+      <!--plate-sidebar-->
+      [ +black {pos:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;}]
+    ]
+    [x {h:100%;overflow:auto;pos:relative;} .scroll1
+      <!--plate-interact-menu-->
+      
+      [ .in-window {ov:hidden;}
+        [ {pos:relative;h:100%;}
+          [ +blue +hide {pos:fixed;z:2;h:calc(100% - 41px);r:0;w:200px;ov-y:scroll;t:41px;} onscroll="$('#editor').env.editor.getSession().setScrollTop(this.scrollTop)"
+            [ @scroll-chair {w:200px;bg:linear-gradient(dodgerblue,lightblue);}]
+          ]
+          <!--$('#scroll-chair').style.height = $('#editor').env.editor.getSession().getLength()*17+'px'-->
+          [ @file-title-wrapper
+          [ +black {pos:relative;} @file-title .menu-overflow-header
+              <!--[ {h:0.25rem;bg:#212121;pos:absolute;b:0;l:0;w:100%;}]-->
+              <!--plate-ninja-space-->
+          ]
+          ]
+          [ @editor-wrapper +padding spellcheck="false" {pos:absolute;w:100%;h:100%;} .menu-overflow-content
+            [ @ex-editor {pos:absolute;top:0;bottom:0;left:0;right:0;}]
+            [t @editor .custom-scroll-bar {
+              outline:none;
+              w:100%; h:100%;
+              pos:absolute;
+              top:0;
+              bottom:0;
+              left:0;
+              right:0;
+              fs:14px;
+              lh:16px;
+              white-space: pre;
+              -o-tab-size:4;
+              -moz-tab-size:4;
+              tab-size: 4;
+              bg:#333;
+              col:#eee;
+              bor:0;
+              ff:monospace;
+              resize:none;
+              scrollbar-color: auto;
+              scrollbar-width: thin;
+            } +padding]
+          ]
+        ]
+      ]
+      
+    ]
+  ]
+  
+  <!--plate-search-template-->
+  
+  
+  <template id="plate-search-template">
+    <style>
+      .search-hints.selected{background:#eee;}
+      .search-hints{border-top:1px solid #e8e8e8;}
+      .search-hints.last{border-bottom:1px solid #e8e8e8;}
+      .search-box a{text-decoration:none}
+      a{text-decoration:none}
+      #search-404,#search-loading{position:absolute;top:0px;left:-1px;right:-1px;}
+      input{outline:none;}
+      
+      #book-scroll-wrap.active{transform:translateY(0%)!important;}
+      #book-scroll.active{transform:translateY(-36px);}
+      #book-scrool{transition-timing-function: linear;}
+    </style>
+    
+    [ .search-box {position:fixed;z:8177;t:0;w:100%;} +container +hide
+      
+      [ +padding-large]
+      [ +left-align {max-width:400px;margin:auto;}
+        [ {position:relative;} +card
+          [ .search-box {position:relative;}
+            [ {position:relative;z-index:1;} +round +white
+              [ +left +right
+                [l for="search-input"
+                  [M "search" .ai-button @btn-somefun +container +padding-16 +xlarge onclick="somefun(this)"]
+                ]
+              ]
+              [ .button-tb {ov:hidden;}
+                [in @search-input +padding-16 +round {width:100%;border:0;} autocomplete='off' onkeydown='wgSearch.selectHints(null,event)' oninput='wgSearch.find(this.value)' placeholder='Search snippets' type='text' name='q' +white +padding]
+              ]
+            ]
+          ]
+        ]
+        [ @search-result {pos:relative;z:1;t:-2px;}]
+      ]
+      
+    ]
+  </template>
+  <template id="tmp-hints">
+    [ +white
+      <div onmouseover='wgSearch.selectHints(__index__)'>
+        [ onclick='insertTemplate(__id__)' .search-hints {pos:relative;}
+          [ +padding +block "__title__"]
+        ]
+      </div>
+    ]
+  </template>
+  <template id="tmp-hints-last">
+    [ {rad:0 0 4px 4px;}  +white {ov:hidden;}
+      <div onmouseover='wgSearch.selectHints(__index__)'>
+        [ onclick='insertTemplate(__id__)' .search-hints .last {pos:relative;}
+          [ +padding +block "__title__"]
+        ]
+      </div>
+    ]
+  </template>
+  <template id="plate-sidebar">
+    [ {pos:relative;z-index:0;}
+      [ .btn-material .tapx menu="in-home" @btn-home
+        [M "home" .i-btn-in]
+        [l "Home" .l-btn-in]
+        [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
+      ]
+    ]
+    [ {pos:relative;z-index:0;} @btn-save
+      [ .btn-material .tapx
+        [M "save" .i-btn-in]
+        [l "Save" .l-btn-in]
+        [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
+      ]
+    ]
+    [ {pos:relative;z-index:0;}
+      [ .btn-material .tapx @btn-preview
+        [M "play_arrow" .i-btn-in]
+        [l "Preview" .l-btn-in]
+        [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
+      ]
+    ]
+    
+    [ {pos:relative;z-index:0;}
+      [ .btn-material .tapx menu="in-info" @btn-info +animate-left
+        [M "info" .i-btn-in]
+        [l "File Info" .l-btn-in]
+        [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
+      ]
+    ]
+    [ {pos:relative;z-index:0;} +hide @btn-assets +animate-left {display:none;}
+      [ .btn-material .tapx menu="in-assets"
+        [M "web_asset" .i-btn-in]
+        [l "Assets" .l-btn-in]
+        [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
+      ]
+    ]
+    [ .btn-material .tapx menu="in-project" @btn-menu-project
+      [M "folder" .i-btn-in]
+      [l "My Files" .l-btn-in]
+    ]
+    [ .btn-material .tapx menu="in-trash"
+      [M "delete" .i-btn-in]
+      [l "Trash" .l-btn-in]
+    ]
+    [ +hide .btn-material .tapx @btn-menu-template
+      [M "extension" .i-btn-in]
+      [l "Snippets" .l-btn-in]
+    ]
+    [ .btn-material .tapx menu="in-settings" @btn-menu-settings
+      [M "account_circle" .i-btn-in]
+      [l "Login" .l-btn-in @txt-login-status]
+    ]
+    [ .btn-material .tapx menu="in-osk" onclick="$('#my-osk').classList.toggle('hide')" +hide
+      [M "keyboard" .i-btn-in]
+      [l "Keyboard" .l-btn-in]
+    ]
+    [ .btn-material .tapx menu="in-osk" onclick="$('.search-box')[0].classList.toggle('w3-hide');if (!$('.search-box')[0].classList.contains('w3-hide')) $('#search-input').focus()" +hide
+      [M "extension" .i-btn-in]
+      [l "Templates" .l-btn-in]
+    ]
+    [ +padding-small +center +tiny +black @syncing]
+  </template>
+  <template id="plate-interact-menu">
+    [ @in-home .in-window .in-content .active
+      [ {pos:relative;z-index:2;w:100%;} {bg:#eee;}
+        <!--plate-homepage-->
+      ]
+    ]
+    [ @in-home-block .in-window .in-block {z-index:0;}]
+    
+    [ @in-info .in-window {bg:none;} .in-content
+      [ {pos:relative;h:100%;w:200px;z-index:2;} +left
+        [ .menu-overflow-header
+          <!--plate-ninja-space-->
+        ]
+        [ +padding {bg:#eee;h:100%;w:100%;pos:absolute;ov-y:auto;} .menu-overflow-content
+          <!--plate-menu-info-->
+        ]
+      ]
+      [ .in-content +left +border-left {pos:relative;h:100%;w:200px;z-index:1} @file-info-sub
+        [ .menu-overflow-header
+          <!--plate-ninja-space-->
+        ]
+        [ +padding {bg:#eee;h:100%;w:100%;pos:absolute;} .menu-overflow-content
+          [ +small
+            <b>Don't forget to Preview your code before deploy.</b> Choose a blog to deploy:
+          ]
+          <hr/>
+          [btn "Add Blog" +button +white +border .btn-add-blog]
+          <hr/>
+          [ @deploy-list
+            - You have not add any blog to deploy -
+          ]
+        ]
+      ]
+      [ @in-info-block .in-window .in-block {z-index:0;}]
+    ]
+    
+    [ @in-assets .in-window {bg:none;w:200px;} .in-content
+      [ {pos:relative;h:100%;}
+        [ .menu-overflow-header
+          <!--plate-ninja-space-->
+        ]
+        [ +padding {bg:#eee;h:100%;w:100%;pos:absolute;} .menu-overflow-content
+          
+        ]
+      ]
+    ]
+    [ @in-assets-block .in-window .in-block]
+    
+    [ @in-project .in-window .in-content {overflow:hidden;}
+      [ +padding +blue .menu-overflow-header
+        [ +left
+          [h5 {fw:bold;} "My Files"]
+        ]
+        [ +button +right @btn-refresh-sync +hover-none +hover-text-black
+          [ "Refresh" +hide-medium +hide-small +small +padding-small +left]
+          [M "refresh" {col:#fff;}]
+        ]
+        [ +button +right @btn-new-folder +hover-none +hover-text-black
+          [ "New Folder" +hide-medium +hide-small +small +padding-small +left]
+          [M "create_new_folder" {col:#fff;}]
+        ]
+        [ +button +right @btn-rename-folder +hover-none +hover-text-black +hide
+          [ "Rename" +hide-medium +hide-small +small +padding-small +left]
+          [M "edit" {col:#fff;}]
+        ]
+      ]
+      [ {h:100%;} .menu-overflow-content
+        [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
+          [ +padding-small +right-align +tiny
+            [c +half +center @action-info "&nbsp;"]
+            [c +half "Developer Build 0.0247" +opacity]
+          ]
+          [ @breadcrumbs +small +padding]
+          [ @file-list +padding]
+        ]
+      ]
+    ]
+    [ @in-project-block .in-window .in-block]
+    
+    
+    [ @in-trash .in-window .in-content {overflow:hidden;}
+      [ +padding +blue .menu-overflow-header
+        [ +left
+          <h5><b>Trash [s +tiny "(Preview only)"] [s +black +round +tiny "Beta" {p:0 2px 2px ;} ]</b></h5>
+        ]
+      ]
+      [ {h:100%;} .menu-overflow-content
+        [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
+          [ @list-trash +padding]
+        ]
+      ]
+    ]
+    [ @in-trash-block .in-window .in-block]
+    
+    
+    [ @in-settings .in-window .in-content {ov:hidden;}
+      [ +blue +padding .menu-overflow-header
+        <h5><b>Sync with Google Drive</b></h5>
+      ]
+      [ .menu-overflow-content {h:100%}
+        [ +padding {h:100%;ov:auto;} .scroll1
+          <!--plate-menu-settings-->
+        ]
+      ]
+    ]
+    [ @in-settings-block .in-window .in-block]
+  </template>
+  <template id="plate-menu-settings">
+    [p +small @login-info
+      (!) Your files are stored locally in browser storage. Login to synchronize with Google Drive.
+    ]
+    
+    [btn {bor:0;outline:none;w:191px;h:46px;p:0;} @btn-blogsphere-login]
+    [btn @btn-blogsphere-logout +button +blue {dis:none;} "Logout"]
+    
+    [ {dis:none;}
+      [img src="/images/google/1x/btn_google_signin_dark_pressed_web.png"]
+      [img src="/images/google/1x/btn_google_signin_dark_focus_web.png"]
+    ]
+    
+    [p +small "By using <b>TMPmachine</b>, you're considered agreed to terms and condition written on articles below :"]
+    [ul
+      [li
+         <u>[a {fw:bold;} target="_blank" href="/TOS.html" "Terms of Service"]</u>
+      ]
+      [li
+         <u>[a {fw:bold;} href="/PP.html" "Privacy Policy" target="_blank"]</u>
+      ]
+    ]
+    
+    <style>
+      #btn-blogsphere-login {background-image: url('/images/google/1x/btn_google_signin_dark_normal_web.png')}
+      #btn-blogsphere-login:hover {background-image: url('/images/google/1x/btn_google_signin_dark_focus_web.png')!important}
+      #btn-blogsphere-login:active {background-image: url('/images/google/1x/btn_google_signin_dark_pressed_web.png')!important}
+    </style>
+    
+    [hr]
+        
+    [ +hide
+      <h4><b>— Dangerous Zone</b></h4>
+      [p "Sometimes, data become inconsistent. Use with caution. All data will be erased" +small]
+      [btn "Reset" +red +button @btn-reset +red]
+    ]
+  </template>
+  <template id="plate-menu-info">
+    [ {pos:relative;h:100%;}
+      
+      [ @menu-basic
+        
+        [ +button @btn-open-directory +border +margin-bottom +block
+          [ "Open Directory" +small +padding-small {fw:bold;} +left]
+        ]
+        
+        [ +button @btn-download-file +border +margin-bottom +block
+          [ "Download" +small +padding-small {fw:bold;} +left]
+          [M "input" +medium +padding-small {transform:rotate(90deg)}]
+        ]
+        
+        
+        [ +tiny "Blog name"]
+        [in @in-blog-name {w:100%;} .description name='blog']
+        [ +tiny "Entry ID"]
+        [in @in-eid {w:100%;} .description name='eid']
+        [ +tiny "Summary"]
+        [t @in-summary {w:100%;resize:none;h:200px;} .description name="summary"]
+        [
+          [in type="checkbox" @chk-bibibi .description name='bibibi'] [l for="chk-bibibi" "Bibibi"]
+        ]
+        [
+          [in type="checkbox" @chk-more-tag .description name='more'] [l for="chk-more-tag" "More tag"]
+        ]
+        [
+          [in type="checkbox" @chk-in-pre .description name='pre'] [l for="chk-in-pre" "In-pre"]
+        ]
+        
+        [ +button @btn-deploy +border +margin-top +block
+          [ "Deploy" +small +padding-small {fw:bold;} +left]
+        ]
+        
+        [hr]
+        [ +tiny "Blossem URL (beta)"]
+        [in @in-blossem {w:100%;}]
+        [hr]
+        
+        [btn @btn-backup-revision "Backup Revision" +button +border +margin-top]
+        [btn @btn-list-revisions "List Revisions" +button +border +margin-top]
+        [hr]
+        [ @list-revisions]
+      
+      ]
+      
+      [ @menu-blogger +hide
+        
+        [btn "Synchronize" @btn-sync +button +border +margin-bottom +block]
+        
+        [hr]
+        
+        [ +tiny "Blog Title"]
+        [in @in-blog-title {w:100%;} .blog-description name='blogTitle']
+        
+        [ +tiny "Blog ID"]
+        [in @in-blog-id {w:100%;} .blog-description name='blogId']
+        
+        [ +tiny "Number of posts on homepage"]
+        [in @in-max-posts {w:100%;} .blog-description name='maxPosts' value="20"]
+        
+      ]
+      
+      
+      [hr]
+      [btn "Delete" +hide @btn-delete-file +red +button +border +margin-bottom +block]
+    ]
+  </template>
+  <!--plate-system-->
+  <template id="plate-system">
+    [ @templateLoader .limbo]
+    [ @limbo-template .limbo]
+    [ @limbo-element .limbo]
+  </template>
+  <template id="plate-ninja-space">
+    [ {p:6px 10px;} +right {visibility:hidden;}
+      [M "close" ]
+    ]
+  </template>
+
+  
+  <template id="tmp-list-revision">
+    [
+      [ "__id__"]
+      [ +small "__modifiedTime__"]
+      [btn "Delete" +button onclick="deleteRevision('__id__',this)"]
+      [btn "Rollback" +button onclick="rollbackRevision('__id__')"]
+    ]
+  </template>
+  <template id="tmp-list-blog">
+    [ +padding
+      __id__ : __name__
+      [M "delete" +button onclick="removeBlog('__id__')"]
+    ]
+  </template>
+  <template id="tmp-list-deploy">
+    [ +white +border +left-align +block +button onclick="fileDeploy('__id__')"
+      __name__
+      [ +small "__id__"]
+    ]
+  </template>
+  <template id="tmp-missing">
+    [ {padding:4px 8px;} +__background__
+      __txt__
+    ]
+  </template>
+    
+  
+  <template id="tmp-breadcrumb">
+    [ +padding onclick="openBread(__folderId__)" +button
+      __title__
+    ]
+  </template>
+  <template id="tmp-breadcrumb-fake">
+    [ +padding +button +grey {bg:#ddd!;}
+      __title__
+    ]
+  </template>
+  <template id="tmp-file-list">
+    [ .file-list +left +left-align {width:200px;m:0.1em;bg:#ddd;p:0;pos:relative;} +button
+      [ {pos:absolute;z:8177;t:0;l:0;}
+        [M "lock" .__clsLock__ .btn-lock @btn-lock__fid__ onclick='lockRender(this, __fid__, "__name__")' +button {col:#aaa;} +hover-none]
+      ]
+      [ {pos:absolute;z:8177;t:0;r:0;}
+        [M "edit" onclick="fileRename(__fid__)" +button {col:#aaa;} +hover-none]
+      ]
+      [ onclick='openFileConfirm(this)' title='__name__' data-type="file" data='__fid__' .file-list-clicker
+        [ +center +padding-32
+          [M +xxlarge "insert_drive_file" {col:#777;}]
+        ]
+        [ +white +padding
+          [c {w:24px;}
+            [M +medium {p:2px 0;} "insert_drive_file" {col:__defaultBg__!;} +left]
+          ]
+          [x +small +left-align +white +padding {fw:bold;pos:relative;}
+            [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
+              __name__
+            ]
+          ]
+        ]
+      ]
+    ]
+  </template>
+  <template id="tmp-folder-list">
+    [ .folder-list onclick='openFolderConfirm(this)' title="__name__" data-type="folder" data='__fid__' +left +left-align {bg:#fff;width:200px;m:0.1em;p:0;} +button +border-bottom
+      [ +padding
+        [c {w:24px;}
+          [M +medium {p:2px 0;} "folder" {col:__defaultBg__!;} +left]
+        ]
+        [x +small +left-align +padding {fw:bold;pos:relative;}
+          [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
+            __name__
+          ]
+        ]
+      ]
+    ]
+  </template>
+  
+  <template id="tmp-list-file-trash">
+    [ .file-list +left +left-align {width:200px;m:0.1em;bg:#ddd;p:0;pos:relative;} +button
+      [ +center +padding-32
+        [M +xxlarge "insert_drive_file" {col:#777;}]
+      ]
+      [ +white +padding
+        [c {w:24px;}
+          [M +medium {p:2px 0;} "insert_drive_file" {col:__defaultBg__!;} +left]
+        ]
+        [x +small +left-align +white +padding {fw:bold;pos:relative;}
+          [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
+            __name__
+          ]
+        ]
+      ]
+    ]
+  </template>
+  <template id="tmp-list-folder-trash">
+    [ .folder-list +left +left-align {bg:#fff;width:200px;m:0.1em;p:0;} +button +border-bottom
+      [ +padding
+        [c {w:24px;}
+          [M +medium {p:2px 0;} "folder" {col:__defaultBg__!;} +left]
+        ]
+        [x +small +left-align +padding {fw:bold;pos:relative;}
+          [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
+            __name__
+          ]
+        ]
+      ]
+    ]
+  </template>
+  <template id="tmp-file-tab">
+    [ +left {w:180px;bg:#101113;pos:relative;z:1;} .file-tab data-title="__name__"
+      [
+        [ {p:6px 10px;} +right
+          [M +right "__fiber__" +button +hover-none +hover-text-light-grey +medium +text-gray .icon-rename onclick="fileClose('__fid__')" {p:4px 0 4px 9px;}]
+        ]
+        [x {pos:relative;p:18px 24px;lh:1.5em;}
+          [ "__name__" onclick="focusTab('__fid__')" .file-tab-name data-title="__name__" {pos:absolute;l:0;t:0;w:100%;col:#fff!;} .tapx +small .file-name {p:10px 10px 10px 19px;} {fw:bold;} +left]
+        ]
+      ]
+      [ {h:0.25rem;bg:#202020;}]
+    ]
+  </template>
+  
+  [ @update-notif {pos:fixed;b:0;l:0;bg:#312c2c;col:#ccc;z:8177;fw:bold;w:100%;}
+    [ +right
+      [ @btn-refresh "Refresh" {tt:uppercase;fw:bold;col:#d8d782;} +left +padding-16 +container]
+      [ @btn-dismiss "Dismiss" {tt:uppercase;fw:bold;} +left +padding-16 +container]
+    ]
+    [x
+      [ +padding-16 +container "New version available" +small]
+    ]
+  ]
+  
+  <style>
+    #update-notif {
+      display: none;
+    }
+    #update-notif.active {
+      display: block;
+    }
+  </style>
+  
+  
+  <script src="js/engine.js"></script>
+  <script>
+    function clientUpdateHandler(swo, callback) {
+      
+      $ = function(query) {
+        return document.querySelector(query);
+      }
+      
+      new Promise(function(resolve, reject) {
+      
+        if ($('#update-notif') !== null)
+        {
+          $('#update-notif').classList.toggle('active', true);
+          $('#btn-refresh').onclick = resolve;
+          $('#btn-dismiss').onclick = reject;
+        }
+        else
+        {
+          clientUpdateHandler.wait = setInterval(function() {
+            
+            if ($('#update-notif') !== null)
+            {
+              clearInterval(clientUpdateHandler.wait)
+              $('#update-notif').classList.toggle('active', true);
+              $('#btn-refresh').onclick = resolve;
+              $('#btn-dismiss').onclick = reject;
+            }
+            
+          }, 1000)
+        }
+      
+      }).then(function() {
+        
+        if (clientUpdateHandler.swo)
+          clientUpdateHandler.swo.waiting.postMessage({action: 'skipWaiting'});
+        else if (swo)
+          swo.waiting.postMessage({action: 'skipWaiting'});
+        
+        $('#update-notif').classList.toggle('active', false);
+        
+        if (callback)
+          callback();
+          
+        location.href = location.href;
+        
+      }).catch(function() {
+        
+        $('#update-notif').classList.toggle('active', false);
+        
+      });
+    }
+  
+    // service worker handler
+    if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator)
+    {
+      navigator.serviceWorker.addEventListener('controllerchange',function() {
+        location.href = location.href;
+      });
+      
+      navigator.serviceWorker.register('/sw.js').then(function(swo) {
+        if (!navigator.serviceWorker.controller)
+          return
+    
+        if (swo.waiting)
+        {
+          if (typeof(clientUpdateHandler) === 'undefined')
+          {
+            if (window.confirm('App updated. Reload?'))
+            {
+              swo.waiting.postMessage({action: 'skipWaiting'});
+              location.href = location.href;
+            }
+          }
+          else
+          {
+            clientUpdateHandler(swo);
+            clientUpdateHandler.swo = swo;
+          }
+          
+          return
+        }
+    
+        if (swo.installing)
+        {
+          swo.installing.addEventListener('statechange',function(e) {
+            if (swo.installing.state == 'installed')
+            {
+              if (typeof(clientUpdateHandler) === 'undefined')
+              {
+                if (window.confirm('App updated. Reload?'))
+                {
+                  swo.waiting.postMessage({action: 'skipWaiting'});
+                  location.href = location.href;
+                }
+              }
+              else
+              {
+                clientUpdateHandler(swo);
+                clientUpdateHandler.swo = swo;
+              }
+            }
+          })
+          return
+        }
+        
+        swo.addEventListener('updatefound',function() {
+          swo.installing.addEventListener('statechange',function(e) {
+            if (this.state == 'installed')
+            {
+              if (typeof(clientUpdateHandler) === 'undefined')
+              {
+                if (window.confirm('App updated. Reload?'))
+                {
+                  swo.waiting.postMessage({action: 'skipWaiting'});
+                  location.href = location.href;
+                }
+              }
+              else
+              {
+                clientUpdateHandler(swo);
+                clientUpdateHandler.swo = swo;
+              }
+            }
+          })
+        })
+      }).catch(function(e) {
+        console.error('Something went wrong.')
+      });
+    }
+  </script>
+</body>
+</html>

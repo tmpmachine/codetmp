@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Attemp</title>
+  <link type="image/x-icon" rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII="/>
+  <meta charset="utf-8"/>
+  <script src="jshaki.js"></script>
+</head>
+<body>
+  
+  <script>
+  
+    window.addEventListener('message', thorReceiver, false);
+    tota__ = [0, 0]
+    function thorRunJS(js) {
+      for (let j of js)
+      {
+        let s = document.createElement('script');
+        tota__[0] += (j.substring(8,j.length-9).length)
+        s.textContent = haki(j.substring(8,j.length-9));
+        tota__[1] += s.textContent.length
+        // s.textContent = j.substring(8,j.length-9);
+        document.body.appendChild(s);
+      }
+    }
+    
+    function thorGetJS(xml) {
+      let scripts = xml.match(/<script>(.|\n)*?<\/script>/g);
+      
+      if (scripts === null) return {xml:xml,js:[]};
+      for (let script of scripts)
+        xml = xml.replace(script,'');
+      
+      return {xml:xml,js:scripts}
+    }
+    
+    function thorRefreshIcon() {
+      setTimeout(function(){
+        var link = document.querySelector("link[rel*='icon']");
+        if (!link)
+        {
+          link = document.createElement('link')
+          link.href = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII=';
+        }
+        
+        link.type = 'image/x-icon';
+        link.rel = 'shortcut icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
+        
+        if (document.querySelector('title') === null)
+          document.title = 'Attemp'
+      },500)
+      
+    }
+    
+    function thorReceiver(e) {
+      if (e.data.type != undefined && e.data.type == 'template')
+      {
+        let data = thorGetJS(e.data.xml);
+        
+        document.open();
+        let head = data.xml.match(/<head>(\s|\S)*?<\/head>/);
+        document.write(data.xml.replace(/<head>(\s|\S)*?<\/head>/,''));
+        if (head)
+          document.head.innerHTML = head[0].substring(6,head[0].length-7);
+        document.close();
+        
+        if (document.readyState == 'complete')
+        {
+          thorRunJS(data.js);
+          thorRefreshIcon();
+          window.addEventListener('message', thorReceiver, false);
+          window.opener.postMessage({type:'readyToDeploy'},'*');
+        }
+        else
+        {
+          document.onreadystatechange = function () {
+            if (document.readyState == 'complete')
+            {
+              thorRunJS(data.js)
+              thorRefreshIcon();
+              window.addEventListener('message', thorReceiver, false);
+              window.opener.postMessage({type:'readyToDeploy'},'*');
+            }
+          }
+        }
+        
+      }
+      else if (e.data.type === 'reload')
+      {
+        if (location.href.indexOf('#') > 0)
+          location.reload(true);
+        else
+          location.href = location.href;
+      }
+      
+    }
+      
+    if (window.opener !== null)
+      window.opener.postMessage({type: 'loaded'},'*')
+
+      // window.opener.postMessage({type:'loaded', page:this.location.href.split('?')[1]},'*')
+      
+    // service worker handler
+    if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator)
+    {
+      navigator.serviceWorker.addEventListener('controllerchange',function() {
+        location.href = location.href;
+      });
+      
+      navigator.serviceWorker.register('/sw.js').then(function(swo) {
+        if (!navigator.serviceWorker.controller)
+          return
+    
+        if (swo.waiting)
+        {
+          swo.waiting.postMessage({action: 'skipWaiting'});
+          location.href = location.href;
+          
+          return
+        }
+    
+        if (swo.installing)
+        {
+          swo.installing.addEventListener('statechange',function(e) {
+            if (swo.installing.state == 'installed')
+            {
+              swo.waiting.postMessage({action: 'skipWaiting'});
+              location.href = location.href;
+            }
+          })
+          return
+        }
+        
+        swo.addEventListener('updatefound',function() {
+          swo.installing.addEventListener('statechange',function(e) {
+            if (this.state == 'installed')
+            {
+              swo.waiting.postMessage({action: 'skipWaiting'});
+              location.href = location.href;
+            }
+          })
+        })
+      }).catch(function(e) {
+        console.error('Something went wrong.')
+      });
+    }
+  </script>
+  
+</body>
+</html>
