@@ -178,7 +178,7 @@ function classicEnter(e) {
 }
 
 
-THOR.plugins._add('loadEditor', function(compatibilityMode) {
+THOR.plugins.load('loadEditor', function(compatibilityMode) {
     
   let editor;
     

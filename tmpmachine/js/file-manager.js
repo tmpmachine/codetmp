@@ -1,9 +1,9 @@
-var activeFolder = -1;
-var selectedFile = [];
-var clipBoard = [];
-var copyParentFolderId = -2;
-var fileTab = [];
-var activeTab = 0;
+let activeFolder = -1;
+let selectedFile = [];
+let clipBoard = [];
+let copyParentFolderId = -2;
+let fileTab = [];
+let activeTab = 0;
 
 const fm = {
   INSERT: {

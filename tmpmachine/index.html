@@ -94,68 +94,6 @@
   </template>
   
 
-  [
-  [ {pos:fixed;b:0;z:8177;} +padding {ov:scroll!;margin-top:40px;} .hide @my-osk {bg:#222;} +opacity-min
-    [ @my-osk-wrapper
-      [ +margin-bottom
-        [
-          [ +left +grey  .osk
-            [M "keyboard_arrow_up"]
-          ]
-          [ +left +grey  .osk
-            [M "keyboard_arrow_down"]
-          ]
-          [ +left +grey  .osk
-            [M "keyboard_arrow_left"]
-          ]
-          [ +left +grey  .osk
-            [M "keyboard_arrow_right"]
-          ]
-          [ +margin-left +left +grey .osk @btn-osk-opacity
-            [M "bug_report"]
-          ]
-        ]
-        
-        [ +margin-top
-          [ +left +grey  .osk
-            [M "mode_comment"]
-          ]
-          [ +left +grey  .osk
-            [M "arrow_upward"]
-          ]
-          [ +left +grey  .osk
-            [M "arrow_downward"]
-          ]
-          [ +left +grey  .osk
-            [M "calendar_view_day"]
-          ]
-          [ +margin-left +left +grey  .osk
-            [M "keyboard"]
-          ]
-        ]
-      ]
-      [ "[" +left +padding-large +grey  .osk]
-      [ "]" +left +padding-large +grey  .osk]
-      [ "=" +left +padding-large +grey  .osk]
-      [ "'" +left +padding-large +grey  .osk]
-      [ '"' +left +padding-large +grey  .osk]
-      [ "{" +left +padding-large +grey  .osk]
-      [ "}" +left +padding-large +grey  .osk]
-      [ "@" +left +padding-large +grey  .osk]
-      [ "#" +left +padding-large +grey  .osk]
-      [ "+" +left +padding-large +grey  .osk]
-      [ "." +left +padding-large +grey  .osk]
-      [ "<" +left +padding-large +grey  .osk]
-      [ ">" +left +padding-large +grey  .osk]
-      [ ":" +left +padding-large +grey  .osk]
-      [ ";" +left +padding-large +grey  .osk]
-      [ "(" +left +padding-large +grey  .osk]
-      [ ")" +left +padding-large +grey  .osk]
-      [ "~" +left +padding-large +grey  .osk]
-    ]
-  ]
-  ]
-  
   
   [ {h:100%;} @main-editor
     [ +left {pos:relative;h:100%;ov-x:hidden;ov-y:scroll;} +black +animate-left @sidebar +card-4
@@ -465,14 +403,7 @@
       #btn-blogsphere-login:hover {background-image: url('/images/google/1x/btn_google_signin_dark_focus_web.png')!important}
       #btn-blogsphere-login:active {background-image: url('/images/google/1x/btn_google_signin_dark_pressed_web.png')!important}
     </style>
-    
-    [hr]
         
-    [ +hide
-      <h4><b>— Dangerous Zone</b></h4>
-      [p "Sometimes, data become inconsistent. Use with caution. All data will be erased" +small]
-      [btn "Reset" +red +button @btn-reset +red]
-    ]
   </template>
   <template id="plate-menu-info">
     [ {pos:relative;h:100%;}

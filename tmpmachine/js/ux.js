@@ -747,10 +747,6 @@ function fixCss(callback, total = 0, epoch = 5) {
   if (total === totOffset)
     epoch -= 1;
   
-  $('#my-osk').style.width = 'calc(100% - '+$('#sidebar').offsetWidth+'px)';
-  $('#my-osk-wrapper').style.width = 11*50+'px';
-  $('#my-osk').style.left = $('#sidebar').offsetWidth+'px';
-  
   if (epoch >= 0)
   {
     setTimeout(function() {
@@ -965,3 +961,123 @@ function switchTab(dir) {
   
   focusTab(fid);
 }
+
+
+function btnBlogVC() {
+          
+  oblog.config({ blog: $('#in-blog-name').value });
+  oblog.getBlogId(function(blogId) {
+      
+    window.open('https://www.blogger.com/rearrange?blogID='+blogId+'&action=editWidget&sectionId=main&widgetType=null&widgetId=HTML1')
+      
+  })
+          
+}
+
+function btnDeleteFile() {
+          ui.fm.deleteFile(activeFile.fid);
+        }
+        
+        function btnOpenDirectory() {
+          openFolder(activeFile.parentFolderId);
+          $('#btn-menu-project').click();
+        }
+function btnPreview() {
+          if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null)
+          {
+            if ($('#in-blossem').value.trim().length > 0)
+              previewWindow = window.open($('#in-blossem').value.trim(), 'blossem');
+            else
+              previewWindow = window.open('https://attemp.web.app/'+currentPage, 'preview');
+          }
+        
+          renderBlog();
+        }
+        
+        function authReady() {
+        
+        $('#btn-blogsphere-login').style.display = 'none';
+        $('#btn-blogsphere-logout').style.display = 'block';
+        
+        if (fs.data.rootId === '')
+          drive.readAppData();
+        else
+        {
+          drive.syncFromDrive();
+          drive.syncToDrive();
+        }
+        
+        $('#txt-login-status').textContent = 'Logout';
+        $('#login-info').style.visibility = 'hidden';
+      }
+      
+      function authLogin() {
+        
+        $('#btn-blogsphere-login').style.display = 'none';
+        $('#btn-blogsphere-logout').style.display = 'block';
+      }
+      
+      function authLogout() {
+        $('#login-info').style.visibility = 'visible';
+        
+        $('#btn-blogsphere-login').style.display = 'block';
+        $('#btn-blogsphere-logout').style.display = 'none';
+        
+        $('#txt-login-status').textContent = 'Login';
+      }
+      
+      function updateUI() {
+        fileList();
+      if (localStorage.getItem('homepage') == 'false')
+      {
+        $('#btn-home').click();
+        $('#check-show').checked = false;
+        $('#btn-home').classList.toggle('active', false)
+        $('#btn-home').firstElementChild.classList.toggle('active', false)
+      }
+      else
+      {
+        $('#btn-home').classList.toggle('active', true)
+        $('#btn-home').firstElementChild.classList.toggle('active', true)
+      }
+
+      document.body.removeChild($('#preload-style'));
+      
+      fixCss(function() {
+        
+        // load plugins here
+        THOR.plugins.loadEditor(false);
+        THOR.plugins.dragDrop();
+        
+        
+        newTab();
+        
+        
+        if ($('#btn-save').offsetWidth > 100)
+        {
+          document.head.appendChild( o.cel('link', {
+            rel: 'stylesheet',
+            href: 'fonts/material/material-icons.css'
+          }) );
+        }
+        
+      });
+      }
+      
+      
+      function btnBlogsphereLogout  () {
+      
+      $('#btn-blogsphere-login').style.display = 'block';
+      $('#btn-blogsphere-logout').style.display = 'none';
+      
+      auth0.logout();
+      aww.pop("You've been logged out from TMPmachine.");
+      THOR.resetApp();
+      
+      fileClose();
+      activeFolder = -1;
+      while (breadcrumbs.length > 1)
+        breadcrumbs.splice(1,1);
+        
+      loadBreadCrumbs();
+    }

@@ -1,4 +1,4 @@
-THOR.plugins._add('dragDrop', function() {
+THOR.plugins.load('dragDrop', function() {
   
   document.body.addEventListener('dragover', function(event) {
     event.preventDefault();
