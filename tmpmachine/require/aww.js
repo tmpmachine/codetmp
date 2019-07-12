@@ -1,8 +1,12 @@
-// 0.030 - 4 apr 19 - fix persistent
-// 0.029 - 18 sep 18 - remove prompt
-// 0.028 - 13 sep 18 - o.js change
-// 0.027 - 19 july 18
-// 0.026 - 15 june 18
+
+/*
+0.031 - 32 june 19 - replaced screen var
+0.030 - 4 apr 19 - fix persistent
+0.029 - 18 sep 18 - remove prompt
+0.028 - 13 sep 18 - o.js change
+0.027 - 19 july 18
+0.026 - 15 june 18
+*/
 
 const aww = {
   $: function(query) {
@@ -22,7 +26,7 @@ const aww = {
       d.innerHTML = "<p style='background:white;border-radius:2px;display:inline-block;padding:4px 8px;margin:0;font-size:0.8em;color:#000!important;' class='w3-card-4'></p>";
       document.body.appendChild(d);
       d.firstElementChild.innerHTML = txt;
-      d.style.left = 50-$('#_awwPop').offsetWidth/screen.width*100+'%';
+      d.style.left = (document.body.offsetWidth-$('#_awwPop').offsetWidth)/2+'px';
     }
     else
       $('#_awwPop').firstElementChild.innerHTML = txt;

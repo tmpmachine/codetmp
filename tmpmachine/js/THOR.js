@@ -154,7 +154,10 @@ function renderBlog() {
     // togglePreview();
   
   if ($('#in-blossem').value.trim().length > 0)
+  {
     previewWindow.postMessage({tmp:true, html: body}, '*');
+    uploadBody = body;
+  }
   else
   {
     previewWindow.postMessage({type:'reload'}, '*');

@@ -1,6 +1,9 @@
+// v0.011 -- 25 june 19 -- disable on small room
 // v0.01 -- 10 june 19 -- project started
 
 function room(cls) {
+  
+  if ($('.'+cls).length < 1) return;
   
   let active = -1;
   for (let i=1; i<$('.'+cls).length; i++)

@@ -1,3 +1,4 @@
+let L = console.log;
 var waitDeploy = false;
 var debugAttempUrl = '';
 
@@ -40,6 +41,16 @@ const THOR = (function() {
       // buttons
       
       o.click({
+        'btn-blog-vc':[function() {
+          
+          oblog.config({ blog: $('#in-blog-name').value });
+          oblog.getBlogId(function(blogId) {
+              
+            window.open('https://www.blogger.com/rearrange?blogID='+blogId+'&action=editWidget&sectionId=main&widgetType=null&widgetId=HTML1')
+              
+          })
+          
+        }],
         'btn-blogsphere-login':[THOR.blogsphereLogin],
         'btn-blogsphere-logout':[THOR.blogsphereLogout],
         'btn-menu-template': [toggleInsertSnippet],

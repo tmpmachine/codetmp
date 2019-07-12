@@ -639,8 +639,16 @@ window.onbeforeunload = function(e) {
     }
   }
   
+  if (fileTab.length > 1)
+    notSaved = true
+  else
+  {
+    if (fileTab[0].fid[0] !== '-')
+      notSaved = true
+  }
+  
   if (notSaved)
-    return 'Changes you made may not be saved';
+    return  'Changes you made may not be saved';
 }
 
 window.addEventListener('keyup', function(e) {
@@ -794,12 +802,12 @@ function focusTab(fid, isClose) {
     activeFile = undefined;
   else
   {
-    if (fileTab[activeTab].name.endsWith('.blogger'))
-    {
-      $('#menu-basic').classList.toggle('w3-hide')
-      $('#menu-blogger').classList.toggle('w3-hide')
-    }
-    else if (fileTab[activeTab].name.endsWith('.css'))
+    // if (fileTab[activeTab].name.endsWith('.blogger'))
+    // {
+    //   $('#menu-basic').classList.toggle('w3-hide')
+    //   $('#menu-blogger').classList.toggle('w3-hide')
+    // }
+    if (fileTab[activeTab].name.endsWith('.css'))
       $('#editor').env.editor.session.setMode("ace/mode/css");
     else if (fileTab[activeTab].name.endsWith('.js'))
       $('#editor').env.editor.session.setMode("ace/mode/javascript");
@@ -893,7 +901,7 @@ function newTab(position, data) {
   focusTab(fid)
 }
 
-function closeTab(focus = true) {
+function closeTab(focus = true, comeback) {
   
   if (focus)
   {
@@ -906,6 +914,7 @@ function closeTab(focus = true) {
   $('#file-title').removeChild($('.file-tab')[activeTab]);
   fileTab.splice(activeTab, 1);
   
+  
   if (focus)
   {
     if (fileTab.length == 0)
@@ -916,10 +925,19 @@ function closeTab(focus = true) {
     }
     else
     {
-      if (activeTab == 0)
-        focusTab(fileTab[0].fid, true);
+      if (comeback)
+      {
+        activeTab = comeback
+        focusTab(fileTab[activeTab].fid, true);
+      }
       else
-        focusTab(fileTab[activeTab-1].fid, true);
+      {
+        if (activeTab == 0)
+          focusTab(fileTab[0].fid, true);
+        else
+          focusTab(fileTab[activeTab-1].fid, true);
+      }
+        
     }
   }
 }

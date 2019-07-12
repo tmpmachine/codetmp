@@ -1,3 +1,5 @@
+// v0.071 - 28 june 19 -- fix get blog id on request failed
+// v0.07 - 27 june 19 -- fix get blog id
 // v0.06 - 5 june 19 -- switch functionality into module for auth0.js
 // v0.056 - 20 apr 19 -- login iframe now will not display
 // v0.055 - 19 mar 19 -- fix refreshToken
@@ -125,6 +127,9 @@ const oblog = {
         
         if ((path.includes('/posts') || path.includes('/pages')) && !path.includes('/blogs'))
           path = 'blogs/'+oblog.authModule.auth.data.blogId+path;
+          
+        if (path == 'blogs/-')
+          path = 'blogs/'+oblog.authModule.auth.data.blogId;
         
         var url = oblog.apiURL+path+params;
         
@@ -200,7 +205,7 @@ const oblog = {
     delete: function(id,callback) { oblog.crude.delete('/posts/'+id,callback); }
   },
   postUserInfos: {
-    list: function(callback,params) { oblog.crude.list('users/'+oblog.authModule.auth.data.ubid+'/blogs/'+oblog.authModule.auth.data.blogId+'/posts',callback,params) },
+    list: function(uid, blogId, callback,params) { oblog.crude.list('users/'+uid+'/blogs/'+blogId+'/posts',callback,params) },
   },
   users: {
     get: function(id,callback,params) { oblog.crude.list('users/'+id,callback,params); },
@@ -222,7 +227,7 @@ const oblog = {
     
     for (var blog of oblog.authModule.auth.data.blogs)
     {
-      if (blog.name == oblog.authModule.auth.data.blog)
+      if (blog.name == oblog.authModule.auth.data.blog && blog.id !== undefined)
       {
         oblog.authModule.auth.data.blogId = blog.id;
         found = true;
@@ -239,7 +244,7 @@ const oblog = {
     
     if (!found && oblog.authModule.state(5))
     {
-      oblog.blogs.getByUrl(oblog.authModule.auth.data.blog,function(d) {
+      oblog.blogs.getByUrl(oblog.authModule.auth.data.blog, function(d) {
         var found = oblog.matchBlog();
         if (!found)
         {

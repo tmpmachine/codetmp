@@ -45,20 +45,28 @@ const drive = {
       if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100)
       {
         // L(f.name+' updated');
+        if (f.parentFolderId == activeFolder)
+          drive.syncFromDrive.refresh = true;
+          
         f.name = name;
         f.modifiedTime = modifiedTime;
       }
     }
     else
     {
+      let parentFolderId = drive.getParentId(parents[0]);
+      
       fm.INSERT.folder({
         id,
         name,
         modifiedTime,
         trashed,
-        parentId: drive.getParentId(parents[0]),
+        parentId: parentFolderId,
       });
       newBranch.push('"'+id+'"');
+      
+      if (parentFolderId == activeFolder)
+          drive.syncFromDrive.refresh = true;
     }
 
     folders.splice(0, 1);
@@ -78,6 +86,9 @@ const drive = {
 
       if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100)
       {
+        if (f.parentFolderId == activeFolder)
+          drive.syncFromDrive.refresh = true;
+        
         L(f.name+' updated');
         f.name = name;
         f.modifiedTime = modifiedTime;
@@ -90,14 +101,18 @@ const drive = {
     }
     else
     {
+      let parentFolderId = drive.getParentId(parents[0]);
       fm.INSERT.file({
         id,
         name,
         modifiedTime,
         trashed,
         description,
-        parentId: drive.getParentId(parents[0]),
+        parentId: parentFolderId,
       });
+      
+      if (parentFolderId == activeFolder)
+          drive.syncFromDrive.refresh = true;
     }
 
     files.splice(0, 1);
@@ -144,7 +159,11 @@ const drive = {
       else
         drive.syncFromDrive(newBranch);
       
-      fileList();
+      if (drive.syncFromDrive.refresh)
+      {
+        drive.syncFromDrive.refresh = false;
+        fileList();
+      }
     });
   },
   syncFile: function({ action, fid, metadata, type, source }) {

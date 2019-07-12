@@ -521,16 +521,18 @@ function openFile(fid) {
     
     
     // let x = patob(activeFile.description);
-    // if (f.name.endsWith('.blogger'))
-    // {
+    if (f.name.endsWith('.blogger'))
+    {
     // 	$('#in-blog-title').value = x.blogTitle || '';
     // 	$('#in-blog-id').value = x.blogId || '';
     // 	$('#in-max-posts').value = x.maxPosts || 20;
     	
     // 	init(x);
-    // }
-    // else
-    // {
+      $('#btn-blog-vc').classList.toggle('w3-hide', false);
+    }
+    else
+    {
+      $('#btn-blog-vc').classList.toggle('w3-hide', true);
     // 	$('#in-blog-name').value = x.blog || '';
     // 	$('#in-eid').value = x.eid || '';
     // 	$('#in-summary').value = x.summary || '';
@@ -538,7 +540,7 @@ function openFile(fid) {
     // 	$('#chk-more-tag').checked = x.more || false;
     // 	$('#chk-bibibi').checked = x.bibibi || false;
     // 	$('#chk-in-pre').checked = x.pre || false;
-    // }
+    }
   	
   }).catch(function(error) {
     
@@ -559,9 +561,20 @@ function fileClose(fid) {
   else
     idx = activeTab
   
-  activeTab = idx
-
-  closeTab()
+  if (activeTab == idx)
+  {
+    activeTab = idx
+    closeTab()
+  }
+  else
+  {
+    let tmp = activeTab
+    activeTab = idx;
+    if (idx < tmp)
+      closeTab(true, tmp-1)
+    else
+      closeTab(true, tmp)
+  }
   
 }
 
@@ -575,9 +588,9 @@ function fileSave() {
     activeFile.content = $('#editor').env.editor.getValue();
     activeFile.modifiedTime = modifiedTime;
     
-    if (activeFile.name.endsWith('.blogger'))
-      activeFile.description = patobr('blog-description');
-    else
+    // if (activeFile.name.endsWith('.blogger'))
+      // activeFile.description = patobr('blog-description');
+    // else
       activeFile.description = patobr('description');
     
     if (iframeRender.includes(activeFile.name))
@@ -712,7 +725,7 @@ function chooseDeploy() {
     else
       nowUpload = summary+more+bibibib+uploadBody;
     
-    L(nowUpload);
+    // L(nowUpload);
     
     
     if (eid[0] == 'p')
@@ -721,9 +734,23 @@ function chooseDeploy() {
       oblog.pages.patch(eid.substring(1), {
         
         content: nowUpload
-      }, function() {
+      }, function(e) {
         
-        aww.pop('Update Deployed!')
+        if (e == 404)
+          aww.pop('404')
+        else
+        {
+          aww.pop('Update Deployed!')
+          
+          if (activeFile.name.includes('.blogger'))
+          {
+            oblog.matchBlog(function(blogId) {
+              
+              window.open('https://www.blogger.com/rearrange?blogID='+blogId+'&action=editWidget&sectionId=main&widgetType=null&widgetId=HTML1')
+              
+            })
+          }
+        }
       })
     }
     else
@@ -732,9 +759,23 @@ function chooseDeploy() {
       oblog.posts.patch(eid, {
         
         content: nowUpload
-      }, function() {
-        
-        aww.pop('Update Deployed!')
+      }, function(e) {
+
+        if (e == 404)
+          aww.pop('404')
+        else
+        {
+          aww.pop('Update Deployed!')
+          
+          if (activeFile.name.includes('.blogger'))
+          {
+            oblog.matchBlog(function(blogId) {
+              
+              window.open('https://www.blogger.com/rearrange?blogID='+blogId+'&action=editWidget&sectionId=main&widgetType=null&widgetId=HTML1')
+              
+            })
+          }
+        }
       })
     }
   }

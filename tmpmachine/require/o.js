@@ -1,4 +1,6 @@
 /*
+v0.58 - 9 july 19 -- removed console.log and console.error
+v0.57 - 26 april 19 -- fix o creps for batch data non array
 v0.56 - 28 mar -- compatibility mode, rollback to var from let
 v0.55 - 30 jan -- added console error, change o.core to o.fill
 v0.54 - 24 dec -- added log for quick parameter logging
@@ -20,7 +22,7 @@ v0.42 - 11 sep -- fixing o.once
 */
 
 const o = {
-  roll: function(str,data,key,depth) {
+  roll: function(str, data, key, depth) {
     for (var i in data)
     {
       key[depth] = i;
@@ -33,7 +35,7 @@ const o = {
     }
     return str;
   },
-  creps: function(str,data,modifyFunction) {
+  creps: function(str, data, modifyFunction) {
     str = $('#'+str).innerHTML;
     var i;
     var html = '';
@@ -44,16 +46,18 @@ const o = {
       for (var d of data)
       {
         if (modifyFunction !== undefined)
-          d = modifyFunction(d,i);
-        html += this.roll(str,d,[],0);
+          d = modifyFunction(d, i);
+          
+        html += this.roll(str, d, [], 0);
         i++;
       }
     }
     else
     {
       if (modifyFunction !== undefined)
-          data = modifyFunction(d);;
-      html += this.roll(str,data,[],0);
+        data = modifyFunction(data);
+      
+      html += this.roll(str, data, [], 0);
     }
     
     return html;
@@ -186,11 +190,3 @@ const o = {
 $ = function(selector) {
   return (selector.indexOf('.') === 0) ? document.querySelectorAll(selector) : document.querySelector(selector);
 };
-innerHTML = function(element) {
-  var innerHTML = ''
-  for (var e of element)
-    innerHTML += e.innerHTML;
-  return innerHTML
-}
-const L = console.log;
-const E = console.error;
