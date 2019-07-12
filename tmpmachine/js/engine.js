@@ -18,7 +18,6 @@ const THOR = (function() {
         'btn-blogsphere-login'  : [ auth0.login         ],
         'btn-blogsphere-logout' : [ btnBlogsphereLogout ],
         'btn-menu-template'     : [ toggleInsertSnippet ],
-        'btn-sync'              : [ syncBlog            ],
         'btn-new-folder'        : [ ui.fm.newFolder     ],
         'btn-rename-folder'     : [ ui.fm.renameFolder  ],
         'btn-backup-revision'   : [ keepRevision        ],
@@ -29,8 +28,8 @@ const THOR = (function() {
         'btn-download-file'     : [ fileDownload        ],
         'btn-refresh-sync'      : [ drive.syncFromDrive ],
         'btn-save'              : [ fileSave            ],
-        '.btn-material'         : [ ui.toggleMenu ],
-        'btn-preview'           : [ btnPreview ],
+        '.btn-material'         : [ ui.toggleMenu       ],
+        'btn-preview'           : [ btnPreview          ],
       });
       
       auth0.onready = authReady;
@@ -105,7 +104,7 @@ const THOR = (function() {
       short: ' ',
       attributes: {
         class: 'w3-row'
-      }
+      },
     });
     
     plate.cook();
