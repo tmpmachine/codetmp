@@ -561,15 +561,15 @@ function fileClose(fid) {
   else
     idx = activeTab
   
-  if (activeTab == idx)
-  {
+  if (activeTab == idx) {
+    
     activeTab = idx
     closeTab()
-  }
-  else
-  {
-    let tmp = activeTab
+  } else {
+    
+    let tmp = activeTab;
     activeTab = idx;
+    
     if (idx < tmp)
       closeTab(true, tmp-1)
     else

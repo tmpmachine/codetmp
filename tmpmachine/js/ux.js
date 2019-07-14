@@ -370,16 +370,28 @@ function changePersonal(value) {
 }
 
 
+function isSameTab(valueCheck1, valueCheck2) {
+  
+  if (valueCheck1 == valueCheck2) {
+    $('#editor').env.editor.focus();
+    return true;
+  }
+  
+  return false;
+}
+
 function focusTab(fid, isClose) {
+  
+  let idx = odin.idxOf(String(fid), fileTab, 'fid');
+  if (isSameTab(activeTab, idx)) return;
   
   for (let tab of $('.file-tab'))
     tab.lastElementChild.style.background = '#202020';
   
-  let idx = odin.idxOf(String(fid), fileTab, 'fid');
   $('.file-tab')[idx].lastElementChild.style.background = '#154358';
   
-  if (!isClose && activeTab !== idx)
-  {
+  if (!isClose && activeTab !== idx) {
+    
     fileTab[activeTab].undo = $('#editor').env.editor.getSession().getUndoManager();
     fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
     fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
@@ -397,17 +409,13 @@ function focusTab(fid, isClose) {
   $('#editor').env.editor.moveCursorTo(fileTab[activeTab].row, fileTab[activeTab].col);
   $('#editor').env.editor.focus()
   $('#editor').env.editor.getSession().setUndoManager(fileTab[activeTab].undo)
-
   $('#editor').env.editor.session.setMode("ace/mode/html");
+
   if (String(fid)[0] == '-')
+
     activeFile = undefined;
-  else
-  {
-    // if (fileTab[activeTab].name.endsWith('.blogger'))
-    // {
-    //   $('#menu-basic').classList.toggle('w3-hide')
-    //   $('#menu-blogger').classList.toggle('w3-hide')
-    // }
+  else {
+
     if (fileTab[activeTab].name.endsWith('.css'))
       $('#editor').env.editor.session.setMode("ace/mode/css");
     else if (fileTab[activeTab].name.endsWith('.js'))
@@ -418,7 +426,6 @@ function focusTab(fid, isClose) {
       $('#editor').env.editor.session.setMode("ace/mode/php");
       
     activeFile = fileTab[activeTab].file;
-    
   }
   
   let x;
@@ -426,24 +433,14 @@ function focusTab(fid, isClose) {
     x = patob(activeFile.description)
   else
     x = {}
-  // if (activeFile.name.endsWith('.blogger'))
-  // {
-  // 	$('#in-blog-title').value = x.blogTitle || '';
-  // 	$('#in-blog-id').value = x.blogId || '';
-  // 	$('#in-max-posts').value = x.maxPosts || 20;
-  	
-  // 	init(x);
-  // }
-  // else
-  // {
-  	$('#in-blog-name').value = x.blog || '';
-  	$('#in-eid').value = x.eid || '';
-  	$('#in-summary').value = x.summary || '';
-  	$('#in-summary').value = $('#in-summary').value.substring(1, $('#in-summary').value.length-1);
-  	$('#chk-more-tag').checked = x.more || false;
-  	$('#chk-bibibi').checked = x.bibibi || false;
-  	$('#chk-in-pre').checked = x.pre || false;
-  // }
+
+	$('#in-blog-name').value = x.blog || '';
+	$('#in-eid').value = x.eid || '';
+	$('#in-summary').value = x.summary || '';
+	$('#in-summary').value = $('#in-summary').value.substring(1, $('#in-summary').value.length-1);
+	$('#chk-more-tag').checked = x.more || false;
+	$('#chk-bibibi').checked = x.bibibi || false;
+	$('#chk-in-pre').checked = x.pre || false;
 }
 
 function newTab(position, data) {
@@ -504,11 +501,11 @@ function newTab(position, data) {
 
 function closeTab(focus = true, comeback) {
   
-  if (focus)
-  {
-    if ($('.file-tab')[activeTab].firstElementChild.firstElementChild.textContent.trim() != 'close')
-    {
-      if (!window.confirm('Changes you made may not be saved')) return
+  if (focus) {
+    
+    if ($('.file-tab')[activeTab].firstElementChild.firstElementChild.textContent.trim() != 'close') {
+      
+      if (!window.confirm('Changes you made may not be saved')) return;
     }
   }
   
@@ -516,36 +513,34 @@ function closeTab(focus = true, comeback) {
   fileTab.splice(activeTab, 1);
   
   
-  if (focus)
-  {
-    if (fileTab.length == 0)
-    {
+  if (focus) {
+    
+    if (fileTab.length == 0) {
+      
       $('#editor').env.editor.setValue('');
       newTab()
       activeFile = undefined;
-    }
-    else
-    {
-      if (comeback)
-      {
-        activeTab = comeback
+    } else {
+      
+      if (comeback != undefined) {
+        
+        if (isSameTab(activeTab, comeback)) return;
+        activeTab = comeback;
         focusTab(fileTab[activeTab].fid, true);
-      }
-      else
-      {
+      } else {
+        
         if (activeTab == 0)
           focusTab(fileTab[0].fid, true);
         else
           focusTab(fileTab[activeTab-1].fid, true);
       }
-        
     }
   }
 }
 
 
 function switchTab(dir) {
-  // $('#editor').env.editor.blur();
+
   let fid;
   
   if (activeTab+dir > 0 && activeTab+dir < fileTab.length)
