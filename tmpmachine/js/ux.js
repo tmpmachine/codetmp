@@ -319,6 +319,7 @@ function saveListener(event, bypass = false) {
     event.altKey && event.key === 'd' ||
     event.altKey && event.key === 'w' ||
     event.altKey && event.key === 'n' ||
+    event.altKey && event.key === 'm' ||
     event.altKey && event.key === 'l' ||
     event.altKey && event.key === 'j' ||
     keyHandle.Control && event.keyCode === 13) return;
@@ -380,10 +381,10 @@ function isSameTab(valueCheck1, valueCheck2) {
   return false;
 }
 
-function focusTab(fid, isClose) {
+function focusTab(fid, isActiveTab = false, isClose) {
   
   let idx = odin.idxOf(String(fid), fileTab, 'fid');
-  if (isSameTab(activeTab, idx)) return;
+  if (isActiveTab && isSameTab(activeTab, idx)) return;
   
   for (let tab of $('.file-tab'))
     tab.lastElementChild.style.background = '#202020';
@@ -526,13 +527,13 @@ function closeTab(focus = true, comeback) {
         
         if (isSameTab(activeTab, comeback)) return;
         activeTab = comeback;
-        focusTab(fileTab[activeTab].fid, true);
+        focusTab(fileTab[activeTab].fid, false, true);
       } else {
         
         if (activeTab == 0)
-          focusTab(fileTab[0].fid, true);
+          focusTab(fileTab[0].fid, false, true);
         else
-          focusTab(fileTab[activeTab-1].fid, true);
+          focusTab(fileTab[activeTab-1].fid, false, true);
       }
     }
   }
@@ -671,8 +672,9 @@ function btnPreview() {
       $('#btn-blogsphere-logout').style.display = 'none';
       
       auth0.logout();
+      auth0.auth.reset();
+      fs.reset();
       aww.pop("You've been logged out from TMPmachine.");
-      THOR.resetApp();
       
       fileClose();
       activeFolder = -1;

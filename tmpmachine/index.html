@@ -338,7 +338,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build 0.031" +opacity]
+            [c +half "Developer Build 0.033" +opacity]
           ]
           [ @breadcrumbs +small +padding]
           [ @file-list +padding]
@@ -603,7 +603,7 @@
           [M +right "__fiber__" +button +hover-none +hover-text-light-grey +medium +text-gray .icon-rename onclick="fileClose('__fid__')" {p:4px 0 4px 9px;}]
         ]
         [x {pos:relative;p:18px 24px;lh:1.5em;}
-          [ "__name__" onclick="focusTab('__fid__')" .file-tab-name data-title="__name__" {pos:absolute;l:0;t:0;w:100%;col:#fff!;} .tapx +small .file-name {p:10px 10px 10px 19px;} {fw:bold;} +left]
+          [ "__name__" onclick="focusTab('__fid__', true)" .file-tab-name data-title="__name__" {pos:absolute;l:0;t:0;w:100%;col:#fff!;} .tapx +small .file-name {p:10px 10px 10px 19px;} {fw:bold;} +left]
         ]
       ]
       [ {h:0.25rem;bg:#202020;}]

@@ -505,42 +505,16 @@ function openFile(fid) {
       });
     }
     else
-      focusTab(f.fid);
+      focusTab(f.fid, false);
     
-    
-    // $('#menu-basic').classList.toggle('w3-hide', false);
-    // $('#menu-blogger').classList.toggle('w3-hide', true);
     
     if ($('#btn-menu-project').classList.contains('active'))
       $('#btn-menu-project').click();
-    
-    // $('#btn-info').classList.toggle('w3-hide', false)
-    // $('#btn-assets').classList.toggle('w3-hide', false)
-    
-    // $('#editor').addEventListener('keydown', saveListener);
-    
-    
-    // let x = patob(activeFile.description);
+
     if (f.name.endsWith('.blogger'))
-    {
-    // 	$('#in-blog-title').value = x.blogTitle || '';
-    // 	$('#in-blog-id').value = x.blogId || '';
-    // 	$('#in-max-posts').value = x.maxPosts || 20;
-    	
-    // 	init(x);
       $('#btn-blog-vc').classList.toggle('w3-hide', false);
-    }
     else
-    {
       $('#btn-blog-vc').classList.toggle('w3-hide', true);
-    // 	$('#in-blog-name').value = x.blog || '';
-    // 	$('#in-eid').value = x.eid || '';
-    // 	$('#in-summary').value = x.summary || '';
-    // 	$('#in-summary').value = $('#in-summary').value.substring(1, $('#in-summary').value.length-1);
-    // 	$('#chk-more-tag').checked = x.more || false;
-    // 	$('#chk-bibibi').checked = x.bibibi || false;
-    // 	$('#chk-in-pre').checked = x.pre || false;
-    }
   	
   }).catch(function(error) {
     
