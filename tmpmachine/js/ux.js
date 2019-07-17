@@ -159,6 +159,7 @@ const ui = {
     }
   },
   toggleMenu: function(callback){
+    
     let targetId = this.getAttribute('target');
     let target;
     if (targetId)
@@ -175,8 +176,10 @@ const ui = {
     let menu = $('#'+menuId);
     let block = $('#'+menuId+'-block');
     
-    if (target.classList.contains('active') && (menuId === 'in-project' || menuId === 'in-trash' || menuId === 'in-settings'))
-    {
+    if (target.classList.contains('active') && (menuId === 'in-project' || menuId === 'in-trash' || menuId === 'in-settings')) {
+      
+      $('#list-trash').innerHTML = '';
+      $('#file-list').innerHTML = '';
       if (menuId === 'in-project')
         fileList();
       else if (menuId === 'in-trash')
@@ -185,8 +188,8 @@ const ui = {
       toggleInsertSnippet(false);
     }
 
-    if (!menu)
-    {
+    if (!menu) {
+      
       setTimeout(function(){
         target.classList.toggle('active',false);
         target.lastElementChild.classList.toggle('active',false);
@@ -196,10 +199,10 @@ const ui = {
     }
     
     
-    for (let el of $('.btn-material'))
-    {
-      if (el !== target)
-      {
+    for (let el of $('.btn-material')) {
+      
+      if (el !== target) {
+        
         if (!el.classList.contains('active')) continue;
         el.classList.toggle('active',false)
         el.lastElementChild.classList.toggle('active',false);
@@ -216,16 +219,16 @@ const ui = {
     menu.classList.toggle('active');
     block.classList.toggle('active');
     
-    if (!menu.classList.contains('active'))
-    {
+    if (!menu.classList.contains('active')) {
+      
       selectedFile = [];
       clipBoard = [];
     }
     
     let isActive = menu.classList.contains('active');
     
-    if (!block.getAttribute('listener'))
-    {
+    if (!block.getAttribute('listener')) {
+      
       block.setAttribute('target',this.getAttribute('id'));
       block.setAttribute('listener','true');
       o.listener(block,'click',[function(){
