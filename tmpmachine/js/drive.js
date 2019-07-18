@@ -270,30 +270,42 @@ const drive = {
     drive.syncToDrive.enabled = true;
     $('#syncing').textContent = 'Sync ('+fs.data.sync.length+')';
     
-    drive.syncFile(sync).then((json) => {
-
-      // L(json)
-      $('#action-info').innerHTML = '&nbsp;';
-      if (json.action === 'create' || json.action === 'copy')
-      {
-        let data = odin.dataOf(fs.data.sync[0].fid, fs.data[json.type], 'fid');
-        data.id = json.id;
+    new Promise(function(resolveTokenRequest) {
+        
+      if (auth0.state(5))
+        return resolveTokenRequest();
+      else {
+        auth0.requestToken(function() {
+          return resolveTokenRequest();
+        });
       }
-      fs.data.sync.splice(0, 1);
-      drive.syncToDrive.enabled = false;
-      drive.syncToDrive();
-      fs.save();
-
-    }).catch((error) => {
-
-      L(error);
-      drive.syncToDrive.enabled = false;
-      $('#action-info').textContent = 'Refreshing authentication...';
-      oblog.authModule.requestToken(() => {
-        $('#action-info').textContent = '';
+      
+    }).then(function() {
+      
+      drive.syncFile(sync).then((json) => {
+  
+        $('#action-info').innerHTML = '&nbsp;';
+        if (json.action === 'create' || json.action === 'copy')
+        {
+          let data = odin.dataOf(fs.data.sync[0].fid, fs.data[json.type], 'fid');
+          data.id = json.id;
+        }
+        fs.data.sync.splice(0, 1);
+        drive.syncToDrive.enabled = false;
         drive.syncToDrive();
-      }, true)
-
+        fs.save();
+  
+      }).catch((error) => {
+  
+        L(error);
+        drive.syncToDrive.enabled = false;
+        $('#action-info').textContent = 'Refreshing authentication...';
+        oblog.authModule.requestToken(() => {
+          $('#action-info').textContent = '';
+          drive.syncToDrive();
+        }, true)
+  
+      });
     });
   },
   initAppData: function(systemFolderId) {

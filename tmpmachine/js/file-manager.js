@@ -38,7 +38,7 @@ const fm = {
 
 function rollbackRevision(id) {
   
-  aww.pop('Downloading rollback resource...')
+  aww.pop('Downloading rollback resource...');
   
   fetch(drive.apiUrl+'files/'+activeFile.id+'/revisions/'+id+'?alt=media', {
     method:'GET',
@@ -46,37 +46,26 @@ function rollbackRevision(id) {
       'Authorization':'Bearer '+auth0.auth.data.token
     }
   }).then(function(r) {
+    
     if (r.ok)
       return r.text();
     else
       throw r.status;
   }).then((media) => {
     
-    // if (window.confirm('Successfully download required file. Apply rollback?'))
-    // {
-      aww.pop('Successfully rollback to selected revision');
-      // activeFile.content = media;
-      // fs.save();
-      $('#editor').env.editor.setValue(media);
-      // openFile(activeFile.fid);
-    // }
+    aww.pop('Successfully rollback to selected revision');
+    $('#editor').env.editor.setValue(media);
     
   }).catch(() => {
     
     aww.pop('Could not download required file: '+data.name);
     
   });
-  
-  
-  // if (!window.confirm('Delete selected revision?')) return
-  
-  
-  
 }
 
 function deleteRevision(id, el) {
   
-  if (!window.confirm('Delete selected revision?')) return
+  if (!window.confirm('Delete selected revision?')) return;
   
    fetch(drive.apiUrl+'files/'+activeFile.id+'/revisions/'+id, {
     method:'DELETE',
@@ -87,23 +76,16 @@ function deleteRevision(id, el) {
     
     return result;
   }).then(function() {
-    // console.log(json)
     
-    L('empty response body')
+    L('empty response body');
     el.parentElement.parentElement.removeChild(el.parentElement);
-    // json.revisions.forEach((rev) => {
-      // L(rev)
-    // });
-    
-    // $('list-revisions').innerHTML = o.creps('tmp-list-revision', json.revisions);
-    
   });
   
 }
 
 function keepRevision() {
   
-  aww.pop('please wait...')
+  aww.pop('please wait...');
   fetch(drive.apiUrl+'files/'+activeFile.id+'?fields=headRevisionId', {
     headers: {
       'Authorization':'Bearer '+auth0.auth.data.token
@@ -114,13 +96,7 @@ function keepRevision() {
     
   }).then(function(json) {
     
-    aww.pop('saving revision...')
-    
-    
-    // let form = new FormData();
-    // form.append('metadata', new Blob([JSON.stringify({
-      // keepForever: true
-    // })], { type: 'application/json' }));
+    aww.pop('saving revision...');
     
     fetch(drive.apiUrl+'files/'+activeFile.id+'/revisions/'+json.headRevisionId+'?fileds=id', {
       method: 'PATCH',
@@ -137,7 +113,7 @@ function keepRevision() {
       
     }).then(function(json) {
       
-      aww.pop('Ok')
+      aww.pop('Ok');
       
     });
     
@@ -155,19 +131,16 @@ function listRevisions() {
   }).then(function(result) {
     return result.json();
   }).then(function(json) {
-    let keepForever = []
+    let keepForever = [];
     
     json.revisions.forEach((rev) => {
       if (rev.keepForever)
-        // L(rev)
-        keepForever.push(rev)
+        keepForever.push(rev);
     });
     
     $('#list-revisions').innerHTML = o.creps('tmp-list-revision', keepForever);
     
   });
-  
-  
 }
 
 
@@ -442,7 +415,8 @@ function openFileConfirm(el) {
 
 
 function openFile(fid) {
-  var f = odin.dataOf(fid, fs.data.files, 'fid');
+  
+  let f = odin.dataOf(fid, fs.data.files, 'fid');
   activeFile = f;
   
   Promise.all([
@@ -453,36 +427,48 @@ function openFile(fid) {
         
         if (f.loaded)
           resolve()
-        else
-        {
+        else {
+          
           aww.pop('Downloading file...');
           
-          fetch('https://www.googleapis.com/drive/v3/files/'+f.id+'?alt=media', {
-            method:'GET',
-            headers: {
-              'Authorization':'Bearer '+auth0.auth.data.token
+          new Promise(function(resolveTokenRequest) {
+        
+            if (auth0.state(5))
+              return resolveTokenRequest();
+            else {
+              auth0.requestToken(function() {
+                return resolveTokenRequest();
+              });
             }
-          }).then(function(r) {
             
-            if (r.ok)
-              return r.text();
-            else
-              throw r;
+          }).then(function() {
+          
             
-          }).then(function(media) {
-            
-            f.content = media;
-            f.loaded = true;
-            fs.save();
-            resolve();
-            
-          }).catch(reject)
+            fetch('https://www.googleapis.com/drive/v3/files/' + f.id + '?alt=media', {
+              method: 'GET',
+              headers: {
+                'Authorization': 'Bearer ' + auth0.auth.data.token
+              }
+            }).then(function(r) {
+              
+              if (r.ok)
+                return r.text();
+              else
+                throw r;
+              
+            }).then(function(media) {
+              
+              f.content = media;
+              f.loaded = true;
+              fs.save();
+              resolve();
+              
+            }).catch(reject)
+          })
         }
         
       });
-      
     })()
-    
   ]).then(function() {
     
     if (fileTab.length == 1 && $('#editor').env.editor.getSession().getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
@@ -490,8 +476,8 @@ function openFile(fid) {
 
     
     let idx = odin.idxOf(f.fid, fileTab, 'fid')
-    if (idx < 0)
-    {
+    if (idx < 0) {
+      
       newTab(fileTab.length, {
         fid: f.fid,
         scrollTop: 0,
@@ -503,8 +489,7 @@ function openFile(fid) {
         file: f,
         undo: new ace.UndoManager()
       });
-    }
-    else
+    } else
       focusTab(f.fid, false);
     
     
@@ -520,9 +505,7 @@ function openFile(fid) {
     
     L(error);
     aww.pop('Could not download file');
-    
   })
-  
 }
 
 
@@ -557,18 +540,14 @@ function fileSave() {
   let modifiedTime = new Date().toISOString();
   if (activeFile === undefined)
     ui.fm.newFile();
-  else
-  {
+  else {
+    
     activeFile.content = $('#editor').env.editor.getValue();
     activeFile.modifiedTime = modifiedTime;
+    activeFile.description = patobr('description');
     
-    // if (activeFile.name.endsWith('.blogger'))
-      // activeFile.description = patobr('blog-description');
-    // else
-      activeFile.description = patobr('description');
-    
-    if (iframeRender.includes(activeFile.name))
-    {
+    if (iframeRender.includes(activeFile.name)) {
+      
       var idx = iframeRender.indexOf(activeFile.name);
       $('#loader'+idx).contentWindow.postMessage({
         method: 'put',
@@ -584,9 +563,7 @@ function fileSave() {
       metadata: ['media', 'description'],
       type: 'files'
     })
-    
     drive.syncToDrive();
-    
     fs.save();
     
     $('.icon-rename')[activeTab].textContent = 'close';
