@@ -1,7 +1,10 @@
 let cantLock = false;
 let activeMenu = '';
+let waitDeploy = false;
+let debugAttempUrl = '';
 
 const ui = {
+  
   fm: {
     renameFolder: function() {
       
@@ -256,23 +259,23 @@ window.addEventListener('paste', function(e) {
 });
 
 
-
-
 window.onbeforeunload = function(e) {
-  var notSaved = false;
-  for (let icon of $('.icon-rename'))
-  {
-    if (icon.textContent !== 'close')
-    {
+  
+  let notSaved = false;
+  for (let icon of $('.icon-rename')) {
+    
+    if (icon.textContent !== 'close') {
+      
       notSaved = true;
       break;
     }
   }
   
   if (fileTab.length > 1)
+  
     notSaved = true
-  else
-  {
+  else {
+    
     if (fileTab[0].fid[0] !== '-')
       notSaved = true
   }
@@ -280,6 +283,7 @@ window.onbeforeunload = function(e) {
   if (notSaved)
     return  'Changes you made may not be saved';
 }
+
 
 function handleKeyUp(e) {
   
@@ -305,12 +309,10 @@ function handleKeyUp(e) {
 }
 
 
-
-
 function saveListener(event, bypass = false) {
   
-  if (!bypass)
-  {
+  if (!bypass) {
+    
     let exclude = [16, 17, 18, 20, 27, 91, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 122, 123];
     if (exclude.indexOf(event.keyCode) >= 0 ||
     keyHandle.Control && event.keyCode === 67 ||
@@ -334,6 +336,7 @@ function saveListener(event, bypass = false) {
 }
   
 function togglePreview() {
+  
   $('#main-editor').classList.toggle('hide');
   setTimeout(() => {
     $('#btn-back-to-editor').classList.toggle('hide');

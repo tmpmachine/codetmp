@@ -1,6 +1,4 @@
 let L = console.log;
-let waitDeploy = false;
-let debugAttempUrl = '';
 
 const THOR = (function() {
   

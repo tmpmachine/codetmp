@@ -1,15 +1,15 @@
-self.addEventListener('message',function(e){
+self.addEventListener('message', function(e) {
   if (e.data.action == 'skipWaiting')
     self.skipWaiting();
 });
 
 
-var cacheVersion = '0.034';
-var cacheItem = 'tmp-'+cacheVersion;
+let cacheVersion = '0.035';
+let cacheItem = 'tmp-'+cacheVersion;
 
-self.addEventListener('install',function(event) {
+self.addEventListener('install', function(event) {
 
-  var urls = [
+  let urls = [
     '/',
     '/404.html',
     '/TOS.html',
@@ -64,17 +64,17 @@ self.addEventListener('install',function(event) {
     ];
  
   event.waitUntil(
-    caches.open(cacheItem).then(function(cache){
+    caches.open(cacheItem).then(function(cache) {
       return cache.addAll(urls);
     })
   );
   
 });
 
-self.addEventListener('activate',function(e){
+self.addEventListener('activate', function(e) {
   e.waitUntil(
-    caches.keys().then(function(c){
-      c.map(function(cname){
+    caches.keys().then(function(c) {
+      c.map(function(cname) {
         if (!cname.endsWith(cacheVersion))
           caches.delete(cname);
       });

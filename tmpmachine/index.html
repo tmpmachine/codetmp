@@ -632,26 +632,26 @@
   
   <script src="js/engine.js"></script>
   <script>
-    function clientUpdateHandler(swo, callback) {
+  
+    function clientUpdateHandler() {
       
-      $ = function(query) {
+      let $ = function(query) {
         return document.querySelector(query);
       }
       
       new Promise(function(resolve, reject) {
       
-        if ($('#update-notif') !== null)
-        {
+        if ($('#update-notif') !== null) {
+          
           $('#update-notif').classList.toggle('active', true);
           $('#btn-refresh').onclick = resolve;
           $('#btn-dismiss').onclick = reject;
-        }
-        else
-        {
+        } else {
+          
           clientUpdateHandler.wait = setInterval(function() {
             
-            if ($('#update-notif') !== null)
-            {
+            if ($('#update-notif') !== null) {
+              
               clearInterval(clientUpdateHandler.wait)
               $('#update-notif').classList.toggle('active', true);
               $('#btn-refresh').onclick = resolve;
@@ -663,16 +663,7 @@
       
       }).then(function() {
         
-        if (clientUpdateHandler.swo)
-          clientUpdateHandler.swo.waiting.postMessage({action: 'skipWaiting'});
-        else if (swo)
-          swo.waiting.postMessage({action: 'skipWaiting'});
-        
         $('#update-notif').classList.toggle('active', false);
-        
-        if (callback)
-          callback();
-          
         location.href = location.href;
         
       }).catch(function() {
@@ -683,75 +674,55 @@
     }
   
     // service worker handler
-    if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator)
-    {
-      navigator.serviceWorker.addEventListener('controllerchange',function() {
-        location.href = location.href;
-      });
+    if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
       
       navigator.serviceWorker.register('/sw.js').then(function(swo) {
+        
         if (!navigator.serviceWorker.controller)
           return
     
-        if (swo.waiting)
-        {
-          if (typeof(clientUpdateHandler) === 'undefined')
-          {
+        if (swo.waiting) {
+          
+          swo.waiting.postMessage({action: 'skipWaiting'});
+          if (typeof(clientUpdateHandler) === 'undefined') {
+            
             if (window.confirm('App updated. Reload?'))
-            {
-              swo.waiting.postMessage({action: 'skipWaiting'});
               location.href = location.href;
-            }
-          }
-          else
-          {
-            clientUpdateHandler(swo);
-            clientUpdateHandler.swo = swo;
-          }
+          } else
+            clientUpdateHandler();
           
           return
         }
     
-        if (swo.installing)
-        {
-          swo.installing.addEventListener('statechange',function(e) {
-            if (swo.installing.state == 'installed')
-            {
-              if (typeof(clientUpdateHandler) === 'undefined')
-              {
+        if (swo.installing) {
+          
+          swo.installing.addEventListener('statechange', function(e) {
+            
+            if (swo.installing.state == 'installed') {
+              
+              swo.waiting.postMessage({action: 'skipWaiting'});
+              if (typeof(clientUpdateHandler) === 'undefined') {
+                
                 if (window.confirm('App updated. Reload?'))
-                {
-                  swo.waiting.postMessage({action: 'skipWaiting'});
                   location.href = location.href;
-                }
-              }
-              else
-              {
-                clientUpdateHandler(swo);
-                clientUpdateHandler.swo = swo;
-              }
+              } else
+                clientUpdateHandler();
             }
           })
           return
         }
         
-        swo.addEventListener('updatefound',function() {
-          swo.installing.addEventListener('statechange',function(e) {
-            if (this.state == 'installed')
-            {
-              if (typeof(clientUpdateHandler) === 'undefined')
-              {
+        swo.addEventListener('updatefound', function() {
+          swo.installing.addEventListener('statechange', function(e) {
+            if (this.state == 'installed') {
+              
+              swo.waiting.postMessage({action: 'skipWaiting'});
+              if (typeof(clientUpdateHandler) === 'undefined') {
+                
                 if (window.confirm('App updated. Reload?'))
-                {
-                  swo.waiting.postMessage({action: 'skipWaiting'});
                   location.href = location.href;
-                }
-              }
-              else
-              {
-                clientUpdateHandler(swo);
-                clientUpdateHandler.swo = swo;
-              }
+              } else
+                clientUpdateHandler();
             }
           })
         })
@@ -759,6 +730,7 @@
         console.error('Something went wrong.')
       });
     }
+    
   </script>
 </body>
 </html>
