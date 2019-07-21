@@ -106,7 +106,7 @@ const THOR = (function() {
     });
     
     plate.cook();
-    // plate.tag = [];
+    plate.tag = [];
         
     THOR.ready();
     
