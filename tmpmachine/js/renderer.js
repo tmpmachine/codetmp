@@ -169,19 +169,17 @@ function fixDirectory(body, parent) {
 
 function replaceLocal(body, preParent = -1) {
 
-  if (body === undefined)
-  {
-    if (locked === -1 || (activeFile && locked === activeFile.fid))
-    {
+  if (body === undefined) {
+    
+    if (locked === -1 || (activeFile && locked === activeFile.fid)) {
+    
       body = $('#editor').env.editor.getValue();
       
       preParent = activeFile ? activeFile.parentId : activeFolder;
-    }
-    else
-    {
+    } else {
+    
       let file = odin.dataOf(locked, fs.data.files, 'fid');
       
-      // body = file.content;
       let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
       if (tabIdx >= 0)
         body = fileTab[tabIdx].content;
@@ -240,7 +238,6 @@ function replaceLocal(body, preParent = -1) {
           break;
       }
       
-      // let content = (activeFile && activeFile.fid === data.fid) ? $('#editor').env.editor.getValue() : data.content;
       let tabIdx = odin.idxOf(data.fid, fileTab, 'fid');
       let content;
       if (tabIdx >= 0)
@@ -248,9 +245,7 @@ function replaceLocal(body, preParent = -1) {
       else
         content = data.content;
     
-      // let split = body.split(match[0]);
       let swap = ot+replaceLocal(content, parentId)+ct;
-      // body = split[1]+ot+replaceLocal(content, parentId)+ct+split[2];
       body = body.replace(new RegExp(match[0], 'g'), swap);
     }
    

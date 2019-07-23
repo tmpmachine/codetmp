@@ -182,26 +182,7 @@ var wgSearch = {
 
 
 
-function toggleInsertSnippet(persistent) {
-  if ($('#in-project').classList.contains('active') || $('#in-settings').classList.contains('active')) return
 
-  let el = $('.search-box')[0];
-
-  if (persistent === undefined)
-    el.classList.toggle('w3-hide');
-  else
-    el.classList.toggle('w3-hide', !persistent);
-
-  if (!el.classList.contains('w3-hide'))
-  {
-    $('#search-input').value = '';
-    $('#search-input').focus();
-  }
-  else
-  {
-    $('#search-input').value = '';
-  }
-}
 
 function somefun(self, bypass) {
   if (self.textContent == 'search' && $('#search-input').value.length > 0)

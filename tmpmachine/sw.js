@@ -4,7 +4,7 @@ self.addEventListener('message', function(e) {
 });
 
 
-let cacheVersion = '0.0353';
+let cacheVersion = '0.036';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('install', function(event) {
@@ -47,8 +47,7 @@ self.addEventListener('install', function(event) {
     '/js/engine.js',
     '/js/template.js',
     '/js/idb.js',
-    '/js/THOR.js',
-    '/js/THOR-data.js',
+    '/js/renderer.js',
     '/js/ux.js',
     '/js/file-manager.js',
     '/js/drive.js',

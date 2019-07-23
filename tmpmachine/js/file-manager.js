@@ -5,6 +5,60 @@ let copyParentFolderId = -2;
 let fileTab = [];
 let activeTab = 0;
 
+let breadcrumbs = [{folderId:'-1',title:'My Files'}];
+let activeFile;
+let doubleClick = false;
+let lastClickEl;
+
+const fs = new lsdb('B-THOR-fs', {
+  root: {
+    rootId: '',
+    files: [],
+    folders: [],
+    blogs: [],
+    sync: [],
+    counter: {
+      files: 0,
+      folders: 0
+    }
+  },
+
+  blogs: {
+    name: '',
+    id: ''
+  },
+  folders:{
+    fid: 0,
+    parentId: -1,
+    
+    id: '',
+    name: '',
+    description: '',
+    modifiedTime: '',
+    trashed: false,
+  },
+  files: {
+    fid: 0,
+    parentId: -1,
+    modifiedTime: '',
+    isLock: false,
+    loaded: false,
+    
+    id: '',
+    name: '',
+    content: '',
+    description: '',
+    trashed: false,
+  },
+  sync: {
+    action: '',
+    fid: -1,
+    source: -1,
+    metadata: [],
+    type: '',
+  },
+});
+
 const fm = {
   INSERT: {
     folder: function(data) {
@@ -544,7 +598,7 @@ function fileSave() {
     
     activeFile.content = $('#editor').env.editor.getValue();
     activeFile.modifiedTime = modifiedTime;
-    activeFile.description = patobr('description');
+    activeFile.description = stringifyDescription('description');
     
     if (iframeRender.includes(activeFile.name)) {
       
@@ -571,38 +625,37 @@ function fileSave() {
   }
 }
 
-function patobr(cls) {
+function stringifyDescription(cls) {
   
   let data = [];
-  let els = $('.'+cls);
+  let els = $('.' + cls);
   
-  for (let e of els)
-  {
+  for (let e of els) {
+    
     let key = e.getAttribute('name');
     
     if (e.type === 'text')
-      data.push(key+': '+e.value);
+      data.push(key + ': ' + e.value);
     else if (e.type === 'textarea')
-      data.push(key+': "'+e.value+'"');
+      data.push(key + ': "' + e.value + '"');
     else if (e.type === 'checkbox')
-      data.push(key+': '+e.checked);
+      data.push(key + ': ' + e.checked);
   }
   
   return data.join('\n');
-  
 }
 
-function patob(txt) {
+function parseDescription(txt) {
 
   let obj = {};
   txt = txt.split('\n');
   
-	for (var i=0; i<txt.length; i++)
-	{
+	for (let i = 0; i < txt.length; i++) {
+	  
 	  let t = txt[i];
 	  t = t.trim();
-	  if (t.length === 0)
-    {
+	  if (t.length === 0) {
+	    
       txt.splice(i, 1);
       i -= 1;
       continue;
@@ -625,6 +678,7 @@ function patob(txt) {
 	
 
 function chooseDeploy() {
+  
   let data;
   let blogName;
   let eid;
@@ -633,11 +687,11 @@ function chooseDeploy() {
   let isBibibi = $('#chk-bibibi').checked;
   let summary = $('#in-summary').value.trim();
   
-  if (locked >= 0)
-  {
+  if (locked >= 0) {
+    
     data = odin.dataOf(locked, fs.data.files, 'fid');
     
-    let ob = patob(data.description);
+    let ob = parseDescription(data.description);
     
     blogName = ob.blog;
     eid = ob.eid;
@@ -649,17 +703,16 @@ function chooseDeploy() {
     
     if (summary === '""')
       summary = "";
-  }
-  else
-  {
+  } else {
+    
     data = activeFile;
     blogName = $('#in-blog-name').value;
     eid = $('#in-eid').value;
   }
   
   
-  if (blogName && eid)
-  {
+  if (blogName && eid) {
+    
     aww.pop('Deploying update...');
     
     let more = '';
@@ -676,11 +729,8 @@ function chooseDeploy() {
     else
       nowUpload = summary+more+bibibib+uploadBody;
     
-    // L(nowUpload);
-    
-    
-    if (eid[0] == 'p')
-    {
+    if (eid[0] == 'p') {
+      
       oblog.config({ blog: blogName });
       oblog.pages.patch(eid.substring(1), {
         
@@ -689,23 +739,20 @@ function chooseDeploy() {
         
         if (e == 404)
           aww.pop('404')
-        else
-        {
+        else {
+          
           aww.pop('Update Deployed!')
           
-          if (activeFile.name.includes('.blogger'))
-          {
+          if (activeFile.name.includes('.blogger')) {
+            
             oblog.matchBlog(function(blogId) {
-              
               window.open('https://www.blogger.com/rearrange?blogID='+blogId+'&action=editWidget&sectionId=main&widgetType=null&widgetId=HTML1')
-              
             })
           }
         }
       })
-    }
-    else
-    {
+    } else {
+      
       oblog.config({ blog: blogName });
       oblog.posts.patch(eid, {
         
@@ -714,23 +761,20 @@ function chooseDeploy() {
 
         if (e == 404)
           aww.pop('404')
-        else
-        {
+        else {
+          
           aww.pop('Update Deployed!')
           
-          if (activeFile.name.includes('.blogger'))
-          {
+          if (activeFile.name.includes('.blogger')) {
+            
             oblog.matchBlog(function(blogId) {
-              
               window.open('https://www.blogger.com/rearrange?blogID='+blogId+'&action=editWidget&sectionId=main&widgetType=null&widgetId=HTML1')
-              
             })
           }
         }
       })
     }
-  }
-  else
+  } else
     alert('Deploy failed. Blog name or entry ID has not been set.');
 }
 

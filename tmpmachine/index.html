@@ -57,15 +57,6 @@
       Notes : Your files are stored locally in browser storage. Login to synchronize with Google Drive.
       [br]
     ]
-    Keyboard shortcuts :
-    [ul
-      [li
-        Ctrl + Enter : Preview code
-      ]
-      [li
-        Ctrl + S     : Save file
-      ]
-    ]
     
     ---
     
@@ -86,7 +77,7 @@
     
     [h3 {fw:bold;} "Why it exists?"]
     [p
-      My ancient laptop HDD goes "berserk" [s +small {fw:bold} "i.e. bad sector"] and I need a place to store my overwhelming JavaScript files and access it from public area at the time. So goes the Google Drive synchronization idea come to live and here comes the temporary code editor so called my IGN, <b>TMPmachine</b>... I know, it's a lame name, deal with it!
+      My laptop HDD goes "berserk" [s +small {fw:bold} "i.e. bad sector"], so I need a place to store my JavaScript project and access it from public area at the time. So goes the Google Drive synchronization idea come to live and here comes the temporary code editor so called my IGN, <b>TMPmachine</b>.
     ]
     [ +padding]
     
@@ -96,7 +87,7 @@
 
   
   [ {h:100%;} @main-editor
-    [ +left {pos:relative;h:100%;ov-x:hidden;ov-y:auto;} +black +animate-left @sidebar +card-4
+    [ +left +hide-large +hide-medium {pos:relative;h:100%;ov-x:hidden;ov-y:auto;} +black +animate-left @sidebar +card-4
       <!--plate-sidebar-->
       [ +black {pos:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;}]
     ]
@@ -108,12 +99,94 @@
           [ +blue +hide {pos:fixed;z:2;h:calc(100% - 41px);r:0;w:200px;ov-y:scroll;t:41px;} onscroll="$('#editor').env.editor.getSession().setScrollTop(this.scrollTop)"
             [ @scroll-chair {w:200px;bg:linear-gradient(dodgerblue,lightblue);}]
           ]
-          <!--$('#scroll-chair').style.height = $('#editor').env.editor.getSession().getLength()*17+'px'-->
-          [ @file-title-wrapper
-          [ +black {pos:relative;} @file-title .menu-overflow-header
-              <!--[ {h:0.25rem;bg:#212121;pos:absolute;b:0;l:0;w:100%;}]-->
-              <!--plate-ninja-space-->
+          
+          [a href="javascript:void(0)" @nav-bar-blur {pos:absolute;z:-22;dis:none;}]
+          [ @nav-bar +hide-small .hoverable .no-select {bg:#1d1f25;} {h:34px;pos:relative;z:888;dis:block;w:100%;} +small {col:#fafafa;}
+            [ul {p:0;m:0;list-style:none;dis:inline-block;}
+              [li +left +padding {pos:relative;}
+                File
+                [ul {l:0;bg:#000;t:0;w:230px;p:0;m:0;list-style:none;dis:none;pos:absolute;}
+                  [li +padding .menu-link data-link='save'
+                    Save
+                    [s "Ctrl + S" +tiny +opacity +right]
+                  ]
+                  [li +padding .menu-link data-link='preview'
+                    Preview
+                    [s "Ctrl + Enter" +tiny +opacity +right]
+                  ]
+                  [li +padding .menu-link data-link='deploy'
+                    Deploy to Blogger
+                    [s "Alt + Enter" +tiny +opacity +right]
+                  ]
+                ]
+              ]
+              [li +left +padding {pos:relative;}
+                Explorer
+                [ul {dis:none;l:0;t:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
+                  [li +padding .menu-link data-link='my-files'
+                    My Files
+                    [s "Alt + M" +tiny +opacity +right]
+                  ]
+                  [li +padding .menu-link data-link='file info'
+                    File Info
+                    [s "Alt + I" +tiny +opacity +right]
+                  ]
+                  [li +padding .menu-link data-link='trash'
+                    Trash
+                  ]
+                ]
+              ]
+              [li +left +padding {pos:relative;}
+                Help
+                [ul {dis:none;t:0;l:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
+                  [li
+                    [a +padding {dis:block} href="/PP.html" target="_blank" "Privacy Policy"]
+                  ]
+                  [li
+                    [a +padding {dis:block} href="/TOS.html" target="_blank" "Terms of Service"]
+                  ]
+                  [li +padding .menu-link data-link='about'
+                    About TMPmachine
+                  ]
+                ]
+              ]
+              [li +left +padding {pos:relative;}
+                My Account
+                [ul {dis:none;t:0;l:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
+                  [li +padding .menu-link data-link='settings'
+                    Synchronize
+                  ]
+                ]
+              ]
+            ]
           ]
+          <style>
+            #nav-bar {
+              cursor: default;
+            }
+            #nav-bar ul li li {
+              cursor: pointer;
+              background: #3a3a3a;
+            }
+            #nav-bar.hoverable ul li:hover ul {
+              display: inline-block!important;
+            }
+            #nav-bar ul li ul {
+              margin-top: 34px!important;
+            }
+            #nav-bar ul li:hover {
+              background: #333!important;
+            }
+            #nav-bar ul li ul li:hover {
+              background: #555!important;
+            }
+          </style>
+          
+          
+          [ @file-title-wrapper
+            [ {bg:#141414;pos:relative;} @file-title .menu-overflow-header
+                <!--plate-ninja-space-->
+            ]
           ]
           [ @editor-wrapper +padding spellcheck="false" {pos:absolute;w:100%;h:100%;} .menu-overflow-content
             [ @editor {pos:absolute;top:0;bottom:0;left:0;right:0;}]
@@ -191,15 +264,15 @@
         [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
       ]
     ]
-    [ {pos:relative;z-index:0;} @btn-save
-      [ .btn-material .no-select
+    [ {pos:relative;z-index:0;}
+      [ .btn-material .no-select @btn-menu-save
         [M "save" .i-btn-in]
         [l "Save" .l-btn-in]
         [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
       ]
     ]
     [ {pos:relative;z-index:0;}
-      [ .btn-material .no-select @btn-preview
+      [ .btn-material .no-select @btn-menu-preview
         [M "play_arrow" .i-btn-in]
         [l "Preview" .l-btn-in]
         [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
@@ -220,11 +293,11 @@
         [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
       ]
     ]
-    [ .btn-material .no-select menu="in-project" @btn-menu-project
+    [ .btn-material .no-select menu="in-my-files" @btn-menu-my-files
       [M "folder" .i-btn-in]
       [l "My Files" .l-btn-in]
     ]
-    [ .btn-material .no-select menu="in-trash"
+    [ .btn-material .no-select menu="in-trash" @btn-menu-trash
       [M "delete" .i-btn-in]
       [l "Trash" .l-btn-in]
     ]
@@ -249,12 +322,14 @@
   <template id="plate-interact-menu">
     [ @in-home .in-window .in-content .active
       [ {pos:absolute;t:0;l:0;h:100%;ov:auto;z-index:2;w:100%;} {bg:#eee;}
+        [ {h:34px;} +hide-small]
         <!--plate-homepage-->
       ]
     ]
     [ @in-home-block .in-window .in-block {z-index:0;}]
     
     [ @in-info .in-window {bg:none;} .in-content
+      [ {h:34px;} +hide-small]
       [ {pos:relative;h:100%;w:200px;z-index:2;} +left
         [ .menu-overflow-header
           <!--plate-ninja-space-->
@@ -294,7 +369,8 @@
     ]
     [ @in-assets-block .in-window .in-block]
     
-    [ @in-project .in-window .in-content {overflow:hidden;}
+    [ @in-my-files .in-window .in-content {overflow:hidden;}
+      [ {h:34px;} +hide-small]
       [ +padding +blue .menu-overflow-header
         [ +left
           [h5 {fw:bold;} "My Files" .no-select]
@@ -316,17 +392,18 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny .no-select
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build 0.0353" +opacity]
+            [c +half "Developer Build 0.036" +opacity]
           ]
           [ @breadcrumbs .no-select +small +padding]
           [ @file-list +padding]
         ]
       ]
     ]
-    [ @in-project-block .in-window .in-block]
+    [ @in-my-files-block .in-window .in-block]
     
     
     [ @in-trash .in-window .in-content {overflow:hidden;}
+      [ {h:34px;} +hide-small]
       [ +padding +blue .menu-overflow-header
         [ +left .no-select
           <h5><b>Trash [s +tiny "(Preview only)"] [s +black +round +tiny "Beta" {p:0 2px 2px ;} ]</b></h5>
@@ -342,6 +419,7 @@
     
     
     [ @in-settings .in-window .in-content {ov:hidden;}
+      [ {h:34px;} +hide-small]
       [ +blue +padding .menu-overflow-header .no-select
         <h5><b>Sync with Google Drive</b></h5>
       ]

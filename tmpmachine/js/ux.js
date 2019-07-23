@@ -244,53 +244,12 @@ const ui = {
 };
 
 
-
-
-window.addEventListener('copy', function(e) {
-  copyFile(false);
-});
-
-window.addEventListener('cut', function(e) {
-  copyFile(true);
-});
-
-window.addEventListener('paste', function(e) {
-  pasteFile();
-});
-
-
-window.onbeforeunload = function(e) {
-  
-  let notSaved = false;
-  for (let icon of $('.icon-rename')) {
-    
-    if (icon.textContent !== 'close') {
-      
-      notSaved = true;
-      break;
-    }
-  }
-  
-  if (fileTab.length > 1)
-  
-    notSaved = true
-  else {
-    
-    if (fileTab[0].fid[0] !== '-')
-      notSaved = true
-  }
-  
-  if (notSaved)
-    return  'Changes you made may not be saved';
-}
-
-
 function handleKeyUp(e) {
   
   switch (e.keyCode) {
     
     case 8:
-      if ($('#btn-menu-project').classList.contains('active')) {
+      if ($('#btn-menu-my-files').classList.contains('active')) {
         
         if ($('.breadcrumbs').length > 1)
           $('.breadcrumbs')[$('.breadcrumbs').length-2].firstElementChild.click()
@@ -325,14 +284,18 @@ function saveListener(event, bypass = false) {
     event.altKey && event.key === 'w' ||
     event.altKey && event.key === 'n' ||
     event.altKey && event.key === 'm' ||
+    event.altKey && event.key === 'i' ||
     event.altKey && event.key === 'l' ||
     event.altKey && event.key === 'j' ||
     keyHandle.Control && event.keyCode === 13) return;
   }
   
-  $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
-  $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
-  $('#editor').env.editor.removeEventListener('keydown', saveListener);
+  if ($('#editor').env.editor.isFocused()) {
+    
+    $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
+    $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
+    $('#editor').env.editor.removeEventListener('keydown', saveListener);
+  }
 }
   
 function togglePreview() {
@@ -349,8 +312,8 @@ function fixCss(callback, total = 0, epoch = 5) {
   let i = 0;
   let totOffset = 0;
   
-  for (let H of $('.menu-overflow-header'))
-  {
+  for (let H of $('.menu-overflow-header')) {
+    
     $('.menu-overflow-content')[i].style.height = 'calc(100% - '+H.offsetHeight+'px)';
     i++;
     totOffset += H.offsetHeight;
@@ -359,17 +322,102 @@ function fixCss(callback, total = 0, epoch = 5) {
   if (total === totOffset)
     epoch -= 1;
   
-  if (epoch >= 0)
-  {
+  if (epoch >= 0) {
+    
     setTimeout(function() {
       fixCss(callback, totOffset, epoch);
     }, 50)
+  } else {
+    
+    callback();
+    attachMenuLinkListener();
+  }
+}
+
+function blurNavigation() {
+  $('#nav-bar').classList.toggle('hoverable');
+  setTimeout(() => {
+    $('#nav-bar').classList.toggle('hoverable');
+  }, 250);
+}
+
+function toggleInsertSnippet(persistent) {
+  if ($('#in-my-files').classList.contains('active') || $('#in-settings').classList.contains('active')) return
+
+  let el = $('.search-box')[0];
+
+  if (persistent === undefined)
+    el.classList.toggle('w3-hide');
+  else
+    el.classList.toggle('w3-hide', !persistent);
+
+  if (!el.classList.contains('w3-hide'))
+  {
+    $('#search-input').value = '';
+    $('#search-input').focus();
   }
   else
   {
-    callback();
+    $('#search-input').value = '';
   }
 }
+
+function attachMenuLinkListener() {
+  
+  for (let link of $('.menu-link')) {
+    
+    switch (link.dataset.link) {
+      case 'save':
+      case 'preview':
+        link.onclick = () => {
+          $('#btn-menu-' + link.dataset.link).click();
+          blurNavigation()
+        };
+      break;
+      case 'deploy':
+        link.onclick = () => {
+          renderAndDeploy();
+          blurNavigation()
+        };
+      break;
+      case 'my-files':
+        link.onclick = () => {
+          $('#btn-menu-my-files').click();
+          blurNavigation()
+        };
+      break;
+      case 'file info':
+        link.onclick = () => {
+          if (!$('#in-info').classList.contains('active'))
+            $('#btn-info').click();
+          blurNavigation()
+        };
+      break;
+      case 'trash':
+        link.onclick = () => {
+          if (!$('#in-trash').classList.contains('active'))
+            $('#btn-menu-trash').click();
+          blurNavigation()
+        };
+      break;
+      case 'about':
+        link.onclick = () => {
+          if (!$('#in-home').classList.contains('active'))
+            $('#btn-home').click();
+          blurNavigation()
+        };
+      break;
+      case 'settings':
+        link.onclick = () => {
+          if (!$('#in-settings').classList.contains('active'))
+            $('#btn-menu-settings').click();
+          blurNavigation();
+        };
+      break;
+    }
+  }
+}
+
 
 function changePersonal(value) {
   
@@ -552,8 +600,8 @@ function switchTab(dir) {
   
   if (activeTab+dir > 0 && activeTab+dir < fileTab.length)
     fid = fileTab[activeTab+dir].fid
-  else
-  {
+  else {
+    
     if (activeTab+dir == -1)
       fid = fileTab[fileTab.length-1].fid
     else
@@ -576,478 +624,500 @@ function btnBlogVC() {
   oblog.getBlogId(function(blogId) {
       
     window.open('https://www.blogger.com/rearrange?blogID='+blogId+'&action=editWidget&sectionId=main&widgetType=null&widgetId=HTML1')
-      
   })
-          
 }
 
 function btnDeleteFile() {
-          ui.fm.deleteFile(activeFile.fid);
-        }
-        
-        function btnOpenDirectory() {
-          openFolder(activeFile.parentFolderId);
-          $('#btn-menu-project').click();
-        }
+  ui.fm.deleteFile(activeFile.fid);
+}
+
+function btnOpenDirectory() {
+  openFolder(activeFile.parentFolderId);
+  $('#btn-menu-my-files').click();
+}
+
 function btnPreview() {
-          if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null)
+  if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null) {
+    
+    if ($('#in-blossem').value.trim().length > 0)
+      previewWindow = window.open($('#in-blossem').value.trim(), 'blossem');
+    else
+      previewWindow = window.open('https://attemp.web.app/'+currentPage, 'preview');
+  }
+
+  renderBlog();
+}
+        
+function authReady() {
+  
+  $('#btn-blogsphere-login').style.display = 'none';
+  $('#btn-blogsphere-logout').style.display = 'block';
+  
+  if (fs.data.rootId === '')
+    drive.readAppData();
+  else {
+    drive.syncFromDrive();
+    drive.syncToDrive();
+  }
+  
+  $('#txt-login-status').textContent = 'Logout';
+  $('#login-info').style.visibility = 'hidden';
+}
+
+function authLogin() {
+  
+  $('#btn-blogsphere-login').style.display = 'none';
+  $('#btn-blogsphere-logout').style.display = 'block';
+}
+
+function authLogout() {
+  $('#login-info').style.visibility = 'visible';
+  
+  $('#btn-blogsphere-login').style.display = 'block';
+  $('#btn-blogsphere-logout').style.display = 'none';
+  
+  $('#txt-login-status').textContent = 'Login';
+}
+
+function updateUI() {
+  
+  fileList();
+  if (localStorage.getItem('homepage') == 'false') {
+    
+    $('#check-show').checked = false;
+    $('#btn-home').classList.toggle('active', false)
+    $('#btn-home').firstElementChild.classList.toggle('active', false)
+    $('#in-home').classList.toggle('active');
+  } else {
+    
+    $('#btn-home').classList.toggle('active', true)
+    $('#btn-home').firstElementChild.classList.toggle('active', true)
+  }
+
+  document.body.removeChild($('#preload-style'));
+
+  fixCss(function() {
+  
+    THOR.plugins.loadEditor(false);
+    THOR.plugins.dragDrop();
+  
+    newTab();
+  
+  
+    if ($('#btn-menu-save').offsetWidth > 100) {
+      
+      document.head.appendChild( o.cel('link', {
+        rel: 'stylesheet',
+        href: 'fonts/material/material-icons.css'
+      }) );
+    }
+  
+    o.click({
+      'btn-blog-vc'           : [ btnBlogVC           ],
+      'btn-blogsphere-login'  : [ auth0.login         ],
+      'btn-blogsphere-logout' : [ btnBlogsphereLogout ],
+      'btn-menu-template'     : [ toggleInsertSnippet ],
+      'btn-new-folder'        : [ ui.fm.newFolder     ],
+      'btn-rename-folder'     : [ ui.fm.renameFolder  ],
+      'btn-backup-revision'   : [ keepRevision        ],
+      'btn-list-revisions'    : [ listRevisions       ],
+      'btn-deploy'            : [ chooseDeploy        ],
+      'btn-delete-file'       : [ btnDeleteFile       ],
+      'btn-open-directory'    : [ btnOpenDirectory    ],
+      'btn-download-file'     : [ fileDownload        ],
+      'btn-refresh-sync'      : [ drive.syncFromDrive ],
+      'btn-menu-save'         : [ fileSave            ],
+      '.btn-material'         : [ ui.toggleMenu       ],
+      'btn-menu-preview'      : [ btnPreview          ],
+    });
+  });
+}
+      
+      
+function btnBlogsphereLogout  () {
+  
+  $('#btn-blogsphere-login').style.display = 'block';
+  $('#btn-blogsphere-logout').style.display = 'none';
+  
+  auth0.logout();
+  auth0.auth.reset();
+  fs.reset();
+  aww.pop("You've been logged out from TMPmachine.");
+  
+  fileClose();
+  activeFolder = -1;
+  while (breadcrumbs.length > 1)
+    breadcrumbs.splice(1,1);
+    
+  loadBreadCrumbs();
+}
+    
+function keyLock() {
+  if ($('#btn-menu-my-files').classList.contains('active') && keyHandle.Alt)
+  {
+    if (selectedFile.length > 0 && selectedFile[0].classList.contains('file-list-clicker'))
+    {
+        for (let i=0; i<$('.file-list').length; i++)
+        {
+          if ($('.file-list-clicker')[i] == selectedFile[0])
           {
-            if ($('#in-blossem').value.trim().length > 0)
-              previewWindow = window.open($('#in-blossem').value.trim(), 'blossem');
-            else
-              previewWindow = window.open('https://attemp.web.app/'+currentPage, 'preview');
+            $('.btn-lock')[i].click()
+            break;
           }
-        
-          renderBlog();
         }
+    }
+  }
+}
+
+function keyToggleMyFiles() {
+  if (keyHandle.Alt)
+  {
+    $('#btn-menu-my-files').click()
+    if ($('#btn-menu-my-files').classList.contains('active'))
+      $('#editor').env.editor.blur()
+    else
+      $('#editor').env.editor.focus()
+  }
+}
+
+function keyEscape() {
+  if (selectedFile.length > 0)
+  {
+    lastClickEl.classList.toggle('w3-light-blue', false);
+    lastClickEl.classList.toggle('w3-hover-light-blue', false);
+    doubleClick = false;
+    selectedFile.length = 0;
+  }
+}
+
+function keyLeft(e) {
+  if ($('#btn-menu-my-files').classList.contains('active'))
+  {
+    e.preventDefault();
+      if (selectedFile.length > 0)
+      {
+        let i;
         
-        function authReady() {
-        
-        $('#btn-blogsphere-login').style.display = 'none';
-        $('#btn-blogsphere-logout').style.display = 'block';
-        
-        if (fs.data.rootId === '')
-          drive.readAppData();
+        if (selectedFile[0].classList.contains('folder-list'))
+        {
+            for (i=0; i<$('.folder-list').length; i++)
+            {
+              if ($('.folder-list')[i] == selectedFile[0])
+              {
+                  if (i-1 >= 0)
+                    $('.folder-list')[i-1].click();
+                  break;
+              }
+            }
+        }
         else
         {
-          drive.syncFromDrive();
-          drive.syncToDrive();
-        }
-        
-        $('#txt-login-status').textContent = 'Logout';
-        $('#login-info').style.visibility = 'hidden';
-      }
-      
-      function authLogin() {
-        
-        $('#btn-blogsphere-login').style.display = 'none';
-        $('#btn-blogsphere-logout').style.display = 'block';
-      }
-      
-      function authLogout() {
-        $('#login-info').style.visibility = 'visible';
-        
-        $('#btn-blogsphere-login').style.display = 'block';
-        $('#btn-blogsphere-logout').style.display = 'none';
-        
-        $('#txt-login-status').textContent = 'Login';
-      }
-      
-      function updateUI() {
-        fileList();
-      if (localStorage.getItem('homepage') == 'false')
-      {
-        $('#btn-home').click();
-        $('#check-show').checked = false;
-        $('#btn-home').classList.toggle('active', false)
-        $('#btn-home').firstElementChild.classList.toggle('active', false)
-      }
-      else
-      {
-        $('#btn-home').classList.toggle('active', true)
-        $('#btn-home').firstElementChild.classList.toggle('active', true)
-      }
-
-      document.body.removeChild($('#preload-style'));
-      
-      fixCss(function() {
-        
-        // load plugins here
-        THOR.plugins.loadEditor(false);
-        THOR.plugins.dragDrop();
-        
-        
-        newTab();
-        
-        
-        if ($('#btn-save').offsetWidth > 100)
-        {
-          document.head.appendChild( o.cel('link', {
-            rel: 'stylesheet',
-            href: 'fonts/material/material-icons.css'
-          }) );
-        }
-        
-      });
-      }
-      
-      
-      function btnBlogsphereLogout  () {
-      
-      $('#btn-blogsphere-login').style.display = 'block';
-      $('#btn-blogsphere-logout').style.display = 'none';
-      
-      auth0.logout();
-      auth0.auth.reset();
-      fs.reset();
-      aww.pop("You've been logged out from TMPmachine.");
-      
-      fileClose();
-      activeFolder = -1;
-      while (breadcrumbs.length > 1)
-        breadcrumbs.splice(1,1);
-        
-      loadBreadCrumbs();
-    }
-    
-    
-    
-    
-    
-    
-    
-    function keyLock() {
-      if ($('#btn-menu-project').classList.contains('active') && keyHandle.Alt)
-      {
-        if (selectedFile.length > 0 && selectedFile[0].classList.contains('file-list-clicker'))
-        {
-            for (let i=0; i<$('.file-list').length; i++)
+            for (i=0; i<$('.file-list').length; i++)
             {
               if ($('.file-list-clicker')[i] == selectedFile[0])
               {
-                $('.btn-lock')[i].click()
-                break;
+                  if (i-1 >= 0)
+                    $('.file-list-clicker')[i-1].click();
+                  else
+                  {
+                      if ($('.folder-list').length > 0)
+                        $('.folder-list')[$('.folder-list').length-1].click();
+                  }
+                  break;
               }
             }
         }
-      }
-    }
-    
-    function keyToggleMyFiles() {
-      if (keyHandle.Alt)
-      {
-        $('#btn-menu-project').click()
-        if ($('#btn-menu-project').classList.contains('active'))
-          $('#editor').env.editor.blur()
-        else
-          $('#editor').env.editor.focus()
-      }
-    }
-    
-    function keyEscape() {
-      if (selectedFile.length > 0)
-      {
-        lastClickEl.classList.toggle('w3-light-blue', false);
-        lastClickEl.classList.toggle('w3-hover-light-blue', false);
-        doubleClick = false;
-        selectedFile.length = 0;
-      }
-    }
-    
-    function keyLeft(e) {
-      if ($('#btn-menu-project').classList.contains('active'))
-      {
-        e.preventDefault();
-          if (selectedFile.length > 0)
-          {
-            let i;
-            
-            if (selectedFile[0].classList.contains('folder-list'))
-            {
-                for (i=0; i<$('.folder-list').length; i++)
-                {
-                  if ($('.folder-list')[i] == selectedFile[0])
-                  {
-                      if (i-1 >= 0)
-                        $('.folder-list')[i-1].click();
-                      break;
-                  }
-                }
-            }
-            else
-            {
-                for (i=0; i<$('.file-list').length; i++)
-                {
-                  if ($('.file-list-clicker')[i] == selectedFile[0])
-                  {
-                      if (i-1 >= 0)
-                        $('.file-list-clicker')[i-1].click();
-                      else
-                      {
-                          if ($('.folder-list').length > 0)
-                            $('.folder-list')[$('.folder-list').length-1].click();
-                      }
-                      break;
-                  }
-                }
-            }
-            
-          }
-      }
-    }
-    
-    function keyRight(e) {
-      if ($('#btn-menu-project').classList.contains('active'))
-      {
-        e.preventDefault();
-        if (selectedFile.length > 0)
-        {
-          let i;
-          
-          if (selectedFile[0].classList.contains('folder-list'))
-          {
-              for (i=0; i<$('.folder-list').length; i++)
-              {
-                if ($('.folder-list')[i] == selectedFile[0])
-                {
-                    if (i+1 < $('.folder-list').length)
-                      $('.folder-list')[i+1].click();
-                    else
-                    {
-                        if ($('.file-list').length > 0)
-                          $('.file-list-clicker')[0].click();
-                    }
-                    break;
-                }
-              }
-          }
-          else
-          {
-              for (i=0; i<$('.file-list').length; i++)
-              {
-                if ($('.file-list-clicker')[i] == selectedFile[0])
-                {
-                    if (i+1 < $('.file-list').length)
-                      $('.file-list-clicker')[i+1].click();
-                    break;
-                }
-              }
-          }
-          
-        }
-        else
-        {
-          if ($('.folder-list').length > 0)
-            $('.folder-list')[0].click();
-          else
-            $('.file-list-clicker')[0].click();
-        }
-      }
-    }
-    
-    function keyUp(e) {
-      if ($('#btn-menu-project').classList.contains('active'))
-      {
-          e.preventDefault();
-          let div = Math.floor( ($('#file-list').offsetWidth - 16 * 2) / 203.2);
-          
-          if (selectedFile.length > 0)
-            {
-              let i;
-              
-              if (selectedFile[0].classList.contains('folder-list'))
-              {
-                  for (i=0; i<$('.folder-list').length; i++)
-                  {
-                    if ($('.folder-list')[i] == selectedFile[0])
-                    {
-                        if (i-div >= 0)
-                          $('.folder-list')[i-div].click();
-                        else if (i != 0)
-                          $('.folder-list')[0].click();
-                        break;
-                    }
-                  }
-              }
-              else
-              {
-                  for (i=0; i<$('.file-list').length; i++)
-                  {
-                    if ($('.file-list-clicker')[i] == selectedFile[0])
-                    {
-                        if (i-div >= 0)
-                          $('.file-list-clicker')[i-div].click();
-                        else
-                        {
-                            if ($('.folder-list').length > 0)
-                            {
-                              let targetIdx = Math.max(0, Math.ceil($('.folder-list').length/div)*div + (i-div));
-                              if (targetIdx >= $('.folder-list').length)
-                                targetIdx -= div;
-                                
-                              $('.folder-list')[targetIdx].click();
-                            }
-                        }
-                        break;
-                    }
-                  }
-              }
-              
-            }
-      }
-    }
-    
-    function keyDown(e) {
-      if ($('#btn-menu-project').classList.contains('active'))
-      {
-          e.preventDefault();
-          let div = Math.floor( ($('#file-list').offsetWidth - 16 * 2) / 203.2);
-          
-          if (selectedFile.length > 0)
-          {
-            let i;
-            
-            if (selectedFile[0].classList.contains('folder-list'))
-            {
-                for (i=0; i<$('.folder-list').length; i++)
-                {
-                    if ($('.folder-list')[i] == selectedFile[0])
-                    {
-                        if (i+div < $('.folder-list').length)
-                          $('.folder-list')[i+div].click();
-                        else
-                        {
-                            let targetIdx = Math.min($('.file-list').length-1, (i+div) - Math.ceil($('.folder-list').length/div)*div);
-                            if (targetIdx <= -1)
-                              targetIdx += div;
-                                
-                              
-                            if ($('.file-list').length > 0)
-                              $('.file-list-clicker')[targetIdx].click();
-                        }
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                for (i=0; i<$('.file-list').length; i++)
-                {
-                    if ($('.file-list-clicker')[i] == selectedFile[0])
-                    {
-                        if (i+div < $('.file-list').length)
-                          $('.file-list-clicker')[i+div].click();
-                        else if (i != $('.file-list').length-1)
-                          $('.file-list-clicker')[$('.file-list').length-1].click();
-                        break;
-                    }
-                }
-            }
-            
-          }
-          else
-          {
-              if ($('.folder-list').length > 0)
-                $('.folder-list')[0].click();
-              else
-                $('.file-list-clicker')[0].click();
-          }
-      }
-    }
-    
-    function keyEnter(e) {
-      if ($('#btn-menu-project').classList.contains('active') && selectedFile.length > 0) {
         
-        e.preventDefault();
-        selectedFile[0].click();
-        if (selectedFile[0])
-          selectedFile[0].click();
+      }
+  }
+}
+
+function keyRight(e) {
+  if ($('#btn-menu-my-files').classList.contains('active'))
+  {
+    e.preventDefault();
+    if (selectedFile.length > 0)
+    {
+      let i;
+      
+      if (selectedFile[0].classList.contains('folder-list'))
+      {
+          for (i=0; i<$('.folder-list').length; i++)
+          {
+            if ($('.folder-list')[i] == selectedFile[0])
+            {
+                if (i+1 < $('.folder-list').length)
+                  $('.folder-list')[i+1].click();
+                else
+                {
+                    if ($('.file-list').length > 0)
+                      $('.file-list-clicker')[0].click();
+                }
+                break;
+            }
+          }
+      }
+      else
+      {
+          for (i=0; i<$('.file-list').length; i++)
+          {
+            if ($('.file-list-clicker')[i] == selectedFile[0])
+            {
+                if (i+1 < $('.file-list').length)
+                  $('.file-list-clicker')[i+1].click();
+                break;
+            }
+          }
+      }
+      
+    }
+    else
+    {
+      if ($('.folder-list').length > 0)
+        $('.folder-list')[0].click();
+      else
+        $('.file-list-clicker')[0].click();
+    }
+  }
+}
+
+function keyUp(e) {
+  
+  if ($('#btn-menu-my-files').classList.contains('active')) {
+      
+    e.preventDefault();
+    let div = Math.floor( ($('#file-list').offsetWidth - 16 * 2) / 203.2);
+    
+    if (selectedFile.length > 0) {
+      
+      let i;
+      if (selectedFile[0].classList.contains('folder-list')) {
+        
+        for (i=0; i<$('.folder-list').length; i++) {
+          
+          if ($('.folder-list')[i] == selectedFile[0]) {
+            
+            if (i-div >= 0)
+              $('.folder-list')[i-div].click();
+            else if (i != 0)
+              $('.folder-list')[0].click();
+            break;
+          }
+        }
       } else {
         
-          if (keyHandle.Control && !cantLock) {
+        for (i=0; i<$('.file-list').length; i++) {
+          
+          if ($('.file-list-clicker')[i] == selectedFile[0]) {
             
-            cantLock = true;
-            
-            if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null) {
+            if (i-div >= 0)
+              $('.file-list-clicker')[i-div].click();
+            else {
               
-              if ($('#in-blossem').value.trim().length > 0)
-                previewWindow = window.open($('#in-blossem').value.trim(), 'blossem');
-              else {
+              if ($('.folder-list').length > 0) {
                 
-                if (debugAttempUrl.length > 0)
-                  previewWindow = window.open(debugAttempUrl+currentPage, 'preview');
-                else
-                  previewWindow = window.open('https://attemp.web.app/'+currentPage, 'preview');
+                let targetIdx = Math.max(0, Math.ceil($('.folder-list').length/div)*div + (i-div));
+                if (targetIdx >= $('.folder-list').length)
+                  targetIdx -= div;
+                  
+                $('.folder-list')[targetIdx].click();
               }
-            } else
-              renderBlog();
-              
-          } else if (keyHandle.Alt) {
-            
-            let tmpLocked = locked;
-            locked = -1;
-            
-            renderBlog(true);
-            chooseDeploy();
-            
-            locked = tmpLocked;
+            }
+            break;
           }
+        }
       }
     }
+  }
+}
     
-    function keyDelete() {
-      if (selectedFile.length > 0) {
-        
-        if (selectedFile[0].getAttribute('data-type') === 'folder')
-          ui.fm.deleteFolder();
-        else if (selectedFile[0].getAttribute('data-type') === 'file')
-          ui.fm.deleteFile();
-      }
-    }
+function keyDown(e) {
+  
+  if ($('#btn-menu-my-files').classList.contains('active')) {
     
-    function keyD(e) {
-      if (keyHandle.Alt)
-      {
-        e.preventDefault();
-        $('#btn-menu-template').click();
-      }
-    }
+    e.preventDefault();
+    let div = Math.floor( ($('#file-list').offsetWidth - 16 * 2) / 203.2);
     
-    function keyN(e) {
-      if (keyHandle.Alt)
-      {
-        e.preventDefault();
-        
-        fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
-        fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
-        fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
-        fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
-        fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
-        
-        newTab();
-      }
-    }
-    
-    function keyS(e) {
-      if (keyHandle.Control)
-      {
-        e.preventDefault();
-        fileSave();
-      }
-    }
-    
-    function keyW(e) {
+    if (selectedFile.length > 0) {
       
-      if (keyHandle.Alt)
-      {
-        e.preventDefault();
-        closeTab()
-      }
-    }
-    
-    function keyLeast(e) {
-      if (keyHandle.Alt)
-      {
-        e.preventDefault();
-        if (fileTab.length == 1) return;
+      let i;
+      if (selectedFile[0].classList.contains('folder-list')) {
         
-        switchTab(-1);
-      }
-    }
-    
-    function keyLarger(e) {
-      if (keyHandle.Alt)
-      {
-        e.preventDefault();
-        if (fileTab.length == 1) return;
+        for (i=0; i<$('.folder-list').length; i++) {
+          
+          if ($('.folder-list')[i] == selectedFile[0]) {
+            
+            if (i+div < $('.folder-list').length)
+              $('.folder-list')[i+div].click();
+            else {
+              
+              let targetIdx = Math.min($('.file-list').length-1, (i+div) - Math.ceil($('.folder-list').length/div)*div);
+              if (targetIdx <= -1)
+                targetIdx += div;
+                  
+                
+              if ($('.file-list').length > 0)
+                $('.file-list-clicker')[targetIdx].click();
+            }
+            break;
+          }
+        }
+      } else {
         
-        switchTab(1);
+        for (i=0; i<$('.file-list').length; i++) {
+          
+          if ($('.file-list-clicker')[i] == selectedFile[0]) {
+            
+              if (i+div < $('.file-list').length)
+                $('.file-list-clicker')[i+div].click();
+              else if (i != $('.file-list').length-1)
+                $('.file-list-clicker')[$('.file-list').length-1].click();
+              break;
+          }
+        }
       }
+    } else {
+      
+      if ($('.folder-list').length > 0)
+        $('.folder-list')[0].click();
+      else
+        $('.file-list-clicker')[0].click();
     }
+  }
+}
+
+function keyEnter(e) {
+  
+  if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
+    
+    e.preventDefault();
+    selectedFile[0].click();
+    if (selectedFile[0])
+      selectedFile[0].click();
+  } else {
+    
+      if (keyHandle.Control && !cantLock) {
+        
+        cantLock = true;
+        
+        if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null) {
+          
+          if ($('#in-blossem').value.trim().length > 0)
+            previewWindow = window.open($('#in-blossem').value.trim(), 'blossem');
+          else {
+            
+            if (debugAttempUrl.length > 0)
+              previewWindow = window.open(debugAttempUrl+currentPage, 'preview');
+            else
+              previewWindow = window.open('https://attemp.web.app/'+currentPage, 'preview');
+          }
+        } else
+          renderBlog();
+          
+      } else if (keyHandle.Alt)
+      
+        renderAndDeploy();
+  }
+}
+
+function renderAndDeploy() {
+  
+  let tmpLocked = locked;
+  locked = -1;
+  
+  renderBlog(true);
+  chooseDeploy();
+  
+  locked = tmpLocked;
+}
+
+function keyDelete() {
+  if (selectedFile.length > 0) {
+    
+    if (selectedFile[0].getAttribute('data-type') === 'folder')
+      ui.fm.deleteFolder();
+    else if (selectedFile[0].getAttribute('data-type') === 'file')
+      ui.fm.deleteFile();
+  }
+}
+
+function keyD(e) {
+  
+  if (keyHandle.Alt) {
+    
+    e.preventDefault();
+    $('#btn-menu-template').click();
+  }
+}
+
+function keyI(e) {
+  
+  if (keyHandle.Alt) {
+    
+    e.preventDefault();
+    $('#btn-info').click();
+  }
+}
+
+function keyN(e) {
+  
+  if (keyHandle.Alt) {
+    
+    e.preventDefault();
+    
+    fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
+    fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
+    fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
+    fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
+    fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
+    
+    newTab();
+  }
+}
+
+function keyS(e) {
+  
+  if (keyHandle.Control) {
+    
+    e.preventDefault();
+    fileSave();
+  }
+}
+
+function keyW(e) {
+  
+  if (keyHandle.Alt) {
+    
+    e.preventDefault();
+    closeTab()
+  }
+}
+
+function keyLeast(e) {
+  
+  if (keyHandle.Alt) {
+    
+    e.preventDefault();
+    if (fileTab.length == 1) return;
+    
+    switchTab(-1);
+  }
+}
+
+function keyLarger(e) {
+  
+  if (keyHandle.Alt) {
+    
+    e.preventDefault();
+    if (fileTab.length == 1) return;
+    
+    switchTab(1);
+  }
+}
     
 function handleKeyDown(e) {
   
-  switch (event.keyCode) {
+  switch (e.keyCode) {
 		  
 	  case 76:
       keyLock();
@@ -1075,6 +1145,9 @@ function handleKeyDown(e) {
     break;
     case 13:
       keyEnter(e);
+    break;
+    case 73:
+      keyI(e);
     break;
     case 68:
       keyD(e);
@@ -1123,3 +1196,41 @@ function keyHandle(event) {
 window.addEventListener('keydown', keyHandle);
 window.addEventListener('keyup', keyHandle);
 window.addEventListener('blur', keyHandle);
+
+window.addEventListener('copy', function(e) {
+  copyFile(false);
+});
+
+window.addEventListener('cut', function(e) {
+  copyFile(true);
+});
+
+window.addEventListener('paste', function(e) {
+  pasteFile();
+});
+
+
+window.onbeforeunload = function(e) {
+  
+  let notSaved = false;
+  for (let icon of $('.icon-rename')) {
+    
+    if (icon.textContent !== 'close') {
+      
+      notSaved = true;
+      break;
+    }
+  }
+  
+  if (fileTab.length > 1)
+  
+    notSaved = true
+  else {
+    
+    if (fileTab[0].fid[0] !== '-')
+      notSaved = true
+  }
+  
+  if (notSaved)
+    return  'Changes you made may not be saved';
+}

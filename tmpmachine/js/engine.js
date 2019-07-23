@@ -11,25 +11,6 @@ const THOR = (function() {
     },
     ready() {
             
-      o.click({
-        'btn-blog-vc'           : [ btnBlogVC           ],
-        'btn-blogsphere-login'  : [ auth0.login         ],
-        'btn-blogsphere-logout' : [ btnBlogsphereLogout ],
-        'btn-menu-template'     : [ toggleInsertSnippet ],
-        'btn-new-folder'        : [ ui.fm.newFolder     ],
-        'btn-rename-folder'     : [ ui.fm.renameFolder  ],
-        'btn-backup-revision'   : [ keepRevision        ],
-        'btn-list-revisions'    : [ listRevisions       ],
-        'btn-deploy'            : [ chooseDeploy        ],
-        'btn-delete-file'       : [ btnDeleteFile       ],
-        'btn-open-directory'    : [ btnOpenDirectory    ],
-        'btn-download-file'     : [ fileDownload        ],
-        'btn-refresh-sync'      : [ drive.syncFromDrive ],
-        'btn-save'              : [ fileSave            ],
-        '.btn-material'         : [ ui.toggleMenu       ],
-        'btn-preview'           : [ btnPreview          ],
-      });
-      
       auth0.onready = authReady;
       auth0.onlogin = authLogin;
       auth0.onlogout = authLogout;
@@ -85,8 +66,7 @@ const THOR = (function() {
     require('require/w3-4.10.css'),
     
     require('js/idb.js'),
-    require('js/THOR.js'),
-    require('js/THOR-data.js'),
+    require('js/renderer.js'),
     require('js/ux.js'),
     require('js/file-manager.js'),
     require('js/drive.js'),
