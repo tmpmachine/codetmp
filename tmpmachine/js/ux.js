@@ -485,7 +485,7 @@ function focusTab(fid, isActiveTab = false, isClose) {
   
   let x;
   if (activeFile)
-    x = patob(activeFile.description)
+    x = parseDescription(activeFile.description)
   else
     x = {}
 
