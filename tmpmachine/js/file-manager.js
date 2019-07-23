@@ -547,8 +547,8 @@ function openFile(fid) {
       focusTab(f.fid, false);
     
     
-    if ($('#btn-menu-project').classList.contains('active'))
-      $('#btn-menu-project').click();
+    if ($('#btn-menu-my-files').classList.contains('active'))
+      $('#btn-menu-my-files').click();
 
     if (f.name.endsWith('.blogger'))
       $('#btn-blog-vc').classList.toggle('w3-hide', false);
