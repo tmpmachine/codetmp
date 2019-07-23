@@ -179,11 +179,11 @@ const ui = {
     let menu = $('#'+menuId);
     let block = $('#'+menuId+'-block');
     
-    if (target.classList.contains('active') && (menuId === 'in-project' || menuId === 'in-trash' || menuId === 'in-settings')) {
+    if (target.classList.contains('active') && (menuId === 'in-my-files' || menuId === 'in-trash' || menuId === 'in-settings')) {
       
       $('#list-trash').innerHTML = '';
       $('#file-list').innerHTML = '';
-      if (menuId === 'in-project')
+      if (menuId === 'in-my-files')
         fileList();
       else if (menuId === 'in-trash')
         trashList();
