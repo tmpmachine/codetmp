@@ -311,12 +311,13 @@ function fixCss(callback, total = 0, epoch = 5) {
   
   let i = 0;
   let totOffset = 0;
+  let navBarOffset = $('#nav-bar').offsetHeight;
   
   for (let H of $('.menu-overflow-header')) {
     
-    $('.menu-overflow-content')[i].style.height = 'calc(100% - '+H.offsetHeight+'px)';
+    $('.menu-overflow-content')[i].style.height = 'calc(100% - '+(H.offsetHeight+navBarOffset)+'px)';
     i++;
-    totOffset += H.offsetHeight;
+    totOffset += H.offsetHeight+navBarOffset;
   }
   
   if (total === totOffset)
@@ -1238,9 +1239,10 @@ window.onbeforeunload = function(e) {
 function fixEditorScreenHeight() {
   
   let i = 0;
+  let navBarOffset = $('#nav-bar').offsetHeight;
   for (let H of $('.menu-overflow-header')) {
     
-    $('.menu-overflow-content')[i].style.height = 'calc(100% - '+H.offsetHeight+'px)';
+    $('.menu-overflow-content')[i].style.height = 'calc(100% - '+(H.offsetHeight+navBarOffset)+'px)';
     i++;
   }
 }
