@@ -1234,3 +1234,17 @@ window.onbeforeunload = function(e) {
   if (notSaved)
     return  'Changes you made may not be saved';
 }
+
+function fixEditorScreenHeight() {
+  
+  let i = 0;
+  for (let H of $('.menu-overflow-header')) {
+    
+    $('.menu-overflow-content')[i].style.height = 'calc(100% - '+H.offsetHeight+'px)';
+    i++;
+  }
+}
+
+window.onresize = function() {
+  fixEditorScreenHeight();
+}

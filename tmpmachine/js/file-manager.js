@@ -1,14 +1,13 @@
+let activeFile;
+let lastClickEl;
 let activeFolder = -1;
 let selectedFile = [];
 let clipBoard = [];
 let copyParentFolderId = -2;
 let fileTab = [];
 let activeTab = 0;
-
 let breadcrumbs = [{folderId:'-1',title:'My Files'}];
-let activeFile;
 let doubleClick = false;
-let lastClickEl;
 
 const fs = new lsdb('B-THOR-fs', {
   root: {
@@ -95,16 +94,16 @@ function rollbackRevision(id) {
   aww.pop('Downloading rollback resource...');
   
   fetch(drive.apiUrl+'files/'+activeFile.id+'/revisions/'+id+'?alt=media', {
-    method:'GET',
+    method: 'GET',
     headers: {
-      'Authorization':'Bearer '+auth0.auth.data.token
+      'Authorization': 'Bearer '+auth0.auth.data.token
     }
-  }).then(function(r) {
+  }).then(function(response) {
     
-    if (r.ok)
-      return r.text();
+    if (response.ok)
+      return response.text();
     else
-      throw r.status;
+      throw response.status;
   }).then((media) => {
     
     aww.pop('Successfully rollback to selected revision');
