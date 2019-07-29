@@ -3,7 +3,7 @@ const debug = {
     
     fetch(drive.apiUrl+'files?spaces=appDataFolder&fields=files(id)', {
       headers: {
-        'Authorization':'Bearer '+oblog.auth.data.token
+        'Authorization':'Bearer '+auth0.auth.data.token
       }
     }).then(function(r) {
       
@@ -21,7 +21,7 @@ const debug = {
     fetch(drive.apiUrl+'files/'+id, {
       method: 'DELETE',
       headers: {
-        Authorization: 'Bearer '+oblog.auth.data.token
+        Authorization: 'Bearer '+auth0.auth.data.token
       }
     }).then(function(result) {
       
@@ -41,7 +41,7 @@ const debug = {
       method: 'PATCH',
       body: form,
       headers: {
-        'Authorization':'Bearer '+oblog.auth.data.token
+        'Authorization':'Bearer '+auth0.auth.data.token
       },
     }).then(function(r) {
       
@@ -61,7 +61,7 @@ const debug = {
     fetch(drive.apiUrl+'files?q=('+escape(queryParents)+')&fields=files(name, id, trashed, parents, mimeType, modifiedTime)', {
       method:'GET',
       headers: {
-        'Authorization':'Bearer '+oblog.auth.data.token
+        'Authorization':'Bearer '+auth0.auth.data.token
       }
     }).then(function(result) {
       return result.json();
@@ -78,7 +78,7 @@ const debug = {
     fetch(drive.apiUrl+'files/'+id+'/revisions?fields=revisions(id)&q=(keepForevers = true)', {
       method:'GET',
       headers: {
-        'Authorization':'Bearer '+oblog.auth.data.token
+        'Authorization':'Bearer '+auth0.auth.data.token
       }
     }).then(function(result) {
       return result.json();
@@ -96,7 +96,7 @@ const debug = {
     
     fetch(drive.apiUrl+'files/'+id+'?fields=parents,id,name,trashed,webContentLink,webViewLink,headRevisionId', {
       headers: {
-        'Authorization':'Bearer '+oblog.auth.data.token
+        'Authorization':'Bearer '+auth0.auth.data.token
       }
     }).then(function(r) {
       
@@ -113,7 +113,7 @@ const debug = {
     
     fetch(drive.apiUrl+'files/'+id+'/revisions?fields=*', {
       headers: {
-        'Authorization':'Bearer '+oblog.auth.data.token
+        'Authorization':'Bearer '+auth0.auth.data.token
       }
     }).then(function(r) {
       
@@ -138,7 +138,7 @@ const debug = {
       body: form,
       headers: {
         
-        'Authorization':'Bearer '+oblog.auth.data.token
+        'Authorization':'Bearer '+auth0.auth.data.token
       }
     }).then(function(r) {
       
@@ -168,7 +168,7 @@ const debug = {
       
     fetch(url, {
       headers: {
-        'Authorization':'Bearer '+oblog.auth.data.token
+        'Authorization':'Bearer '+auth0.auth.data.token
       }
     }).then(function(result) {
       return result.text()

@@ -102,7 +102,6 @@ function getDirectory(source, parentId) {
   return parentId;
 }
 
-
 function renderBlog(isForceDeploy) {
   
   let body = replaceLocal();

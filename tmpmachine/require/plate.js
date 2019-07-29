@@ -1,3 +1,4 @@
+// v1.31 - 29 July 19 - clear plate element
 // v1.30 - 22 May 19 - added more css shorthand
 // v1.29 - 2 May 19 - added skips for php
 // v1.28 - 11 Apr 19 - reduced code from 922 to 757 line
@@ -153,6 +154,27 @@ const plate = {
     
     if (callback)
       callback();
+    
+    return plate.clearPlate(meat);
+  },
+  clearPlate: function(meat) {
+    
+    let regex = new RegExp('<template id=("|\')plate-.*?("|\')>(.|\n)*?<\/template>');
+    let match = meat.match(regex);
+    if (match) {
+      let open = match[0].match(/<template/g).length;
+      let close = match[0].match(/<\/template/g).length;
+      regex = '<template id=("|\')plate-.*?("|\')>(.|\n)*?<\/template>';
+      while (close < open)
+      {
+        regex += '(.|\n)*?<\/template>';
+        match = meat.match(new RegExp(regex));
+        open = match[0].match(/<template/g).length;
+        close = match[0].match(/<\/template/g).length;
+      }
+      
+      meat = plate.clearPlate(meat.replace(match[0], ''));
+    }
     
     return meat;
   },

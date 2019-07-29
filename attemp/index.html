@@ -17,9 +17,9 @@
       {
         let s = document.createElement('script');
         tota__[0] += (j.substring(8,j.length-9).length)
-        s.textContent = haki(j.substring(8,j.length-9));
+        // s.textContent = haki(j.substring(8,j.length-9));
         tota__[1] += s.textContent.length
-        // s.textContent = j.substring(8,j.length-9);
+        s.textContent = j.substring(8,j.length-9);
         document.body.appendChild(s);
       }
     }

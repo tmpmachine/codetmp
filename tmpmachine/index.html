@@ -393,7 +393,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny .no-select
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build 1.0131" +opacity]
+            [c +half "Developer Build 1.014" +opacity]
           ]
           [ @breadcrumbs .no-select +small +padding]
           [ @file-list +padding]
@@ -744,7 +744,7 @@
           if (typeof(clientUpdateHandler) === 'undefined') {
             
             if (window.confirm('App updated. Reload?'))
-              location.href = location.href;
+              location.reload(true);
           } else
             clientUpdateHandler();
           
@@ -761,7 +761,7 @@
               if (typeof(clientUpdateHandler) === 'undefined') {
                 
                 if (window.confirm('App updated. Reload?'))
-                  location.href = location.href;
+                  location.reload(true);
               } else
                 clientUpdateHandler();
             }
@@ -777,7 +777,7 @@
               if (typeof(clientUpdateHandler) === 'undefined') {
                 
                 if (window.confirm('App updated. Reload?'))
-                  location.href = location.href;
+                  location.reload(true);
               } else
                 clientUpdateHandler();
             }
