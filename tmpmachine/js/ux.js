@@ -1,7 +1,7 @@
 let cantLock = false;
 let activeMenu = '';
 let waitDeploy = false;
-let debugAttempUrl = 'file:///home/chronos/u-6d517713dd9889ada405b83e65027024999a1146/Downloads/tmpmachine/attemp/index.html';
+let debugAttempUrl = '';
 
 const ui = {
   

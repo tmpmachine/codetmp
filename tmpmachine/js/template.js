@@ -5,10 +5,48 @@ var editorTemplate = [
   {id: 3, pos: [-2, 14], title: 'template', snippet: '<template id="">\n\t\n<\/template>'},
   {id: 4, pos: [0, 19], title: 'in template', snippet: '<template include=""><\/template>'},
   {id: 5, pos: [0, 17], title: 'in script', snippet: '<script include=""><\/script>'},
-  {id: 6, pos: [0, 15], title: 'in link', snippet: '<link include="" rel="stylesheet"/>'},
+  {id: 6, pos: [0, 15], title: 'in link', snippet: '<link include=""/>'},
   {id: 7, pos: [1, 0], title: 'meta viewport', snippet: '<meta name="viewport" content="width=device-width"/>\n'},
   {id: 8, pos: [1, 0], title: 'charset', snippet: '<meta charset="utf-8"/>\n'},
 ];
+
+function handlePostLoad(response) {
+  
+  if (response == 400)
+    aww.pop('Entry not found.');
+    
+  let editor = $('#editor').env.editor;
+  $('#editor').env.editor.setValue(response.content);
+  $('#editor').env.editor.clearSelection();
+  $('#editor').env.editor.moveCursorTo(0,0);
+  $('#editor').env.editor.focus();
+}
+
+function handleCommand() {
+  
+  let command = $('#search-input').value;
+  if (command.includes('blog:')) {
+    
+    let blog = command.split('blog:')[1].split('@')[0];
+    let entryId = command.split('blog:')[1].split('@')[1];
+    
+    $('#in-blog-name').value = blog;
+    $('#in-eid').value = entryId;
+    
+    
+    oblog.config({
+      blog
+    });
+    
+    aww.pop('Loading blog content...');
+    if (entryId.startsWith('p'))
+      oblog.pages.get(entryId.substring(1), handlePostLoad, 'content');
+    else
+      oblog.posts.get(entryId, handlePostLoad, 'content');
+    
+    toggleInsertSnippet();
+  }
+}
 
 var wgSearchRes;
 var wgSearch = {
@@ -87,10 +125,12 @@ var wgSearch = {
     {
       switch(event.keyCode) {
         case 13:
-          if (this.find.idx > -1)
-          {
+          
+          if (this.find.idx > -1) {
             event.preventDefault();
             hints[this.find.idx].click();
+          } else {
+            handleCommand();
           }
         break;
         case 38:
