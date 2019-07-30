@@ -264,11 +264,13 @@ const drive = {
   syncToDrive: function(sync = fs.data.sync[0]) {
     
     $('#syncing').textContent = '';
+    $('#txt-sync').textContent = '';
     if (!fs.data.rootId) return;
     if (sync === undefined || drive.syncToDrive.enabled) return;
     
     drive.syncToDrive.enabled = true;
     $('#syncing').textContent = 'Sync ('+fs.data.sync.length+')';
+    $('#txt-sync').textContent = 'Sync ('+fs.data.sync.length+')';
     
     new Promise(function(resolveTokenRequest) {
         

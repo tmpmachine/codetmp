@@ -722,7 +722,6 @@ function updateUI() {
       'btn-rename-folder'     : [ ui.fm.renameFolder  ],
       'btn-backup-revision'   : [ keepRevision        ],
       'btn-list-revisions'    : [ listRevisions       ],
-      'btn-deploy'            : [ chooseDeploy        ],
       'btn-delete-file'       : [ btnDeleteFile       ],
       'btn-open-directory'    : [ btnOpenDirectory    ],
       'btn-download-file'     : [ fileDownload        ],

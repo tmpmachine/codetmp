@@ -102,7 +102,7 @@
           
           [a href="javascript:void(0)" @nav-bar-blur {pos:absolute;z:-22;dis:none;}]
           [ @nav-bar +hide-small .hoverable .no-select {bg:#1d1f25;} {h:34px;pos:relative;z:888;dis:block;w:100%;} +small {col:#fafafa;}
-            [ul {p:0;m:0;list-style:none;dis:inline-block;}
+            [ul {p:0;m:0;list-style:none;dis:block;}
               [li +left +padding {pos:relative;}
                 File
                 [ul {l:0;bg:#000;t:0;w:230px;p:0;m:0;list-style:none;dis:none;pos:absolute;}
@@ -157,6 +157,9 @@
                     Synchronize
                   ]
                 ]
+              ]
+              [li +right +padding +tiny
+                [ @txt-sync]
               ]
             ]
           ]
@@ -393,7 +396,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny .no-select
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build 1.015" +opacity]
+            [c +half "Developer Build 1.0151" +opacity]
           ]
           [ @breadcrumbs .no-select +small +padding]
           [ @file-list +padding]
@@ -476,13 +479,17 @@
           [M "input" +medium +padding-small {transform:rotate(90deg)}]
         ]
         
+        [ +tiny "Blossem template URL"]
+        [in @in-blossem {w:100%;}]
+        
+        [hr]
         
         [ +tiny "Blog name"]
         [in @in-blog-name {w:100%;} .description name='blog']
         [ +tiny "Entry ID"]
         [in @in-eid {w:100%;} .description name='eid']
         [ +tiny "Summary"]
-        [t @in-summary {w:100%;resize:none;h:200px;} .description name="summary"]
+        [t @in-summary {w:100%;resize:none;h:100px;} .description name="summary"]
         [
           [in type="checkbox" @chk-bibibi .description name='bibibi'] [l for="chk-bibibi" "Post summary fix"]
         ]
@@ -492,15 +499,6 @@
         [
           [in type="checkbox" @chk-in-pre .description name='pre'] [l for="chk-in-pre" "Wrap in &lt;pre&gt;"]
         ]
-        
-        [ +button @btn-deploy +border +margin-top +block
-          [ "Deploy" +small +padding-small {fw:bold;} +left]
-        ]
-        
-        [hr]
-        [ +tiny "Blossem URL (beta)"]
-        [in @in-blossem {w:100%;}]
-        [hr]
         
         [btn @btn-backup-revision "Backup Revision" +button +border +margin-top]
         [btn @btn-list-revisions "List Revisions" +button +border +margin-top]
