@@ -396,7 +396,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny .no-select
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build 1.0151" +opacity]
+            [c +half "Developer Build 1.0152" +opacity]
           ]
           [ @breadcrumbs .no-select +small +padding]
           [ @file-list +padding]
@@ -719,7 +719,7 @@
       }).then(function() {
         
         $('#update-notif').classList.toggle('active', false);
-        location.reload(true);
+        location.href = location.href;
         
       }).catch(function() {
         
@@ -742,7 +742,7 @@
           if (typeof(clientUpdateHandler) === 'undefined') {
             
             if (window.confirm('App updated. Reload?'))
-              location.reload(true);
+              location.href = location.href;
           } else
             clientUpdateHandler();
           
@@ -759,7 +759,7 @@
               if (typeof(clientUpdateHandler) === 'undefined') {
                 
                 if (window.confirm('App updated. Reload?'))
-                  location.reload(true);
+                  location.href = location.href;
               } else
                 clientUpdateHandler();
             }
@@ -776,7 +776,7 @@
               if (typeof(clientUpdateHandler) === 'undefined') {
                 
                 if (window.confirm('App updated. Reload?'))
-                  location.reload(true);
+                  location.href = location.href;
               } else
                 clientUpdateHandler();
             }

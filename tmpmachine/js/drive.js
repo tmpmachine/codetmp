@@ -279,7 +279,7 @@ const drive = {
       else {
         auth0.requestToken(function() {
           return resolveTokenRequest();
-        });
+        }, true);
       }
       
     }).then(function() {
@@ -302,7 +302,7 @@ const drive = {
         L(error);
         drive.syncToDrive.enabled = false;
         $('#action-info').textContent = 'Refreshing authentication...';
-        oblog.authModule.requestToken(() => {
+        auth0.requestToken(() => {
           $('#action-info').textContent = '';
           drive.syncToDrive();
         }, true)

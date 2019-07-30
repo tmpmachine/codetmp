@@ -491,7 +491,7 @@ function openFile(fid) {
             else {
               auth0.requestToken(function() {
                 return resolveTokenRequest();
-              });
+              }, true);
             }
             
           }).then(function() {
