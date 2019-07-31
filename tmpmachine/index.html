@@ -87,11 +87,19 @@
 
   
   [ {h:100%;} @main-editor
+    [ .anibar-main-editor-menu {bg:none;}
+      [ {pos:relative;h:100%;w:100%;z-index:2;} +left
+        [ +padding {bg:#eee;h:100%;w:100%;pos:absolute;ov-y:auto;}
+          <!--plate-menu-info-->
+        ]
+      ]
+    ]
+  
     [ +left +hide-large +hide-medium {pos:relative;h:100%;ov-x:hidden;ov-y:auto;} +black +animate-left @sidebar +card-4
       <!--plate-sidebar-->
       [ +black {pos:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;}]
     ]
-    [x {h:100%;pos:relative;} .scroll1
+    [x {h:100%;pos:relative;} .scroll1 .anibar-main-editor-pusher .anibar--blocker
       <!--plate-interact-menu-->
       
       [ .in-window {ov:hidden;}
@@ -284,7 +292,7 @@
     ]
     
     [ {pos:relative;z-index:0;}
-      [ .btn-material .no-select menu="in-info" @btn-info +animate-left
+      [ .btn-material .no-select menu="in-info" @btn-menu-info +animate-left
         [M "info" .i-btn-in]
         [l "File Info" .l-btn-in]
         [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
@@ -332,35 +340,6 @@
     ]
     [ @in-home-block .in-window .in-block {z-index:0;}]
     
-    [ @in-info .in-window {bg:none;} .in-content
-      [ {h:34px;} +hide-small]
-      [ {pos:relative;h:100%;w:200px;z-index:2;} +left
-        [ .menu-overflow-header
-          <!--plate-ninja-space-->
-        ]
-        [ +padding {bg:#eee;h:100%;w:100%;pos:absolute;ov-y:auto;} .menu-overflow-content
-          <!--plate-menu-info-->
-        ]
-      ]
-      [ .in-content +left +border-left {pos:relative;h:100%;w:200px;z-index:1} @file-info-sub
-        [ .menu-overflow-header
-          <!--plate-ninja-space-->
-        ]
-        [ +padding {bg:#eee;h:100%;w:100%;pos:absolute;} .menu-overflow-content
-          [ +small
-            <b>Don't forget to Preview your code before deploy.</b> Choose a blog to deploy:
-          ]
-          <hr/>
-          [btn "Add Blog" +button +white +border .btn-add-blog]
-          <hr/>
-          [ @deploy-list
-            - You have not add any blog to deploy -
-          ]
-        ]
-      ]
-      [ @in-info-block .in-window .in-block {z-index:0;}]
-    ]
-    
     [ @in-assets .in-window {bg:none;w:200px;} .in-content
       [ {pos:relative;h:100%;}
         [ .menu-overflow-header
@@ -396,7 +375,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny .no-select
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build 1.0152" +opacity]
+            [c +half "Developer Build 1.0153" +opacity]
           ]
           [ @breadcrumbs .no-select +small +padding]
           [ @file-list +padding]
@@ -469,6 +448,10 @@
     [ {pos:relative;h:100%;}
       
       [ @menu-basic
+        
+        [ +hide-medium +hide-large +button +border +margin-bottom +block onclick="environment.close()"
+          [ "Close" +small +padding-small {fw:bold;} +left]
+        ]
         
         [ +button @btn-open-directory +border +margin-bottom +block
           [ "Open Directory" +small +padding-small {fw:bold;} +left]

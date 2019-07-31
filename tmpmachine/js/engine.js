@@ -55,6 +55,7 @@ const THOR = (function() {
   
   Promise.all([
     
+    require('require/anibar.js'),
     require('require/lsdb.js'),
     require('require/plate.js'),
     require('require/o.js'),

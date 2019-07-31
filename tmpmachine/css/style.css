@@ -69,7 +69,7 @@ html,body{height:100%;}
 
 
 
-#sidebar{z-index:50000;}
+#sidebar{z-index:1;}
 .in-content{z-index:23;}
 .in-block{z-index:22;}
 #file-title{z-index:21;}
@@ -80,9 +80,6 @@ html,body{height:100%;}
 .ace_scrollbar::-webkit-scrollbar-track { background: #ddd; }
 .ace_scrollbar::-webkit-scrollbar-thumb { background: #666; }
 .ace_scrollbar { scrollbar-color: dark; }
-
-#main-editor { transition: transform 300ms; transform: translateX(0%); }
-#main-editor.hide { transform: translateX(-100%); }
 
 #btn-back-to-editor { transition: transform 300ms; transform: translateX(0%); }
 #btn-back-to-editor.hide { transform: translateX(-100%); }

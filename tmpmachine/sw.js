@@ -4,7 +4,7 @@ self.addEventListener('message', function(e) {
 });
 
 
-let cacheVersion = '1.0152';
+let cacheVersion = '1.0153';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('install', function(event) {
@@ -34,6 +34,7 @@ self.addEventListener('install', function(event) {
     '/images/google/1x/btn_google_signin_dark_focus_web.png',
     '/images/google/1x/btn_google_signin_dark_pressed_web.png',
 
+    '/require/anibar.js',
     '/require/plate.js',
     '/require/o.js',
     '/require/opopnomi.js',

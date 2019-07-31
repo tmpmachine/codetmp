@@ -389,8 +389,15 @@ function attachMenuLinkListener() {
       break;
       case 'file info':
         link.onclick = () => {
-          if (!$('#in-info').classList.contains('active'))
-            $('#btn-info').click();
+          
+          setTimeout(function() {
+            let isOpened = environment.toggle();
+            if (isOpened)
+              $('#editor').env.editor.blur()
+            else
+              $('#editor').env.editor.focus()
+          }, 1)
+          
           blurNavigation()
         };
       break;
@@ -637,6 +644,15 @@ function btnOpenDirectory() {
   $('#btn-menu-my-files').click();
 }
 
+function btnInfo() {
+  
+  let isOpened = environment.toggle();
+  if (isOpened)
+    $('#editor').env.editor.blur()
+  else
+    $('#editor').env.editor.focus()
+}
+
 function btnPreview() {
   if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null) {
     
@@ -704,6 +720,7 @@ function updateUI() {
   
     newTab();
   
+    window.environment = anibar('main-editor');
   
     if ($('#btn-menu-save').offsetWidth > 100) {
       
@@ -729,6 +746,7 @@ function updateUI() {
       'btn-menu-save'         : [ fileSave            ],
       '.btn-material'         : [ ui.toggleMenu       ],
       'btn-menu-preview'      : [ btnPreview          ],
+      'btn-menu-info'         : [ btnInfo             ],
     });
   });
 }
@@ -1055,7 +1073,11 @@ function keyI(e) {
   if (keyHandle.Alt) {
     
     e.preventDefault();
-    $('#btn-info').click();
+    let isOpened = environment.toggle();
+    if (isOpened)
+      $('#editor').env.editor.blur()
+    else
+      $('#editor').env.editor.focus()
   }
 }
 
