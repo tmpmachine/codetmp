@@ -9,13 +9,15 @@ A simple web development environment for those who loves prototyping with high m
 
 | Command       | Description |
 | ---           | --- |
+| Alt + W       | Close tab |
 | Alt + N       | New tab |
 | Alt + <       | Previous tab |
 | Alt + >       | Next tab |
 | Alt + D       | Toggle snippet |
 | Alt + M       | Toggle my files |
-| Ctrl + Enter  | Render active file tab or locked file |
+| Alt + I       | Toggle File Info |
 | Ctrl + S      | Save current file |
+| Ctrl + Enter  | Render active file tab or locked file |
 | Alt + Enter   | Deploy active file tab |
 
 ## My Files Keyboard shortcut
@@ -23,6 +25,7 @@ A simple web development environment for those who loves prototyping with high m
 | ---           | --- |
 | Ctrl + C      | Copy file/folder       |
 | Ctrl + V      | Paste file/folder      |
+| Ctrl + L      | Lock file              |
 
 
 

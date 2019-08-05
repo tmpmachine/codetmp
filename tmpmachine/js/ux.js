@@ -575,7 +575,6 @@ function closeTab(focus = true, comeback) {
   $('#file-title').removeChild($('.file-tab')[activeTab]);
   fileTab.splice(activeTab, 1);
   
-  
   if (focus) {
     
     if (fileTab.length == 0) {
@@ -585,12 +584,7 @@ function closeTab(focus = true, comeback) {
       activeFile = undefined;
     } else {
       
-      if (comeback != undefined) {
-        
-        if (isSameTab(activeTab, comeback)) return;
-        activeTab = comeback;
-        focusTab(fileTab[activeTab].fid, false, true);
-      } else {
+      if (comeback === undefined) {
         
         if (activeTab == 0)
           focusTab(fileTab[0].fid, false, true);

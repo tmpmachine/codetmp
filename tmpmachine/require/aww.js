@@ -1,4 +1,5 @@
 /*
+0.041 - 31 July 2019 - pop element now have id
 0.04 - 30 July 2019 - encapsulation
 0.032 - 13 july 19 - change document body offsetWidth > clientWidth
 0.031 - 32 june 19 - replaced screen var
@@ -13,11 +14,10 @@
   
   function Aww() {
     
-    let popElement;
-    
     (function () {
       
-      popElement = document.createElement('div');
+      let popElement = document.createElement('div');
+      popElement.setAttribute('id', 'aww-pop');
       popElement.setAttribute('style','top:0;position:fixed;padding:4px;z-index:1000;-webkit-transform:translateY(-150%);transform:translateY(-150%);-webkit-transition:-webkit-transform 500ms;transition:transform 500ms;width:100%;text-align:center;');
       popElement.innerHTML = "<div style='box-shadow: 0 4px 10px 0 rgba(0,0,0,0.2), 0 4px 20px 0 rgba(0,0,0,0.19);background:white;border-radius:2px;display:inline-block;padding:4px 8px;font-family:sans-serif;font-size:0.8em;color:#000!important;'></div>";
       document.body.appendChild(popElement);
@@ -29,6 +29,7 @@
     
     this.pop = function (content, isPersistence = false, timeout = 2000) {
       
+      let popElement = document.querySelector('#aww-pop');
       popElement.firstElementChild.innerHTML = content;
       popElement.style.left = (document.body.clientWidth - popElement.offsetWidth) / 2 + 'px';
       popElement.style.webkitTransform = 'translateY(0px)';
