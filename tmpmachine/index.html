@@ -379,7 +379,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny .no-select
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build v1.0161" +opacity]
+            [c +half "Developer Build v1.0163" +opacity]
           ]
           [ @breadcrumbs .no-select +small +padding]
           [ @file-list +padding]
@@ -686,9 +686,6 @@
       else if (swo)
         swo.waiting.postMessage({action: 'skipWaiting'});
         
-      if (callback)
-        callback();
-      
       new Promise(function(resolve, reject) {
       
         if ($('#update-notif') !== null) {
