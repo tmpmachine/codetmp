@@ -671,11 +671,19 @@
   <script src="js/engine.js"></script>
   <script>
   
-    function clientUpdateHandler() {
+    function clientUpdateHandler(swo) {
       
       let $ = function(query) {
         return document.querySelector(query);
       }
+      
+      if (clientUpdateHandler.swo)
+        clientUpdateHandler.swo.waiting.postMessage({action: 'skipWaiting'});
+      else if (swo)
+        swo.waiting.postMessage({action: 'skipWaiting'});
+        
+      if (callback)
+        callback();
       
       new Promise(function(resolve, reject) {
       
@@ -726,8 +734,10 @@
             
             if (window.confirm('App updated. Reload?'))
               location.href = location.href;
-          } else
-            clientUpdateHandler();
+          } else {
+            clientUpdateHandler.swo = swo;
+            clientUpdateHandler(swo);
+          }
           
           return
         }
@@ -743,8 +753,10 @@
                 
                 if (window.confirm('App updated. Reload?'))
                   location.href = location.href;
-              } else
-                clientUpdateHandler();
+              } else {
+                clientUpdateHandler.swo = swo;
+                clientUpdateHandler(swo);
+              }
             }
           })
           return
@@ -760,8 +772,10 @@
                 
                 if (window.confirm('App updated. Reload?'))
                   location.href = location.href;
-              } else
-                clientUpdateHandler();
+              } else {
+                clientUpdateHandler.swo = swo;
+                clientUpdateHandler(swo);
+              }
             }
           })
         })
