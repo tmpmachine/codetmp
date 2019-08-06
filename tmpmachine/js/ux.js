@@ -377,7 +377,13 @@ function attachMenuLinkListener() {
       break;
       case 'deploy':
         link.onclick = () => {
-          renderAndDeploy();
+          renderAndDeployLocked();
+          blurNavigation()
+        };
+      break;
+      case 'deploy-single':
+        link.onclick = () => {
+          renderAndDeploySingle();
           blurNavigation()
         };
       break;
