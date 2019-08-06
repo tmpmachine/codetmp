@@ -1026,13 +1026,17 @@ function keyEnter(e) {
         } else
           renderBlog();
           
-      } else if (keyHandle.Alt)
-      
-        renderAndDeploy();
+      } else if (keyHandle.Alt) {
+        
+        if (keyHandle.Shift)
+          renderAndDeploySingle();
+        else
+          renderAndDeployLocked();
+      }
   }
 }
 
-function renderAndDeploy() {
+function renderAndDeploySingle() {
   
   let tmpLocked = locked;
   locked = -1;
@@ -1041,6 +1045,12 @@ function renderAndDeploy() {
   chooseDeploy();
   
   locked = tmpLocked;
+}
+
+function renderAndDeployLocked() {
+
+  renderBlog(true);
+  chooseDeploy();
 }
 
 function keyDelete() {
