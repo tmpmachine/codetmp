@@ -9,55 +9,6 @@ let activeTab = 0;
 let breadcrumbs = [{folderId:'-1',title:'My Files'}];
 let doubleClick = false;
 
-const fs = new lsdb('B-THOR-fs', {
-  root: {
-    rootId: '',
-    files: [],
-    folders: [],
-    blogs: [],
-    sync: [],
-    counter: {
-      files: 0,
-      folders: 0
-    }
-  },
-
-  blogs: {
-    name: '',
-    id: ''
-  },
-  folders:{
-    fid: 0,
-    parentId: -1,
-    
-    id: '',
-    name: '',
-    description: '',
-    modifiedTime: '',
-    trashed: false,
-  },
-  files: {
-    fid: 0,
-    parentId: -1,
-    modifiedTime: '',
-    isLock: false,
-    loaded: false,
-    
-    id: '',
-    name: '',
-    content: '',
-    description: '',
-    trashed: false,
-  },
-  sync: {
-    action: '',
-    fid: -1,
-    source: -1,
-    metadata: [],
-    type: '',
-  },
-});
-
 const fm = {
   INSERT: {
     folder: function(data) {
