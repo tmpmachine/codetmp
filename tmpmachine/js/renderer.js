@@ -204,6 +204,10 @@ function replaceLocal(body, preParent = -1) {
     }
     
     let src = match[0].substring(start, match[0].length-end);
+    if (src.startsWith('__')) {
+      preParent = -1;
+      src = src.replace(/__\//, '');
+    }
     let parentId = getDirectory(src, preParent);
     let files = odin.filterData(parentId, fs.data.files, 'parentId');
     let name = src.replace(/.*?\//g,'')
