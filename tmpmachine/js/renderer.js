@@ -61,38 +61,37 @@ window.addEventListener('message', function(e) {
 
 
 function getDirectory(source, parentId) {
+  
   while (source.match('//'))
     source = source.replace('//','/');
   
   let dir = source.split('/');
   let currentFolder;
   
-  while (dir.length > 1)
-  {
-    if (dir[0] === '..' || dir[0] === '.'  || dir[0] === '')
-    {
+  while (dir.length > 1) {
+    
+    if (dir[0] === '..' || dir[0] === '.'  || dir[0] === '') {
+      
       currentFolder = odin.dataOf(parentId, fs.data.folders, 'fid');
-      if (currentFolder === undefined)
-      {
+      if (currentFolder === undefined) {
+        
         acFold = -2;
         break;
       }
       
       dir.splice(0, 1);
       parentId = currentFolder.parentId;
-    }
-    else
-    {
+    } else {
+      
       let folders = odin.filterData(parentId, fs.data.folders, 'parentId');
       
       currentFolder = odin.dataOf(dir[0], folders, 'name');
-      if (currentFolder)
-      {
+      if (currentFolder) {
+        
         parentId = currentFolder.fid;
         dir.splice(0, 1);
-      }
-      else
-      {
+      } else {
+        
         parentId = -2;
         break;
       }
@@ -120,17 +119,16 @@ function renderBlog(isForceDeploy) {
   } else {
     previewWindow.postMessage({type:'reload'}, '*');
   
-    waitRender = function(){
+    waitRender = function () {
+      
       if (loadingStatus != 200)
       {
         setTimeout(function(){
           if (waitRender)
             waitRender();
           loadingStatus = 0;
-        }, 500)
-      }
-      else
-      {
+        }, 500);
+      } else {
         uploadBody = body;
         
         previewWindow.postMessage({
@@ -139,23 +137,23 @@ function renderBlog(isForceDeploy) {
         }, '*');
         waitRender = null;
       }
-    }
+    };
     waitRender();
   }
 }
 
 function fixDirectory(body, parent) {
 
-  let match = body.match(/<template include=.*?>|<script include=.*?>|<link include=.*?>/g)
+  let match = body.match(/<template include=.*?>|<script include=.*?>|<link include=.*?>/g);
 
-  if (match)
-  {
-    for (let m of match)
-    {
+  if (match) {
+    
+    for (let m of match) {
+      
       let source = m.match(/include=('|").*?('|")/)[0];
       source = source.substring(9, source.length-1).split(':');
       let src = source[0];
-      let mx = m.replace(src, '~' + getDirectory(src, parent) + '@' + src.replace(/.*\//g,''))
+      let mx = m.replace(src, '~' + getDirectory(src, parent) + '@' + src.replace(/.*\//g,''));
       
       body = body.replace(m, mx);
     }
@@ -192,18 +190,15 @@ function replaceLocal(body, preParent = -1) {
 
   let match = body.match(/<template include=.*?><\/template>|<script include=.*?><\/script>|<link include=.*?>/);
   
-  while (match !== null)
-  {
+  while (match !== null) {
+    
     let start = 19,
     end = 13;
     
-    if (match[0].includes('<script'))
-    {
+    if (match[0].includes('<script')) {
       start = 17;
       end = 11;
-    }
-    else if (match[0].includes('<link'))
-    {
+    } else if (match[0].includes('<link')) {
       start = 15;
       end = 3;
     }
@@ -214,19 +209,19 @@ function replaceLocal(body, preParent = -1) {
     let name = src.replace(/.*?\//g,'')
     let data = odin.dataOf(name, files, 'name');
     
-    if (data === undefined)
+    if (data === undefined) {
       body = body.replace(match[0], '<b style="font-size:0.9em;">THOR unexpected: '+src+' not found.</b><br/>');
-    else
-    {
-      if (!data.loaded)
-      {
+    } else {
+      
+      if (!data.loaded) {
+        
         aww.pop('Downloading required file : '+name);
         drive.downloadDependencies(data);
       }
       
       let ot = '', ct = '';
-      switch (start)
-      {
+      switch (start) {
+        
         case 17:
           ot = '<script>\n';
           ct = '\n</script>';
@@ -245,7 +240,11 @@ function replaceLocal(body, preParent = -1) {
         content = data.content;
     
       let swap = ot+replaceLocal(content, parentId)+ct;
-      body = body.replace(new RegExp(match[0], 'g'), swap);
+      body = body.replace(new RegExp(match[0]), swap);
+      
+      /* remove identical included elements */
+      while (body.match(new RegExp(match[0])))
+        body = body.replace(new RegExp(match[0]), '');
     }
    
     
@@ -265,11 +264,10 @@ function lockRender(self, fid, name) {
   for (let el of $('.btn-lock'))
     el.classList.toggle('w3-text-purple', false)
   
-  if (locked !== fid)
-  {
+  if (locked !== fid) {
     locked = fid;
     self.classList.toggle('w3-text-purple')
-  }
-  else
+  } else {
     locked = -1;
+  }
 }
