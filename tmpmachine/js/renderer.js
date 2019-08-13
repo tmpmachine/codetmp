@@ -1,4 +1,5 @@
 window.name = 'parent';
+let loadedScriptAndLink = [];
 let previewMode = false;
 let uploadBody = '';
 
@@ -104,6 +105,7 @@ function getDirectory(source, parentId) {
 function renderBlog(isForceDeploy) {
   
   let body = replaceLocal();
+  loadedScriptAndLink.length = 0;
   body = clearComments(body);
   body = plate.cook(body);
   
@@ -162,8 +164,6 @@ function fixDirectory(body, parent) {
   return body;
 }
 
-
-
 function replaceLocal(body, preParent = -1) {
 
   if (body === undefined) {
@@ -188,27 +188,51 @@ function replaceLocal(body, preParent = -1) {
   }
   
 
-  let match = body.match(/<template include=.*?><\/template>|<script include=.*?><\/script>|<link include=.*?>/);
+  let match = body.match(/<template include=.*?><\/template>/);
+  if (!match)
+    match = body.match(/<script include=.*?><\/script>|<link include=.*?>/);
   
   while (match !== null) {
     
+    let isScriptOrLink = false;
     let start = 19,
     end = 13;
     
     if (match[0].includes('<script')) {
       start = 17;
       end = 11;
+      isScriptOrLink = true;
     } else if (match[0].includes('<link')) {
       start = 15;
       end = 3;
+      isScriptOrLink = true;
     }
     
     let src = match[0].substring(start, match[0].length-end);
+    let relativeParent = preParent;
+    
+    
+    if (isScriptOrLink) {
+      
+      if (loadedScriptAndLink.indexOf(src) < 0) {
+        
+        loadedScriptAndLink.push(src);
+      } else {
+        
+        body = body.replace(new RegExp(match[0]), '');
+        match = body.match(/<template include=.*?><\/template>/);
+        if (!match)
+          match = body.match(/<script include=.*?><\/script>|<link include=.*?>/);
+          
+        continue;
+      }
+    }
+    
     if (src.startsWith('__')) {
-      preParent = -1;
+      relativeParent = -1;
       src = src.replace(/__\//, '');
     }
-    let parentId = getDirectory(src, preParent);
+    let parentId = getDirectory(src, relativeParent);
     let files = odin.filterData(parentId, fs.data.files, 'parentId');
     let name = src.replace(/.*?\//g,'')
     let data = odin.dataOf(name, files, 'name');
@@ -245,14 +269,12 @@ function replaceLocal(body, preParent = -1) {
     
       let swap = ot+replaceLocal(content, parentId)+ct;
       body = body.replace(new RegExp(match[0]), swap);
-      
-      /* remove identical included elements */
-      while (body.match(new RegExp(match[0])))
-        body = body.replace(new RegExp(match[0]), '');
     }
    
     
-    match = body.match(/<template include=.*?><\/template>|<script include=.*?><\/script>|<link include=.*?>/);
+    match = body.match(/<template include=.*?><\/template>/);
+    if (!match)
+      match = body.match(/<script include=.*?><\/script>|<link include=.*?>/);
   }
   
   return body;
