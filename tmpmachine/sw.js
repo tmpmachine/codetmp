@@ -4,7 +4,7 @@ self.addEventListener('message', function(e) {
 });
 
 
-let cacheVersion = '1.0181';
+let cacheVersion = '1.0182';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('install', function(event) {
@@ -16,6 +16,7 @@ self.addEventListener('install', function(event) {
     '/PP.html',
     '/css/style.css',
     '/ace/theme-monokai.js',
+    '/ace/theme-github.js',
     '/ace/mode-html.js',
     '/ace/mode-json.js',
     '/ace/mode-php.js',

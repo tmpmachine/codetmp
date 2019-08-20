@@ -414,6 +414,14 @@ function attachMenuLinkListener() {
           blurNavigation()
         };
       break;
+      case 'toggle-editor-theme':
+        link.onclick = () => {
+          if (editor.env.editor.getTheme().includes('monokai'))
+            editor.env.editor.setTheme('ace/theme/github');
+          else
+            editor.env.editor.setTheme('ace/theme/monokai');
+        }
+      break;
       case 'about':
         link.onclick = () => {
           if (!$('#in-home').classList.contains('active'))
