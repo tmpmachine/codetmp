@@ -144,25 +144,6 @@ function renderBlog(isForceDeploy) {
   }
 }
 
-function fixDirectory(body, parent) {
-
-  let match = body.match(/<template include=.*?>|<script include=.*?>|<link include=.*?>/g);
-
-  if (match) {
-    
-    for (let m of match) {
-      
-      let source = m.match(/include=('|").*?('|")/)[0];
-      source = source.substring(9, source.length-1).split(':');
-      let src = source[0];
-      let mx = m.replace(src, '~' + getDirectory(src, parent) + '@' + src.replace(/.*\//g,''));
-      
-      body = body.replace(m, mx);
-    }
-  }
-  
-  return body;
-}
 
 function replaceLocal(body, preParent = -1) {
 
@@ -230,7 +211,7 @@ function replaceLocal(body, preParent = -1) {
         if (!match)
           match = body.match(/<script include=.*?><\/script>|<link include=.*?>/);
         if (!match)
-          match = body.match(/@import '.*?';/);
+          match = body.match(/@import .*?;/);
           
         continue;
       }
@@ -283,6 +264,8 @@ function replaceLocal(body, preParent = -1) {
     match = body.match(/<template include=.*?><\/template>/);
     if (!match)
       match = body.match(/<script include=.*?><\/script>|<link include=.*?>/);
+    if (!match)
+      match = body.match(/@import .*?;/);
   }
   
   return body;
