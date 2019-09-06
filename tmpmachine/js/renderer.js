@@ -191,6 +191,9 @@ function replaceLocal(body, preParent = -1) {
   let match = body.match(/<template include=.*?><\/template>/);
   if (!match)
     match = body.match(/<script include=.*?><\/script>|<link include=.*?>/);
+  if (!match)
+    match = body.match(/@import .*?;/);
+  
   
   while (match !== null) {
     
@@ -206,6 +209,9 @@ function replaceLocal(body, preParent = -1) {
       start = 15;
       end = 3;
       isScriptOrLink = true;
+    } else if (match[0].includes('@import ')) {
+      start = 9;
+      end = 2;
     }
     
     let src = match[0].substring(start, match[0].length-end);
@@ -223,6 +229,8 @@ function replaceLocal(body, preParent = -1) {
         match = body.match(/<template include=.*?><\/template>/);
         if (!match)
           match = body.match(/<script include=.*?><\/script>|<link include=.*?>/);
+        if (!match)
+          match = body.match(/@import '.*?';/);
           
         continue;
       }
