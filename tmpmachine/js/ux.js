@@ -1017,9 +1017,17 @@ function keyEnter(e) {
   if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
     
     e.preventDefault();
-    selectedFile[0].click();
-    if (selectedFile[0])
+    
+    if (keyHandle.Control) {
+      if (selectedFile[0].dataset.type === 'folder')
+        ui.fm.renameFolder();
+      else
+        fileRename(selectedFile[0].getAttribute('data'));
+    } else {
       selectedFile[0].click();
+      if (selectedFile[0])
+        selectedFile[0].click();
+    }
   } else {
     
       if (keyHandle.Control && !cantLock) {
