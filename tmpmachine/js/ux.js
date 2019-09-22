@@ -742,6 +742,8 @@ function updateUI() {
       'btn-blog-vc'           : [ btnBlogVC           ],
       'btn-blogsphere-login'  : [ auth0.login         ],
       'btn-blogsphere-logout' : [ btnBlogsphereLogout ],
+      'btn-create-template'   : [ createBlogTemplate  ],
+      'btn-create-entry'      : [ createBlogEntry     ],
       'btn-menu-template'     : [ toggleInsertSnippet ],
       'btn-new-folder'        : [ ui.fm.newFolder     ],
       'btn-rename-folder'     : [ ui.fm.renameFolder  ],
@@ -759,6 +761,54 @@ function updateUI() {
   });
 }
       
+function createBlogTemplate() {
+  
+  let templateName = window.prompt('Template name');
+  if (!templateName) return;
+
+  oblog.config({
+    blog: $('#in-blog-name').value
+  });
+  
+  aww.pop('creating blog template...');
+  
+  oblog.pages.insert({
+    title: 'Template :: '+templateName,
+  }, response => {
+    
+    aww.pop('blog template created successfully...');
+    $('#chk-in-pre').checked = true;
+    $('#in-eid').value = 'p'+response.id;
+    fileSave();
+    
+  }, 'id')
+  
+  
+}
+
+function createBlogEntry() {
+  
+  let templateName = window.prompt('Post title');
+  if (!templateName) return;
+
+  oblog.config({
+    blog: $('#in-blog-name').value
+  });
+  
+  aww.pop('creating blog entry...');
+  
+  oblog.posts.insert({
+    title: templateName,
+  }, response => {
+    
+    aww.pop('blog entry created successfully');
+    $('#in-eid').value = response.id;
+    fileSave();
+    
+  }, 'id')
+  
+  
+}
       
 function btnBlogsphereLogout  () {
   
