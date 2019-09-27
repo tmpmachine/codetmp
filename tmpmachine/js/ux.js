@@ -381,6 +381,12 @@ function attachMenuLinkListener() {
           blurNavigation()
         };
       break;
+      case 'download-rendered':
+        link.onclick = () => {
+          fileDownload(uploadBody);
+          blurNavigation()
+        };
+      break;
       case 'deploy-single':
         link.onclick = () => {
           renderAndDeploySingle();

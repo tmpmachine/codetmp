@@ -792,6 +792,7 @@ function fileDownload(data) {
   {
     chunks = data;
     name = window.prompt('Export file name', 'export-'+new Date().toLocaleDateString().replace(/\//g,'-')+'.bthor');
+    
   }
   else
   {
@@ -802,7 +803,7 @@ function fileDownload(data) {
       chunks = plate.cook(chunks);
   }
   
-  if (name === 'null')
+  if (name === 'null' || !name)
     return;
   
   let blob = new Blob([chunks], {type: 'application/octet-stream'});
