@@ -1,4 +1,4 @@
-ace.define("ace/theme/github",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
+define("ace/theme/github",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
 
 exports.isDark = false;
 exports.cssClass = "ace-github";
@@ -101,7 +101,7 @@ background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZ
     var dom = require("../lib/dom");
     dom.importCssString(exports.cssText, exports.cssClass);
 });                (function() {
-                    ace.require(["ace/theme/github"], function(m) {
+                    window.require(["ace/theme/github"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

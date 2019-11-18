@@ -110,3 +110,6 @@ html,body{height:100%;}
   /*display: inline-block!important;*/
   transform: scale(1);
 }
+
+
+.ace_mobile-menu { display:none; }

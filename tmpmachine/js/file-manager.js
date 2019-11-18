@@ -675,7 +675,7 @@ function chooseDeploy() {
       
     let nowUpload;
     if (isPre)
-      nowUpload = summary+more+bibibib+'<pre>'+uploadBody+'</pre>';
+      nowUpload = summary+more+bibibib+'<pre>'+uploadBody.replace(/<pre>/g,'<xpre>').replace(/<\/pre>/g,'</xpre>')+'</pre>';
     else
       nowUpload = summary+more+bibibib+uploadBody;
     

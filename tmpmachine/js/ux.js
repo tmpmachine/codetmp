@@ -750,6 +750,7 @@ function updateUI() {
       'btn-blogsphere-logout' : [ btnBlogsphereLogout ],
       'btn-create-template'   : [ createBlogTemplate  ],
       'btn-create-entry'      : [ createBlogEntry     ],
+      'btn-create-app'        : [ createBlogApp       ],
       'btn-menu-template'     : [ toggleInsertSnippet ],
       'btn-new-folder'        : [ ui.fm.newFolder     ],
       'btn-rename-folder'     : [ ui.fm.renameFolder  ],
@@ -805,6 +806,31 @@ function createBlogEntry() {
   
   oblog.posts.insert({
     title: templateName,
+  }, response => {
+    
+    aww.pop('blog entry created successfully');
+    $('#in-eid').value = response.id;
+    fileSave();
+    
+  }, 'id')
+  
+  
+}
+
+function createBlogApp() {
+  
+  let templateName = window.prompt('Post title');
+  if (!templateName) return;
+
+  oblog.config({
+    blog: $('#in-blog-name').value
+  });
+  
+  aww.pop('creating blog entry...');
+  
+  oblog.posts.insert({
+    title: templateName,
+    labels: ['_bloggerApps'],
   }, response => {
     
     aww.pop('blog entry created successfully');

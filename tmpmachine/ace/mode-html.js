@@ -9,7 +9,7 @@ var DocCommentHighlightRules = function() {
         "start" : [ {
             token : "comment.doc.tag",
             regex : "@[\\w\\d_]+" // TODO: fix email addresses
-        },
+        }, 
         DocCommentHighlightRules.getTagRule(),
         {
             defaultToken : "comment.doc",
@@ -181,7 +181,8 @@ var JavaScriptHighlightRules = function(options) {
                 next  : "property"
             }, {
                 token : "storage.type",
-                regex : /=>/
+                regex : /=>/,
+                next  : "start"
             }, {
                 token : "keyword.operator",
                 regex : /--|\+\+|\.{3}|===|==|=|!=|!==|<+=?|>+=?|!|&&|\|\||\?:|[!$%&*+\-~\/^]=?/,
@@ -849,7 +850,7 @@ var CssHighlightRules = function() {
         }, {
             caseInsensitive: true
         }],
-        
+
         "media": [{
             include : ["strings", "url", "comments"]
         }, {
@@ -887,6 +888,9 @@ var CssHighlightRules = function() {
             regex : "-(webkit|ms|moz|o)-",
             token : "text"
         }, {
+            token : "punctuation.operator",
+            regex : "[:;]"
+        }, {
             token : "paren.rparen",
             regex : "\\}",
             next : "start"
@@ -918,7 +922,7 @@ var CssHighlightRules = function() {
         }, {
             caseInsensitive: true
         }],
-        
+
         url: [{
             token : "support.function",
             regex : "(?:url(:?-prefix)?|domain|regexp)\\(",
@@ -930,7 +934,7 @@ var CssHighlightRules = function() {
                 defaultToken: "string"
             }]
         }],
-        
+
         strings: [{
             token : "string.start",
             regex : "'",
@@ -968,7 +972,7 @@ var CssHighlightRules = function() {
             token : "constant.language.escape",
             regex : /\\([a-fA-F\d]{1,6}|[^a-fA-F\d])/
         }]
-        
+
     };
 
     this.normalizeRules();
@@ -1099,11 +1103,7 @@ var CssCompletions = function() {
             this.defineCompletions();
         }
 
-        var token = session.getTokenAt(pos.row, pos.column);
-
-        if (!token)
-            return [];
-        if (state==='ruleset'){
+        if (state==='ruleset' || session.$mode.$id == "ace/mode/scss") {
             var line = session.getLine(pos.row).substr(0, pos.column);
             if (/:[^;]+$/.test(line)) {
                 /([\w\-]+):[^:]*$/.test(line);
@@ -1124,7 +1124,7 @@ var CssCompletions = function() {
                 caption: property,
                 snippet: property + ': $0;',
                 meta: "property",
-                score: Number.MAX_VALUE
+                score: 1000000
             };
         });
     };
@@ -1144,7 +1144,7 @@ var CssCompletions = function() {
                 caption: value,
                 snippet: value,
                 meta: "property value",
-                score: Number.MAX_VALUE
+                score: 1000000
             };
         });
     };
@@ -1167,7 +1167,7 @@ var CssBehaviour = function () {
     this.inherit(CstyleBehaviour);
 
     this.add("colon", "insertion", function (state, action, editor, session, text) {
-        if (text === ':') {
+        if (text === ':' && editor.selection.isEmpty()) {
             var cursor = editor.getCursorPosition();
             var iterator = new TokenIterator(session, cursor.row, cursor.column);
             var token = iterator.getCurrentToken();
@@ -1183,7 +1183,7 @@ var CssBehaviour = function () {
                        selection: [1, 1]
                     };
                 }
-                if (!line.substring(cursor.column).match(/^\s*;/)) {
+                if (/^(\s+[^;]|\s*$)/.test(line.substring(cursor.column))) {
                     return {
                        text: ':;',
                        selection: [1, 1]
@@ -1214,7 +1214,7 @@ var CssBehaviour = function () {
     });
 
     this.add("semicolon", "insertion", function (state, action, editor, session, text) {
-        if (text === ';') {
+        if (text === ';' && editor.selection.isEmpty()) {
             var cursor = editor.getCursorPosition();
             var line = session.doc.getLine(cursor.row);
             var rightChar = line.substring(cursor.column, cursor.column + 1);
@@ -1222,6 +1222,20 @@ var CssBehaviour = function () {
                 return {
                    text: '',
                    selection: [1, 1]
+                };
+            }
+        }
+    });
+
+    this.add("!important", "insertion", function (state, action, editor, session, text) {
+        if (text === '!' && editor.selection.isEmpty()) {
+            var cursor = editor.getCursorPosition();
+            var line = session.doc.getLine(cursor.row);
+
+            if (/^\s*(;|}|$)/.test(line.substring(cursor.column))) {
+                return {
+                    text: '!important',
+                    selection: [10, 10]
                 };
             }
         }
@@ -1602,7 +1616,7 @@ var TokenIterator = require("../../token_iterator").TokenIterator;
 var lang = require("../../lib/lang");
 
 function is(token, type) {
-    return token.type.lastIndexOf(type + ".xml") > -1;
+    return token && token.type.lastIndexOf(type + ".xml") > -1;
 }
 
 var XmlBehaviour = function () {
@@ -1676,7 +1690,8 @@ var XmlBehaviour = function () {
                 if (position.column < tokenEndColumn)
                     return;
                 if (position.column == tokenEndColumn) {
-                    if (is(iterator.stepForward(), "attribute-value"))
+                    var nextToken = iterator.stepForward();
+                    if (nextToken && is(nextToken, "attribute-value"))
                         return;
                     iterator.stepBackward();
                 }
@@ -1780,7 +1795,7 @@ oop.inherits(FoldMode, BaseFoldMode);
 
 
     this.$getMode = function(state) {
-        if (typeof state != "string")
+        if (typeof state != "string") 
             state = state[0];
         for (var key in this.subModes) {
             if (state.indexOf(key) === 0)
@@ -2176,120 +2191,120 @@ var eventAttributes = [
 var globalAttributes = commonAttributes.concat(eventAttributes);
 
 var attributeMap = {
-    "html": {"manifest": 1},
-    "head": {},
-    "title": {},
-    "base": {"href": 1, "target": 1},
-    "link": {"href": 1, "hreflang": 1, "rel": {"stylesheet": 1, "icon": 1}, "media": {"all": 1, "screen": 1, "print": 1}, "type": {"text/css": 1, "image/png": 1, "image/jpeg": 1, "image/gif": 1}, "sizes": 1},
-    "meta": {"http-equiv": {"content-type": 1}, "name": {"description": 1, "keywords": 1}, "content": {"text/html; charset=UTF-8": 1}, "charset": 1},
-    "style": {"type": 1, "media": {"all": 1, "screen": 1, "print": 1}, "scoped": 1},
-    "script": {"charset": 1, "type": {"text/javascript": 1}, "src": 1, "defer": 1, "async": 1},
-    "noscript": {"href": 1},
-    "body": {"onafterprint": 1, "onbeforeprint": 1, "onbeforeunload": 1, "onhashchange": 1, "onmessage": 1, "onoffline": 1, "onpopstate": 1, "onredo": 1, "onresize": 1, "onstorage": 1, "onundo": 1, "onunload": 1},
-    "section": {},
-    "nav": {},
+    "a": {"href": 1, "target": {"_blank": 1, "top": 1}, "ping": 1, "rel": {"nofollow": 1, "alternate": 1, "author": 1, "bookmark": 1, "help": 1, "license": 1, "next": 1, "noreferrer": 1, "prefetch": 1, "prev": 1, "search": 1, "tag": 1}, "media": 1, "hreflang": 1, "type": 1},
+    "abbr": {},
+    "address": {},
+    "area": {"shape": 1, "coords": 1, "href": 1, "hreflang": 1, "alt": 1, "target": 1, "media": 1, "rel": 1, "ping": 1, "type": 1},
     "article": {"pubdate": 1},
     "aside": {},
+    "audio": {"src": 1, "autobuffer": 1, "autoplay": {"autoplay": 1}, "loop": {"loop": 1}, "controls": {"controls": 1}, "muted": {"muted": 1}, "preload": {"auto": 1, "metadata": 1, "none": 1 }},
+    "b": {},
+    "base": {"href": 1, "target": 1},
+    "bdi": {},
+    "bdo": {},
+    "blockquote": {"cite": 1},
+    "body": {"onafterprint": 1, "onbeforeprint": 1, "onbeforeunload": 1, "onhashchange": 1, "onmessage": 1, "onoffline": 1, "onpopstate": 1, "onredo": 1, "onresize": 1, "onstorage": 1, "onundo": 1, "onunload": 1},
+    "br": {},
+    "button": {"autofocus": 1, "disabled": {"disabled": 1}, "form": 1, "formaction": 1, "formenctype": 1, "formmethod": 1, "formnovalidate": 1, "formtarget": 1, "name": 1, "value": 1, "type": {"button": 1, "submit": 1}},
+    "canvas": {"width": 1, "height": 1},
+    "caption": {},
+    "cite": {},
+    "code": {},
+    "col": {"span": 1},
+    "colgroup": {"span": 1},
+    "command": {"type": 1, "label": 1, "icon": 1, "disabled": 1, "checked": 1, "radiogroup": 1, "command": 1},
+    "data": {},
+    "datalist": {},
+    "dd": {},
+    "del": {"cite": 1, "datetime": 1},
+    "details": {"open": 1},
+    "dfn": {},
+    "dialog": {"open": 1},
+    "div": {},
+    "dl": {},
+    "dt": {},
+    "em": {},
+    "embed": {"src": 1, "height": 1, "width": 1, "type": 1},
+    "fieldset": {"disabled": 1, "form": 1, "name": 1},
+    "figcaption": {},
+    "figure": {},
+    "footer": {},
+    "form": {"accept-charset": 1, "action": 1, "autocomplete": 1, "enctype": {"multipart/form-data": 1, "application/x-www-form-urlencoded": 1}, "method": {"get": 1, "post": 1}, "name": 1, "novalidate": 1, "target": {"_blank": 1, "top": 1}},
     "h1": {},
     "h2": {},
     "h3": {},
     "h4": {},
     "h5": {},
     "h6": {},
+    "head": {},
     "header": {},
-    "footer": {},
-    "address": {},
-    "main": {},
-    "p": {},
     "hr": {},
-    "pre": {},
-    "blockquote": {"cite": 1},
-    "ol": {"start": 1, "reversed": 1},
-    "ul": {},
-    "li": {"value": 1},
-    "dl": {},
-    "dt": {},
-    "dd": {},
-    "figure": {},
-    "figcaption": {},
-    "div": {},
-    "a": {"href": 1, "target": {"_blank": 1, "top": 1}, "ping": 1, "rel": {"nofollow": 1, "alternate": 1, "author": 1, "bookmark": 1, "help": 1, "license": 1, "next": 1, "noreferrer": 1, "prefetch": 1, "prev": 1, "search": 1, "tag": 1}, "media": 1, "hreflang": 1, "type": 1},
-    "em": {},
-    "strong": {},
-    "small": {},
-    "s": {},
-    "cite": {},
-    "q": {"cite": 1},
-    "dfn": {},
-    "abbr": {},
-    "data": {},
-    "time": {"datetime": 1},
-    "code": {},
-    "var": {},
-    "samp": {},
-    "kbd": {},
-    "sub": {},
-    "sup": {},
+    "html": {"manifest": 1},
     "i": {},
-    "b": {},
-    "u": {},
-    "mark": {},
-    "ruby": {},
-    "rt": {},
-    "rp": {},
-    "bdi": {},
-    "bdo": {},
-    "span": {},
-    "br": {},
-    "wbr": {},
-    "ins": {"cite": 1, "datetime": 1},
-    "del": {"cite": 1, "datetime": 1},
-    "img": {"alt": 1, "src": 1, "height": 1, "width": 1, "usemap": 1, "ismap": 1},
     "iframe": {"name": 1, "src": 1, "height": 1, "width": 1, "sandbox": {"allow-same-origin": 1, "allow-top-navigation": 1, "allow-forms": 1, "allow-scripts": 1}, "seamless": {"seamless": 1}},
-    "embed": {"src": 1, "height": 1, "width": 1, "type": 1},
-    "object": {"param": 1, "data": 1, "type": 1, "height" : 1, "width": 1, "usemap": 1, "name": 1, "form": 1, "classid": 1},
-    "param": {"name": 1, "value": 1},
-    "video": {"src": 1, "autobuffer": 1, "autoplay": {"autoplay": 1}, "loop": {"loop": 1}, "controls": {"controls": 1}, "width": 1, "height": 1, "poster": 1, "muted": {"muted": 1}, "preload": {"auto": 1, "metadata": 1, "none": 1}},
-    "audio": {"src": 1, "autobuffer": 1, "autoplay": {"autoplay": 1}, "loop": {"loop": 1}, "controls": {"controls": 1}, "muted": {"muted": 1}, "preload": {"auto": 1, "metadata": 1, "none": 1 }},
-    "source": {"src": 1, "type": 1, "media": 1},
-    "track": {"kind": 1, "src": 1, "srclang": 1, "label": 1, "default": 1},
-    "canvas": {"width": 1, "height": 1},
-    "map": {"name": 1},
-    "area": {"shape": 1, "coords": 1, "href": 1, "hreflang": 1, "alt": 1, "target": 1, "media": 1, "rel": 1, "ping": 1, "type": 1},
-    "svg": {},
-    "math": {},
-    "table": {"summary": 1},
-    "caption": {},
-    "colgroup": {"span": 1},
-    "col": {"span": 1},
-    "tbody": {},
-    "thead": {},
-    "tfoot": {},
-    "tr": {},
-    "td": {"headers": 1, "rowspan": 1, "colspan": 1},
-    "th": {"headers": 1, "rowspan": 1, "colspan": 1, "scope": 1},
-    "form": {"accept-charset": 1, "action": 1, "autocomplete": 1, "enctype": {"multipart/form-data": 1, "application/x-www-form-urlencoded": 1}, "method": {"get": 1, "post": 1}, "name": 1, "novalidate": 1, "target": {"_blank": 1, "top": 1}},
-    "fieldset": {"disabled": 1, "form": 1, "name": 1},
-    "legend": {},
-    "label": {"form": 1, "for": 1},
+    "img": {"alt": 1, "src": 1, "height": 1, "width": 1, "usemap": 1, "ismap": 1},
     "input": {
         "type": {"text": 1, "password": 1, "hidden": 1, "checkbox": 1, "submit": 1, "radio": 1, "file": 1, "button": 1, "reset": 1, "image": 31, "color": 1, "date": 1, "datetime": 1, "datetime-local": 1, "email": 1, "month": 1, "number": 1, "range": 1, "search": 1, "tel": 1, "time": 1, "url": 1, "week": 1},
         "accept": 1, "alt": 1, "autocomplete": {"on": 1, "off": 1}, "autofocus": {"autofocus": 1}, "checked": {"checked": 1}, "disabled": {"disabled": 1}, "form": 1, "formaction": 1, "formenctype": {"application/x-www-form-urlencoded": 1, "multipart/form-data": 1, "text/plain": 1}, "formmethod": {"get": 1, "post": 1}, "formnovalidate": {"formnovalidate": 1}, "formtarget": {"_blank": 1, "_self": 1, "_parent": 1, "_top": 1}, "height": 1, "list": 1, "max": 1, "maxlength": 1, "min": 1, "multiple": {"multiple": 1}, "name": 1, "pattern": 1, "placeholder": 1, "readonly": {"readonly": 1}, "required": {"required": 1}, "size": 1, "src": 1, "step": 1, "width": 1, "files": 1, "value": 1},
-    "button": {"autofocus": 1, "disabled": {"disabled": 1}, "form": 1, "formaction": 1, "formenctype": 1, "formmethod": 1, "formnovalidate": 1, "formtarget": 1, "name": 1, "value": 1, "type": {"button": 1, "submit": 1}},
-    "select": {"autofocus": 1, "disabled": 1, "form": 1, "multiple": {"multiple": 1}, "name": 1, "size": 1, "readonly":{"readonly": 1}},
-    "datalist": {},
+    "ins": {"cite": 1, "datetime": 1},
+    "kbd": {},
+    "keygen": {"autofocus": 1, "challenge": {"challenge": 1}, "disabled": {"disabled": 1}, "form": 1, "keytype": {"rsa": 1, "dsa": 1, "ec": 1}, "name": 1},
+    "label": {"form": 1, "for": 1},
+    "legend": {},
+    "li": {"value": 1},
+    "link": {"href": 1, "hreflang": 1, "rel": {"stylesheet": 1, "icon": 1}, "media": {"all": 1, "screen": 1, "print": 1}, "type": {"text/css": 1, "image/png": 1, "image/jpeg": 1, "image/gif": 1}, "sizes": 1},
+    "main": {},
+    "map": {"name": 1},
+    "mark": {},
+    "math": {},
+    "menu": {"type": 1, "label": 1},
+    "meta": {"http-equiv": {"content-type": 1}, "name": {"description": 1, "keywords": 1}, "content": {"text/html; charset=UTF-8": 1}, "charset": 1},
+    "meter": {"value": 1, "min": 1, "max": 1, "low": 1, "high": 1, "optimum": 1},
+    "nav": {},
+    "noscript": {"href": 1},
+    "object": {"param": 1, "data": 1, "type": 1, "height" : 1, "width": 1, "usemap": 1, "name": 1, "form": 1, "classid": 1},
+    "ol": {"start": 1, "reversed": 1},
     "optgroup": {"disabled": 1, "label": 1},
     "option": {"disabled": 1, "selected": 1, "label": 1, "value": 1},
-    "textarea": {"autofocus": {"autofocus": 1}, "disabled": {"disabled": 1}, "form": 1, "maxlength": 1, "name": 1, "placeholder": 1, "readonly": {"readonly": 1}, "required": {"required": 1}, "rows": 1, "cols": 1, "wrap": {"on": 1, "off": 1, "hard": 1, "soft": 1}},
-    "keygen": {"autofocus": 1, "challenge": {"challenge": 1}, "disabled": {"disabled": 1}, "form": 1, "keytype": {"rsa": 1, "dsa": 1, "ec": 1}, "name": 1},
     "output": {"for": 1, "form": 1, "name": 1},
+    "p": {},
+    "param": {"name": 1, "value": 1},
+    "pre": {},
     "progress": {"value": 1, "max": 1},
-    "meter": {"value": 1, "min": 1, "max": 1, "low": 1, "high": 1, "optimum": 1},
-    "details": {"open": 1},
+    "q": {"cite": 1},
+    "rp": {},
+    "rt": {},
+    "ruby": {},
+    "s": {},
+    "samp": {},
+    "script": {"charset": 1, "type": {"text/javascript": 1}, "src": 1, "defer": 1, "async": 1},
+    "select": {"autofocus": 1, "disabled": 1, "form": 1, "multiple": {"multiple": 1}, "name": 1, "size": 1, "readonly":{"readonly": 1}},
+    "small": {},
+    "source": {"src": 1, "type": 1, "media": 1},
+    "span": {},
+    "strong": {},
+    "style": {"type": 1, "media": {"all": 1, "screen": 1, "print": 1}, "scoped": 1},
+    "sub": {},
+    "sup": {},
+    "svg": {},
+    "table": {"summary": 1},
+    "tbody": {},
+    "td": {"headers": 1, "rowspan": 1, "colspan": 1},
+    "textarea": {"autofocus": {"autofocus": 1}, "disabled": {"disabled": 1}, "form": 1, "maxlength": 1, "name": 1, "placeholder": 1, "readonly": {"readonly": 1}, "required": {"required": 1}, "rows": 1, "cols": 1, "wrap": {"on": 1, "off": 1, "hard": 1, "soft": 1}},
+    "tfoot": {},
+    "th": {"headers": 1, "rowspan": 1, "colspan": 1, "scope": 1},
+    "thead": {},
+    "time": {"datetime": 1},
+    "title": {},
+    "tr": {},
+    "track": {"kind": 1, "src": 1, "srclang": 1, "label": 1, "default": 1},
+    "section": {},
     "summary": {},
-    "command": {"type": 1, "label": 1, "icon": 1, "disabled": 1, "checked": 1, "radiogroup": 1, "command": 1},
-    "menu": {"type": 1, "label": 1},
-    "dialog": {"open": 1}
+    "u": {},
+    "ul": {},
+    "var": {},
+    "video": {"src": 1, "autobuffer": 1, "autoplay": {"autoplay": 1}, "loop": {"loop": 1}, "controls": {"controls": 1}, "width": 1, "height": 1, "poster": 1, "muted": {"muted": 1}, "preload": {"auto": 1, "metadata": 1, "none": 1}},
+    "wbr": {}
 };
 
 var elements = Object.keys(attributeMap);
@@ -2347,7 +2362,7 @@ var HtmlCompletions = function() {
             return {
                 value: element,
                 meta: "tag",
-                score: Number.MAX_VALUE
+                score: 1000000
             };
         });
     };
@@ -2365,7 +2380,7 @@ var HtmlCompletions = function() {
                 caption: attribute,
                 snippet: attribute + '="$0"',
                 meta: "attribute",
-                score: Number.MAX_VALUE
+                score: 1000000
             };
         });
     };
@@ -2385,7 +2400,7 @@ var HtmlCompletions = function() {
                 caption: value,
                 snippet: value,
                 meta: "attribute value",
-                score: Number.MAX_VALUE
+                score: 1000000
             };
         });
     };
@@ -2398,7 +2413,7 @@ var HtmlCompletions = function() {
                 caption: value,
                 snippet: value,
                 meta: "html entity",
-                score: Number.MAX_VALUE
+                score: 1000000
             };
         });
     };
@@ -2481,4 +2496,11 @@ oop.inherits(Mode, TextMode);
 }).call(Mode.prototype);
 
 exports.Mode = Mode;
-});
+});                (function() {
+                    window.require(["ace/mode/html"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
