@@ -1,6 +1,5 @@
 /*
 0.011 - 31 July 2019 - added toggle function
-0.01 - 31 July 2019 - project started
 */
 
 (function () {

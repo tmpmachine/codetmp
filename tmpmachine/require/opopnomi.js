@@ -1,68 +1,92 @@
-// v0.011 -- 25 june 19 -- disable on small room
-// v0.01 -- 10 june 19 -- project started
+/*
+v0.03 -- 12 aug 19 -- encapsulation
+*/
 
-function room(cls) {
+(function () {
   
-  if ($('.'+cls).length < 1) return;
+  function Room(cls) {
   
-  let active = -1;
-  for (let i=1; i<$('.'+cls).length; i++)
-  {
-    if ($('.'+cls)[i].classList.contains(cls+'--active'))
-    {
-      active = i;
-      $('.'+cls)[i].style.display = '';
-    }
-    else
-      $('.'+cls)[i].style.display = 'none';
-  }
-  
-  if (active >= 0)
-    $('.'+cls)[0].style.display = 'none';
-  else
-    $('.'+cls)[0].classList.toggle(cls+'--active', true);
-  
-  this.cls = cls;
-  return this;
-}
-
-room.prototype.shambles = function(index) {
-  
-  if (index >= 0)
-  {
-    for (let i=0; i<$('.'+this.cls).length; i++)
-    {
-      $('.'+this.cls)[i].style.display = 'none';
-      $('.'+this.cls)[i].classList.toggle(this.cls+'--active', false);
-    }
+    let $ = function(selector) {
+      return document.querySelectorAll(selector);
+    };
+      
+    this.shambles = function (index) {
     
-    $('.'+this.cls)[index].style.display = '';
-    $('.'+this.cls)[index].classList.toggle(this.cls+'--active', true);
-    return;
-  }
-  else if (index == -1 || typeof(index) == 'undefined')
-  {
-    if (typeof(index) == 'undefined')
-      index = 1;
-    
-    for (let i=0; i<$('.'+this.cls).length; i++)
-    {
-      if ($('.'+this.cls)[i].classList.contains(this.cls+'--active'))
-      {
-        $('.'+this.cls)[i].classList.toggle(this.cls+'--active', false);
-        $('.'+this.cls)[i].style.display = 'none';
+      let totEl = $('.'+cls).length;
+      if (index >= 0) {
         
-        let target = 0;
-        if (i + index >= 0 && i + index < $('.'+this.cls).length)
-          target = i + index;
-        else if (i + index == -1)
-          target = $('.'+this.cls).length - 1;
-        
-        $('.'+this.cls)[target].style.display = '';
-        $('.'+this.cls)[target].classList.toggle(this.cls+'--active', true);
+        for (let i=0; i<totEl; i++) {
           
-        break;
+          let element = $('.'+cls)[i];
+          if (element.dataset.room == index) {
+            element.style.display = '';
+            element.classList.toggle(cls+'--active', true);
+          } else {
+            element.style.display = 'none';
+            element.classList.toggle(cls+'--active', false);
+          }
+        }
+      } else if (index == -1 || typeof(index) == 'undefined') {
+        
+        if (typeof(index) == 'undefined')
+          index = 1;
+        
+        for (let i=0; i<totEl; i++) {
+          
+          let element = $('.'+cls)[i];
+          if (element.classList.contains(cls+'--active')) {
+            
+            element.classList.toggle(cls+'--active', false);
+            element.style.display = 'none';
+            
+            let target = 0;
+            if (i + index >= 0 && i + index < totEl)
+              target = i + index;
+            else if (i + index == -1)
+              target = totEl - 1;
+            
+            let targetElement = $('.'+cls)[target];
+            targetElement.style.display = '';
+            targetElement.classList.toggle(cls+'--active', true);
+              
+            break;
+          }
+        }
       }
-    }
+    };
+  
+    /* display the first room by default */
+    (function () {
+      
+      if ($('.'+cls).length < 1) return;
+      
+      let active = -1;
+      let totEl = $('.'+cls).length;
+      for (let i=1; i<totEl; i++) {
+        
+        let element = $('.'+cls)[i];
+        if (element.classList.contains(cls+'--active')) {
+          active = i;
+          element.style.display = '';
+        } else {
+          element.style.display = 'none';
+        }
+      }
+      
+      if (active >= 0)
+        $('.'+cls)[0].style.display = 'none';
+      else
+        $('.'+cls)[0].classList.toggle(cls+'--active', true);
+    })();
+    
+    return this;
   }
-};
+  
+  if (window.room === undefined)
+    window.room = function(cls) {
+      return (new Room(cls));
+    };
+  else
+    console.error('opopnomi.js', 'Failed to initialize. Duplicate variable exists.');
+    
+})();

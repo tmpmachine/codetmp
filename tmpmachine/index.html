@@ -147,11 +147,11 @@
                     Preview
                     [s "Ctrl + Enter" +tiny +opacity +right]
                   ]
-                  [li +padding .menu-link data-link='deploy'
+                  [li +padding .menu-link data-link='deploy' .auth-required .unauthorized
                     Deploy to Blogger
                     [s "Alt + Enter" +tiny +opacity +right]
                   ]
-                  [li +padding .menu-link data-link='deploy-single'
+                  [li +padding .menu-link data-link='deploy-single' .auth-required .unauthorized
                     Deploy to Blogger (Active tab)
                     [s "Alt + Shift + Enter" +tiny +opacity +right]
                   ]
@@ -181,6 +181,9 @@
                 [ul {dis:none;l:0;t:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
                   [li +padding .menu-link data-link='toggle-editor-theme'
                     Toggle Light Theme
+                  ]
+                  [li +padding .menu-link data-link='set-font-size'
+                    Set Font Size
                   ]
                 ]
               ]
@@ -415,7 +418,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny .no-select
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build v1.05" +opacity]
+            [c +half "Developer Build v1.06" +opacity]
           ]
           [ @breadcrumbs .no-select +small +padding]
           [ @file-list +padding]
@@ -507,32 +510,33 @@
         
         [hr]
         
-        [ +tiny "Blog name"]
-        [in @in-blog-name {w:100%;} .description name='blog']
-        [ +tiny "Entry ID"]
-        [in @in-eid {w:100%;} .description name='eid']
-        [ +tiny "Summary"]
-        [t @in-summary {w:100%;resize:none;h:100px;} .description name="summary"]
-        [
-          [in type="checkbox" @chk-bibibi .description name='bibibi'] [l for="chk-bibibi" "Post summary fix"]
-        ]
-        [
-          [in type="checkbox" @chk-more-tag .description name='more'] [l for="chk-more-tag" "Use More tag"]
-        ]
-        [
-          [in type="checkbox" @chk-in-pre .description name='pre'] [l for="chk-in-pre" "Wrap in &lt;pre&gt;"]
-        ]
-        
-        [btn @btn-backup-revision "Backup Revision" +button +border +margin-top]
-        [btn @btn-list-revisions "List Revisions" +button +border +margin-top]
-        [btn @btn-blog-vc "Open version control" +button +border +margin-top +hide]
-        [hr]
-        [ @list-revisions]
-        
-        [btn @btn-create-template "Create Blog Template"]
-        [btn @btn-create-entry "Create Blog Entry"]
-        [btn @btn-create-app "Create Blogger App"]
-        
+        <div class="auth-required unauthorized">
+          [ +tiny "Blog name"]
+          [in @in-blog-name {w:100%;} .description name='blog']
+          [ +tiny "Entry ID"]
+          [in @in-eid {w:100%;} .description name='eid']
+          [ +tiny "Summary"]
+          [t @in-summary {w:100%;resize:none;h:100px;} .description name="summary"]
+          [
+            [in type="checkbox" @chk-bibibi .description name='bibibi'] [l for="chk-bibibi" "Post summary fix"]
+          ]
+          [
+            [in type="checkbox" @chk-more-tag .description name='more'] [l for="chk-more-tag" "Use More tag"]
+          ]
+          [
+            [in type="checkbox" @chk-in-pre .description name='pre'] [l for="chk-in-pre" "Wrap in &lt;pre&gt;"]
+          ]
+          
+          [btn @btn-backup-revision "Backup Revision" +button +border +margin-top]
+          [btn @btn-list-revisions "List Revisions" +button +border +margin-top]
+          [btn @btn-blog-vc "Open version control" +button +border +margin-top +hide]
+          [hr]
+          [ @list-revisions]
+          
+          [btn @btn-create-template "Create Blog Template"]
+          [btn @btn-create-entry "Create Blog Entry"]
+          [btn @btn-create-app "Create Blogger App"]
+        </div>
       ]
       
       [ @menu-blogger +hide

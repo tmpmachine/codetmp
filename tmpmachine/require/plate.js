@@ -1,14 +1,5 @@
 /*
 1.33 : 18 sep 19 -- fix tag skips include error for Blogsphere, function encapsulation, unclose attribute handler, style without break handler
-1.32 : 7 sep 19 -- encapsulation
-1.31 - 29 July 19 - clear plate element
-1.30 - 22 May 19 - added more css shorthand
-1.29 - 2 May 19 - added skips for php
-1.28 - 11 Apr 19 - reduced code from 922 to 757 line
-1.27 - 2 Apr 19 - removing empty space after cook, rollback from let to var and const
-1.26 - 29 Mar 19 - center, form, table, tr, td, th htmlshorthand
-1.25 - 27 Mar 19 - removing default w3-row class for div
-1.24 - 6 Mar 19 - added ul and li tag
 */
 
 (function () {

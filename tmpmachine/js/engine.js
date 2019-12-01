@@ -2,6 +2,37 @@ let L = console.log;
 
 const THOR = (function() {
   
+  function authReady() {
+    $('#btn-blogsphere-login').style.display = 'none';
+    $('#btn-blogsphere-logout').style.display = 'block';
+    
+    if (fs.data.rootId === '')
+      drive.readAppData();
+    else {
+      drive.syncFromDrive();
+      drive.syncToDrive();
+    }
+    
+    o.classList.toggle($('.auth-required'), ['unauthorized'], false);
+    $('#txt-login-status').textContent = 'Logout';
+    $('#login-info').style.visibility = 'hidden';
+  }
+  
+  function authLogin() {
+    $('#btn-blogsphere-login').style.display = 'none';
+    $('#btn-blogsphere-logout').style.display = 'block';
+  }
+  
+  function authLogout() {
+    $('#login-info').style.visibility = 'visible';
+    
+    $('#btn-blogsphere-login').style.display = 'block';
+    $('#btn-blogsphere-logout').style.display = 'none';
+    
+    $('#txt-login-status').textContent = 'Login';
+    o.classList.toggle($('.auth-required'), ['unauthorized'], true);
+  }
+  
   return {
     plugins: {
       load(name, func) {
