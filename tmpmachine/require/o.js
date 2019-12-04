@@ -1,5 +1,5 @@
 /*
-v0.61 - 10 -- function hiding
+v0.62 - 4 dec -- change o.click to o.listen, added non array object fallback for o.listen
 */
 
 (function () {
@@ -95,21 +95,27 @@ v0.61 - 10 -- function hiding
   	  }
   	  return el;
   	},
-  	click: function (callback, type) {
+  	listen: function (callback, type) {
       if (type === undefined) type = 'click';
+      
       for (let i in callback) {
         if (i.startsWith('.')) {
           if ($(i) !== null) {
             for (let el of $(i)) {
-              if (callback[i][0])
+              if (!Array.isArray(callback[i]))
+                callback[i] = [callback[i]];
+              if (callback[i][0]) {
                 listen(el, type, doCallback(callback[i][0].bind(el), callback[i][1]));
+              }
             }
           }
         } else if ($('#'+i) !== null) {
+          if (!Array.isArray(callback[i]))
+            callback[i] = [callback[i]];
           if (callback[i][0])
             listen($('#'+i), type, doCallback(callback[i][0].bind($('#'+i)), callback[i][1]));
         } else {
-          console.log('o.js (click) : element with id "'+i+'" not found');
+          console.log('o.js (listen) : element with id "'+i+'" not found');
         }
       }
     }

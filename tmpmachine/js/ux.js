@@ -468,26 +468,26 @@ function updateUI() {
       }) );
     }
   
-    o.click({
-      'btn-blog-vc'           : [ btnBlogVC           ],
-      'btn-blogsphere-login'  : [ auth0.login         ],
-      'btn-blogsphere-logout' : [ btnBlogsphereLogout ],
-      'btn-create-template'   : [ createBlogTemplate  ],
-      'btn-create-entry'      : [ createBlogEntry     ],
-      'btn-create-app'        : [ createBlogApp       ],
-      'btn-menu-template'     : [ toggleInsertSnippet ],
-      'btn-new-folder'        : [ ui.fm.newFolder     ],
-      'btn-rename-folder'     : [ ui.fm.renameFolder  ],
-      'btn-backup-revision'   : [ keepRevision        ],
-      'btn-list-revisions'    : [ listRevisions       ],
-      'btn-delete-file'       : [ btnDeleteFile       ],
-      'btn-open-directory'    : [ btnOpenDirectory    ],
-      'btn-download-file'     : [ fileDownload        ],
-      'btn-refresh-sync'      : [ drive.syncFromDrive ],
-      'btn-menu-save'         : [ fileSave            ],
-      '.btn-material'         : [ ui.toggleMenu       ],
-      'btn-menu-preview'      : [ btnPreview          ],
-      'btn-menu-info'         : [ btnInfo             ],
+    o.listen({
+      'btn-blog-vc'           : openBlossemHTMLWidget,
+      'btn-blogsphere-login'  : auth0.login,
+      'btn-blogsphere-logout' : btnBlogsphereLogout,
+      'btn-create-template'   : createBlogTemplate,
+      'btn-create-entry'      : createBlogEntry,
+      'btn-create-app'        : createBlogApp,
+      'btn-menu-template'     : toggleInsertSnippet,
+      'btn-new-folder'        : ui.fm.newFolder,
+      'btn-rename-folder'     : ui.fm.renameFolder,
+      'btn-backup-revision'   : keepRevision,
+      'btn-list-revisions'    : listRevisions,
+      'btn-delete-file'       : btnDeleteFile,
+      'btn-open-directory'    : btnOpenDirectory,
+      'btn-download-file'     : fileDownload,
+      'btn-refresh-sync'      : drive.syncFromDrive,
+      'btn-menu-save'         : fileSave,
+      '.btn-material'         : ui.toggleMenu,
+      'btn-menu-preview'      : btnPreview,
+      'btn-menu-info'         : btnInfo
     });
   });
 }
@@ -710,7 +710,7 @@ function switchTab(dir) {
 }
 
 
-function btnBlogVC() {
+function openBlossemHTMLWidget() {
           
   oblog.config({ blog: $('#in-blog-name').value });
   oblog.getBlogId(function(blogId) {

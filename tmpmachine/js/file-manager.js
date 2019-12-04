@@ -693,12 +693,12 @@ function chooseDeploy() {
           
           aww.pop('Update Deployed!')
           
-          if (activeFile.name.includes('.blogger')) {
+          // if (activeFile.name.includes('.blogger')) {
             
-            oblog.matchBlog(function(blogId) {
-              window.open('https://www.blogger.com/rearrange?blogID='+blogId+'&action=editWidget&sectionId=main&widgetType=null&widgetId=HTML1')
-            })
-          }
+            // oblog.matchBlog(function(blogId) {
+              // window.open('https://www.blogger.com/rearrange?blogID='+blogId+'&action=editWidget&sectionId=main&widgetType=null&widgetId=HTML1')
+            // })
+          // }
         }
       })
     } else {
@@ -715,12 +715,12 @@ function chooseDeploy() {
           
           aww.pop('Update Deployed!')
           
-          if (activeFile.name.includes('.blogger')) {
+          // if (activeFile.name.includes('.blogger')) {
             
-            oblog.matchBlog(function(blogId) {
-              window.open('https://www.blogger.com/rearrange?blogID='+blogId+'&action=editWidget&sectionId=main&widgetType=null&widgetId=HTML1')
-            })
-          }
+            // oblog.matchBlog(function(blogId) {
+              // window.open('https://www.blogger.com/rearrange?blogID='+blogId+'&action=editWidget&sectionId=main&widgetType=null&widgetId=HTML1')
+            // })
+          // }
         }
       })
     }
