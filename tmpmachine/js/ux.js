@@ -764,16 +764,33 @@ function createBlogTemplate() {
   
   aww.pop('creating blog template...');
   
-  oblog.pages.insert({
-    title: 'Template :: '+templateName,
-  }, response => {
-  
-    aww.pop('blog template created successfully...');
-    $('#chk-in-pre').checked = true;
-    $('#in-eid').value = 'p'+response.id;
-    fileSave();
+  oblog.pages.list(response => {
     
-  }, 'id')
+    let notFound = true;
+    for (let page of response.items) {
+      if (page.title == 'Template :: '+templateName) {
+        alert('Template already exists in Blogger. Please delete them manually');
+        window.open('https://blogger.com/blogger.g?blogID='+oblog.authModule.auth.data.blogId+'#allpages');
+        notFound = false;
+        break;
+      }
+    }
+    
+    if (notFound) {
+      oblog.pages.insert({
+        title: 'Template :: '+templateName,
+      }, response => {
+      
+        aww.pop('blog template created successfully...');
+        $('#chk-in-pre').checked = true;
+        $('#in-eid').value = 'p'+response.id;
+        fileSave();
+        
+      }, 'id')
+    }
+    
+  },'items(id,title)');
+  
   
 }
 
