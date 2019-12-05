@@ -171,7 +171,7 @@ function replaceLocal(body, preParent = -1) {
 
   let match = body.match(/<template include=.*?><\/template>/);
   if (!match)
-    match = body.match(/<script include=.*?><\/script>|<link include=.*?>/);
+    match = body.match(/<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>/);
   if (!match)
     match = body.match(/@import .*?;/);
   
@@ -182,7 +182,11 @@ function replaceLocal(body, preParent = -1) {
     let start = 19,
     end = 13;
     
-    if (match[0].includes('<script')) {
+    if (match[0].includes('<mscript')) {
+      start = 18;
+      end = 12;
+      isScriptOrLink = true;
+    } else if (match[0].includes('<script')) {
       start = 17;
       end = 11;
       isScriptOrLink = true;
@@ -209,7 +213,7 @@ function replaceLocal(body, preParent = -1) {
         body = body.replace(new RegExp(match[0]), '');
         match = body.match(/<template include=.*?><\/template>/);
         if (!match)
-          match = body.match(/<script include=.*?><\/script>|<link include=.*?>/);
+          match = body.match(/<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>/);
         if (!match)
           match = body.match(/@import .*?;/);
           
@@ -239,6 +243,7 @@ function replaceLocal(body, preParent = -1) {
       let ot = '', ct = '';
       switch (start) {
         
+        case 18:
         case 17:
           ot = '<script>\n';
           ct = '\n</script>';
@@ -249,12 +254,16 @@ function replaceLocal(body, preParent = -1) {
           break;
       }
       
+      
       let tabIdx = odin.idxOf(data.fid, fileTab, 'fid');
       let content;
       if (tabIdx >= 0)
         content = (activeFile && activeFile.fid === data.fid) ? $('#editor').env.editor.getValue() : fileTab[tabIdx].content;
       else
         content = data.content;
+      
+      if (start == 18)
+        content = content.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '').replace(/\n|\t+|  +/g,'');
     
       let swap = ot+replaceLocal(content, parentId)+ct;
       body = body.replace(new RegExp(match[0]), swap);
@@ -263,7 +272,7 @@ function replaceLocal(body, preParent = -1) {
     
     match = body.match(/<template include=.*?><\/template>/);
     if (!match)
-      match = body.match(/<script include=.*?><\/script>|<link include=.*?>/);
+      match = body.match(/<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>/);
     if (!match)
       match = body.match(/@import .*?;/);
   }
