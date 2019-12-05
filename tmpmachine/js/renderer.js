@@ -263,7 +263,7 @@ function replaceLocal(body, preParent = -1) {
         content = data.content;
       
       if (start == 18)
-        content = content.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '').replace(/\n|\t+|  +/g,'');
+        content = content.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '').replace(/\n|\t+/g,'');
     
       let swap = ot+replaceLocal(content, parentId)+ct;
       body = body.replace(new RegExp(match[0]), swap);
