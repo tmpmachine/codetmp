@@ -4,7 +4,7 @@ self.addEventListener('message', function(e) {
 });
 
 
-let cacheVersion = '1.064';
+let cacheVersion = '1.0641';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('install', function(event) {
@@ -19,12 +19,10 @@ self.addEventListener('install', function(event) {
     '/ace/theme-github.js',
     '/ace/mode-html.js',
     '/ace/mode-json.js',
-    '/ace/mode-php.js',
     '/ace/mode-css.js',
     '/ace/mode-javascript.js',
     '/ace/worker-html.js',
     '/ace/worker-json.js',
-    '/ace/worker-php.js',
     '/ace/worker-css.js',
     '/ace/worker-javascript.js',
 
