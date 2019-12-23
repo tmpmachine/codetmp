@@ -575,8 +575,6 @@ function focusTab(fid, isActiveTab = false, isClose) {
       $('#editor').env.editor.session.setMode("ace/mode/javascript");
     else if (fileTab[activeTab].name.endsWith('.json'))
       $('#editor').env.editor.session.setMode("ace/mode/json");
-    else if (fileTab[activeTab].name.endsWith('.php'))
-      $('#editor').env.editor.session.setMode("ace/mode/php");
       
     activeFile = fileTab[activeTab].file;
   }

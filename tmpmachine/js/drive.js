@@ -1,3 +1,14 @@
+function getAvailParents() {
+  let folds = ['"'+fs.data.rootId+'"'];
+  
+  fs.data.folders.map((folder) => {
+    if (folder.id !== '')
+      folds.push('"'+folder.id+'"');
+  });
+  
+  return folds;
+}
+
 const drive = {
   apiUrl: 'https://www.googleapis.com/drive/v3/',
   apiUrlUpload: 'https://www.googleapis.com/upload/drive/v3/',

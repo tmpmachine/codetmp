@@ -418,7 +418,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny .no-select
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build v1.0641" +opacity]
+            [c +half "Developer Build v1.0641.x.1" +opacity]
           ]
           [ @breadcrumbs .no-select +small +padding]
           [ @file-list +padding]
@@ -505,12 +505,18 @@
           [M "input" +medium +padding-small {transform:rotate(90deg)}]
         ]
         
-        [ +tiny "Blossem template URL"]
-        [in @in-blossem {w:100%;}]
+        [small "Development"]
+        <div>
+          [btn "+ Revisions"]
+          [btn "+ Blogger"]
+          [hr]
+        <div>
         
-        [hr]
-        
-        <div class="auth-required unauthorized">
+        <div class="auth-required unauthorized hide" data-section="blogger">
+          [ +tiny "Blossem template URL"]
+          [in @in-blossem {w:100%;}]
+          [hr]
+          
           [ +tiny "Blog name"]
           [in @in-blog-name {w:100%;} .description name='blog']
           [ +tiny "Entry ID"]
@@ -527,15 +533,20 @@
             [in type="checkbox" @chk-in-pre .description name='pre'] [l for="chk-in-pre" "Wrap in &lt;pre&gt;"]
           ]
           
+          
+          [btn @btn-create-template "Create Blog Template"]
+          [btn @btn-create-entry "Create Blog Entry"]
+          [btn @btn-create-app "Create Blogger App"]
+          [hr]
+        </div>
+        
+        <div class="auth-required unauthorized hide" data-section="revision">
           [btn @btn-backup-revision "Backup Revision" +button +border +margin-top]
           [btn @btn-list-revisions "List Revisions" +button +border +margin-top]
           [btn @btn-blog-vc "Open version control" +button +border +margin-top +hide]
           [hr]
           [ @list-revisions]
-          
-          [btn @btn-create-template "Create Blog Template"]
-          [btn @btn-create-entry "Create Blog Entry"]
-          [btn @btn-create-app "Create Blogger App"]
+          [hr]
         </div>
       ]
       
