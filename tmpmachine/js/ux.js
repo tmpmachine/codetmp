@@ -487,9 +487,28 @@ function updateUI() {
       'btn-menu-save'         : fileSave,
       '.btn-material'         : ui.toggleMenu,
       'btn-menu-preview'      : btnPreview,
-      'btn-menu-info'         : btnInfo
+      'btn-menu-info'         : btnInfo,
     });
+    
+    for (let button of $('.file-settings-button')) {
+      if (button.dataset.section == 'revisions')
+        button.addEventListener('click', function() { showFileSetting('revisions') });
+      else if (button.dataset.section == 'blogger')
+        button.addEventListener('click', function() { showFileSetting('blogger') });
+    }
   });
+}
+
+function showFileSetting(section) {
+  for (let element of $('.file-settings-button')) {
+    if (element.dataset.section == section)
+      element.classList.toggle('hide', true);
+  }
+  
+  for (let element of $('.file-settings')) {
+    if (element.dataset.section == section)
+      element.classList.toggle('hide', false);
+  }
 }
 
 // end of package
@@ -562,36 +581,60 @@ function focusTab(fid, isActiveTab = false, isClose) {
   $('#editor').env.editor.moveCursorTo(fileTab[activeTab].row, fileTab[activeTab].col);
   $('#editor').env.editor.focus()
   $('#editor').env.editor.getSession().setUndoManager(fileTab[activeTab].undo)
-  $('#editor').env.editor.session.setMode("ace/mode/html");
 
-  if (String(fid)[0] == '-')
-
-    activeFile = undefined;
-  else {
-
-    if (fileTab[activeTab].name.endsWith('.css'))
-      $('#editor').env.editor.session.setMode("ace/mode/css");
-    else if (fileTab[activeTab].name.endsWith('.js'))
-      $('#editor').env.editor.session.setMode("ace/mode/javascript");
-    else if (fileTab[activeTab].name.endsWith('.json'))
-      $('#editor').env.editor.session.setMode("ace/mode/json");
-      
-    activeFile = fileTab[activeTab].file;
-  }
+  activeFile = (String(fid)[0] == '-') ? undefined : fileTab[activeTab].file;
+  setEditorMode(fileTab[activeTab].name);
   
   let x;
   if (activeFile)
     x = parseDescription(activeFile.description)
   else
-    x = {}
+    x = {
+      blog: '',
+      hasRevision: false
+    }
 
-	$('#in-blog-name').value = x.blog || '';
-	$('#in-eid').value = x.eid || '';
-	$('#in-summary').value = x.summary || '';
+  openDevelopmentSettings(x);
+  
+}
+
+function openDevelopmentSettings(setting) {
+  
+	$('#in-blog-name').value = setting.blog || '';
+	$('#in-eid').value = setting.eid || '';
+	$('#in-summary').value = setting.summary || '';
 	$('#in-summary').value = $('#in-summary').value.substring(1, $('#in-summary').value.length-1);
-	$('#chk-more-tag').checked = x.more || false;
-	$('#chk-bibibi').checked = x.bibibi || false;
-	$('#chk-in-pre').checked = x.pre || false;
+	$('#chk-more-tag').checked = setting.more || false;
+	$('#chk-bibibi').checked = setting.bibibi || false;
+	$('#chk-in-pre').checked = setting.pre || false;
+	
+  let hasBlogSetting = setting.blog.length > 0;
+  let hasRevision = setting.hasRevision;
+
+  for (let el of $('.file-settings')) {
+    if (el.dataset.section == 'blogger')
+      el.classList.toggle('hide', !hasBlogSetting);
+    else if (el.dataset.section == 'revisions')
+      el.classList.toggle('hide', !hasRevision);
+  }
+  
+  for (let el of $('.file-settings-button')) {
+    if (el.dataset.section == 'blogger')
+      el.classList.toggle('hide', hasBlogSetting);
+    else if (el.dataset.section == 'revisions')
+      el.classList.toggle('hide', hasRevision);
+  }
+}
+
+function setEditorMode(fileName = '') {
+  if (fileName.endsWith('.css'))
+    $('#editor').env.editor.session.setMode("ace/mode/css");
+  else if (fileName.endsWith('.js'))
+    $('#editor').env.editor.session.setMode("ace/mode/javascript");
+  else if (fileName.endsWith('.json'))
+    $('#editor').env.editor.session.setMode("ace/mode/json");
+  else
+    $('#editor').env.editor.session.setMode("ace/mode/html");
 }
 
 function newTab(position, data) {
@@ -839,6 +882,21 @@ function createBlogApp() {
   }, 'id')
   
   
+}
+
+function getFileColor(fileName) {
+  let defaultBg;
+  if (fileName.includes('.blogger'))
+    defaultBg = '#ffa51e';
+  else if (fileName.includes('.css'))
+    defaultBg = '#1e44ff';
+  else if (fileName.includes('.js'))
+    defaultBg = '#ccad1b';
+  else if (fileName.includes('.html'))
+    defaultBg = '#fb5c10';
+  else if (fileName.includes('.tmp'))
+    defaultBg = '#4aad4d';
+  return defaultBg;
 }
       
 function btnBlogsphereLogout  () {

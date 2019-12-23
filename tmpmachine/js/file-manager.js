@@ -218,34 +218,10 @@ function fileRename(fid) {
   fileList();
   
   // editor
-  if (activeFile && fid === activeFile.fid)
-  {
-    if (file.name.endsWith('.js'))
-      $('#editor').env.editor.session.setMode("ace/mode/javascript");
-    else if (file.name.endsWith('.css'))
-      $('#editor').env.editor.session.setMode("ace/mode/css");
-    else if (file.name.endsWith('.json'))
-      $('#editor').env.editor.session.setMode("ace/mode/json");
-    else
-      $('#editor').env.editor.session.setMode("ace/mode/html");
-    
+  if (activeFile && fid === activeFile.fid) {
+    setEditorMode(file.name);
     $('.file-name')[activeTab].textContent = file.name;
   }
-}
-
-function getFileColor(fileName) {
-  let defaultBg;
-  if (fileName.includes('.blogger'))
-    defaultBg = '#ffa51e';
-  else if (fileName.includes('.css'))
-    defaultBg = '#1e44ff';
-  else if (fileName.includes('.js'))
-    defaultBg = '#f5cb00';
-  else if (fileName.includes('.html'))
-    defaultBg = '#fb5c10';
-  else if (fileName.includes('.tmp'))
-    defaultBg = '#4aad4d';
-  return defaultBg;
 }
 
 function fileList() {
@@ -366,8 +342,7 @@ function openFileConfirm(el) {
   
   $('#btn-rename-folder').classList.toggle('w3-hide', true);
   
-  if (lastClickEl !== undefined && lastClickEl != el)
-  {
+  if (lastClickEl !== undefined && lastClickEl != el) {
     selectedFile.splice(0, 1);
     selectedFile.push(el);
     
@@ -376,8 +351,7 @@ function openFileConfirm(el) {
     doubleClick = false;
   }
   
-  if (!doubleClick)
-  {
+  if (!doubleClick) {
     lastClickEl = el;
     doubleClick = true;
     el.classList.toggle('w3-light-blue',true)
@@ -385,9 +359,7 @@ function openFileConfirm(el) {
     setTimeout(function(){
       doubleClick = false;
     },500)
-  }
-  else
-  {
+  } else {
     selectedFile.splice(0, 1);
     doubleClick = false;
     openFile(el.getAttribute('data'));
@@ -408,9 +380,9 @@ function openFile(fid) {
       
       return new Promise(function(resolve, reject) {
         
-        if (f.loaded)
-          resolve()
-        else {
+        if (f.loaded) {
+          resolve(f)
+        } else {
           
           aww.pop('Downloading file...');
           
@@ -444,7 +416,7 @@ function openFile(fid) {
               f.content = media;
               f.loaded = true;
               fs.save();
-              resolve();
+              resolve(f);
               
             }).catch(reject)
           })
@@ -452,7 +424,7 @@ function openFile(fid) {
         
       });
     })()
-  ]).then(function() {
+  ]).then(function(file) {
     
     if (fileTab.length == 1 && $('#editor').env.editor.getSession().getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
       closeTab(false);
@@ -484,6 +456,7 @@ function openFile(fid) {
     else
       $('#btn-blog-vc').classList.toggle('w3-hide', true);
   	
+    openDevelopmentSettings(parseDescription(file[0].description));
   	
   }).catch(function(error) {
     
@@ -491,7 +464,6 @@ function openFile(fid) {
     aww.pop('Could not download file');
   })
 }
-
 
 function fileClose(fid) {
   
@@ -600,17 +572,19 @@ function parseDescription(txt) {
       continue;
     }
     
-    let key = t.split(': ')[0];
+    let key = t.split(':')[0];
     let val = t.split(key+': ')[1];
     
     if (val === "false")
       val = false;
     else if (val === "true")
       val = true;
+    else if (val == undefined)
+      val = "";
       
     obj[key] = val;
 	}
-
+	
   return obj;
 }
 

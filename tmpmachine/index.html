@@ -507,12 +507,12 @@
         
         [small "Development"]
         <div>
-          [btn "+ Revisions"]
-          [btn "+ Blogger"]
+          [btn class="file-settings-button" data-section="revisions" "+ Revisions"]
+          [btn class="file-settings-button" data-section="blogger" "+ Blogger"]
           [hr]
         <div>
         
-        <div class="auth-required unauthorized hide" data-section="blogger">
+        <div class="auth-required unauthorized hide file-settings" data-section="blogger">
           [ +tiny "Blossem template URL"]
           [in @in-blossem {w:100%;}]
           [hr]
@@ -540,7 +540,7 @@
           [hr]
         </div>
         
-        <div class="auth-required unauthorized hide" data-section="revision">
+        <div class="auth-required unauthorized hide file-settings" data-section="revisions">
           [btn @btn-backup-revision "Backup Revision" +button +border +margin-top]
           [btn @btn-list-revisions "List Revisions" +button +border +margin-top]
           [btn @btn-blog-vc "Open version control" +button +border +margin-top +hide]
