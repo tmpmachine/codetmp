@@ -230,15 +230,6 @@ const ui = {
     
     let isActive = menu.classList.contains('active');
     
-    // if (!block.getAttribute('listener')) {
-      
-    //   block.setAttribute('target',this.getAttribute('id'));
-    //   block.setAttribute('listener','true');
-    //   o.listener(block,'click',[function(){
-    //       target.click();
-    //     }]);
-    // }
-    
     if (callback) callback(isActive);
   }
 };
@@ -298,17 +289,6 @@ function saveListener(event, bypass = false) {
   }
 }
   
-// function togglePreview() {
-  
-//   $('#main-editor').classList.toggle('hide');
-//   setTimeout(() => {
-//     $('#btn-back-to-editor').classList.toggle('hide');
-//     $('#my-osk').classList.toggle('hide');
-//   }, 300);
-// }
-
-// package start
-
 function blurNavigation() {
   $('#nav-bar').classList.toggle('hoverable');
   setTimeout(() => {
@@ -488,18 +468,14 @@ function updateUI() {
       '.btn-material'         : ui.toggleMenu,
       'btn-menu-preview'      : btnPreview,
       'btn-menu-info'         : btnInfo,
+      '.file-settings-button' : showFileSetting,
     });
     
-    for (let button of $('.file-settings-button')) {
-      if (button.dataset.section == 'revisions')
-        button.addEventListener('click', function() { showFileSetting('revisions') });
-      else if (button.dataset.section == 'blogger')
-        button.addEventListener('click', function() { showFileSetting('blogger') });
-    }
   });
 }
 
-function showFileSetting(section) {
+function showFileSetting(section = this.dataset.section) {
+  
   for (let element of $('.file-settings-button')) {
     if (element.dataset.section == section)
       element.classList.toggle('hide', true);
@@ -585,21 +561,15 @@ function focusTab(fid, isActiveTab = false, isClose) {
   activeFile = (String(fid)[0] == '-') ? undefined : fileTab[activeTab].file;
   setEditorMode(fileTab[activeTab].name);
   
-  let x;
-  if (activeFile)
-    x = parseDescription(activeFile.description)
-  else
-    x = {
-      blog: '',
-      hasRevision: false
-    }
-
-  openDevelopmentSettings(x);
+  let desc = activeFile ? parseDescription(activeFile.description) : {};
+  openDevelopmentSettings(desc);
   
 }
 
 function openDevelopmentSettings(setting) {
   
+	$('#in-blossem').value = setting.blossem || '';
+	$('#in-blog-name').value = setting.blog || '';
 	$('#in-blog-name').value = setting.blog || '';
 	$('#in-eid').value = setting.eid || '';
 	$('#in-summary').value = setting.summary || '';
@@ -608,22 +578,12 @@ function openDevelopmentSettings(setting) {
 	$('#chk-bibibi').checked = setting.bibibi || false;
 	$('#chk-in-pre').checked = setting.pre || false;
 	
-  let hasBlogSetting = setting.blog.length > 0;
-  let hasRevision = setting.hasRevision;
-
-  for (let el of $('.file-settings')) {
-    if (el.dataset.section == 'blogger')
-      el.classList.toggle('hide', !hasBlogSetting);
-    else if (el.dataset.section == 'revisions')
-      el.classList.toggle('hide', !hasRevision);
-  }
-  
-  for (let el of $('.file-settings-button')) {
-    if (el.dataset.section == 'blogger')
-      el.classList.toggle('hide', hasBlogSetting);
-    else if (el.dataset.section == 'revisions')
-      el.classList.toggle('hide', hasRevision);
-  }
+  if (setting.blog && setting.blog.length > 0)
+    showFileSetting('blogger');
+  if (setting.hasRevision && setting.hasRevision)
+    showFileSetting('revisions');
+  if (setting.blossem && setting.blossem.length > 0)
+    showFileSetting('blossem');
 }
 
 function setEditorMode(fileName = '') {
@@ -643,8 +603,7 @@ function newTab(position, data) {
     tab.lastElementChild.style.background = '#202020';
   
   let fid, el
-  if (data)
-  {
+  if (data) {
     fid = data.fid
     el = o.cel('div', {
       innerHTML: o.creps('tmp-file-tab', {
@@ -653,9 +612,7 @@ function newTab(position, data) {
         fiber: 'close'
       })
     })
-  }
-  else
-  {
+  } else {
     fid = '-' + (new Date).getTime()
     el = o.cel('div', {
       innerHTML: o.creps('tmp-file-tab', {
@@ -672,14 +629,12 @@ function newTab(position, data) {
     $('#file-title').appendChild(el.firstElementChild)
   
   
-  if (data)
-  {
+  if (data) {
     if (position >= 0)
       fileTab.splice(position, 0, data);
     else
       fileTab.push(data)
-  }
-  else
+  } else
     fileTab.push({
       fid,
       scrollTop: 0,
@@ -784,7 +739,7 @@ function btnPreview() {
     if ($('#in-blossem').value.trim().length > 0)
       previewWindow = window.open($('#in-blossem').value.trim(), 'blossem');
     else
-      previewWindow = window.open('https://attemp.web.app/'+currentPage, 'preview');
+      previewWindow = window.open('https://attemp.web.app/', 'preview');
   }
 
   renderBlog();
@@ -1081,10 +1036,11 @@ function keyUp(e) {
               
               if ($('.folder-list').length > 0) {
                 
-                let targetIdx = Math.max(0, Math.ceil($('.folder-list').length/div)*div + (i-div));
+                let targetIdx = Math.ceil($('.folder-list').length/div)*div + (i-div);
                 if (targetIdx >= $('.folder-list').length)
                   targetIdx -= div;
-                  
+                targetIdx = Math.max(0, targetIdx)
+
                 $('.folder-list')[targetIdx].click();
               }
             }
@@ -1180,9 +1136,9 @@ function keyEnter(e) {
           else {
             
             if (debugAttempUrl.length > 0)
-              previewWindow = window.open(debugAttempUrl+currentPage, 'preview');
+              previewWindow = window.open(debugAttempUrl, 'preview');
             else
-              previewWindow = window.open('https://attemp.web.app/'+currentPage, 'preview');
+              previewWindow = window.open('https://attemp.web.app/', 'preview');
           }
         } else
           renderBlog();

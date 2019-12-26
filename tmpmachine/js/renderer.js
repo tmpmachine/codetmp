@@ -1,50 +1,9 @@
 window.name = 'parent';
 let loadedScriptAndLink = [];
-let previewMode = false;
 let uploadBody = '';
-
 let waitRender = null;
-let totalLoader = 0;
-let iframeRender = [];
-let renderQueue = [];
-let renderBody = '';
-let renderTemplate = '';
-let renderLib;
-let libParentId;
-
-let core;
-let data = {
-  view:{
-    isPost:false,
-    isPage:false,
-    isSingleItem:false,
-    isLayoutMode:false,
-    isHomepage:false,
-    isSearch:false,
-    isArchive:false,
-    isMultipleItems:false,
-    isLabelSearch:false,
-    isError:false,
-    title:'',
-    description:'',
-    url:''
-  },
-  search: {
-    label:'',
-    query:'',
-    resultsMessage:''
-  },
-  blog:{
-    title:'',
-    searchQuery:'',
-    searchLabel:''
-  }
-};
-let globalRender;
 let locked = -1;
 let previewWindow = null;
-let previewTwice = false;
-let currentPage = '';
 let loadingStatus = 0;
 
 
@@ -123,8 +82,7 @@ function renderBlog(isForceDeploy) {
   
     waitRender = function () {
       
-      if (loadingStatus != 200)
-      {
+      if (loadingStatus != 200) {
         setTimeout(function(){
           if (waitRender)
             waitRender();
@@ -171,7 +129,7 @@ function replaceLocal(body, preParent = -1) {
 
   let match = body.match(/<template include=.*?><\/template>/);
   if (!match)
-    match = body.match(/<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>/);
+    match = body.match(/<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>|<mlink include=.*?>/);
   if (!match)
     match = body.match(/@import .*?;/);
   
@@ -189,6 +147,10 @@ function replaceLocal(body, preParent = -1) {
     } else if (match[0].includes('<script')) {
       start = 17;
       end = 11;
+      isScriptOrLink = true;
+    } else if (match[0].includes('<mlink')) {
+      start = 16;
+      end = 3;
       isScriptOrLink = true;
     } else if (match[0].includes('<link')) {
       start = 15;
@@ -213,7 +175,7 @@ function replaceLocal(body, preParent = -1) {
         body = body.replace(new RegExp(match[0]), '');
         match = body.match(/<template include=.*?><\/template>/);
         if (!match)
-          match = body.match(/<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>/);
+          match = body.match(/<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>|<mlink include=.*?>/);
         if (!match)
           match = body.match(/@import .*?;/);
           
@@ -248,6 +210,7 @@ function replaceLocal(body, preParent = -1) {
           ot = '<script>\n';
           ct = '\n</script>';
           break;
+        case 16:
         case 15:
           ot = '<style>\n';
           ct = '\n</style>';
@@ -262,7 +225,7 @@ function replaceLocal(body, preParent = -1) {
       else
         content = data.content;
       
-      if (start == 18)
+      if (start == 18 || start == 16)
         content = content.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '').replace(/\n|\t+/g,'');
     
       let swap = ot+replaceLocal(content, parentId)+ct;
@@ -272,7 +235,7 @@ function replaceLocal(body, preParent = -1) {
     
     match = body.match(/<template include=.*?><\/template>/);
     if (!match)
-      match = body.match(/<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>/);
+      match = body.match(/<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>|<mlink include=.*?>/);
     if (!match)
       match = body.match(/@import .*?;/);
   }

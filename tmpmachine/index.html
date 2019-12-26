@@ -418,7 +418,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny .no-select
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build v1.0641.x.1" +opacity]
+            [c +half "Developer Build v1.064.3" +opacity]
           ]
           [ @breadcrumbs .no-select +small +padding]
           [ @file-list +padding]
@@ -509,14 +509,17 @@
         <div>
           [btn class="file-settings-button" data-section="revisions" "+ Revisions"]
           [btn class="file-settings-button" data-section="blogger" "+ Blogger"]
+          [btn class="file-settings-button" data-section="blossem" "+ Blossem"]
           [hr]
         <div>
         
-        <div class="auth-required unauthorized hide file-settings" data-section="blogger">
+        <div class="auth-required unauthorized hide file-settings" data-section="blossem">
           [ +tiny "Blossem template URL"]
-          [in @in-blossem {w:100%;}]
+          [in @in-blossem {w:100%;} .description name="blossem"]
           [hr]
-          
+        </div>
+        
+        <div class="auth-required unauthorized hide file-settings" data-section="blogger">
           [ +tiny "Blog name"]
           [in @in-blog-name {w:100%;} .description name='blog']
           [ +tiny "Entry ID"]

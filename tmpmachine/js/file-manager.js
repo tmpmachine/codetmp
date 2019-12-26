@@ -8,7 +8,7 @@ let fileTab = [];
 let activeTab = 0;
 let breadcrumbs = [{folderId:'-1',title:'My Files'}];
 let doubleClick = false;
-
+let iframeRender = [];
 
 const fm = {
   INSERT: {
