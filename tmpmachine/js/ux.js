@@ -908,201 +908,168 @@ function keyEscape() {
   }
 }
 
-function keyLeft(e) {
+(function() {
   
-  if ($('#btn-menu-my-files').classList.contains('active')) {
-    e.preventDefault();
-      if (selectedFile.length > 0) {
-        let i;
-        
-        if (selectedFile[0].classList.contains('folder-list'))
-        {
-            for (i=0; i<$('.folder-list').length; i++)
-            {
-              if ($('.folder-list')[i] == selectedFile[0])
-              {
-                  if (i-1 >= 0)
-                    $('.folder-list')[i-1].click();
-                  break;
-              }
-            }
-        }
-        else
-        {
-            for (i=0; i<$('.file-list').length; i++)
-            {
-              if ($('.file-list-clicker')[i] == selectedFile[0])
-              {
-                  if (i-1 >= 0)
-                    $('.file-list-clicker')[i-1].click();
-                  else
-                  {
-                      if ($('.folder-list').length > 0)
-                        $('.folder-list')[$('.folder-list').length-1].click();
-                  }
-                  break;
-              }
-            }
-        }
-        
-      }
-  }
-}
-
-function keyRight(e) {
-  if ($('#btn-menu-my-files').classList.contains('active'))
-  {
-    e.preventDefault();
-    if (selectedFile.length > 0)
-    {
-      let i;
-      
-      if (selectedFile[0].classList.contains('folder-list'))
-      {
-          for (i=0; i<$('.folder-list').length; i++)
-          {
-            if ($('.folder-list')[i] == selectedFile[0])
-            {
-                if (i+1 < $('.folder-list').length)
-                  $('.folder-list')[i+1].click();
-                else
-                {
-                    if ($('.file-list').length > 0)
-                      $('.file-list-clicker')[0].click();
-                }
-                break;
-            }
-          }
-      }
-      else
-      {
-          for (i=0; i<$('.file-list').length; i++)
-          {
-            if ($('.file-list-clicker')[i] == selectedFile[0])
-            {
-                if (i+1 < $('.file-list').length)
-                  $('.file-list-clicker')[i+1].click();
-                break;
-            }
-          }
-      }
-      
-    }
-    else
-    {
-      if ($('.folder-list').length > 0)
-        $('.folder-list')[0].click();
-      else
-        $('.file-list-clicker')[0].click();
-    }
-  }
-}
-
-function keyUp(e) {
-  
-  if ($('#btn-menu-my-files').classList.contains('active')) {
-      
-    e.preventDefault();
-    let div = Math.floor( ($('#file-list').offsetWidth - 16 * 2) / 203.2);
-    
-    if (selectedFile.length > 0) {
-      
-      let i;
-      if (selectedFile[0].classList.contains('folder-list')) {
-        
-        for (i=0; i<$('.folder-list').length; i++) {
-          
-          if ($('.folder-list')[i] == selectedFile[0]) {
-            
-            if (i-div >= 0)
-              $('.folder-list')[i-div].click();
-            else if (i != 0)
-              $('.folder-list')[0].click();
-            break;
-          }
-        }
-      } else {
-        
-        for (i=0; i<$('.file-list').length; i++) {
-          
-          if ($('.file-list-clicker')[i] == selectedFile[0]) {
-            
-            if (i-div >= 0)
-              $('.file-list-clicker')[i-div].click();
-            else {
-              
-              if ($('.folder-list').length > 0) {
-                
-                let targetIdx = Math.ceil($('.folder-list').length/div)*div + (i-div);
-                if (targetIdx >= $('.folder-list').length)
-                  targetIdx -= div;
-                targetIdx = Math.max(0, targetIdx)
-
-                $('.folder-list')[targetIdx].click();
-              }
-            }
-            break;
-          }
-        }
+  function forEachFolder(callback) {
+    for (let i = 0; i < $('.folder-list').length; i++) {
+      if ($('.folder-list')[i] == selectedFile[0]) {
+        callback(i);
+        break;
       }
     }
   }
-}
-    
-function keyDown(e) {
   
-  if ($('#btn-menu-my-files').classList.contains('active')) {
-    
-    e.preventDefault();
-    let div = Math.floor( ($('#file-list').offsetWidth - 16 * 2) / 203.2);
-    
-    if (selectedFile.length > 0) {
-      
-      let i;
-      if (selectedFile[0].classList.contains('folder-list')) {
-        
-        for (i=0; i<$('.folder-list').length; i++) {
-          
-          if ($('.folder-list')[i] == selectedFile[0]) {
-            
-            if (i+div < $('.folder-list').length)
-              $('.folder-list')[i+div].click();
-            else {
-              
-              let targetIdx = Math.min($('.file-list').length-1, (i+div) - Math.ceil($('.folder-list').length/div)*div);
-              if (targetIdx <= -1)
-                targetIdx += div;
-                  
-                
-              if ($('.file-list').length > 0)
-                $('.file-list-clicker')[targetIdx].click();
-            }
-            break;
-          }
-        }
-      } else {
-        
-        for (i=0; i<$('.file-list').length; i++) {
-          
-          if ($('.file-list-clicker')[i] == selectedFile[0]) {
-            
-              if (i+div < $('.file-list').length)
-                $('.file-list-clicker')[i+div].click();
-              else if (i != $('.file-list').length-1)
-                $('.file-list-clicker')[$('.file-list').length-1].click();
-              break;
-          }
-        }
+  function forEachFile(callback) {
+    for (let i = 0; i < $('.file-list').length; i++) {
+      if ($('.file-list-clicker')[i] == selectedFile[0]) {
+        callback(i);
+        break;
       }
+    }
+  }
+  
+  function left() {
+    
+    if (selectedFile[0].classList.contains('folder-list')) {
+      
+      forEachFolder(i => {
+        if (i - 1 >= 0)
+          $('.folder-list')[i-1].click();
+      });
+      
     } else {
       
-      if ($('.folder-list').length > 0)
-        $('.folder-list')[0].click();
-      else
-        $('.file-list-clicker')[0].click();
+      forEachFile(i => {
+        if (i - 1 >= 0)
+          $('.file-list-clicker')[i-1].click();
+        else if ($('.folder-list').length > 0)
+          $('.folder-list')[$('.folder-list').length - 1].click();
+      });
+      
     }
   }
-}
+  
+  function right() {
+    
+    if (selectedFile[0].classList.contains('folder-list')) {
+      
+      forEachFolder(i => {
+        if (i + 1 < $('.folder-list').length) {
+          $('.folder-list')[i + 1].click();
+        } else {
+          if ($('.file-list').length > 0)
+            $('.file-list-clicker')[0].click();
+        }
+      });
+      
+    } else {
+      
+      forEachFile(i => {
+        if (i + 1 < $('.file-list').length)
+          $('.file-list-clicker')[i + 1].click();
+      });
+      
+    }
+  }
+  
+  function up(fileCount) {
+    
+    if (selectedFile[0].classList.contains('folder-list')) {
+      
+      forEachFolder(i => {
+        if (i - fileCount >= 0)
+          $('.folder-list')[i - fileCount].click();
+        else if (i != 0)
+          $('.folder-list')[0].click();
+      });
+      
+    } else {
+      
+      forEachFile(i => {
+        if (i - fileCount >= 0) {
+          $('.file-list-clicker')[i - fileCount].click();
+        } else if ($('.folder-list').length > 0) {
+          let index = Math.ceil($('.folder-list').length / fileCount) * fileCount + (i - fileCount);
+          if (index >= $('.folder-list').length)
+            index -= fileCount;
+          index = Math.max(0, index)
+  
+          $('.folder-list')[index].click();
+        }
+      });
+      
+    }
+  }
+  
+  function down(fileCount) {
+    
+    if (selectedFile[0].classList.contains('folder-list')) {
+      
+      forEachFolder(i => {
+        if (i + fileCount < $('.folder-list').length) {
+          $('.folder-list')[i + fileCount].click();
+        } else {
+          let index = (i + fileCount) - Math.ceil($('.folder-list').length / fileCount) * fileCount;
+          if (index <= -1)
+            index += fileCount;
+          index = Math.min($('.file-list').length - 1, index)
+              
+          if ($('.file-list').length > 0)
+            $('.file-list-clicker')[index].click();
+        }
+      });
+      
+    } else {
+      
+      forEachFile(i => {
+        if (i + fileCount < $('.file-list').length)
+          $('.file-list-clicker')[i + fileCount].click();
+        else if (i != $('.file-list').length - 1)
+          $('.file-list-clicker')[$('.file-list').length - 1].click();
+      });
+      
+    }
+  }
+  
+  function selectFirstFile() {
+    if ($('.folder-list').length > 0)
+      $('.folder-list')[0].click();
+    else
+      $('.file-list-clicker')[0].click();
+  }
+  
+  function navigationHandler(e) {
+    
+    if (!$('#btn-menu-my-files').classList.contains('active')) return;
+    e.preventDefault();
+    
+    let fileCount = Math.floor( ($('#file-list').offsetWidth - 16 * 2) / 203.2);
+    
+    switch (e.keyCode) {
+      case 37:
+        left();
+      break;
+      case 38:
+        up(fileCount);
+      break;
+      case 39:
+      case 40:
+        if (selectedFile.length == 0) {
+          selectFirstFile();
+        } else {
+          if (e.keyCode == 39)
+            right();
+          else
+            down(fileCount);
+        }
+      break;
+    }
+  }
+
+  window.navigationHandler = navigationHandler;
+  
+})();
+
 
 function keyEnter(e) {
   
@@ -1269,16 +1236,10 @@ function handleKeyDown(e) {
       keyEscape();
     break;
     case 37:
-      keyLeft(e);
-    break;
     case 38:
-      keyUp(e);
-    break;
     case 39:
-      keyRight(e);
-    break;
     case 40:
-      keyDown(e);
+      navigationHandler(e);
     break;
     case 46:
       keyDelete();
@@ -1318,7 +1279,6 @@ function handleKeyDown(e) {
 function keyHandle(event) {
   
 	if (event.type == 'blur') {
-	  
 	  keyHandle.Shift = false;
 	  keyHandle.Control = false;
 	  keyHandle.Alt = false;
@@ -1331,8 +1291,6 @@ function keyHandle(event) {
 	  handleKeyDown(event);
 }
     
-    
-    	   
 window.addEventListener('keydown', keyHandle);
 window.addEventListener('keyup', keyHandle);
 window.addEventListener('blur', keyHandle);

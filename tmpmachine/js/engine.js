@@ -95,12 +95,10 @@ const THOR = (function() {
       
       let el;
       if (url.includes('.css')) {
-        
         el = document.createElement('link');
         el.setAttribute('href', url);
         el.setAttribute('rel', 'stylesheet');
       } else {
-        
         el = document.createElement('script');
         el.setAttribute('src', url);
       }
