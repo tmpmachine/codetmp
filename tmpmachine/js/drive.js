@@ -2,8 +2,19 @@ function getAvailParents() {
   let folds = ['"'+fs.data.rootId+'"'];
   
   fs.data.folders.map((folder) => {
-    if (folder.id !== '')
+    if (folder.id.length > 0 && !folder.isSync)
       folds.push('"'+folder.id+'"');
+  });
+  
+  return folds;
+}
+
+function getRegisteredParents() {
+  let folds = [fs.data.rootId];
+  
+  fs.data.folders.map((folder) => {
+    if (folder.id !== '')
+      folds.push(folder.id);
   });
   
   return folds;
@@ -14,8 +25,7 @@ const drive = {
   apiUrlUpload: 'https://www.googleapis.com/upload/drive/v3/',
   downloadDependencies: function(data) {
 
-    if (!data.loaded && data.id !== '')
-    {
+    if (!data.loaded && data.id !== '') {
       fetch(drive.apiUrl+'files/'+data.id+'?alt=media', {
         method:'GET',
         headers: {
@@ -48,36 +58,32 @@ const drive = {
     let {id, name, modifiedTime, trashed, parents} = folders[0];
     let f = odin.dataOf(id, fs.data.folders, 'id');
 
-    if (f)
-    {
+    if (f) {
       f.trashed = trashed;
       f.parentFolderId = drive.getParentId(parents[0]);
 
-      if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100)
-      {
-        // L(f.name+' updated');
+      if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100) {
         if (f.parentFolderId == activeFolder)
           drive.syncFromDrive.refresh = true;
           
         f.name = name;
         f.modifiedTime = modifiedTime;
       }
-    }
-    else
-    {
+    } else {
       let parentFolderId = drive.getParentId(parents[0]);
-      
-      fm.INSERT.folder({
-        id,
-        name,
-        modifiedTime,
-        trashed,
-        parentId: parentFolderId,
-      });
-      newBranch.push('"'+id+'"');
-      
-      if (parentFolderId == activeFolder)
+      if (parentFolderId > -2) {
+        fm.INSERT.folder({
+          id,
+          name,
+          modifiedTime,
+          trashed,
+          parentId: parentFolderId,
+        });
+        newBranch.push('"'+id+'"');
+        
+        if (parentFolderId == activeFolder)
           drive.syncFromDrive.refresh = true;
+      }
     }
 
     folders.splice(0, 1);
@@ -90,18 +96,15 @@ const drive = {
     let {id, name, description = '', modifiedTime, trashed, parents} = files[0];
     let f = odin.dataOf(id, fs.data.files, 'id');
 
-    if (f)
-    {
+    if (f) {
       f.trashed = trashed;
       f.parentFolderId = drive.getParentId(parents[0]);
 
-      if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100)
-      {
+      f.name = name;
+      if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100) {
         if (f.parentFolderId == activeFolder)
           drive.syncFromDrive.refresh = true;
         
-        L(f.name+' updated');
-        f.name = name;
         f.modifiedTime = modifiedTime;
         f.content = '';
         f.loaded = false;
@@ -109,73 +112,140 @@ const drive = {
         
         drive.downloadDependencies(f);
       }
-    }
-    else
-    {
+    } else {
       let parentFolderId = drive.getParentId(parents[0]);
-      fm.INSERT.file({
-        id,
-        name,
-        modifiedTime,
-        trashed,
-        description,
-        parentId: parentFolderId,
-      });
-      
-      if (parentFolderId == activeFolder)
-          drive.syncFromDrive.refresh = true;
+      if (parentFolderId > -2) {
+        fm.INSERT.file({
+          id,
+          name,
+          modifiedTime,
+          trashed,
+          description,
+          parentId: parentFolderId,
+        });
+        
+        if (parentFolderId == activeFolder)
+            drive.syncFromDrive.refresh = true;
+      }
     }
 
     files.splice(0, 1);
     return drive.registerFile(files);
   },
-  syncFromDrive: function(parents = getAvailParents(), nextPageToken, pendingBranch = []) {
-    
-    if (!fs.data.rootId) return;
-    if (parents.length === 0)
-    {
-      fs.save();
-      return;
-    }
-    
-    let queryParents = '('+parents.join(' in parents or ')+' in parents)';
-    let url = drive.apiUrl+'files?q=('+escape(queryParents)+')&fields=nextPageToken,files(name, description, id, trashed, parents, mimeType, modifiedTime)';
-    if (typeof(nextPageToken) !== 'undefined')
-      url = url+'&pageToken='+nextPageToken;
-    
-    fetch(url, {
-      method:'GET',
+  getStartPageToken: function() {
+    fetch('https://www.googleapis.com/drive/v3/changes/startPageToken', {
+      method: 'GET',
       headers: {
         'Authorization':'Bearer '+auth0.auth.data.token
       }
-    }).then(function(result) {
-      return result.json();
-    }).then(function(json) {
-      let folds = [];
+    }).then(response => {
+      return response.json();
+    }).then(({startPageToken}) => {
+      settings.data.drive.startPageToken = startPageToken;
+      settings.save();
+    });
+  },
+  listChanges: function(pageToken = settings.data.drive.startPageToken) {
+    fetch('https://www.googleapis.com/drive/v3/changes?pageToken='+pageToken+'&fields=nextPageToken,newStartPageToken,changes(file(name,description,id,trashed, parents,mimeType,modifiedTime))', {
+      method: 'GET',
+      headers: {
+        'Authorization':'Bearer '+auth0.auth.data.token
+      }
+    }).then(response => {
+      return response.json();
+    }).then(json => {
+      
       let allFolders = [];
       let allFiles = [];
       
-      json.files.forEach((file) => {
-        if (file.mimeType.endsWith('.folder'))
+      json.changes.forEach(({file}) => {
+        if (file.mimeType.endsWith('.folder')) {
           allFolders.push(file);
-        else
+        } else {
           allFiles.push(file);
+        }
       });
       
-      let newBranch = [...drive.registerFolder(allFolders), ...pendingBranch];
+      drive.registerFolder(allFolders);
       drive.registerFile(allFiles);
+      fs.save();
 
-      if (typeof(json.nextPageToken) !== 'undefined')
-        drive.syncFromDrive(parents, json.nextPageToken, newBranch);
-      else
-        drive.syncFromDrive(newBranch);
+      if (json.nextPageToken)
+        drive.listChanges(json.nextPageToken);
       
-      if (drive.syncFromDrive.refresh)
-      {
+      if (drive.syncFromDrive.refresh) {
         drive.syncFromDrive.refresh = false;
         fileList();
       }
+      
+      settings.data.drive.startPageToken = json.newStartPageToken;
+      settings.save();
     });
+  },
+  syncFromDrive: function(parents = getAvailParents(), nextPageToken, pendingBranch = []) {
+    
+    if (settings.data.drive.startPageToken.length === 0) {
+      
+      if (!fs.data.rootId) return;
+      if (parents.length === 0) {
+        fs.save();
+        drive.getStartPageToken();
+        return;
+      }
+      
+      let queryParents = '('+parents.join(' in parents or ')+' in parents)';
+      let url = drive.apiUrl+'files?q=('+escape(queryParents)+')&fields=nextPageToken,files(name, description, id, trashed, parents, mimeType, modifiedTime)';
+      if (typeof(nextPageToken) !== 'undefined')
+        url = url+'&pageToken='+nextPageToken;
+      
+      fetch(url, {
+        method:'GET',
+        headers: {
+          'Authorization':'Bearer '+auth0.auth.data.token
+        }
+      }).then(function(result) {
+        return result.json();
+      }).then(function(json) {
+        let folds = [];
+        let allFolders = [];
+        let allFiles = [];
+        
+        json.files.forEach((file) => {
+          if (file.mimeType.endsWith('.folder'))
+            allFolders.push(file);
+          else
+            allFiles.push(file);
+        });
+        
+        let newBranch = [...drive.registerFolder(allFolders), ...pendingBranch];
+        drive.registerFile(allFiles);
+  
+        if (typeof(json.nextPageToken) !== 'undefined')
+          drive.syncFromDrive(parents, json.nextPageToken, newBranch);
+        else {
+          
+          for (let parentId of parents) {
+            let folder = odin.dataOf(parentId.substring(1, parentId.length-1), fs.data.folders, 'id');
+            if (folder)
+              folder.isSync = true;
+          }
+          fs.save();
+          
+          drive.syncFromDrive(newBranch);
+        }
+        
+        if (drive.syncFromDrive.refresh) {
+          drive.syncFromDrive.refresh = false;
+          fileList();
+        }
+      });
+      
+    } else {
+      
+      drive.listChanges();
+
+    }
+    
   },
   syncFile: function({ action, fid, metadata, type, source }) {
     
@@ -184,8 +254,7 @@ const drive = {
     let metaHeader = {};
     let form = new FormData();
     
-    if (action === 'create' || action === 'copy')
-    {
+    if (action === 'create' || action === 'copy') {
       ({ id, name, description, trashed, modifiedTime, parentId, content } = odin.dataOf(fid, fs.data[type], 'fid'));
 
       method = 'POST';
@@ -195,8 +264,7 @@ const drive = {
         mimeType: (type === 'folders') ? 'application/vnd.google-apps.folder' : 'text/plain',
       };
       
-      if (action === 'create')
-      {
+      if (action === 'create') {
         metaHeader.name = name;
         metaHeader.description = description;
         fetchUrl = drive.apiUrlUpload+'files?uploadType=multipart&fields=id';
@@ -205,9 +273,7 @@ const drive = {
         fetchUrl = drive.apiUrl+'files/'+id+'/copy?alt=json&fields=id';
 
       
-    }
-    else if (action === 'update')
-    {
+    } else if (action === 'update') {
       
       ({ id, name, description, trashed, modifiedTime, parentId, content } = odin.dataOf(fid, fs.data[type], 'fid'));
 
@@ -218,16 +284,14 @@ const drive = {
         modifiedTime
       };
       
-      for (let meta of metadata)
-      {
+      for (let meta of metadata) {
         if (meta === 'name')
           metaHeader.name = name;
         else if (meta === 'description')
           metaHeader.description = description;
         else if (meta === 'trashed')
           metaHeader.trashed = trashed;
-        else if (meta === 'parents')
-        {
+        else if (meta === 'parents') {
           source = drive.getParents(source).id;
           let destination = drive.getParents(parentId).id;
         
@@ -298,8 +362,7 @@ const drive = {
       drive.syncFile(sync).then((json) => {
   
         $('#action-info').innerHTML = '&nbsp;';
-        if (json.action === 'create' || json.action === 'copy')
-        {
+        if (json.action === 'create' || json.action === 'copy') {
           let data = odin.dataOf(fs.data.sync[0].fid, fs.data[json.type], 'fid');
           data.id = json.id;
         }
@@ -340,32 +403,27 @@ const drive = {
       
     }).then(function(json) {
       
-      if (json.files.length > 0)
-      {
+      if (json.files.length > 0) {
         L('app data found. reading app data...');
         drive.getFile(json.files[0].id, 'text', '?alt=media').then(function(media) {
           
           L('searching root folder...');
           drive.getFile(JSON.parse(media).id, 'json', '?fields=id,trashed').then(function({ id, trashed }) {
             
-            if (trashed)
-            {
+            if (trashed) {
               L('root folder deleted. deleting app data...');
               drive.deleteFile(json.files[0].id).then(function() {
                 L('re-initialize app data...');
                 drive.readAppData();
               });
-            }
-            else
-            {
+            } else {
               L('root folder found. initializing data...');
               drive.initAppData(id);
             }
             
           }).catch(function(errorCode) {
             
-            if (errorCode === 404)
-            {
+            if (errorCode === 404) {
               L('root folder not found. deleting app data...');
               drive.deleteFile(json.files[0].id).then(function() {
                 L('re-initialize app data...');
@@ -376,9 +434,7 @@ const drive = {
           });
           
         });
-      }
-      else
-      {
+      } else {
         
         L('app data not found. creating system folder...')
         drive.createSystemFolder().then(function(systemFolderJSON) {
@@ -458,7 +514,11 @@ const drive = {
     if (id === fs.data.rootId)
       return -1;
       
-    return odin.dataOf(id, fs.data.folders, 'id').fid;
+    let data = odin.dataOf(id, fs.data.folders, 'id');
+    if (data)
+      return data.fid;
+    else
+      return -2;
   },
   getFile: function(id, type = 'text', param = '') {
     

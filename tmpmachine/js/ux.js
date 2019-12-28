@@ -1,6 +1,4 @@
 let cantLock = false;
-let activeMenu = '';
-let waitDeploy = false;
 let debugAttempUrl = '';
 
 const ui = {
@@ -223,7 +221,6 @@ const ui = {
     block.classList.toggle('active');
     
     if (!menu.classList.contains('active')) {
-      
       selectedFile = [];
       clipBoard = [];
     }
@@ -437,7 +434,8 @@ function updateUI() {
     THOR.plugins.dragDrop();
   
     newTab();
-  
+    
+    window.name = 'parent';
     window.environment = anibar('main-editor');
   
     if ($('#btn-menu-save').offsetWidth > 100) {
@@ -862,6 +860,7 @@ function btnBlogsphereLogout  () {
   auth0.logout();
   auth0.auth.reset();
   fs.reset();
+  settings.reset();
   aww.pop("You've been logged out from TMPmachine.");
   
   fileClose();
@@ -901,8 +900,7 @@ function keyToggleMyFiles() {
 }
 
 function keyEscape() {
-  if (selectedFile.length > 0)
-  {
+  if (selectedFile.length > 0) {
     lastClickEl.classList.toggle('w3-light-blue', false);
     lastClickEl.classList.toggle('w3-hover-light-blue', false);
     doubleClick = false;
@@ -911,11 +909,10 @@ function keyEscape() {
 }
 
 function keyLeft(e) {
-  if ($('#btn-menu-my-files').classList.contains('active'))
-  {
+  
+  if ($('#btn-menu-my-files').classList.contains('active')) {
     e.preventDefault();
-      if (selectedFile.length > 0)
-      {
+      if (selectedFile.length > 0) {
         let i;
         
         if (selectedFile[0].classList.contains('folder-list'))
@@ -1422,4 +1419,16 @@ function authLogout() {
   
   $('#txt-login-status').textContent = 'Login';
   o.classList.toggle($('.auth-required'), ['unauthorized'], true);
+}
+
+function lockRender(self, fid, name) {
+  for (let el of $('.btn-lock'))
+    el.classList.toggle('w3-text-purple', false)
+  
+  if (locked !== fid) {
+    locked = fid;
+    self.classList.toggle('w3-text-purple')
+  } else {
+    locked = -1;
+  }
 }

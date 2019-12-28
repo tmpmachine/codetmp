@@ -5,7 +5,6 @@ const THOR = (function() {
   return {
     plugins: {
       load(name, func) {
-        
         THOR.plugins[name] = func;
       }
     },
@@ -37,6 +36,7 @@ const THOR = (function() {
           description: '',
           modifiedTime: '',
           trashed: false,
+          isSync: false
         },
         files: {
           fid: 0,
@@ -58,6 +58,14 @@ const THOR = (function() {
           metadata: [],
           type: '',
         },
+      });
+      
+      window.settings = new lsdb('TmP-settings', {
+        root: {
+          drive: {
+            startPageToken: ''
+          }
+        }
       });
       
       

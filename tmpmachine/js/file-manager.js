@@ -1,14 +1,16 @@
 let activeFile;
-let lastClickEl;
 let activeFolder = -1;
+
+let lastClickEl;
 let selectedFile = [];
 let clipBoard = [];
-let copyParentFolderId = -2;
+let doubleClick = false;
+
 let fileTab = [];
 let activeTab = 0;
+
 let breadcrumbs = [{folderId:'-1',title:'My Files'}];
-let doubleClick = false;
-let iframeRender = [];
+
 
 const fm = {
   INSERT: {
@@ -310,7 +312,6 @@ function openFolderConfirm(el) {
     lastClickEl.classList.toggle('w3-light-blue', false);
     lastClickEl.classList.toggle('w3-hover-light-blue', false);
     doubleClick = false;
-    
   }
   
   if (!doubleClick) {
@@ -523,17 +524,6 @@ function fileClose(fid) {
       activeFile.content = $('#editor').env.editor.getValue();
       activeFile.modifiedTime = modifiedTime;
       activeFile.description = stringifyDescription('description');
-      
-      if (iframeRender.includes(activeFile.name)) {
-        
-        var idx = iframeRender.indexOf(activeFile.name);
-        $('#loader'+idx).contentWindow.postMessage({
-          method: 'put',
-          src: activeFile.name,
-          content: activeFile.content
-        }, '*');
-      }
-      
       
       handleSync({
         fid: activeFile.fid,
@@ -776,6 +766,8 @@ function fileDownload(data) {
 
 (function() {
   
+  let copyParentFolderId = -2;
+  
   function copyFile(cut) {
     
     for (let f of selectedFile) {
@@ -786,12 +778,7 @@ function fileDownload(data) {
     copyParentFolderId = activeFolder;
     pasteFile.mode = cut ? 'cut' : 'copy';
   }
-  
   window.copyFile = copyFile;
-})();
-
-
-(function() {
   
   function copySingleFile({ id, fid, name, content, loaded }, modifiedTime) {
     
