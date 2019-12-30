@@ -580,7 +580,7 @@ function parseDescription(txt) {
 
 (function() {
 
-  
+
   function chooseDeploy() {
     
     let data;

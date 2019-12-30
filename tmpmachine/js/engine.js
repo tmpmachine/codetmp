@@ -124,11 +124,11 @@ const THOR = (function() {
     
     require('js/idb.js'),
     require('js/renderer.js'),
-    require('js/ux.js'),
     require('js/file-manager.js'),
     require('js/drive.js'),
     require('js/debug.js'),
     require('js/template.js'),
+    require('js/ux.js'),
     
     require('ace/ace.js'),
     require('plugins/custom-editor-init.js'),
