@@ -58,31 +58,33 @@ const drive = {
     let {id, name, modifiedTime, trashed, parents} = folders[0];
     let f = odin.dataOf(id, fs.data.folders, 'id');
 
-    if (f) {
-      f.trashed = trashed;
-      f.parentFolderId = drive.getParentId(parents[0]);
-
-      if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100) {
-        if (f.parentFolderId == activeFolder)
-          drive.syncFromDrive.refresh = true;
+    if (parents) {
+      if (f) {
+        f.trashed = trashed;
+        f.parentFolderId = drive.getParentId(parents[0]);
+    
+        if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100) {
+          if (f.parentFolderId == activeFolder)
+            drive.syncFromDrive.refresh = true;
+            
+          f.name = name;
+          f.modifiedTime = modifiedTime;
+        }
+      } else {
+        let parentFolderId = drive.getParentId(parents[0]);
+        if (parentFolderId > -2) {
+          fm.INSERT.folder({
+            id,
+            name,
+            modifiedTime,
+            trashed,
+            parentId: parentFolderId,
+          });
+          newBranch.push('"'+id+'"');
           
-        f.name = name;
-        f.modifiedTime = modifiedTime;
-      }
-    } else {
-      let parentFolderId = drive.getParentId(parents[0]);
-      if (parentFolderId > -2) {
-        fm.INSERT.folder({
-          id,
-          name,
-          modifiedTime,
-          trashed,
-          parentId: parentFolderId,
-        });
-        newBranch.push('"'+id+'"');
-        
-        if (parentFolderId == activeFolder)
-          drive.syncFromDrive.refresh = true;
+          if (parentFolderId == activeFolder)
+            drive.syncFromDrive.refresh = true;
+        }
       }
     }
 
@@ -96,36 +98,38 @@ const drive = {
     let {id, name, description = '', modifiedTime, trashed, parents} = files[0];
     let f = odin.dataOf(id, fs.data.files, 'id');
 
-    if (f) {
-      f.trashed = trashed;
-      f.parentFolderId = drive.getParentId(parents[0]);
-
-      f.name = name;
-      if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100) {
-        if (f.parentFolderId == activeFolder)
-          drive.syncFromDrive.refresh = true;
-        
-        f.modifiedTime = modifiedTime;
-        f.content = '';
-        f.loaded = false;
-        f.description = description;
-        
-        drive.downloadDependencies(f);
-      }
-    } else {
-      let parentFolderId = drive.getParentId(parents[0]);
-      if (parentFolderId > -2) {
-        fm.INSERT.file({
-          id,
-          name,
-          modifiedTime,
-          trashed,
-          description,
-          parentId: parentFolderId,
-        });
-        
-        if (parentFolderId == activeFolder)
+    if (parents) {
+      if (f) {
+        f.trashed = trashed;
+        f.parentFolderId = drive.getParentId(parents[0]);
+  
+        f.name = name;
+        if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100) {
+          if (f.parentFolderId == activeFolder)
             drive.syncFromDrive.refresh = true;
+          
+          f.modifiedTime = modifiedTime;
+          f.content = '';
+          f.loaded = false;
+          f.description = description;
+          
+          drive.downloadDependencies(f);
+        }
+      } else {
+        let parentFolderId = drive.getParentId(parents[0]);
+        if (parentFolderId > -2) {
+          fm.INSERT.file({
+            id,
+            name,
+            modifiedTime,
+            trashed,
+            description,
+            parentId: parentFolderId,
+          });
+          
+          if (parentFolderId == activeFolder)
+              drive.syncFromDrive.refresh = true;
+        }
       }
     }
 

@@ -995,6 +995,13 @@ function renderAndDeployLocked() {
   
   let keyboardShortcut = [];
   
+  function previousFolder() {
+    if ($('#btn-menu-my-files').classList.contains('active') && $('.breadcrumbs').length > 1) {
+      event.preventDefault();
+      $('.breadcrumbs')[$('.breadcrumbs').length-2].firstElementChild.click()
+    }
+  }
+  
   function lockFile() {
     if ($('#btn-menu-my-files').classList.contains('active')) {
       if (selectedFile.length > 0 && selectedFile[0].classList.contains('file-list-clicker')) {
@@ -1040,6 +1047,13 @@ function renderAndDeployLocked() {
       fileRename(selectedFile[0].getAttribute('data'));
   }
   
+  function deployFile() {
+    if (keyHandle.Shift)
+      renderAndDeploySingle();
+    else
+      renderAndDeployLocked();
+  }
+  
   function renderFile() {
     
     if (!cantLock) {
@@ -1060,12 +1074,6 @@ function renderAndDeployLocked() {
       } else
         renderBlog();
         
-    } else if (keyHandle.Alt) {
-      
-      if (keyHandle.Shift)
-        renderAndDeploySingle();
-      else
-        renderAndDeployLocked();
     }
   }
   
@@ -1121,13 +1129,6 @@ function renderAndDeployLocked() {
   function keyUpHandler(e) {
   
     switch (e.keyCode) {
-      case 8:
-        if ($('#btn-menu-my-files').classList.contains('active')) {
-          
-          if ($('.breadcrumbs').length > 1)
-            $('.breadcrumbs')[$('.breadcrumbs').length-2].firstElementChild.click()
-        }
-      break;
       case 13:
       case 82:
         cantLock = false;
@@ -1180,8 +1181,8 @@ function renderAndDeployLocked() {
   }
   
   function keyCodeOf(key) {
-    let keys = ['S','<','>','W','I','L','M','Escape','Delete','N','D','Enter'];
-    let keyCode = [83,188,190,87,73,76,77,27,46,78,68,13];
+    let keys = ['S','<','>','W','I','L','M','Escape','Delete','N','D','Enter','Backspace'];
+    let keyCode = [83,188,190,87,73,76,77,27,46,78,68,13,8];
     return keyCode[keys.indexOf(key)];
   }
   
@@ -1201,10 +1202,7 @@ function renderAndDeployLocked() {
         shortcut.Control = true
       
       shortcut.keyCode = keyCodeOf(i.replace(/Alt\+|Control\+/g,''));
-      shortcut.callback = function() {
-        event.preventDefault();
-        data[i]();
-      };
+      shortcut.callback = data[i];
       
       keyboardShortcut.push(shortcut);
     }
@@ -1223,23 +1221,29 @@ function renderAndDeployLocked() {
   	  keyDownHandler(event);
   	}
   }
+  keyHandle.Alt = false;
+  keyHandle.Control = false;
+  keyHandle.Shift = false;
   window.keyHandle = keyHandle;
   
   initKeyboardShortcut({
-    'Control+S': fileSave,
+    'Control+S': function() { event.preventDefault(); fileSave() },
     'Alt+L': lockFile,
     'Alt+M': toggleMyFiles,
     'Alt+I': toggleFileInfo,
-    'Alt+D': toggleTemplate,
+    'Alt+D': function() { event.preventDefault(); toggleTemplate() },
     'Alt+N': openNewTab,
     'Alt+W': closeTab,
     'Alt+<': function() { switchTab(-1) },
     'Alt+>': function() { switchTab(1) },
+    'Backspace': previousFolder,
     'Escape': keyEscape,
     'Delete': deleteSelected,
     'Enter': function() {
-      if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0)
+      if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
+        event.preventDefault();
         doubleClickOnFile();
+      }
     },
     'Control+Enter': function() {
       if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0)
@@ -1247,6 +1251,7 @@ function renderAndDeployLocked() {
       else
         renderFile();
     },
+    'Alt+Enter': deployFile,
   });
   
   window.addEventListener('keydown', keyHandle);
