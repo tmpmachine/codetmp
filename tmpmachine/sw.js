@@ -4,7 +4,7 @@ self.addEventListener('message', function(e) {
 });
 
 
-let cacheVersion = '1.0643';
+let cacheVersion = '1.066';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('install', function(event) {
@@ -60,8 +60,6 @@ self.addEventListener('install', function(event) {
     
     
     '/fonts/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2',
-    // 'https://fonts.googleapis.com/icon?family=Material+Icons',
-    // 'https://fonts.gstatic.com/s/materialicons/v47/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2',
     ];
  
   event.waitUntil(

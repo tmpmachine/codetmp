@@ -418,7 +418,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny .no-select
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build v1.064.6 - 30 Dec 2019" +opacity]
+            [c +half "Developer Build v1.066 - 9 Jan 2020" +opacity]
           ]
           [ @breadcrumbs .no-select +small +padding]
           [ @file-list +padding]
@@ -521,19 +521,24 @@
         
         <div class="auth-required unauthorized hide file-settings" data-section="blogger">
           [ +tiny "Blog name"]
-          [in @in-blog-name {w:100%;} .description name='blog']
+          [in @in-blog-name {w:100%;} .description name="blogName"]
+          [ +tiny "Blog ID"]
+          [in @in-blog-id {w:100%;} .description name="blogId"]
           [ +tiny "Entry ID"]
-          [in @in-eid {w:100%;} .description name='eid']
+          [in @in-eid {w:100%;} .description name="entryId"]
           [ +tiny "Summary"]
           [t @in-summary {w:100%;resize:none;h:100px;} .description name="summary"]
           [
-            [in type="checkbox" @chk-bibibi .description name='bibibi'] [l for="chk-bibibi" "Post summary fix"]
+            [in type="checkbox" @chk-bibibi .description name="isSummaryFix"] [l for="chk-bibibi" "Post summary fix"]
           ]
           [
-            [in type="checkbox" @chk-more-tag .description name='more'] [l for="chk-more-tag" "Use More tag"]
+            [in type="checkbox" @chk-more-tag .description name="isBreak"] [l for="chk-more-tag" "Use More tag"]
           ]
           [
-            [in type="checkbox" @chk-in-pre .description name='pre'] [l for="chk-in-pre" "Wrap in &lt;pre&gt;"]
+            [in type="checkbox" @chk-in-pre .description name="isWrap"] [l for="chk-in-pre" "Wrap in &lt;pre&gt;"]
+          ]
+          [
+            [in type="checkbox" @chk-blogger-app .description name="isApp"] [l for="chk-blogger-app" "Deploy as Blogger Apps"]
           ]
           
           
@@ -552,24 +557,6 @@
           [hr]
         </div>
       ]
-      
-      [ @menu-blogger +hide
-        
-        [btn "Synchronize" @btn-sync +button +border +margin-bottom +block]
-        
-        [hr]
-        
-        [ +tiny "Blog Title"]
-        [in @in-blog-title {w:100%;} .blog-description name='blogTitle']
-        
-        [ +tiny "Blog ID"]
-        [in @in-blog-id {w:100%;} .blog-description name='blogId']
-        
-        [ +tiny "Number of posts on homepage"]
-        [in @in-max-posts {w:100%;} .blog-description name='maxPosts' value="20"]
-        
-      ]
-      
       
       [hr]
       [btn "Delete" +hide @btn-delete-file +red +button +border +margin-bottom +block]
@@ -728,6 +715,12 @@
       display: block;
     }
   </style>
+  
+  <script id="arc7-updater" type="plain/text">
+    arc7db.open(function(){let blogId='<blogId>';let appId='<appId>';fetch('https://www.blogger.com/feeds/'+blogId+'/posts/summary/'+appId+'?alt=json&rand='+new Date().getTime()).then(function(result){return result.json()}).then(function(json){let updated=(new Date(json.entry.updated.$t)).getTime();arc7db.get(appId,function(data){if(updated>data.updated){fetch('https://www.blogger.com/feeds/'+blogId+'/posts/default/'+appId+'?alt=json&rand='+new Date().getTime()).then(function(result){return result.json()}).then(function(json){let entry=json.entry.content.$t.split("<a name='more'></a> bbb");let data={appId:json.entry.id.$t.split('post-')[1],title:json.entry.title.$t,updated:(new Date(json.entry.updated.$t)).getTime(),summary:entry.splice(0,1),content:entry.join("<a name='more'></a> bbb").substring(397+5,json.entry.content.$t.length-6).replace(/<br \/>/g,'\n')};function installApp(){arc7db.create(data,function(){arc7db.get(data.appId,function(data){if(data)
+location.href=location.href;else setTimeout(installApp,2000)})})}
+arc7db.delete(data.appId,function(){installApp()})})}})})})
+  </script>
   
   
   <script src="js/engine.js"></script>

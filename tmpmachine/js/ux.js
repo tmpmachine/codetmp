@@ -529,28 +529,41 @@ function focusTab(fid, isActiveTab = false, isClose) {
   activeFile = (String(fid)[0] == '-') ? undefined : fileTab[activeTab].file;
   setEditorMode(fileTab[activeTab].name);
   
-  let desc = activeFile ? parseDescription(activeFile.description) : {};
-  openDevelopmentSettings(desc);
+  let settings = {};
+  if (activeFile)
+    settings = activeFile.description.startsWith('{') ? JSON.parse(activeFile.description) : parseDescriptionOld(activeFile.description);
+    
+  openDevelopmentSettings(settings);
   
 }
 
-function openDevelopmentSettings(setting) {
-  
-	$('#in-blossem').value = setting.blossem || '';
-	$('#in-blog-name').value = setting.blog || '';
-	$('#in-blog-name').value = setting.blog || '';
-	$('#in-eid').value = setting.eid || '';
-	$('#in-summary').value = setting.summary || '';
-	$('#in-summary').value = $('#in-summary').value.substring(1, $('#in-summary').value.length-1);
-	$('#chk-more-tag').checked = setting.more || false;
-	$('#chk-bibibi').checked = setting.bibibi || false;
-	$('#chk-in-pre').checked = setting.pre || false;
+function fixOldSettings(key, desc, settings) {
+  if (key == 'blogName' && settings.blog)
+    desc.value = settings.blog;
+  else if (key == 'entryId' && settings.eid)
+    desc.value = settings.eid;
+  else if ((key == 'isWrap' && settings.pre) ||
+  (key == 'isSummaryFix' && settings.bibibi) ||
+  (key == 'isBreak' && settings.more)
+  )
+    desc.checked = true;
+}
+
+function openDevelopmentSettings(settings) {
+	for (let desc of $('.description')) {
+	  let key = desc.getAttribute('name');
+    if (['text','textarea','hidden'].includes(desc.type))
+      desc.value = settings[key] || '';
+    else if (desc.type == 'checkbox')
+      desc.checked = settings[key] || false;
+    fixOldSettings(key, desc, settings);
+	}
 	
-  if (setting.blog && setting.blog.length > 0)
+  if (settings.blogName || settings.blog)
     showFileSetting('blogger');
-  if (setting.hasRevision && setting.hasRevision)
+  if (settings.hasRevision)
     showFileSetting('revisions');
-  if (setting.blossem && setting.blossem.length > 0)
+  if (settings.blossem)
     showFileSetting('blossem');
 }
 
@@ -772,9 +785,10 @@ function createBlogApp() {
     
     aww.pop('blog entry created successfully');
     $('#in-eid').value = response.id;
+    $('#in-blog-id').value = response.blog.id;
     fileSave();
     
-  }, 'id')
+  }, 'id,blog(id)')
   
 }
 
@@ -980,14 +994,14 @@ function renderAndDeploySingle() {
   locked = -1;
   
   renderBlog(true);
-  chooseDeploy();
+  deploy();
   
   locked = tmpLocked;
 }
 
 function renderAndDeployLocked() {
   renderBlog(true);
-  chooseDeploy();
+  deploy();
 }
  
  
@@ -1031,6 +1045,9 @@ function renderAndDeployLocked() {
       lastClickEl.classList.toggle('w3-hover-light-blue', false);
       doubleClick = false;
       selectedFile.length = 0;
+    } else if ($('#btn-menu-my-files').classList.contains('active')) {
+      $('#btn-menu-my-files').click();
+      $('#editor').env.editor.focus();
     }
   }
   

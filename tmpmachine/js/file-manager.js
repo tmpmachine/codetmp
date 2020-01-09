@@ -457,7 +457,10 @@ function openFile(fid) {
     else
       $('#btn-blog-vc').classList.toggle('w3-hide', true);
   	
-    openDevelopmentSettings(parseDescription(file[0].description));
+  	if (file[0].description.startsWith('{'))
+      openDevelopmentSettings(JSON.parse(file[0].description));
+    else
+      openDevelopmentSettings(parseDescriptionOld(file[0].description));
   	
   }).catch(function(error) {
     
@@ -494,24 +497,15 @@ function fileClose(fid) {
 
 (function() {
   
-  function stringifyDescription(cls) {
-  
-    let data = [];
-    let els = $('.' + cls);
-    
-    for (let e of els) {
-      
-      let key = e.getAttribute('name');
-      
-      if (e.type === 'text')
-        data.push(key + ': ' + e.value);
-      else if (e.type === 'textarea')
-        data.push(key + ': "' + e.value + '"');
-      else if (e.type === 'checkbox')
-        data.push(key + ': ' + e.checked);
+  function getDeploySetting() {
+    let data = {};
+    for (let desc of $('.description')) {
+      if ((['text','hidden','textarea'].includes(desc.type) && desc.value.length === 0) ||
+      (desc.type == 'checkbox' && !desc.checked)) continue;
+      data[desc.getAttribute('name')] = (desc.type == 'checkbox') ? desc.checked : desc.value;
     }
     
-    return data.join('\n');
+    return JSON.stringify(data);
   }
   
   function fileSave() {
@@ -523,7 +517,7 @@ function fileClose(fid) {
       
       activeFile.content = $('#editor').env.editor.getValue();
       activeFile.modifiedTime = modifiedTime;
-      activeFile.description = stringifyDescription('description');
+      activeFile.description = getDeploySetting();
       
       handleSync({
         fid: activeFile.fid,
@@ -541,12 +535,22 @@ function fileClose(fid) {
   
   window.fileSave = fileSave;
   
-  
 })();
 
+function fixOldParse(ob) {
+  if (ob.bibibi)
+    ob.isSummaryFix = true;
+  if (ob.pre)
+    ob.isWrap = true;
+  if (ob.more)
+    ob.isBreak = true;
+  if (ob.blog)
+    ob.blogName = ob.blog;
+  if (ob.eid)
+    ob.entryId = ob.eid;
+}
 
-
-function parseDescription(txt) {
+function parseDescriptionOld(txt) {
   
   let obj = {};
   txt = txt.split('\n');
@@ -575,71 +579,67 @@ function parseDescription(txt) {
     obj[key] = val;
 	}
 	
+	fixOldParse(obj);
+	
   return obj;
 }
 
+
 (function() {
 
+  function getAppScript(blogId, entryId) {
+    return '<script>' + $('#arc7-updater').textContent.replace('<blogId>', blogId).replace('<appId>', entryId) + '</script>';
+  }
 
-  function chooseDeploy() {
+  function getBlogId(file, blogName) {
+    aww.pop('Retrieving blog id ...');
+    oblog.config({ blog: blogName});
+    oblog.getBlogId(blogId => {
+      let settings = file.description.startsWith('{') ? JSON.parse(file.description) : parseDescriptionOld(file.description);
+      settings.blogId = blogId;
+      file.description = JSON.stringify(settings);
+      if (locked < 0)
+        $('#in-blog-id').value = blogId;
+      fileSave();
+      deploy();
+    });
+  }
+  
+  function wrapInPre(HTML) {
+    return '<pre>' + HTML.replace(/<pre>/g,'<xpre>').replace(/<\/pre>/g,'</xpre>') + '</pre>';
+  }
+
+  function deploy() {
     
-    let data;
-    let blogName;
-    let eid;
-    let isPre = $('#chk-in-pre').checked;
-    let isMore = $('#chk-more-tag').checked;
-    let isBibibi = $('#chk-bibibi').checked;
-    let summary = $('#in-summary').value.trim();
-    
-    if (locked >= 0) {
+    let data = (locked >= 0) ? odin.dataOf(locked, fs.data.files, 'fid') : activeFile;
+    let {blogName, blogId, entryId, summary, isBreak, isApp, isWrap, isSummaryFix} = data.description.startsWith('{') ? JSON.parse(data.description) : parseDescriptionOld(data.description);
+
+    if (blogName && entryId) {
       
-      data = odin.dataOf(locked, fs.data.files, 'fid');
-      
-      let ob = parseDescription(data.description);
-      
-      blogName = ob.blog;
-      eid = ob.eid;
-      isPre = ob.pre;
-      isMore = ob.more;
-      isBibibi = ob.bibibi;
-      summary = ob.summary.trim();
-      summary = summary.substring(1, summary.length-1)
-      
-      if (summary === '""')
-        summary = "";
-    } else {
-      
-      data = activeFile;
-      blogName = $('#in-blog-name').value;
-      eid = $('#in-eid').value;
-    }
-    
-    
-    if (blogName && eid) {
+      if (isApp && !blogId) {
+        getBlogId(data, blogName);
+        return;
+      }
       
       aww.pop('Deploying update...');
       
-      let more = '';
-      let bibibib = '';
+      let more = isBreak ? '<!--more--> ' : '';
+      let summaryFix = isSummaryFix ? 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' : '';
+      let content = uploadBody;
       
-      if (isMore)
-        more = '<!--more--> ';
-      if (isBibibi)
-        bibibib = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
-        
-      let nowUpload;
-      if (isPre)
-        nowUpload = summary+more+bibibib+'<pre>'+uploadBody.replace(/<pre>/g,'<xpre>').replace(/<\/pre>/g,'</xpre>')+'</pre>';
-      else
-        nowUpload = summary+more+bibibib+uploadBody;
+      if (isApp)
+        content = getAppScript(blogId, entryId) + content;
+      if (isWrap)
+        content = wrapInPre(content);
       
-      if (eid[0] == 'p') {
+      content = summary + more + summaryFix + content;
+      
+      if (entryId.startsWith('p')) {
         
         oblog.config({ blog: blogName });
-        oblog.pages.patch(eid.substring(1), {
-          
-          content: nowUpload
-        }, function(e) {
+        oblog.pages.patch(entryId.substring(1), {
+          content
+        }, e => {
           
           if (e == 404)
             aww.pop('404')
@@ -650,10 +650,9 @@ function parseDescription(txt) {
       } else {
         
         oblog.config({ blog: blogName });
-        oblog.posts.patch(eid, {
-          
-          content: nowUpload
-        }, function(e) {
+        oblog.posts.patch(entryId, {
+          content
+        }, e => {
   
           if (e == 404)
             aww.pop('404')
@@ -665,7 +664,7 @@ function parseDescription(txt) {
       alert('Deploy failed. Blog name or entry ID has not been set.');
   }
   
-  window.chooseDeploy = chooseDeploy;
+  window.deploy = deploy;
   
 })();
 
