@@ -199,7 +199,9 @@ let previewWindow = null;
     let body = replaceLocal();
     loadedScriptAndLink.length = 0;
     body = clearComments(body);
-    body = plate.cook(body);
+    
+    if ($('#chk-render-plate-html').checked)
+      body = plate.cook(body);
     
     if (isForceDeploy) {
       uploadBody = body;

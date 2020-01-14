@@ -1158,20 +1158,6 @@ function renderAndDeployLocked() {
     }
   }
   
-  function isPressedAlt(callback) {
-    if (keyHandle.Alt) {
-      event.preventDefault();
-      callback();
-    }
-  }
-  
-  function isPressedControl(callback) {
-    if (keyHandle.Control) {
-      event.preventDefault();
-      callback();
-    }
-  }
-  
   function keyDownHandler(e) {
     
     switch (e.keyCode) {

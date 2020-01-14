@@ -612,7 +612,7 @@ function parseDescriptionOld(txt) {
   function deploy() {
     
     let data = (locked >= 0) ? odin.dataOf(locked, fs.data.files, 'fid') : activeFile;
-    let {blogName, blogId, entryId, summary, isBreak, isApp, isWrap, isSummaryFix} = data.description.startsWith('{') ? JSON.parse(data.description) : parseDescriptionOld(data.description);
+    let {blogName, blogId, entryId, summary = '', isBreak, isApp, isWrap, isSummaryFix} = data.description.startsWith('{') ? JSON.parse(data.description) : parseDescriptionOld(data.description);
 
     if (blogName && entryId) {
       
@@ -631,7 +631,7 @@ function parseDescriptionOld(txt) {
         content = getAppScript(blogId, entryId) + content;
       if (isWrap)
         content = wrapInPre(content);
-      
+
       content = summary + more + summaryFix + content;
       
       if (entryId.startsWith('p')) {
