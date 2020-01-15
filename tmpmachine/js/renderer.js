@@ -49,6 +49,10 @@ let previewWindow = null;
     return parentId;
   }
   
+  function getMatch(content) {
+    return content.match(/<file include=.*?><\/file>|<template include=.*?><\/template>|<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>|<mlink include=.*?>|@import .*?;/);
+  }
+  
   function replaceLocal(body, preParent = -1) {
   
     if (body === undefined) {
@@ -73,35 +77,44 @@ let previewWindow = null;
     }
     
   
-    let match = body.match(/<template include=.*?><\/template>/);
-    if (!match)
-      match = body.match(/<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>|<mlink include=.*?>/);
-    if (!match)
-      match = body.match(/@import .*?;/);
-    
+    let match = getMatch(body);
     
     while (match !== null) {
       
+      let tagName;
       let isScriptOrLink = false;
-      let start = 19,
-      end = 13;
+      let isFile = false;
+      let isMinified = false;
+      let start = 19;
+      let end = 13;
       
       if (match[0].includes('<mscript')) {
         start = 18;
         end = 12;
         isScriptOrLink = true;
+        isMinified = true;
+        tagName = 'script';
       } else if (match[0].includes('<script')) {
         start = 17;
         end = 11;
         isScriptOrLink = true;
+        tagName = 'script';
       } else if (match[0].includes('<mlink')) {
         start = 16;
         end = 3;
         isScriptOrLink = true;
+        isMinified = true;
+        tagName = 'style';
       } else if (match[0].includes('<link')) {
         start = 15;
         end = 3;
         isScriptOrLink = true;
+        tagName = 'style';
+      } else if (match[0].includes('<file')) {
+        start = 15;
+        end = 9;
+        isScriptOrLink = true;
+        isFile = true;
       } else if (match[0].includes('@import ')) {
         start = 9;
         end = 2;
@@ -110,21 +123,12 @@ let previewWindow = null;
       let src = match[0].substring(start, match[0].length-end);
       let relativeParent = preParent;
       
-      
       if (isScriptOrLink) {
-        
         if (loadedScriptAndLink.indexOf(src) < 0) {
-          
           loadedScriptAndLink.push(src);
         } else {
-          
           body = body.replace(new RegExp(match[0]), '');
-          match = body.match(/<template include=.*?><\/template>/);
-          if (!match)
-            match = body.match(/<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>|<mlink include=.*?>/);
-          if (!match)
-            match = body.match(/@import .*?;/);
-            
+          match = getMatch(body);
           continue;
         }
       }
@@ -143,24 +147,14 @@ let previewWindow = null;
       } else {
         
         if (!data.loaded) {
-          
           aww.pop('Downloading required file : '+name);
           drive.downloadDependencies(data);
         }
         
         let ot = '', ct = '';
-        switch (start) {
-          
-          case 18:
-          case 17:
-            ot = '<script>\n';
-            ct = '\n</script>';
-            break;
-          case 16:
-          case 15:
-            ot = '<style>\n';
-            ct = '\n</style>';
-            break;
+        if (tagName) {
+          ot = '<'+tagName+'>\n';
+          ct = '\n</'+tagName+'>';
         }
         
         
@@ -171,19 +165,17 @@ let previewWindow = null;
         else
           content = data.content;
         
-        if (start == 18 || start == 16)
+        if (isMinified)
           content = content.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '').replace(/\n|\t+/g,'');
+        else if (isFile)
+          content = content.replace(/</g,'&lt;').replace(/\[/g,'&lsqb;').replace(/]/g,'&rsqb;');
       
         let swap = ot+replaceLocal(content, parentId)+ct;
         body = body.replace(new RegExp(match[0]), swap);
       }
      
       
-      match = body.match(/<template include=.*?><\/template>/);
-      if (!match)
-        match = body.match(/<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>|<mlink include=.*?>/);
-      if (!match)
-        match = body.match(/@import .*?;/);
+      match = getMatch(body);
     }
     
     return body;

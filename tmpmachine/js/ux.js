@@ -568,7 +568,9 @@ function openDevelopmentSettings(settings) {
 }
 
 function setEditorMode(fileName = '') {
-  if (fileName.endsWith('.css'))
+  if (fileName.endsWith('.txt'))
+    $('#editor').env.editor.session.setMode();
+  else if (fileName.endsWith('.css'))
     $('#editor').env.editor.session.setMode("ace/mode/css");
   else if (fileName.endsWith('.js'))
     $('#editor').env.editor.session.setMode("ace/mode/javascript");
