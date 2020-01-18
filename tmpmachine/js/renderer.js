@@ -200,8 +200,8 @@ let previewWindow = null;
       return;
     }
     
-    if ($('#in-blossem').value.trim().length > 0) {
-      
+    let check = checkBlossemURL();
+    if (check.hasBlossemURL) {
       previewWindow.postMessage({tmp:true, html: body}, '*');
       uploadBody = body;
     } else {

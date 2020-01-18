@@ -692,14 +692,36 @@ function btnInfo() {
     $('#editor').env.editor.focus()
 }
 
-function btnPreview() {
-  if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null) {
-    
-    if ($('#in-blossem').value.trim().length > 0)
-      previewWindow = window.open($('#in-blossem').value.trim(), 'blossem');
+
+function checkBlossemURL() {
+  let data = (locked >= 0) ? odin.dataOf(locked, fs.data.files, 'fid') : activeFile;
+  let hasBlossemURL = false;
+  let blossemURL = '';
+  
+  if (data) {
+    let desc = JSON.parse(data.description);
+    hasBlossemURL = desc.blossem ? true : false;
+    blossemURL = desc.blossem ? desc.blossem : '';
+  }
+  
+  return { hasBlossemURL, blossemURL };
+}
+
+function previewRenderedFile() {
+  let check = checkBlossemURL();
+  if (check.hasBlossemURL) {
+    previewWindow = window.open(check.blossemURL, 'blossem');
+  } else {
+    if (debugAttempUrl.length > 0)
+      previewWindow = window.open(debugAttempUrl, 'preview');
     else
       previewWindow = window.open('https://attemp.web.app/', 'preview');
   }
+}
+
+function btnPreview() {
+  if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null)
+    previewRenderedFile();
 
   renderBlog();
 }
@@ -1076,23 +1098,11 @@ function renderAndDeployLocked() {
   function renderFile() {
     
     if (!cantLock) {
-      
       cantLock = true;
-      
-      if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null) {
-        
-        if ($('#in-blossem').value.trim().length > 0)
-          previewWindow = window.open($('#in-blossem').value.trim(), 'blossem');
-        else {
-          
-          if (debugAttempUrl.length > 0)
-            previewWindow = window.open(debugAttempUrl, 'preview');
-          else
-            previewWindow = window.open('https://attemp.web.app/', 'preview');
-        }
-      } else
+      if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null)
+        previewRenderedFile();
+      else
         renderBlog();
-        
     }
   }
   
