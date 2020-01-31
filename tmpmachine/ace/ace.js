@@ -4007,6 +4007,7 @@ exports.addTouchListeners = function(el, editor) {
             showContextMenu();
         } else if (mode == "scroll") {
             animate();
+            editor.blur();
             e.preventDefault();
             hideContextMenu();
         } else {
