@@ -353,7 +353,7 @@ if ([1,2].splice(0).length != 2) {
 
             var removed = this.slice(pos, pos+removeCount);
             var insert = slice.call(arguments, 2);
-            var add = insert.length;            
+            var add = insert.length;
             if (pos === length) {
                 if (add) {
                     this.push.apply(this, insert);
@@ -984,7 +984,7 @@ var appName = _navigator.appName || "";
 exports.isWin = (os == "win");
 exports.isMac = (os == "mac");
 exports.isLinux = (os == "linux");
-exports.isIE = 
+exports.isIE =
     (appName == "Microsoft Internet Explorer" || appName.indexOf("MSAppHost") >= 0)
     ? parseFloat((ua.match(/(?:MSIE |Trident\/[0-9]+[\.0-9]+;.*rv:)([0-9]+[\.0-9]+)/)||[])[1])
     : parseFloat((ua.match(/(?:Trident\/[0-9]+[\.0-9]+;.*rv:)([0-9]+[\.0-9]+)/)||[])[1]); // for ie
@@ -1015,7 +1015,7 @@ exports.isMobile = exports.isIOS || exports.isAndroid;
 define("ace/lib/dom",["require","exports","module","ace/lib/useragent"], function(require, exports, module) {
 "use strict";
 
-var useragent = require("./useragent"); 
+var useragent = require("./useragent");
 var XHTML_NS = "http://www.w3.org/1999/xhtml";
 
 exports.buildDom = function buildDom(arr, parent, refs) {
@@ -1372,7 +1372,7 @@ var Keys = (function() {
     
     (function() {
         var mods = ["cmd", "ctrl", "alt", "shift"];
-        for (var i = Math.pow(2, mods.length); i--;) {            
+        for (var i = Math.pow(2, mods.length); i--;) {
             ret.KEY_MODS[i] = mods.filter(function(x) {
                 return i & ret.KEY_MODS[x];
             }).join("-") + "-";
@@ -1520,7 +1520,7 @@ exports.addMouseWheelListener = function(el, callback) {
 
 exports.addMultiMouseDownListener = function(elements, timeouts, eventHandler, callbackName) {
     var clicks = 0;
-    var startX, startY, timer; 
+    var startX, startY, timer;
     var eventNames = {
         2: "dblclick",
         3: "tripleclick",
@@ -2024,7 +2024,7 @@ exports.copyArray = function(array){
     for (var i=0, l=array.length; i<l; i++) {
         if (array[i] && typeof array[i] == "object")
             copy[i] = this.copyObject(array[i]);
-        else 
+        else
             copy[i] = array[i];
     }
     return copy;
@@ -2169,7 +2169,7 @@ define("ace/clipboard",["require","exports","module"], function(require, exports
 "use strict";
 
 var $cancelT;
-module.exports = { 
+module.exports = {
     lineMode: false,
     pasteCancelled: function() {
         if ($cancelT && $cancelT > Date.now() - 50)
@@ -2307,7 +2307,7 @@ var TextInput = function(parentNode, host) {
     var resetSelection = isIOS
     ? function(value) {
         if (!isFocused || (copied && !value) || sendingText) return;
-        if (!value) 
+        if (!value)
             value = "";
         var newValue = "\n ab" + value + "cde fg\n";
         if (newValue != text.value)
@@ -2369,8 +2369,8 @@ var TextInput = function(parentNode, host) {
             lastSelectionEnd = text.selectionEnd;
         }
         if (
-            lastSelectionEnd != selectionEnd 
-            || lastSelectionStart != selectionStart 
+            lastSelectionEnd != selectionEnd
+            || lastSelectionStart != selectionStart
             || text.selectionEnd != lastSelectionEnd // on ie edge selectionEnd changes silently after the initialization
         ) {
             try {
@@ -2445,7 +2445,7 @@ var TextInput = function(parentNode, host) {
             if (endIndex < 0) {
                 extendLeft = -endIndex;
                 endIndex = 0;
-            } 
+            }
             inserted = inserted.slice(0, endIndex);
             if (!fromInput && restoreStart == inserted.length && !extendLeft && !extendRight && !restoreEnd)
                 return "";
@@ -2578,7 +2578,7 @@ var TextInput = function(parentNode, host) {
         });
     }
     var onCompositionStart = function(e) {
-        if (inComposition || !host.onCompositionStart || host.$readOnly) 
+        if (inComposition || !host.onCompositionStart || host.$readOnly)
             return;
         
         inComposition = {};
@@ -2704,7 +2704,7 @@ var TextInput = function(parentNode, host) {
         var maxTop = rect.bottom - top - text.clientHeight -2;
         var move = function(e) {
             dom.translate(text, e.clientX - left - 2, Math.min(e.clientY - top - 2, maxTop));
-        }; 
+        };
         move(e);
 
         if (e.type != "mousedown")
@@ -2785,7 +2785,7 @@ var TextInput = function(parentNode, host) {
             } else if (
                 selectionStart < lastSelectionStart
                 || (
-                    selectionStart == lastSelectionStart 
+                    selectionStart == lastSelectionStart
                     && lastSelectionEnd != lastSelectionStart
                     && selectionStart == selectionEnd
                 )
@@ -2799,7 +2799,7 @@ var TextInput = function(parentNode, host) {
             } else if (
                 selectionEnd > lastSelectionEnd
                 || (
-                    selectionEnd == lastSelectionEnd 
+                    selectionEnd == lastSelectionEnd
                     && lastSelectionEnd != lastSelectionStart
                     && selectionStart == selectionEnd
                 )
@@ -3353,7 +3353,7 @@ var MouseEvent = exports.MouseEvent = function(domEvent, editor) {
     this.defaultPrevented = false;
 };
 
-(function() {  
+(function() {
     
     this.stopPropagation = function() {
         event.stopPropagation(this.domEvent);
@@ -4007,8 +4007,7 @@ exports.addTouchListeners = function(el, editor) {
             showContextMenu();
         } else if (mode == "scroll") {
             animate();
-            editor.blur();
-            e.preventDefault();
+            // e.preventDefault();
             hideContextMenu();
         } else {
             showContextMenu();
@@ -4206,7 +4205,7 @@ EventEmitter.setDefaultHandler = function(eventName, callback) {
             handlers._disabled_[eventName] = disabled = [];
         disabled.push(old);
         var i = disabled.indexOf(callback);
-        if (i != -1) 
+        if (i != -1)
             disabled.splice(i, 1);
     }
     handlers[eventName] = callback;
@@ -4511,7 +4510,7 @@ exports.loadModule = function(moduleName, onLoad) {
 
 var reportErrorIfPathIsNotConfigured = function() {
     if (
-        !options.basePath && !options.workerPath 
+        !options.basePath && !options.workerPath
         && !options.modePath && !options.themePath
         && !Object.keys(options.$moduleUrls).length
     ) {
@@ -4921,7 +4920,7 @@ var KeyBinding = function(editor) {
             } else {
                 success = commands.exec(toExecute.command, this.$editor, toExecute.args, e);
             }
-            if (success && e && hashId != -1 && 
+            if (success && e && hashId != -1 &&
                 toExecute.passEvent != true && toExecute.command.passEvent != true
             ) {
                 event.stopEvent(e);
@@ -5107,7 +5106,7 @@ function _invertLevel(lev, levels, _array) {
 	}
 }
 
-function _getCharClass(chars, types, classes, ix) {			
+function _getCharClass(chars, types, classes, ix) {
 	var cType = types[ix], wType, nType, len, i;
 	switch(cType){
 		case L:
@@ -5191,10 +5190,10 @@ function _getCharClass(chars, types, classes, ix) {
 	}
 }
 
-function _getCharacterType( ch ) {		
+function _getCharacterType( ch ) {
 	var uc = ch.charCodeAt(0), hi = uc >> 8;
 	
-	if (hi == 0) {		
+	if (hi == 0) {
 		return ((uc > 0x00BF) ? L : UnicodeTBL00[uc]);
 	} else if (hi == 5) {
 		return (/[\u0591-\u05f4]/.test(ch) ? R : L);
@@ -5206,15 +5205,15 @@ function _getCharacterType( ch ) {
 		else if (uc == 0x066A)
 			return ET;
 		else if (/[\u06f0-\u06f9]/.test(ch))
-			return EN;			
+			return EN;
 		else
 			return AL;
 	} else if (hi == 0x20 && uc <= 0x205F) {
 		return UnicodeTBL20[uc & 0xFF];
 	} else if (hi == 0xFE) {
 		return (uc >= 0xFE70 ? AL : ON);
-	}		
-	return ON;	
+	}
+	return ON;
 }
 
 function _isArabicDiacritics( ch ) {
@@ -5235,7 +5234,7 @@ exports.doBidiReorder = function(text, textCharTypes, isRtl) {
 		return {};
 		
 	var chars = text.split(""), logicalFromVisual = new Array(chars.length),
-		bidiLevels = new Array(chars.length), levels = []; 
+		bidiLevels = new Array(chars.length), levels = [];
 
 	dir = isRtl ? RTL : LTR;
 
@@ -5249,7 +5248,7 @@ exports.doBidiReorder = function(text, textCharTypes, isRtl) {
 	for (var i = 0; i < logicalFromVisual.length - 1; i++) { //fix levels to reflect character width
 		if (textCharTypes[i] === AN) {
 			levels[i] = exports.AN;
-		} else if (levels[i] === R && ((textCharTypes[i] > AL && textCharTypes[i] < LRE) 
+		} else if (levels[i] === R && ((textCharTypes[i] > AL && textCharTypes[i] < LRE)
 			|| textCharTypes[i] === ON || textCharTypes[i] === BN)) {
 			levels[i] = exports.ON_R;
 		} else if ((i > 0 && chars[i - 1] === '\u0644') && /\u0622|\u0623|\u0625|\u0627/.test(chars[i])) {
@@ -5277,7 +5276,7 @@ exports.hasBidiCharacters = function(text, textCharTypes){
 			ret = true;
 	}
 	return ret;
-};	
+};
 exports.getVisualFromLogicalIdx = function(logIdx, rowMap) {
 	for (var i = 0; i < rowMap.logicalFromVisual.length; i++) {
 		if (rowMap.logicalFromVisual[i] == logIdx)
@@ -5334,7 +5333,7 @@ var BidiHandler = function(session) {
                 this.seenBidi = true;
                 this.currentRow = null;
             }
-        } 
+        }
         else {
             this.currentRow = null;
         }
@@ -5452,7 +5451,7 @@ var BidiHandler = function(session) {
     };
 
     this.setEolChar = function(eolChar) {
-        this.EOL = eolChar; 
+        this.EOL = eolChar;
     };
 
     this.setContentWidth = function(width) {
@@ -5464,11 +5463,11 @@ var BidiHandler = function(session) {
         if (row != undefined)
             return (this.session.getLine(row).charAt(0) == this.RLE);
         else
-            return this.isRtlDir; 
+            return this.isRtlDir;
     };
 
     this.setRtlDirection = function(editor, isRtlDir) {
-        var cursor = editor.getCursorPosition(); 
+        var cursor = editor.getCursorPosition();
         for (var row = editor.selection.getSelectionAnchor().row; row <= cursor.row; row++) {
             if (!isRtlDir && editor.session.getLine(row).charAt(0) === editor.session.$bidiHandler.RLE)
                 editor.session.doc.removeInLine(row, 0, 1);
@@ -5635,7 +5634,7 @@ var Selection = function(session) {
         this.$isEmpty = false;
         this.anchor.setPosition(row, column);
     };
-    this.getAnchor = 
+    this.getAnchor =
     this.getSelectionAnchor = function() {
         if (this.$isEmpty)
             return this.getSelectionLead();
@@ -6236,7 +6235,7 @@ var Tokenizer = function(rules) {
                 if (rule.token.length == 1 || matchcount == 1) {
                     rule.token = rule.token[0];
                 } else if (matchcount - 1 != rule.token.length) {
-                    this.reportError("number of classes and regexp groups doesn't match", { 
+                    this.reportError("number of classes and regexp groups doesn't match", {
                         rule: rule,
                         groupCount: matchcount - 1
                     });
@@ -6789,7 +6788,7 @@ var TokenIterator = function(session, initialRow, initialColumn) {
     this.$tokenIndex = token ? token.index : -1;
 };
 
-(function() { 
+(function() {
     this.stepBackward = function() {
         this.$tokenIndex -= 1;
         
@@ -6805,7 +6804,7 @@ var TokenIterator = function(session, initialRow, initialColumn) {
         }
             
         return this.$rowTokens[this.$tokenIndex];
-    };   
+    };
     this.stepForward = function() {
         this.$tokenIndex += 1;
         var rowCount;
@@ -6823,13 +6822,13 @@ var TokenIterator = function(session, initialRow, initialColumn) {
         }
             
         return this.$rowTokens[this.$tokenIndex];
-    };      
+    };
     this.getCurrentToken = function () {
         return this.$rowTokens[this.$tokenIndex];
-    };      
+    };
     this.getCurrentTokenRow = function () {
         return this.$row;
-    };     
+    };
     this.getCurrentTokenColumn = function() {
         var rowTokens = this.$rowTokens;
         var tokenIndex = this.$tokenIndex;
@@ -6843,7 +6842,7 @@ var TokenIterator = function(session, initialRow, initialColumn) {
             column += rowTokens[tokenIndex].value.length;
         }
         
-        return column;  
+        return column;
     };
     this.getCurrentTokenPosition = function() {
         return {row: this.$row, column: this.getCurrentTokenColumn()};
@@ -7085,7 +7084,7 @@ var CstyleBehaviour = function(options) {
     this.add("string_dquotes", "insertion", function(state, action, editor, session, text) {
         var quotes = session.$mode.$quotes || defaultQuotes;
         if (text.length == 1 && quotes[text]) {
-            if (this.lineCommentStart && this.lineCommentStart.indexOf(text) != -1) 
+            if (this.lineCommentStart && this.lineCommentStart.indexOf(text) != -1)
                 return;
             initContext(editor);
             var quote = text;
@@ -7498,7 +7497,7 @@ var Mode = function() {
             }
         }
 
-        var delegations = ["toggleBlockComment", "toggleCommentLines", "getNextLineIndent", 
+        var delegations = ["toggleBlockComment", "toggleCommentLines", "getNextLineIndent",
             "checkOutdent", "autoOutdent", "transformAction", "getCompletions"];
 
         for (var i = 0; i < delegations.length; i++) {
@@ -7564,7 +7563,7 @@ var Mode = function() {
                             completionKeywords.push(ruleItr[r].regex);
                     }
                     else if (typeof ruleItr[r].token === "object") {
-                        for (var a = 0, aLength = ruleItr[r].token.length; a < aLength; a++) {    
+                        for (var a = 0, aLength = ruleItr[r].token.length; a < aLength; a++) {
                             if (/keyword|support|storage/.test(ruleItr[r].token[a])) {
                                 var rule = ruleItr[r].regex.match(/\(.+?\)/g)[a];
                                 completionKeywords.push(rule.substr(1, rule.length - 2));
@@ -7978,7 +7977,7 @@ var Document = function(textOrLines) {
             column = this.$lines[row].length;
         }
         this.insertMergedLines({row: row, column: column}, lines);
-    };    
+    };
     this.insertMergedLines = function(position, lines) {
         var start = this.clippedPos(position.row, position.column);
         var end = {
@@ -8027,7 +8026,7 @@ var Document = function(textOrLines) {
         var startRow = ( deleteFirstNewLine ? firstRow - 1                  : firstRow                    );
         var startCol = ( deleteFirstNewLine ? this.getLine(startRow).length : 0                           );
         var endRow   = ( deleteLastNewLine  ? lastRow + 1                   : lastRow                     );
-        var endCol   = ( deleteLastNewLine  ? 0                             : this.getLine(endRow).length ); 
+        var endCol   = ( deleteLastNewLine  ? 0                             : this.getLine(endRow).length );
         var range = new Range(startRow, startCol, endRow, endCol);
         var deletedLines = this.$lines.slice(firstRow, lastRow + 1);
         
@@ -8097,7 +8096,7 @@ var Document = function(textOrLines) {
     this.$splitAndapplyLargeDelta = function(delta, MAX) {
         var lines = delta.lines;
         var l = lines.length - MAX + 1;
-        var row = delta.start.row; 
+        var row = delta.start.row;
         var column = delta.start.column;
         for (var from = 0, to = 0; from < l; from = to) {
             to += MAX - 1;
@@ -8768,7 +8767,7 @@ var RangeList = function() {
                     
                 if (r.end.row < endRow
                     && (
-                        startRow < r.end.row 
+                        startRow < r.end.row
                         || startRow == r.end.row && start.column < r.end.column
                     )
                 ) {
@@ -8793,7 +8792,7 @@ var RangeList = function() {
                 
                 if (r.start.row < endRow
                     && (
-                        startRow < r.start.row 
+                        startRow < r.start.row
                         || startRow == r.start.row && start.column < r.start.column
                     )
                 ) {
@@ -9623,7 +9622,7 @@ function Folding() {
             endRow = range ? range.end.row : this.getLength();
             this.foldAll(row + 1, endRow, options.all ? 10000 : 0);
         } else if (range) {
-            if (options.all) 
+            if (options.all)
                 range.collapseChildren = 10000;
             this.addFold("...", range);
         }
@@ -10342,7 +10341,7 @@ EditSession.$uid = 0;
     this.$onChangeMode = function(mode, $isPlaceholder) {
         if (!$isPlaceholder)
             this.$modeId = mode.$id;
-        if (this.$mode === mode) 
+        if (this.$mode === mode)
             return;
 
         this.$mode = mode;
@@ -10429,7 +10428,7 @@ EditSession.$uid = 0;
     };
     this.getScreenWidth = function() {
         this.$computeWidth();
-        if (this.lineWidgets) 
+        if (this.lineWidgets)
             return Math.max(this.getLineWidgetMaxWidth(), this.screenWidth);
         return this.screenWidth;
     };
@@ -11150,7 +11149,7 @@ EditSession.$uid = 0;
     this.getRowLength = function(row) {
         if (this.lineWidgets)
             var h = this.lineWidgets[row] && this.lineWidgets[row].rowCount || 0;
-        else 
+        else
             h = 0;
         if (!this.$useWrapMode || !this.$wrapData[row]) {
             return 1 + h;
@@ -11524,7 +11523,7 @@ config.defineOptions(EditSession.prototype, "session", {
             return "off";
         },
         handlesSet: true
-    },    
+    },
     wrapMethod: {
         set: function(val) {
             val = val == "auto"
@@ -11547,7 +11546,7 @@ config.defineOptions(EditSession.prototype, "session", {
                 this.setUseWrapMode(true);
             }
         },
-        initialValue: true 
+        initialValue: true
     },
     firstLineNumber: {
         set: function() {this._signal("changeBreakpoint");},
@@ -11997,7 +11996,7 @@ MultiHashHandler.prototype = HashHandler.prototype;
     
     function getPosition(command) {
         return typeof command == "object" && command.bindKey
-            && command.bindKey.position 
+            && command.bindKey.position
             || (command.isDefault ? -100 : 0);
     }
     this._addCommandToBinding = function(keyId, command, position) {
@@ -12341,7 +12340,7 @@ exports.commands = [{
     name: "foldOther",
     description: "Fold other",
     bindKey: bindKey("Alt-0", "Command-Option-0"),
-    exec: function(editor) { 
+    exec: function(editor) {
         editor.session.foldAll();
         editor.session.unfold(editor.selection.getAllRanges());
     },
@@ -12378,14 +12377,14 @@ exports.commands = [{
         if (editor.selection.isEmpty())
             editor.selection.selectWord();
         else
-            editor.findNext(); 
+            editor.findNext();
     },
     readOnly: true
 }, {
     name: "selectOrFindPrevious",
     description: "Select or find previous",
     bindKey: bindKey("Alt-Shift-K", "Ctrl-Shift-G"),
-    exec: function(editor) { 
+    exec: function(editor) {
         if (editor.selection.isEmpty())
             editor.selection.selectWord();
         else
@@ -12816,7 +12815,7 @@ exports.commands = [{
     name: "cut_or_delete",
     description: "Cut or delete",
     bindKey: bindKey("Shift-Delete", null),
-    exec: function(editor) { 
+    exec: function(editor) {
         if (editor.selection.isEmpty()) {
             editor.remove("left");
         } else {
@@ -13740,7 +13739,7 @@ Editor.$uid = 0;
     };
     
     this.$handlePaste = function(e) {
-        if (typeof e == "string") 
+        if (typeof e == "string")
             e = {text: e};
         this._signal("paste", e);
         var text = e.text;
@@ -14616,7 +14615,7 @@ Editor.$uid = 0;
             }
         }
         else if (matchType === 'tag') {
-            if (token && token.type.indexOf('tag-name') !== -1) 
+            if (token && token.type.indexOf('tag-name') !== -1)
                 var tag = token.value;
             else
                 return;
@@ -14968,7 +14967,7 @@ config.defineOptions(Editor.prototype, "editor", {
     readOnly: {
         set: function(readOnly) {
             this.textInput.setReadOnly(readOnly);
-            this.$resetCursorStyle(); 
+            this.$resetCursorStyle();
         },
         initialValue: false
     },
@@ -15398,7 +15397,7 @@ function stringifyDelta(d) {
     return type;
 }
 function stringifyRange(r) {
-    return r.start.row + ":" + r.start.column 
+    return r.start.row + ":" + r.start.column
         + "=>" + r.end.row + ":" + r.end.column;
 }
 
@@ -15451,12 +15450,12 @@ function swapGroups(ds1, ds2) {
                     }
                     j = ds2.length;
                     i++;
-                }                
+                }
                 return [ds1, ds2];
             }
         }
     }
-    ds1.selectionBefore = ds2.selectionBefore = 
+    ds1.selectionBefore = ds2.selectionBefore =
     ds1.selectionAfter = ds2.selectionAfter = null;
     return [ds2, ds1];
 }
@@ -15530,13 +15529,13 @@ function shiftPos(pos, start, end, dir) {
 function splitDelta(c, pos) {
     var lines = c.lines;
     var end = c.end;
-    c.end = clonePos(pos);    
+    c.end = clonePos(pos);
     var rowsBefore = c.end.row - c.start.row;
     var otherLines = lines.splice(rowsBefore, lines.length);
     
     var col = rowsBefore ? pos.column : pos.column - c.start.column;
     lines.push(otherLines[0].substring(0, col));
-    otherLines[0] = otherLines[0].substr(col)   ; 
+    otherLines[0] = otherLines[0].substr(col)   ;
     var rest = {
         start: clonePos(pos),
         end: end,
@@ -15565,7 +15564,7 @@ function moveDeltasByOne(redoStack, d) {
             }
         }
         if (!deltaSet.length) {
-            redoStack.splice(j, 1); 
+            redoStack.splice(j, 1);
         }
     }
     return redoStack;
@@ -15602,7 +15601,7 @@ var Lines = function(element, canvasHeight) {
     
     this.moveContainer = function(config) {
         dom.translate(this.element, 0, -((config.firstRowScreen * config.lineHeight) % this.canvasHeight) - config.offset * this.$offsetCoefficient);
-    };    
+    };
     
     this.pageChanged = function(oldConfig, newConfig) {
         return (
@@ -15859,7 +15858,7 @@ var Gutter = function(parentEl) {
         if (this.$fixedWidth || session.$useWrapMode)
             lastLineText = session.getLength() + firstLineNumber - 1;
 
-        var gutterWidth = gutterRenderer 
+        var gutterWidth = gutterRenderer
             ? gutterRenderer.getWidth(session, lastLineText, config)
             : lastLineText.toString().length * config.characterWidth;
         
@@ -15867,7 +15866,7 @@ var Gutter = function(parentEl) {
         gutterWidth += padding.left + padding.right;
         if (gutterWidth !== this.gutterWidth && !isNaN(gutterWidth)) {
             this.gutterWidth = gutterWidth;
-            this.element.parentNode.style.width = 
+            this.element.parentNode.style.width =
             this.element.style.width = Math.ceil(this.gutterWidth) + "px";
             this._signal("changeGutterWidth", gutterWidth);
         }
@@ -16223,7 +16222,7 @@ var Marker = function(parentEl) {
         var start = range.start.row;
         var end = range.end.row;
         var row = start;
-        var prev = 0; 
+        var prev = 0;
         var curr = 0;
         var next = session.getScreenLastRowColumn(row);
         var lineRange = new Range(row, range.start.column, row, curr);
@@ -16234,7 +16233,7 @@ var Marker = function(parentEl) {
             prev = curr;
             curr = next;
             next = row + 1 < end ? session.getScreenLastRowColumn(row + 1) : row == end ? 0 : range.end.column;
-            this.drawSingleLineMarker(stringBuilder, lineRange, 
+            this.drawSingleLineMarker(stringBuilder, lineRange,
                 clazz + (row == start  ? " ace_start" : "") + " ace_br"
                     + getBorderClass(row == start || row == start + 1 && range.start.column, prev < curr, curr > next, row == end),
                 layerConfig, row == end ? 0 : 1, extraStyle);
@@ -16364,7 +16363,7 @@ var Lines = require("./lines").Lines;
 var EventEmitter = require("../lib/event_emitter").EventEmitter;
 
 var Text = function(parentEl) {
-    this.dom = dom; 
+    this.dom = dom;
     this.element = this.dom.createElement("div");
     this.element.className = "ace_layer ace_text-layer";
     parentEl.appendChild(this.element);
@@ -16845,7 +16844,7 @@ var Text = function(parentEl) {
         overflowEl.className = "ace_inline_button ace_keyword ace_toggle_wrap";
         overflowEl.textContent = hide ? "<hide>" : "<click to see more...>";
         
-        parent.appendChild(overflowEl);        
+        parent.appendChild(overflowEl);
     };
     this.$renderLine = function(parent, row, foldLine) {
         if (!foldLine && foldLine != false)
@@ -17226,7 +17225,7 @@ var VScrollBar = function(parent, renderer) {
     ScrollBar.call(this, parent);
     this.scrollTop = 0;
     this.scrollHeight = 0;
-    renderer.$scrollbarWidth = 
+    renderer.$scrollbarWidth =
     this.width = dom.scrollbarWidth(parent.ownerDocument);
     this.inner.style.width =
     this.element.style.width = (this.width || 15) + 5 + "px";
@@ -17255,7 +17254,7 @@ oop.inherits(VScrollBar, ScrollBar);
     this.setHeight = function(height) {
         this.element.style.height = height + "px";
     };
-    this.setInnerHeight = 
+    this.setInnerHeight =
     this.setScrollHeight = function(height) {
         this.scrollHeight = height;
         if (height > MAX_SCROLL_H) {
@@ -18108,7 +18107,7 @@ var VirtualRenderer = function(container, theme) {
     this.$horizScroll = false;
     this.$vScroll = false;
 
-    this.scrollBar = 
+    this.scrollBar =
     this.scrollBarV = new VScrollBar(this.container, this);
     this.scrollBarH = new HScrollBar(this.container, this);
     this.scrollBarV.addEventListener("scroll", function(e) {
@@ -18640,8 +18639,8 @@ var VirtualRenderer = function(container, theme) {
         }
         if ((!this.session || !this.container.offsetWidth || this.$frozen) || (!changes && !force)) {
             this.$changes |= changes;
-            return; 
-        } 
+            return;
+        }
         if (this.$size.$dirty) {
             this.$changes |= changes;
             return this.onResize(true);
@@ -18761,7 +18760,7 @@ var VirtualRenderer = function(container, theme) {
     this.$autosize = function() {
         var height = this.session.getScreenLength() * this.lineHeight;
         var maxHeight = this.$maxLines * this.lineHeight;
-        var desiredHeight = Math.min(maxHeight, 
+        var desiredHeight = Math.min(maxHeight,
             Math.max((this.$minLines || 1) * this.lineHeight, height)
         ) + this.scrollMargin.v + (this.$extraHeight || 0);
         if (this.$horizScroll)
@@ -18821,7 +18820,7 @@ var VirtualRenderer = function(container, theme) {
         this.session.setScrollTop(Math.max(-sm.top,
             Math.min(this.scrollTop, maxHeight - size.scrollerHeight + sm.bottom)));
 
-        this.session.setScrollLeft(Math.max(-sm.left, Math.min(this.scrollLeft, 
+        this.session.setScrollLeft(Math.max(-sm.left, Math.min(this.scrollLeft,
             longestLine + 2 * this.$padding - size.scrollerWidth + sm.right)));
         
         var vScroll = !hideScrollbars && (this.$vScrollBarAlwaysVisible ||
@@ -18854,7 +18853,7 @@ var VirtualRenderer = function(container, theme) {
         offset = this.scrollTop - firstRowScreen * lineHeight;
 
         var changes = 0;
-        if (this.layerConfig.width != longestLine || hScrollChanged) 
+        if (this.layerConfig.width != longestLine || hScrollChanged)
             changes = this.CHANGE_H_SCROLL;
         if (hScrollChanged || vScrollChanged) {
             changes |= this.$updateCachedSize(true, this.gutterWidth, size.width, size.height);
@@ -19186,7 +19185,7 @@ var VirtualRenderer = function(container, theme) {
             this.$moveTextAreaToCursor();
             this.$cursorLayer.element.style.display = "none";
         }
-        else {            
+        else {
             composition.markerId = this.session.addMarker(composition.markerRange, "ace_composition_marker", "text");
         }
     };
@@ -19260,7 +19259,7 @@ var VirtualRenderer = function(container, theme) {
             if (_self.theme)
                 dom.removeCssClass(_self.container, _self.theme.cssClass);
 
-            var padding = "padding" in module ? module.padding 
+            var padding = "padding" in module ? module.padding
                 : "padding" in (_self.theme || {}) ? 4 : _self.$padding;
             if (_self.$padding && padding != _self.$padding)
                 _self.setPadding(padding);
@@ -19332,7 +19331,7 @@ config.defineOptions(VirtualRenderer.prototype, "renderer", {
             this.$updatePrintMargin();
         },
         get: function() {
-            return this.$showPrintMargin && this.$printMarginColumn; 
+            return this.$showPrintMargin && this.$printMarginColumn;
         }
     },
     showGutter: {
@@ -19824,7 +19823,7 @@ var PlaceHolder = function(session, length, pos, others, mainClass, othersClass)
             this.hideOtherMarkers();
             this._emit("cursorLeave", event);
         }
-    };    
+    };
     this.detach = function() {
         this.session.removeMarker(this.pos && this.pos.markerId);
         this.hideOtherMarkers();
@@ -19957,7 +19956,7 @@ function onMouseDown(e) {
 
     } else if (selectionMode == "block") {
         e.stop();
-        editor.inVirtualSelectionMode = true;        
+        editor.inVirtualSelectionMode = true;
         var initialRange;
         var rectSel = [];
         var blockSelect = function() {
@@ -19986,7 +19985,7 @@ function onMouseDown(e) {
         }
         
         if (shift)
-            screenAnchor = session.documentToScreenPosition(selection.lead);            
+            screenAnchor = session.documentToScreenPosition(selection.lead);
         else
             selection.moveToPosition(pos);
         
@@ -20468,7 +20467,7 @@ var Editor = require("./editor").Editor;
             result = command.multiSelectAction(editor, e.args || {});
         }
         return result;
-    }; 
+    };
     this.forEachSelection = function(cmd, args, options) {
         if (this.inVirtualSelectionMode)
             return;
@@ -20550,7 +20549,7 @@ var Editor = require("./editor").Editor;
             var pos = anchor == this.multiSelect.anchor
                 ? range.cursor == range.start ? range.end : range.start
                 : range.cursor;
-            if (pos.row != anchor.row 
+            if (pos.row != anchor.row
                 || this.session.$clipPositionToDocument(pos.row, pos.column).column != anchor.column)
                 this.multiSelect.toSingleRange(this.multiSelect.toOrientedRange());
             else
@@ -20565,7 +20564,7 @@ var Editor = require("./editor").Editor;
                 ? this.selection.getWordRange()
                 : this.selection.getRange();
             options.needle = this.session.getTextRange(range);
-        }    
+        }
         this.$search.set(options);
         
         var ranges = this.$search.findAll(this.session);
@@ -21176,7 +21175,7 @@ function LineWidgets(session) {
         var h;
         if (this.lineWidgets)
             h = this.lineWidgets[row] && this.lineWidgets[row].rowCount || 0;
-        else 
+        else
             h = 0;
         if (!this.$useWrapMode || !this.$wrapData[row]) {
             return 1 + h;
@@ -21192,7 +21191,7 @@ function LineWidgets(session) {
                 screenRows += w.rowCount;
         });
         return screenRows;
-    };    
+    };
     
     this.$onChangeEditor = function(e) {
         this.attach(e.editor);
@@ -21596,7 +21595,7 @@ exports.showErrorMarker = function(editor, dir) {
     editor.selection.moveToPosition(pos);
     
     var w = {
-        row: pos.row, 
+        row: pos.row,
         fixedWidth: true,
         coverGutter: true,
         el: dom.createElement("div"),
