@@ -122,6 +122,7 @@ const THOR = (function() {
     require('require/aww.js'),
     require('require/w3-4.10.css'),
     
+    require('js/git.js'),
     require('js/idb.js'),
     require('js/renderer.js'),
     require('js/file-manager.js'),
