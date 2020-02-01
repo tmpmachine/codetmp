@@ -44,7 +44,7 @@
           height: 100%;
         	position: relative;
         	z-index: 1;
-        	background: #fff;
+        	background: #272822;
         	-webkit-transition: -webkit-transform 0.5s;
         	transition: transform 0.5s;
         }

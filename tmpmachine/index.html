@@ -50,13 +50,13 @@
   <meta content='/images/site.png' property='og:image'/>
   
 </head>
-<body>
+<body class="bg5">
   <template>
     <img src='/images/192.png'/>
   </template>
   
   <style id="preload-style">
-    body { color:#fff; }
+    body { color:transparent; }
   </style>
 
   <template id="plate-homepage">
@@ -120,9 +120,9 @@
       ]
     ]
   
-    [ +left +hide-large +hide-medium {pos:relative;h:100%;ov-x:hidden;ov-y:auto;} +black +animate-left @sidebar +card-4
+    [ +left +hide-large +hide-medium {pos:relative;h:100%;ov-x:hidden;ov-y:auto;} +animate-left @sidebar +card-4
       <!--plate-sidebar-->
-      [ +black {pos:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;}]
+      [ .bg5 {pos:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;}]
     ]
     [x {h:100%;pos:relative;} .scroll1 .anibar-main-editor-pusher .anibar--blocker
       <!--plate-interact-menu-->
@@ -245,6 +245,7 @@
           
           [ @editor-wrapper +padding spellcheck="false" {pos:absolute;w:100%;h:100%;} .menu-overflow-content
             [ @editor {pos:absolute;top:0;bottom:0;left:0;right:0;}]
+            [ @blocker-editor .bg6 {pos:absolute;t:0;l:0;r:0;b:0;z-index:6;}]
           ]
         ]
       ]
@@ -372,18 +373,18 @@
       [M "extension" .i-btn-in]
       [l "Templates" .l-btn-in]
     ]
-    [ +padding-small +center +tiny +black @syncing]
+    [ +padding-small +center +tiny @syncing]
   </template>
   <template id="plate-interact-menu">
-    [ @in-home .in-window .in-content .active
-      [ {pos:absolute;t:0;l:0;h:100%;ov:auto;z-index:2;w:100%;} {bg:#eee;}
+    [ @in-home .in-window .in-content .bg1 .col1 .active
+      [ {pos:absolute;t:0;l:0;h:100%;ov:auto;z-index:2;w:100%;}
         [ {h:34px;} +hide-small]
         <!--plate-homepage-->
       ]
     ]
     [ @in-home-block .in-window .in-block {z-index:0;}]
     
-    [ @in-assets .in-window {bg:none;w:200px;} .in-content
+    [ @in-assets .in-window {bg:none;w:200px;} .in-content .bg1 .col1
       [ {pos:relative;h:100%;}
         [ .menu-overflow-header
           <!--plate-ninja-space-->
@@ -395,9 +396,9 @@
     ]
     [ @in-assets-block .in-window .in-block]
     
-    [ @in-my-files .in-window .in-content {overflow:hidden;}
+    [ @in-my-files .in-window .in-content .bg1 .col1 {overflow:hidden;}
       [ {h:34px;} +hide-small]
-      [ +padding +blue .menu-overflow-header
+      [ +padding .menu-overflow-header .border-bottom-dark
         [ +left
           [h5 {fw:bold;} "My Files" .no-select]
         ]
@@ -416,7 +417,7 @@
       ]
       [ {h:100%;} .menu-overflow-content
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
-          [ +padding-small +right-align +tiny .no-select
+          [ +padding-small +right-align +tiny .no-select {mt:1em}
             [c +half +center @action-info "&nbsp;"]
             [c +half "Developer Build v1.067 - 18 Jan 2020" +opacity]
           ]
@@ -428,9 +429,9 @@
     [ @in-my-files-block .in-window .in-block]
     
     
-    [ @in-trash .in-window .in-content {overflow:hidden;}
+    [ @in-trash .in-window .in-content .bg1 .col1 {overflow:hidden;}
       [ {h:34px;} +hide-small]
-      [ +padding +blue .menu-overflow-header
+      [ +padding .menu-overflow-header  .border-bottom-dark
         [ +left .no-select
           <h5><b>Trash [s +tiny "(Preview only)"] [s +black +round +tiny "Beta" {p:0 2px 2px ;} ]</b></h5>
         ]
@@ -444,9 +445,9 @@
     [ @in-trash-block .in-window .in-block]
     
     
-    [ @in-settings .in-window .in-content {ov:hidden;}
+    [ @in-settings .in-window .in-content .bg1 .col1 {ov:hidden;}
       [ {h:34px;} +hide-small]
-      [ +blue +padding .menu-overflow-header .no-select
+      [ +padding .menu-overflow-header .no-select .border-bottom-dark
         <h5><b>Sync with Google Drive</b></h5>
       ]
       [ .menu-overflow-content {h:100%}
@@ -641,7 +642,7 @@
     ]
   </template>
   <template id="tmp-folder-list">
-    [ .folder-list onclick='openFolderConfirm(this)' title="__name__" data-type="folder" data='__fid__' +left +left-align {bg:#fff;width:200px;m:0.1em;p:0;} +button +border-bottom
+    [ .folder-list onclick='openFolderConfirm(this)' title="__name__" data-type="folder" data='__fid__' +left +left-align {m:0.1em;p:0;} .pointer .no-select .folders .bg2 .hover-bg3-light
       [ +padding
         [c {w:24px;}
           [M +medium {p:2px 0;} "folder" {col:__defaultBg__!;} +left]
@@ -673,7 +674,7 @@
     ]
   </template>
   <template id="tmp-list-folder-trash">
-    [ .folder-list +left +left-align {bg:#fff;width:200px;m:0.1em;p:0;} +button +border-bottom
+    [ .folder-list +left +left-align {m:0.1em;p:0;} .pointer .no-select .folders .bg2 .hover-bg3-light
       [ +padding
         [c {w:24px;}
           [M +medium {p:2px 0;} "folder" {col:__defaultBg__!;} +left]

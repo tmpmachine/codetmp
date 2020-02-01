@@ -1065,8 +1065,7 @@ function renderAndDeployLocked() {
   
   function keyEscape() {
     if (selectedFile.length > 0) {
-      lastClickEl.classList.toggle('w3-light-blue', false);
-      lastClickEl.classList.toggle('w3-hover-light-blue', false);
+      o.classList.toggle(lastClickEl, ['bg2','bg3'], true);
       doubleClick = false;
       selectedFile.length = 0;
     } else if ($('#btn-menu-my-files').classList.contains('active')) {

@@ -1,7 +1,9 @@
 THOR.plugins.load('loadEditor', function(compatibilityMode) {
     
   let editor = ace.edit("editor");
-  editor.setTheme("ace/theme/monokai");
+  editor.setTheme("ace/theme/monokai", () => {
+    $('#blocker-editor').style.display = 'none';
+  });
   editor.session.setMode("ace/mode/html");
   editor.session.setUseWrapMode(true);
   editor.session.setTabSize(2);
@@ -49,6 +51,5 @@ THOR.plugins.load('loadEditor', function(compatibilityMode) {
   editor.focus();
   editor.moveCursorTo(0,0);
   $('#editor').env.editor.commands.removeCommand('fold');
-
   $('#editor').addEventListener('keydown', saveListener);
 });

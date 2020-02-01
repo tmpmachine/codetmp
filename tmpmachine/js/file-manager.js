@@ -309,8 +309,7 @@ function openFolderConfirm(el) {
     selectedFile.splice(0, 1);
     selectedFile.push(el);
     
-    lastClickEl.classList.toggle('w3-light-blue', false);
-    lastClickEl.classList.toggle('w3-hover-light-blue', false);
+    o.classList.toggle(lastClickEl, ['bg2','bg3'], true);
     doubleClick = false;
   }
   
@@ -319,8 +318,7 @@ function openFolderConfirm(el) {
     
     lastClickEl = el;
     doubleClick = true;
-    el.classList.toggle('w3-light-blue',true);
-    el.classList.toggle('w3-hover-light-blue',true);
+    o.classList.toggle(lastClickEl, ['bg2','bg3'], false);
     setTimeout(function(){
       doubleClick = false;
     }, 500);
@@ -332,8 +330,7 @@ function openFolderConfirm(el) {
     doubleClick = false;
     let folderId = Number(el.getAttribute('data'))
     openFolder(folderId);
-    el.classList.toggle('w3-light-blue', false);
-    el.classList.toggle('w3-hover-light-blue', false);
+    o.classList.toggle(lastClickEl, ['bg2','bg3'], true);
   }
 }
 
@@ -347,16 +344,14 @@ function openFileConfirm(el) {
     selectedFile.splice(0, 1);
     selectedFile.push(el);
     
-    lastClickEl.classList.toggle('w3-light-blue',false)
-    lastClickEl.classList.toggle('w3-hover-light-blue',false)
+    o.classList.toggle(lastClickEl, ['bg2','bg3'], true);
     doubleClick = false;
   }
   
   if (!doubleClick) {
     lastClickEl = el;
     doubleClick = true;
-    el.classList.toggle('w3-light-blue',true)
-    el.classList.toggle('w3-hover-light-blue',true)
+    o.classList.toggle(lastClickEl, ['bg2','bg3'], false);
     setTimeout(function(){
       doubleClick = false;
     },500)
@@ -364,8 +359,7 @@ function openFileConfirm(el) {
     selectedFile.splice(0, 1);
     doubleClick = false;
     openFile(el.getAttribute('data'));
-    el.classList.toggle('w3-light-blue',false)
-    el.classList.toggle('w3-hover-light-blue',false)
+    o.classList.toggle(lastClickEl, ['bg2','bg3'], true);
   }
 }
 
