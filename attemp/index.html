@@ -4,7 +4,6 @@
   <title>Attemp</title>
   <link type="image/x-icon" rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII="/>
   <meta charset="utf-8"/>
-  <script src="jshaki.js"></script>
 </head>
 <body>
   
@@ -84,9 +83,7 @@
           src512 = canvas.toDataURL();
         }
         
-        // let appId = arcid;
-        // if (appId === archid)
-          appId = '123';
+        let appId = '123';
         
         let blob = new Blob([`{"name": "${appData.name}","short_name": "${appData.name}", "icons": [{ "src": "${src512}", "type": "image/png", "sizes": "512x512" }, { "src": "${src192}", "type": "image/png", "sizes": "192x192" }], "scope": "https://attemp.web.app/apps/${appId}", "start_url": "https://attemp.web.app/apps/${appId}", "display": "standalone", "background_color": "#596d92", "theme_color": "#3f5173" }`], {type: 'application/json'});
   
@@ -96,25 +93,17 @@
         return link;
       }
       
-      
-      
-      
       document.head.appendChild(loadManifest());
       window.addEventListener('beforeinstallprompt', handleInstall);
-      
-      
-      
-      
       
       window.addEventListener('message', thorReceiver, false);
       tota__ = [0, 0]
       function thorRunJS(js) {
-        for (let j of js)
-        {
+        for (let j of js) {
           let s = document.createElement('script');
-          tota__[0] += (j.substring(8,j.length-9).length)
+          tota__[0] += (j.substring(8, j.length-9).length)
           tota__[1] += s.textContent.length
-          s.textContent = j.substring(8,j.length-9);
+          s.textContent = j.substring(8, j.length-9);
           document.body.appendChild(s);
         }
       }
@@ -122,11 +111,11 @@
       function thorGetJS(xml) {
         let scripts = xml.match(/<script>(.|\n)*?<\/script>/g);
         
-        if (scripts === null) return {xml:xml,js:[]};
+        if (scripts === null) return {xml:xml, js:[]};
         for (let script of scripts)
-          xml = xml.replace(script,'');
+          xml = xml.replace(script, '');
         
-        return {xml:xml,js:scripts}
+        return {xml:xml, js:scripts}
       }
       
       function thorRefreshIcon() {

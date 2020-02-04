@@ -4,7 +4,7 @@ self.addEventListener('message', function(e) {
 });
 
 
-let cacheVersion = '1.0681';
+let cacheVersion = '1.0682';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('install', function(event) {
@@ -44,6 +44,7 @@ self.addEventListener('install', function(event) {
     '/require/aww.js',
     '/require/w3-4.10.css',
 
+    '/js/git.js',
     '/js/engine.js',
     '/js/template.js',
     '/js/idb.js',
