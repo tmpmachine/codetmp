@@ -512,7 +512,6 @@ function fileClose(fid) {
       activeFile.content = $('#editor').env.editor.getValue();
       activeFile.modifiedTime = modifiedTime;
       activeFile.description = getDeploySetting();
-      
       handleSync({
         fid: activeFile.fid,
         action: 'update',
@@ -527,6 +526,7 @@ function fileClose(fid) {
     }
   }
   
+  window.getDeploySetting = getDeploySetting;
   window.fileSave = fileSave;
   
 })();

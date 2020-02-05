@@ -93,6 +93,7 @@ const ui = {
         content: $('#editor').env.editor.getValue(),
         loaded: true,
         parentId: activeFolder,
+        description: getDeploySetting()
       };
       
       let file = fm.INSERT.file(data);
