@@ -165,7 +165,7 @@ let previewWindow = null;
         else
           content = data.content;
         
-        if (isMinified)
+        if ($('#chk-deploy-minified').checked && isMinified)
           content = content.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '').replace(/\n|\t+/g,'');
         else if (isFile)
           content = content.replace(/</g,'&lt;').replace(/\[/g,'&lsqb;').replace(/]/g,'&rsqb;');
