@@ -309,7 +309,7 @@ function openFolderConfirm(el) {
     selectedFile.splice(0, 1);
     selectedFile.push(el);
     
-    o.classList.toggle(lastClickEl, ['bg2','bg3'], true);
+    toggleFileHighlight(false);
     doubleClick = false;
   }
   
@@ -318,7 +318,7 @@ function openFolderConfirm(el) {
     
     lastClickEl = el;
     doubleClick = true;
-    o.classList.toggle(lastClickEl, ['bg2','bg3'], false);
+    toggleFileHighlight(true);
     setTimeout(function(){
       doubleClick = false;
     }, 500);
@@ -330,7 +330,7 @@ function openFolderConfirm(el) {
     doubleClick = false;
     let folderId = Number(el.getAttribute('data'))
     openFolder(folderId);
-    o.classList.toggle(lastClickEl, ['bg2','bg3'], true);
+    toggleFileHighlight(false);
   }
 }
 
@@ -344,14 +344,14 @@ function openFileConfirm(el) {
     selectedFile.splice(0, 1);
     selectedFile.push(el);
     
-    o.classList.toggle(lastClickEl, ['bg2','bg3'], true);
+    toggleFileHighlight(false);
     doubleClick = false;
   }
   
   if (!doubleClick) {
     lastClickEl = el;
     doubleClick = true;
-    o.classList.toggle(lastClickEl, ['bg2','bg3'], false);
+    toggleFileHighlight(true);
     setTimeout(function(){
       doubleClick = false;
     },500)
@@ -359,7 +359,7 @@ function openFileConfirm(el) {
     selectedFile.splice(0, 1);
     doubleClick = false;
     openFile(el.getAttribute('data'));
-    o.classList.toggle(lastClickEl, ['bg2','bg3'], true);
+    toggleFileHighlight(false);
   }
 }
 

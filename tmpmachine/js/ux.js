@@ -1066,7 +1066,7 @@ function renderAndDeployLocked() {
   
   function keyEscape() {
     if (selectedFile.length > 0) {
-      o.classList.toggle(lastClickEl, ['bg2','bg3'], true);
+      toggleFileHighlight(false);
       doubleClick = false;
       selectedFile.length = 0;
     } else if ($('#btn-menu-my-files').classList.contains('active')) {
@@ -1351,4 +1351,11 @@ function lockRender(self, fid, name) {
   } else {
     locked = -1;
   }
+}
+
+function toggleFileHighlight(isActive) {
+  if (lastClickEl.dataset.type == 'file')
+    o.classList.toggle(lastClickEl, 'bg3', isActive);
+  else
+    o.classList.toggle(lastClickEl, ['bg3','bg2'], isActive);
 }

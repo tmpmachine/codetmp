@@ -419,7 +419,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny .no-select {mt:1em}
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build v1.069 - 5 Feb 2020" +opacity]
+            [c +half "Developer Build v1.07 - 6 Feb 2020" +opacity]
           ]
           [ @breadcrumbs .no-select +small +padding]
           [ @file-list +padding]
@@ -622,7 +622,7 @@
     ]
   </template>
   <template id="tmp-file-list">
-    [ .file-list +left +left-align {width:200px;m:0.1em;bg:#ddd;p:0;pos:relative;} +button
+    [ .file-list +left +left-align {width:200px;m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
       [ {pos:absolute;z:8177;t:0;l:0;}
         [M "lock" .__clsLock__ .btn-lock @btn-lock__fid__ onclick='lockRender(this, __fid__, "__name__")' +button {col:#aaa;} +hover-none]
       ]
@@ -633,11 +633,11 @@
         [ +center +padding-32
           [M +xxlarge "insert_drive_file" {col:#777;}]
         ]
-        [ +white +padding
+        [ +padding .bg2
           [c {w:24px;}
             [M +medium {p:2px 0;} "insert_drive_file" {col:__defaultBg__!;} +left]
           ]
-          [x +small +left-align +white +padding {fw:bold;pos:relative;}
+          [x +small +left-align +padding {fw:bold;pos:relative;}
             [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
               __name__
             ]
