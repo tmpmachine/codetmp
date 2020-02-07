@@ -600,7 +600,11 @@ function parseDescriptionOld(txt) {
   }
   
   function wrapInPre(HTML) {
-    return '<pre>' + HTML.replace(/<pre>/g,'<xpre>').replace(/<\/pre>/g,'</xpre>') + '</pre>';
+    HTML = HTML.replace(/<\/pre>/g,'</xpre>');
+    let match = HTML.match(/<pre.*?>/g);
+    for (let pre of match)
+      HTML = HTML.replace(pre, pre.replace('<pre', '<xpre'));
+    return '<pre>' + HTML + '</pre>';
   }
 
   function deploy() {
