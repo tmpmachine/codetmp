@@ -317,21 +317,18 @@
       [ .btn-material .no-select menu="in-home" @btn-home
         [M "home" .i-btn-in]
         [l "Home" .l-btn-in]
-        [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
       ]
     ]
     [ {pos:relative;z-index:0;}
       [ .btn-material .no-select @btn-menu-save
         [M "save" .i-btn-in]
         [l "Save" .l-btn-in]
-        [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
       ]
     ]
     [ {pos:relative;z-index:0;}
       [ .btn-material .no-select @btn-menu-preview
         [M "play_arrow" .i-btn-in]
         [l "Preview" .l-btn-in]
-        [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
       ]
     ]
     
@@ -339,14 +336,12 @@
       [ .btn-material .no-select menu="in-info" @btn-menu-info +animate-left
         [M "info" .i-btn-in]
         [l "File Info" .l-btn-in]
-        [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
       ]
     ]
     [ {pos:relative;z-index:0;} +hide @btn-assets +animate-left {display:none;}
       [ .btn-material .no-select menu="in-assets"
         [M "web_asset" .i-btn-in]
         [l "Assets" .l-btn-in]
-        [ {pos:absolute;height:100%;width:100%;top:0;left:0;z-index:-2;} +dark-grey]
       ]
     ]
     [ .btn-material .no-select menu="in-my-files" @btn-menu-my-files
@@ -621,6 +616,7 @@
       __title__
     ]
   </template>
+  
   <template id="tmp-file-list">
     [ .file-list +left +left-align {width:200px;m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
       [ {pos:absolute;z:8177;t:0;l:0;}
@@ -646,11 +642,14 @@
       ]
     ]
   </template>
-  <template id="tmp-folder-list">
-    [ .folder-list onclick='openFolderConfirm(this)' title="__name__" data-type="folder" data='__fid__' +left +left-align {m:0.1em;p:0;} .pointer .no-select .folders .bg2 .hover-bg3-light
-      [ +padding
+  <template id="tmp-list-file-trash">
+    [ .file-list +left +left-align {width:200px;m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
+      [ +center +padding-32
+        [M +xxlarge "insert_drive_file" {col:#777;}]
+      ]
+      [ .bg2 +padding
         [c {w:24px;}
-          [M +medium {p:2px 0;} "folder" {col:__defaultBg__!;} +left]
+          [M +medium {p:2px 0;} "insert_drive_file" {col:__defaultBg__!;} +left]
         ]
         [x +small +left-align +padding {fw:bold;pos:relative;}
           [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
@@ -661,16 +660,13 @@
     ]
   </template>
   
-  <template id="tmp-list-file-trash">
-    [ .file-list +left +left-align {width:200px;m:0.1em;bg:#ddd;p:0;pos:relative;} +button
-      [ +center +padding-32
-        [M +xxlarge "insert_drive_file" {col:#777;}]
-      ]
-      [ +white +padding
+  <template id="tmp-folder-list">
+    [ .folder-list onclick='openFolderConfirm(this)' title="__name__" data-type="folder" data='__fid__' +left +left-align {m:0.1em;p:0;} .pointer .no-select .folders .bg2 .hover-bg3-light
+      [ +padding
         [c {w:24px;}
-          [M +medium {p:2px 0;} "insert_drive_file" {col:__defaultBg__!;} +left]
+          [M +medium {p:2px 0;} "folder" {col:__defaultBg__!;} +left]
         ]
-        [x +small +left-align +white +padding {fw:bold;pos:relative;}
+        [x +small +left-align +padding {fw:bold;pos:relative;}
           [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
             __name__
           ]
@@ -692,6 +688,7 @@
       ]
     ]
   </template>
+  
   <template id="tmp-file-tab">
     [ +left {w:180px;bg:#101113;pos:relative;z:1;} .file-tab data-title="__name__"
       [
