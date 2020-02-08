@@ -602,8 +602,10 @@ function parseDescriptionOld(txt) {
   function wrapInPre(HTML) {
     HTML = HTML.replace(/<\/pre>/g,'</xpre>');
     let match = HTML.match(/<pre.*?>/g);
-    for (let pre of match)
-      HTML = HTML.replace(pre, pre.replace('<pre', '<xpre'));
+    if (match) {
+      for (let pre of match)
+        HTML = HTML.replace(pre, pre.replace('<pre', '<xpre'));
+    }
     return '<pre>' + HTML + '</pre>';
   }
 
