@@ -141,6 +141,7 @@ let previewWindow = null;
       let files = odin.filterData(parentId, fs.data.files, 'parentId');
       let name = src.replace(/.*?\//g,'');
       let data = odin.dataOf(name, files, 'name');
+      L(relativeParent,src)
       
       if (data === undefined) {
         body = body.replace(match[0], '<b style="font-size:0.9em;">THOR unexpected: '+src+' not found.</b><br/>');

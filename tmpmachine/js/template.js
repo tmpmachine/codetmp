@@ -1,14 +1,17 @@
 var editorTemplate = [
-  {id: 0, pos: [-3, 1], title: 'HTML', snippet: '<!DOCTYPE html>\n<html>\n<head>\n\n<\/head>\n<body>\n\t\n\t\n\t\n<\/body>\n<\/html>'},
-  {id: 1, pos: [-1, 1], title: 'style', snippet: '<style>\n\t\n<\/style>'},
-  {id: 2, pos: [-1, 1], title: 'script', snippet: '<script>\n\t\n<\/script>'},
-  {id: 3, pos: [-2, 14], title: 'template', snippet: '<template id="">\n\t\n<\/template>'},
-  {id: 4, pos: [0, 19], title: 'in template', snippet: '<template include=""><\/template>'},
-  {id: 5, pos: [0, 17], title: 'in script', snippet: '<script include=""><\/script>'},
-  {id: 6, pos: [0, 15], title: 'in link', snippet: '<link include=""/>'},
-  {id: 7, pos: [1, 0], title: 'meta viewport', snippet: '<meta name="viewport" content="width=device-width"/>\n'},
-  {id: 8, pos: [1, 0], title: 'charset', snippet: '<meta charset="utf-8"/>\n'},
+  {pos: [-3, 1], title: 'HTML', snippet: '<!DOCTYPE html>\n<html>\n<head>\n\n<\/head>\n<body>\n\t\n\t\n\t\n<\/body>\n<\/html>'},
+  {pos: [-1, 1], title: 'style', snippet: '<style>\n\t\n<\/style>'},
+  {pos: [-1, 1], title: 'script', snippet: '<script>\n\t\n<\/script>'},
+  {pos: [-2, 14], title: 'template', snippet: '<template id="">\n\t\n<\/template>'},
+  {pos: [0, 19], title: 'in template', snippet: '<template include=""><\/template>'},
+  {pos: [0, 17], title: 'in script', snippet: '<script include=""><\/script>'},
+  {pos: [0, 15], title: 'in link', snippet: '<link include=""/>'},
+  {pos: [1, 0], title: 'meta viewport', snippet: '<meta name="viewport" content="width=device-width"/>\n'},
+  {pos: [1, 0], title: 'charset', snippet: '<meta charset="utf-8"/>\n'},
 ];
+
+for (let i=0; i<editorTemplate.length; i++)
+  editorTemplate[i].index = i;
 
 function handlePostLoad(response) {
   
@@ -53,18 +56,6 @@ var wgSearch = {
   hints: [],
   pageId: '',
   keywords: [],
-  songIdx: function(id) {
-    for (var i=0,found=false; i<editorTemplate.length; i++)
-    {
-      var s = editorTemplate[i];
-      if (s.id == id)
-      {
-          found = true;
-          break;
-      }
-    }
-    return found ? i : -1;
-  },
   match: function(value) {
     if (value.trim().length < 2) return [];
   
@@ -76,7 +67,6 @@ var wgSearch = {
       if (match > 10) break;
       titleOri = editorTemplate[i].title;
       title = titleOri.replace(/-|,|'/g,'');
-      href = editorTemplate[i].href;
       matchIdx = title.toLowerCase().indexOf(value.toLowerCase());
       if (matchIdx >= 0)
       {
@@ -88,12 +78,12 @@ var wgSearch = {
         
         if (matchIdx === 0)
         {
-            data.push({id:editorTemplate[i].id,ori:titleOri.replace(/'/g,'!!!'),title:title,href:href});
+            data.push({index:editorTemplate[i].index,ori:titleOri.replace(/'/g,'!!!'),title:title});
             match++;
         }
         else
         {
-            extraMatch.push({id:editorTemplate[i].id,ori:titleOri.replace(/'/g,'!!!'),title:title,href:href});
+            extraMatch.push({index:editorTemplate[i].index,ori:titleOri.replace(/'/g,'!!!'),title:title});
             xmatch++;
         }
       }
@@ -172,14 +162,11 @@ var wgSearch = {
   },
   displayResult: function(data) {
     this.find.idx = -1;
-    var local = window.location.origin.indexOf('file') >= 0;
     
     for (var i=0,d,html=''; i<data.length; i++)
     {
       d = Object.assign({},data[i]);
-      d.index = i;
-      if (local) d.href = '?postID='+d.id;
-      
+
       if (i == data.length-1)
         html += o.creps('tmp-hints-last',d);
       else
@@ -239,8 +226,8 @@ function somefun(self, bypass) {
   }
 }
 
-function insertTemplate(id) {
-  let data = odin.dataOf(id, editorTemplate, 'id');
+function insertTemplate(index) {
+  let data = odin.dataOf(index, editorTemplate, 'index');
   let curCol = $('#editor').env.editor.getCursorPosition().column
   $('#editor').env.editor.insert(data.snippet);
   $('#editor').env.editor.moveCursorToPosition({row:$('#editor').env.editor.getCursorPosition().row+data.pos[0], column: curCol+data.pos[1]});

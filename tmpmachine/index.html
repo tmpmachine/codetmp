@@ -297,7 +297,7 @@
   <template id="tmp-hints">
     [ +white
       <div onmouseover='wgSearch.selectHints(__index__)'>
-        [ onclick='insertTemplate(__id__)' .search-hints {pos:relative;}
+        [ onclick="insertTemplate(__index__)" .search-hints {pos:relative;}
           [ +padding +block "__title__"]
         ]
       </div>
@@ -306,7 +306,7 @@
   <template id="tmp-hints-last">
     [ {rad:0 0 4px 4px;}  +white {ov:hidden;}
       <div onmouseover='wgSearch.selectHints(__index__)'>
-        [ onclick='insertTemplate(__id__)' .search-hints .last {pos:relative;}
+        [ onclick="insertTemplate(__index__)" .search-hints .last {pos:relative;}
           [ +padding +block "__title__"]
         ]
       </div>
