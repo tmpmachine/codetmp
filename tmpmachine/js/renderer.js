@@ -8,38 +8,35 @@ let previewWindow = null;
   let loadingStatus = 0;
   let waitRender = null;
   
-  function getDirectory(source, parentId) {
+  function getDirectory(source, parentId, path) {
     
     while (source.match('//'))
       source = source.replace('//','/');
     
     let dir = source.split('/');
-    let currentFolder;
+    let folder;
     
     while (dir.length > 1) {
       
       if (dir[0] === '..' || dir[0] === '.'  || dir[0] === '') {
         
-        currentFolder = odin.dataOf(parentId, fs.data.folders, 'fid');
-        if (currentFolder === undefined) {
-          
+        folder = odin.dataOf(parentId, fs.data.folders, 'fid');
+        if (folder === undefined) {
           acFold = -2;
           break;
         }
-        
         dir.splice(0, 1);
-        parentId = currentFolder.parentId;
+        path.pop();
+        parentId = folder.parentId;
       } else {
         
         let folders = odin.filterData(parentId, fs.data.folders, 'parentId');
-        
-        currentFolder = odin.dataOf(dir[0], folders, 'name');
-        if (currentFolder) {
-          
-          parentId = currentFolder.fid;
+        folder = odin.dataOf(dir[0], folders, 'name');
+        if (folder) {
+          parentId = folder.fid;
+          path.push(folder.name);
           dir.splice(0, 1);
         } else {
-          
           parentId = -2;
           break;
         }
@@ -53,8 +50,8 @@ let previewWindow = null;
     return content.match(/<file include=.*?><\/file>|<template include=.*?><\/template>|<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>|<mlink include=.*?>|@import .*?;/);
   }
   
-  function replaceLocal(body, preParent = -1) {
-  
+  function replaceLocal(body, preParent = -1, path = ['root']) {
+
     if (body === undefined) {
       
       if (locked === -1 || (activeFile && locked === activeFile.fid)) {
@@ -137,19 +134,20 @@ let previewWindow = null;
         relativeParent = -1;
         src = src.replace(/__\//, '');
       }
-      let parentId = getDirectory(src, relativeParent);
+      
+      let absolutePath = JSON.parse(JSON.stringify(path));
+      let parentId = getDirectory(src, relativeParent, path);
       let files = odin.filterData(parentId, fs.data.files, 'parentId');
       let name = src.replace(/.*?\//g,'');
-      let data = odin.dataOf(name, files, 'name');
-      L(relativeParent,src)
-      
-      if (data === undefined) {
+      let file = odin.dataOf(name, files, 'name');
+      L(path.join('/') + '/' + file.name);
+      if (file === undefined) {
         body = body.replace(match[0], '<b style="font-size:0.9em;">THOR unexpected: '+src+' not found.</b><br/>');
       } else {
         
-        if (!data.loaded) {
+        if (!file.loaded) {
           aww.pop('Downloading required file : '+name);
-          drive.downloadDependencies(data);
+          drive.downloadDependencies(file);
         }
         
         let ot = '', ct = '';
@@ -159,23 +157,23 @@ let previewWindow = null;
         }
         
         
-        let tabIdx = odin.idxOf(data.fid, fileTab, 'fid');
+        let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
         let content;
         if (tabIdx >= 0)
-          content = (activeFile && activeFile.fid === data.fid) ? $('#editor').env.editor.getValue() : fileTab[tabIdx].content;
+          content = (activeFile && activeFile.fid === file.fid) ? $('#editor').env.editor.getValue() : fileTab[tabIdx].content;
         else
-          content = data.content;
+          content = file.content;
         
         if ($('#chk-deploy-minified').checked && isMinified)
           content = content.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '').replace(/\n|\t+/g,'');
         else if (isFile)
           content = content.replace(/</g,'&lt;').replace(/\[/g,'&lsqb;').replace(/]/g,'&rsqb;');
       
-        let swap = ot+replaceLocal(content, parentId)+ct;
+        let swap = ot + replaceLocal(content, parentId, path) + ct;
         body = body.replace(new RegExp(match[0]), swap);
       }
      
-      
+      path = absolutePath;
       match = getMatch(body);
     }
     
