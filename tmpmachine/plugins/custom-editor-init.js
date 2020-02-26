@@ -42,7 +42,40 @@ THOR.plugins.load('loadEditor', function(compatibilityMode) {
     name: "removeline",
     bindKey: {win: "Ctrl-Shift-K"},
     exec: function(editor) {
-      editor.removeLines()
+      editor.removeLines();
+      saveListener(null, true);
+    }
+  });
+  
+  let fontSizeScale = [12, 14, 16, 18, 21, 24, 30, 36, 48];
+  let defaultFontSize = 1;
+  let fontSize = 1;
+  editor.commands.addCommand({
+    name: "decrease-font-size",
+    bindKey: {win: "Ctrl--"},
+    exec: function(editor) {
+      event.preventDefault();
+      if (fontSize > 0) fontSize--;
+      editor.setFontSize(fontSizeScale[fontSize]);
+      saveListener(null, true);
+    }
+  });
+  editor.commands.addCommand({
+    name: "increase-font-size",
+    bindKey: {win: "Ctrl-="},
+    exec: function(editor) {
+      event.preventDefault();
+      if (fontSize < fontSizeScale.length - 1) fontSize++;
+      editor.setFontSize(fontSizeScale[fontSize]);
+      saveListener(null, true);
+    }
+  });
+  editor.commands.addCommand({
+    name: "reset-font-size",
+    bindKey: {win: "Ctrl-0"},
+    exec: function(editor) {
+      event.preventDefault();
+      editor.setFontSize(fontSizeScale[defaultFontSize]);
       saveListener(null, true);
     }
   });
