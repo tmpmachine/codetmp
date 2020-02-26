@@ -57,7 +57,6 @@ THOR.plugins.load('loadEditor', function(compatibilityMode) {
       event.preventDefault();
       if (fontSize > 0) fontSize--;
       editor.setFontSize(fontSizeScale[fontSize]);
-      saveListener(null, true);
     }
   });
   editor.commands.addCommand({
@@ -67,7 +66,6 @@ THOR.plugins.load('loadEditor', function(compatibilityMode) {
       event.preventDefault();
       if (fontSize < fontSizeScale.length - 1) fontSize++;
       editor.setFontSize(fontSizeScale[fontSize]);
-      saveListener(null, true);
     }
   });
   editor.commands.addCommand({
@@ -77,7 +75,16 @@ THOR.plugins.load('loadEditor', function(compatibilityMode) {
       event.preventDefault();
       fontSize = defaultFontSize;
       editor.setFontSize(fontSizeScale[defaultFontSize]);
-      saveListener(null, true);
+    }
+  });
+  
+  editor.commands.addCommand({
+    name: "toggle-wrap-mode",
+    bindKey: {win: "Alt-R"},
+    exec: function(editor) {
+      event.preventDefault();
+      let isWrap = editor.env.editor.session.getUseWrapMode();
+      editor.session.setUseWrapMode(isWrap ? false : true);
     }
   });
 
