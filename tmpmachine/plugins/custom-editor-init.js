@@ -75,6 +75,7 @@ THOR.plugins.load('loadEditor', function(compatibilityMode) {
     bindKey: {win: "Ctrl-0"},
     exec: function(editor) {
       event.preventDefault();
+      fontSize = defaultFontSize;
       editor.setFontSize(fontSizeScale[defaultFontSize]);
       saveListener(null, true);
     }
