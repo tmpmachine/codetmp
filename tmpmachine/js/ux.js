@@ -726,14 +726,10 @@ function closeFullscreen() {
 
 function toggleLandscape() {
   let orientation = screen.orientation.type;
-  closeFullscreen();
-  if (orientation == 'landcape-primary') {
+  if (orientation == 'landcape-primary')
     window.screen.orientation.lock('portrait-primary');
-  } else {
-    openFullscreen(document.documentElement);
-    openFullscreen(document.body);
+  else
     window.screen.orientation.lock('landscape-primary');
-  }
 }
 
 function checkBlossemURL() {
