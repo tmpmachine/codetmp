@@ -441,7 +441,6 @@ function updateUI() {
       '.btn-material'         : ui.toggleMenu,
       'btn-menu-preview'      : btnPreview,
       'btn-menu-info'         : btnInfo,
-      'btn-menu-landscape'    : toggleLandscape,
       '.file-settings-button' : showFileSetting,
     });
     
@@ -694,43 +693,6 @@ function btnInfo() {
     $('#editor').env.editor.focus()
 }
 
-function requestFullScreen(element) {
-  let requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
-  if (requestMethod)
-    requestMethod.call(element);
-  else 
-    alert('This feature is not available. Please change or update your browser.')
-}
-
-function openFullscreen(element) {
-  if (element.requestFullscreen)
-    element.requestFullscreen();
-  else if (element.mozRequestFullScreen)
-    element.mozRequestFullScreen();
-  else if (element.webkitRequestFullscreen)
-    element.webkitRequestFullscreen();
-  else if (element.msRequestFullscreen)
-    element.msRequestFullscreen();
-}
-
-function closeFullscreen() {
-  if (document.exitFullscreen)
-    document.exitFullscreen();
-  else if (document.mozCancelFullScreen)
-    document.mozCancelFullScreen();
-  else if (document.webkitExitFullscreen)
-    document.webkitExitFullscreen();
-  else if (document.msExitFullscreen)
-    document.msExitFullscreen();
-}
-
-function toggleLandscape() {
-  let orientation = screen.orientation.type;
-  if (orientation == 'landcape-primary')
-    window.screen.orientation.lock('portrait-primary');
-  else
-    window.screen.orientation.lock('landscape-primary');
-}
 
 function checkBlossemURL() {
   let data = (locked >= 0) ? odin.dataOf(locked, fs.data.files, 'fid') : activeFile;
