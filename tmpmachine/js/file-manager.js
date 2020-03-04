@@ -779,13 +779,14 @@ function fileDownload(data) {
   }
   window.copyFile = copyFile;
   
-  function copySingleFile({ id, fid, name, content, loaded }, modifiedTime) {
+  function copySingleFile({ id, fid, description, name, content, loaded }, modifiedTime) {
     
     fm.INSERT.file({
       id,
       name: (copyParentFolderId == activeFolder) ? name + ' (copy)' : name,
       modifiedTime,
       content,
+      description,
       loaded,
       parentId: activeFolder,
     });
@@ -801,7 +802,7 @@ function fileDownload(data) {
     
     if (fileIds.length === 0) return;
     
-    ({ id, fid, name, parentId, content, loaded, trashed } = odin.dataOf(fileIds[0], fs.data.files, 'fid'));
+    ({ id, fid, name, description, parentId, content, loaded, trashed } = odin.dataOf(fileIds[0], fs.data.files, 'fid'));
     
     if (!trashed) {
       let idx = odin.idxOf(parentId, road, 0);
@@ -809,6 +810,7 @@ function fileDownload(data) {
       fm.INSERT.file({
         id,
         name,
+        description,
         modifiedTime,
         trashed,
         content,
