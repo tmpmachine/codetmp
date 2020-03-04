@@ -986,7 +986,8 @@ function btnBlogsphereLogout  () {
     if (!$('#btn-menu-my-files').classList.contains('active')) return;
     event.preventDefault();
     
-    let fileCount = Math.floor( ($('#file-list').offsetWidth - 16 * 2) / 203.2);
+    let fileContainerWidth = (screen.width < 450) ? 153.2 : 203.2;
+    let fileCount = Math.floor( ($('#file-list').offsetWidth - 16 * 2) / fileContainerWidth);
     
     switch (event.keyCode) {
       case 37:

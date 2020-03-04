@@ -414,7 +414,7 @@
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ +padding-small +right-align +tiny .no-select {mt:1em}
             [c +half +center @action-info "&nbsp;"]
-            [c +half "Developer Build v1.072 - 4 Mar 2020" +opacity]
+            [c +half "Developer Build v1.0721 - 4 Mar 2020" +opacity]
           ]
           [ @breadcrumbs .no-select +small +padding]
           [ @file-list +padding]
@@ -618,7 +618,7 @@
   </template>
   
   <template id="tmp-file-list">
-    [ .file-list +left +left-align {width:200px;m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
+    [ .file-list +left +left-align .files {m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
       [ {pos:absolute;z:8177;t:0;l:0;}
         [M "lock" .__clsLock__ .btn-lock @btn-lock__fid__ onclick='lockRender(this, __fid__, "__name__")' +button {col:#aaa;} +hover-none]
       ]
@@ -643,7 +643,7 @@
     ]
   </template>
   <template id="tmp-list-file-trash">
-    [ .file-list +left +left-align {width:200px;m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
+    [ .file-list +left +left-align .files {m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
       [ +center +padding-32
         [M +xxlarge "insert_drive_file" {col:#777;}]
       ]

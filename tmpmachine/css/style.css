@@ -95,8 +95,14 @@ html,body{height:100%;}
   border-bottom: 1px solid #242431;
   width: 200px;
 }
+.files {
+  width: 200px;
+}
 
 @media (max-width:450px) {
+  .files {
+    width: 150px;
+  }
   .folders {
     width: 150px;
   }
