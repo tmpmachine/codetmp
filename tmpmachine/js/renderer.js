@@ -140,11 +140,10 @@ let previewWindow = null;
       let files = odin.filterData(parentId, fs.data.files, 'parentId');
       let name = src.replace(/.*?\//g,'');
       let file = odin.dataOf(name, files, 'name');
-      L(path.join('/') + '/' + file.name);
       if (file === undefined) {
         body = body.replace(match[0], '<b style="font-size:0.9em;">THOR unexpected: '+src+' not found.</b><br/>');
       } else {
-        
+        L(path.join('/') + '/' + file.name);
         if (!file.loaded) {
           aww.pop('Downloading required file : '+name);
           drive.downloadDependencies(file);
