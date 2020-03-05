@@ -946,6 +946,7 @@ function btnBlogsphereLogout  () {
   
   function down(fileCount) {
     
+    
     if (selectedFile[0].classList.contains('folder-list')) {
       
       forEachFolder(i => {
@@ -981,6 +982,20 @@ function btnBlogsphereLogout  () {
       $('.file-list-clicker')[0].click();
   }
   
+  function navScrollUp() {
+    let fileContainerOffsetTop = selectedFile[0].classList.contains('folder-list') ? selectedFile[0].offsetTop : selectedFile[0].parentNode.offsetTop;
+    let scrollTop = (fileContainerOffsetTop - 3);
+    if (scrollTop < $('#file-list').parentNode.scrollTop)
+      $('#file-list').parentNode.scrollTop = scrollTop;
+  }
+  
+  function navScrollDown() {
+    let fileContainerOffsetTop = selectedFile[0].classList.contains('folder-list') ? selectedFile[0].offsetTop : selectedFile[0].parentNode.offsetTop;
+    let scrollTop = (fileContainerOffsetTop - 108 + selectedFile[0].offsetHeight + 3) - ($('#in-my-files').offsetHeight - 108 - 64 - $('#nav-bar').offsetHeight);
+    if (scrollTop > $('#file-list').parentNode.scrollTop)
+      $('#file-list').parentNode.scrollTop = scrollTop;
+  }
+  
   function navigationHandler() {
     
     if (!$('#btn-menu-my-files').classList.contains('active')) return;
@@ -991,20 +1006,25 @@ function btnBlogsphereLogout  () {
     
     switch (event.keyCode) {
       case 37:
-        left();
-      break;
       case 38:
-        up(fileCount);
+        if (event.keyCode == 37)
+          left();
+        else
+          up(fileCount);
+        navScrollUp();
       break;
       case 39:
       case 40:
         if (selectedFile.length == 0) {
           selectFirstFile();
+          navScrollUp();
         } else {
           if (event.keyCode == 39)
             right();
           else
             down(fileCount);
+            
+          navScrollDown();
         }
       break;
     }
