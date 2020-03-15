@@ -1,5 +1,5 @@
 /*
-0.011 - 31 July 2019 - added toggle function
+0.012 - 15 March 2020 - fix library load error
 */
 
 (function () {
@@ -44,7 +44,7 @@
           height: 100%;
         	position: relative;
         	z-index: 1;
-        	background: #272822;
+        	background: #fff;
         	-webkit-transition: -webkit-transform 0.5s;
         	transition: transform 0.5s;
         }
@@ -112,7 +112,7 @@
     return init.bind(this);
   }
   
-  if (window.aww === undefined)
+  if (window.anibar === undefined)
     window.anibar = new Anibar();
   else
     console.error('anibar.js:', 'Failed to initialize. Duplicate variable exists.');
