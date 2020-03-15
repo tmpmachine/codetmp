@@ -476,6 +476,7 @@ function toggleInsertSnippet(persistent) {
     $('#search-input').value = '';
     $('#search-input').focus();
   } else {
+    editor.env.editor.focus()
     $('#search-input').value = '';
   }
 }
