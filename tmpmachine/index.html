@@ -239,8 +239,26 @@
           
           [ @file-title-wrapper .menu-overflow-header
             [ {bg:#141414;pos:relative;} @file-title
-                <!--plate-ninja-space-->
+              <!--xplate-ninja-space-->
+              [ {p:6px 0;w:1px;ov:hidden} +right {visibility:hidden;}
+                [M "close" ]
+              ]
+              
+              <!---->
+              [ +left {bg:#101113;pos:relative;z:1;} @more-tab {dis:none}
+                [
+                  [x {pos:relative;p:18px 24px;lh:1.5em;}
+                    [ onclick="" .file-tab-name data-title="__name__" {pos:absolute;l:0;t:0;w:100%;col:#fff!;} .no-select +small {fw:bold;} +left {dis:flex;align-items:center;justify-content:center;h:100%}
+                      [M "folder"]
+                    ]
+                  ]
+                ]
+                [ {h:0.25rem;bg:#202020;}]
+              ]
+              <!---->
             ]
+            
+            
           ]
           
           [ @editor-wrapper +padding spellcheck="false" {pos:absolute;w:100%;h:100%;} .menu-overflow-content

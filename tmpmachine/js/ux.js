@@ -498,6 +498,31 @@ function isSameTab(valueCheck1, valueCheck2) {
   return false;
 }
 
+function compressTab(idx) {
+  for (let tab of $('.file-tab'))
+    tab.style.display = 'inline-block';
+
+  $('#more-tab').style.display = ($('.file-tab').length > 1 && getTabWidth() >= $('#file-title').offsetWidth - 48) ? 'inline-block' : 'none';
+  let maxOpenTab = Math.floor(($('#file-title').offsetWidth - 48) / $('.file-tab')[idx].offsetWidth);
+
+  if ($('.file-tab').length > maxOpenTab) {
+    let lastOpenedTabIndex = Math.max(idx, $('.file-tab').length - 1);
+    let firstOpenedTabIndex = Math.max(lastOpenedTabIndex - (maxOpenTab - 1), 0);
+    
+    while (idx < firstOpenedTabIndex) {
+      lastOpenedTabIndex--;
+      firstOpenedTabIndex--;
+    }
+    
+    for (let i=0; i<$('.file-tab').length; i++) {
+      if (i < firstOpenedTabIndex || i > lastOpenedTabIndex)
+        $('.file-tab')[i].style.display = 'none';
+      else
+        $('.file-tab')[i].style.display = 'inline-block';
+    }
+  }
+}
+
 function focusTab(fid, isActiveTab = false, isClose) {
   
   let idx = odin.idxOf(String(fid), fileTab, 'fid');
@@ -507,6 +532,8 @@ function focusTab(fid, isActiveTab = false, isClose) {
     tab.lastElementChild.style.background = '#202020';
   
   $('.file-tab')[idx].lastElementChild.style.background = '#154358';
+  
+  compressTab(idx);
   
   if (!isClose && activeTab !== idx) {
     
@@ -608,10 +635,12 @@ function newTab(position, data) {
     })
   }
   
-  if (position >= 0)
+  if (position >= 0) {
     $('#file-title').insertBefore(el.firstElementChild, $('.file-tab')[position])
-  else
-    $('#file-title').appendChild(el.firstElementChild)
+    if ($('#file-title').lastElementChild !== $('#more-tab'))
+      $('#file-title').append($('#more-tab'))
+  } else
+    $('#file-title').insertBefore(el.firstElementChild, $('#more-tab'))
   
   
   if (data) {
@@ -631,6 +660,13 @@ function newTab(position, data) {
     });
   
   focusTab(fid)
+}
+
+function getTabWidth() {
+  let width = 0;
+  for (let tab of $('.file-tab'))
+    width += tab.offsetWidth;
+  return width;
 }
 
 function closeTab(focus = true, comeback) {
@@ -664,6 +700,7 @@ function closeTab(focus = true, comeback) {
       }
     }
   }
+  
 }
 
 
