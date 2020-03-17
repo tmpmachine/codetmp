@@ -1080,8 +1080,10 @@ function renderAndDeployLocked() {
     if (!keyHandle.Alt) return;
     
     $('#btn-menu-my-files').click()
-    if ($('#btn-menu-my-files').classList.contains('active'))
-      $('#editor').env.editor.blur()
+    if ($('#btn-menu-my-files').classList.contains('active')) {
+      $('#editor').env.editor.blur();
+      setTimeout(() => { document.activeElement.blur() }, 1);
+    }
     else
       $('#editor').env.editor.focus()
   }
@@ -1247,7 +1249,6 @@ function renderAndDeployLocked() {
   }
   
   function keyHandle(event) {
-    
   	if (event.type == 'blur') {
   	  keyHandle.Shift = false;
   	  keyHandle.Control = false;
