@@ -59,19 +59,17 @@ const drive = {
     let f = odin.dataOf(id, fs.data.folders, 'id');
 
     if (parents) {
+      
+      let parentFolderId = drive.getParentId(parents[0]);
       if (f) {
+        f.name = name;
         f.trashed = trashed;
-        f.parentFolderId = drive.getParentId(parents[0]);
+        f.parentId = parentFolderId;
     
         if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100) {
-          if (f.parentFolderId == activeFolder)
-            drive.syncFromDrive.refresh = true;
-            
-          f.name = name;
           f.modifiedTime = modifiedTime;
         }
       } else {
-        let parentFolderId = drive.getParentId(parents[0]);
         if (parentFolderId > -2) {
           fm.INSERT.folder({
             id,
@@ -81,11 +79,10 @@ const drive = {
             parentId: parentFolderId,
           });
           newBranch.push('"'+id+'"');
-          
-          if (parentFolderId == activeFolder)
-            drive.syncFromDrive.refresh = true;
         }
       }
+      if (parentFolderId == activeFolder)
+        drive.syncFromDrive.refresh = true;
     }
 
     folders.splice(0, 1);
@@ -99,14 +96,14 @@ const drive = {
     let f = odin.dataOf(id, fs.data.files, 'id');
 
     if (parents) {
+      
+      let parentFolderId = drive.getParentId(parents[0]);
       if (f) {
-        f.trashed = trashed;
-        f.parentFolderId = drive.getParentId(parents[0]);
-  
         f.name = name;
+        f.trashed = trashed;
+        f.parentId = parentFolderId;
+  
         if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100) {
-          if (f.parentFolderId == activeFolder)
-            drive.syncFromDrive.refresh = true;
           
           f.modifiedTime = modifiedTime;
           f.content = '';
@@ -116,7 +113,6 @@ const drive = {
           drive.downloadDependencies(f);
         }
       } else {
-        let parentFolderId = drive.getParentId(parents[0]);
         if (parentFolderId > -2) {
           fm.INSERT.file({
             id,
@@ -127,10 +123,10 @@ const drive = {
             parentId: parentFolderId,
           });
           
-          if (parentFolderId == activeFolder)
-              drive.syncFromDrive.refresh = true;
         }
       }
+      if (parentFolderId == activeFolder)
+        drive.syncFromDrive.refresh = true;
     }
 
     files.splice(0, 1);
