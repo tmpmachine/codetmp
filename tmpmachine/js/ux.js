@@ -1,5 +1,5 @@
 let cantLock = false;
-let debugAttempUrl = 'file:///home/chronos/u-78abdca4ed93035a6bd1710cfb4f5f9e278ea4bd/MyFiles/Downloads/TMPmachine/attemp/index.html';
+let debugAttempUrl = '';
 
 const ui = {
   
