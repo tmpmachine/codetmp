@@ -47,7 +47,8 @@ let previewWindow = null;
   }
   
   function getMatch(content) {
-    return content.match(/<file include=.*?><\/file>|<template include=.*?><\/template>|<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>|<mlink include=.*?>|@import .*?;/);
+    // return content.match(/<file include=.*?><\/file>|<template include=.*?><\/template>|<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>|<mlink include=.*?>|@import .*?;/);
+    return content.match(/<file include=.*?><\/file>|<template include=.*?><\/template>|<mscript include=.*?><\/mscript>|<script src=.*?><\/script>|<link include=.*?>|<mlink include=.*?>|@import .*?;/);
   }
   
   function replaceLocal(body, preParent = -1, path = ['root']) {
@@ -92,7 +93,7 @@ let previewWindow = null;
         isMinified = true;
         tagName = 'script';
       } else if (match[0].includes('<script')) {
-        start = 17;
+        start = 13;
         end = 11;
         isScriptOrLink = true;
         tagName = 'script';
@@ -117,6 +118,7 @@ let previewWindow = null;
         end = 2;
       }
       
+        
       let src = match[0].substring(start, match[0].length-end);
       let relativeParent = preParent;
       
@@ -128,6 +130,11 @@ let previewWindow = null;
           match = getMatch(body);
           continue;
         }
+      }
+      
+      if (src.startsWith('$')) {
+        body = body.replace(match[0], match[0].replace('src','web-src').replace("='$","='").replace('="$','="'));
+        continue;
       }
       
       if (src.startsWith('__')) {
@@ -186,7 +193,7 @@ let previewWindow = null;
   
   function renderBlog(isForceDeploy) {
     
-    let body = replaceLocal();
+    let body = replaceLocal().replace(/web-src/g, 'src');
     loadedScriptAndLink.length = 0;
     body = clearComments(body);
     
