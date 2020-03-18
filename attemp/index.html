@@ -101,9 +101,13 @@
       function thorRunJS(js) {
         for (let j of js) {
           let s = document.createElement('script');
-          tota__[0] += (j.substring(8, j.length-9).length)
-          tota__[1] += s.textContent.length
-          s.textContent = j.substring(8, j.length-9);
+          if (j.startsWith('<script>')) {
+            tota__[0] += (j.substring(8, j.length-9).length)
+            tota__[1] += s.textContent.length
+            s.textContent = j.substring(8, j.length-9);
+          } else {
+            s.src = j.substring(13, j.length-11);
+          }
           document.body.appendChild(s);
         }
       }
@@ -136,6 +140,21 @@
         
       }
       
+      function thorLoad(js) {
+        thorRunJS(js);
+        thorRefreshIcon();
+        window.addEventListener('message', thorReceiver, false);
+        window.opener.postMessage({type:'readyToDeploy'},'*');
+      }
+      
+      function runHeadJS(xml) {
+        let scripts = xml.match(/<script src=.*?><\/script>/g);
+        if (scripts) {
+          for (let script of scripts)
+            document.write(script);
+        }
+      }
+      
       function thorReceiver(e) {
         if (e.data.type != undefined && e.data.type == 'template') {
           let data = thorGetJS(e.data.xml);
@@ -143,28 +162,21 @@
           document.open();
           let head = data.xml.match(/<head>(\s|\S)*?<\/head>/);
           document.write(data.xml.replace(/<head>(\s|\S)*?<\/head>/,''));
-          if (head)
+          if (head) {
             document.head.innerHTML = head[0].substring(6,head[0].length-7);
+            runHeadJS(head[0]);
+          }
           document.close();
-          
           
           document.head.appendChild(loadManifest());
           window.addEventListener('beforeinstallprompt', handleInstall);
           
-          
           if (document.readyState == 'complete') {
-            thorRunJS(data.js);
-            thorRefreshIcon();
-            window.addEventListener('message', thorReceiver, false);
-            window.opener.postMessage({type:'readyToDeploy'},'*');
+            thorLoad(data.js)
           } else {
             document.onreadystatechange = function () {
-              if (document.readyState == 'complete') {
-                thorRunJS(data.js)
-                thorRefreshIcon();
-                window.addEventListener('message', thorReceiver, false);
-                window.opener.postMessage({type:'readyToDeploy'},'*');
-              }
+              if (document.readyState == 'complete')
+                thorLoad(data.js)
             }
           }
           
