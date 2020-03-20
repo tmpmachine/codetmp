@@ -4,7 +4,7 @@ self.addEventListener('message', function(e) {
 });
 
 
-let cacheVersion = '1.07251';
+let cacheVersion = '1.0726';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('install', function(event) {

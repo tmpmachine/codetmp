@@ -1,101 +1,83 @@
-var arcore = {};
-var loadingArcore;
+/*
+customized for attemp.web.app
+0.05 : 20 march 20 -- able to load IDB without version
+*/
 
-const arc7db = (function() {
+(function() {
   
-  const tDB = {};
-  var datastore = null;
+  let idb = function(name, version, upgradeCallback, successCallback, errorCallback) {
+    
+    this.db = null;
+    let self = this;
+    let open;
+    if (version)
+      open = window.indexedDB.open(name, version);
+    else
+      open = window.indexedDB.open(name);
+      
+    open.onupgradeneeded = function(e) {
+      if (upgradeCallback)
+        upgradeCallback(e.target.result, e.oldVersion);
+    };
 
-  tDB.mode = 'idb';
-  tDB.open = function(callback) {
-    var version = 1;
-    var request = indexedDB.open('user-generated-app', version);
-    request.onupgradeneeded = function(e) {
-      var db = e.target.result;
-      e.target.transaction.onerror = tDB.onerror;
-      if (db.objectStoreNames.contains('apps')) {
-        db.deleteObjectStore('apps');
-      }
-      var store = db.createObjectStore('apps', {
-        keyPath: 'appName'
-      });
+    open.onsuccess = function(e) {
+      self.db = e.target.result;
+      if (successCallback)
+        successCallback(self);
     };
-    request.onsuccess = function(e) {
-      datastore = e.target.result;
-      if (callback)
-        callback();
+    open.onerror = function(e) {
+      if (errorCallback)
+        errorCallback(e);
     };
-    request.onerror = function(e) {
-      console.error('IDB: Failed to open. Update or change your browser.');
-      console.log(e.explicitOriginalTarget.error);
-    };
+  
+    return this;
   };
   
-  tDB.get = function(id, callback) {
-    var db = datastore;
-    var transaction = db.transaction(['apps'],'readonly');
-    var objStore = transaction.objectStore('apps');
-
-    var request = objStore.get(id);
-    request.onsuccess = function(ev) {
-      if (callback)
-        callback(ev.target.result);
-    };
-    request.onerror = function(e) {
-      console.error('IDB: Failed to get.');
-      console.log(e.explicitOriginalTarget.error);
-    };
+  idb.prototype.setStore = function(storeName) {
+    this.store = storeName;
   };
   
-  tDB.getAll = function(callback) {
-    const db = datastore;
-    const transaction = db.transaction(['apps'],'readonly');
-    const objStore = transaction.objectStore('apps');
-
-    const request = objStore.getAll();
-    request.onsuccess = function(ev) {
-      if (callback)
-        callback(ev.target.result);
-    };
-    request.onerror = function(e) {
-      console.error('IDB: Failed to delete.');
-      console.log(e.explicitOriginalTarget.error);
-    };
+  idb.prototype.insert = function(data, successCallback, errorCallback, completeCallback) {
+    let trans = this.db.transaction(this.store, 'readwrite');
+    trans.oncomplete = completeCallback;
+    trans.onerror = errorCallback;
+    let request = trans.objectStore(this.store).add(data);
+    request.onsuccess = successCallback;
   };
   
-  tDB.create = function(data, callback) {
-    var db = datastore;
-    var transaction = db.transaction(['apps'], 'readwrite');
-    var objStore = transaction.objectStore('apps');
-
-    var request = objStore.put(data);
-
+  idb.prototype.get = function(key, callback) {
+    let request = this.db.transaction(this.store).objectStore(this.store).get(key);
     request.onsuccess = function(e) {
       if (callback)
-        callback(data);
-    };
-    request.onerror = function(e) {
-      console.error('IDB: Failed to create.');
-      console.log(e.explicitOriginalTarget.error);
+        callback(e.target.result);
     };
   };
-
-  tDB.delete = function(id, callback) {
-    var db = datastore;
-    var transaction = db.transaction(['apps'], 'readwrite');
-    var objStore = transaction.objectStore('apps');
-
-    var request = objStore.delete(id);
-
-    request.onsuccess = function(e) {
-      if (callback)
-        callback();
-    };
-    request.onerror = function(e) {
-      console.error('IDB: Failed to delete.');
-      console.log(e.explicitOriginalTarget.error);
-    };
+  
+  idb.prototype.delete = function(key, callback) {
+    let request = this.db.transaction(this.store, 'readwrite').objectStore(this.store).delete(key);
+    request.onsuccess = callback;
   };
-
-  return tDB;
-}());
+  
+  idb.prototype.update = function(data, successCallback, errorCallback) {
+    let trans = this.db.transaction(this.store, 'readwrite');
+    trans.onerror = errorCallback;
+    let request = trans.objectStore(this.store).put(data);
+    request.onsuccess = successCallback;
+  };
+  
+  if (window.ATTEMP_DB === undefined)
+    window.ATTEMP_DB = idb;
+  else
+    console.error('idb.js:', 'Failed to initialize. Duplicate variable exists.');
+  
+  //
+  //
+  //
+  
+  function upgrade(db, oldVersion) {
+    if (oldVersion < 1)
+      db.createObjectStore('apps', {keyPath: 'appName'});
+  }
+  
+  window.attemp_db = new ATTEMP_DB('user-generated-app', 1, upgrade);
+})();

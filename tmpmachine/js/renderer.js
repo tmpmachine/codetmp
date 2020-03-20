@@ -225,6 +225,8 @@ let previewWindow = null;
           
           previewWindow.postMessage({
             type: 'template',
+            isPWAEnabled: $('#in-PWA-enabled').checked,
+            appName: $('#in-PWA-app-name').value,
             xml: body
           }, '*');
           waitRender = null;

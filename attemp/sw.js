@@ -4,7 +4,7 @@ self.addEventListener('message',function(e){
 });
 
 
-var cacheVersion = '0.0181';
+var cacheVersion = '0.0188';
 var cacheItem = 'tmp'+cacheVersion;
 
 self.addEventListener('install',function(event) {
@@ -34,16 +34,33 @@ self.addEventListener('activate',function(e){
 });
 
 self.addEventListener('fetch', function(e) {
-  e.respondWith(
-    caches.match(e.request).then(function(resp) {
-      if (resp)
-        return resp;
-      
-      return fetch(e.request).then(function(r) {
-        return r;
-      }).catch(function() {
-        console.error('Check connection.');
-      });
-    })
-  );
+  
+  if (e.request.url.includes('/localapp/')) {
+    e.respondWith(
+      caches.match(e.request.url.split('localapp/')[0]).then(function(resp) {
+        if (resp)
+          return resp;
+        
+        return fetch(e.request).then(function(r) {
+          return r;
+        }).catch(function() {
+          console.error('Check connection.');
+        });
+      })
+    );
+  } else {
+    e.respondWith(
+      caches.match(e.request).then(function(resp) {
+        if (resp)
+          return resp;
+        
+        return fetch(e.request).then(function(r) {
+          return r;
+        }).catch(function() {
+          console.error('Check connection.');
+        });
+      })
+    );
+  }
+  
 });

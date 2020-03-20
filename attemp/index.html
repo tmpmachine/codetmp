@@ -12,6 +12,7 @@
 </head>
 <body>
   
+  <script src="/idb.js"></script>
   <script>
   
     (function() {
@@ -67,28 +68,34 @@
       
       let L = console.log;
       
+      function writeHTML(HTML) {
+        document.open();
+        document.write(HTML.replace(/<head>(\s|\S)*?<\/head>/, ''));
+        const head = HTML.match(/<head>(\s|\S)*?<\/head>/);
+        if (head)
+          document.head.innerHTML = head[0].substring(6, head[0].length-7);
+        document.close();
+      }
+      
       if (window.location.href.includes('localapp')) {
         
-        let appName = window.location.href.split('localapp/')[1];
-        
-        let el = document.createElement('script');
-        el.setAttribute('src', '/idb.js');
-        el.onload = () => {
-          arc7db.open(function() {
-            arc7db.get(appName, function(appData) {
+        let appName = window.location.href.split('localapp/')[1].split('/')[0].split('?')[0].split('&')[0].split('#')[0];
+        let interval = setInterval(() => {
+          
+          if (window.attemp_db.db) {
+            window.attemp_db.setStore('apps');
+            window.attemp_db.get(appName, appData => {
               if (appData)
                 writeHTML(appData.html);
               else
                 document.write('App data: <b>'+appName+'</b> not found. Please reinstall web app from TMPmachine.');
             });
-          });
-        };
-        document.head.appendChild(el);
-        
-        return;
+            clearInterval(interval);
+          }
+        }, 10)
       }
       
-      function loadManifest(appData = {shortName: 'App short name', name: 'App name'}) {
+      function loadManifest() {
         
         window.URL = window.URL || window.webkitURL;
         
@@ -109,9 +116,7 @@
           src512 = canvas.toDataURL();
         }
         
-        let appName = '123';
-        
-        let blob = new Blob([`{"name": "${appData.name}", "icons": [{ "src": "${src512}", "type": "image/png", "sizes": "512x512" }, { "src": "${src192}", "type": "image/png", "sizes": "192x192" }], "scope": "https://attemp.web.app/localapp/${appName}", "start_url": "https://attemp.web.app/localapp/${appName}", "display": "standalone", "background_color": "#596d92", "theme_color": "#3f5173" }`], {type: 'application/json'});
+        let blob = new Blob([`{"name": "${loadManifest.appName}", "icons": [{ "src": "${src512}", "type": "image/png", "sizes": "512x512" }, { "src": "${src192}", "type": "image/png", "sizes": "192x192" }], "scope": "https://attemp.web.app/localapp/${loadManifest.appLink}", "start_url": "https://attemp.web.app/localapp/${loadManifest.appLink}", "display": "standalone", "background_color": "#596d92", "theme_color": "#3f5173" }`], {type: 'application/json'});
   
         let link = document.createElement('link');
         link.rel = 'manifest';
@@ -119,10 +124,14 @@
         return link;
       }
       
-      if (localStorage.getItem('__localAppStatus')) {
+      if (localStorage.getItem('__PWAData')) {
+        let data = JSON.parse(localStorage.getItem('__PWAData'))
+        loadManifest.appName = data.appName;
+        loadManifest.appLink = data.appLink;
+        
         document.head.appendChild(loadManifest());
         window.addEventListener('beforeinstallprompt', handleInstall);
-        localStorage.removeItem('__localAppStatus');
+        localStorage.removeItem('__PWAData');
       }
       
       window.addEventListener('message', thorReceiver, false);
@@ -184,6 +193,7 @@
       
       function thorReceiver(e) {
         if (e.data.type != undefined && e.data.type == 'template') {
+          
           let data = thorGetJS(e.data.xml);
           
           document.open();
@@ -195,10 +205,33 @@
           }
           document.close();
           
-          document.head.appendChild(loadManifest());
-          window.addEventListener('beforeinstallprompt', function() {
-            L('install load')
-          });
+          if (e.data.isPWAEnabled) {
+            
+            if (e.data.appName.trim().length == 0)
+              e.data.appName = 'Untitled App';
+            let appName = e.data.appName;
+            let appLink = appName.replace(/ +|_+/g,'-').replace(/-+/,'-').toLowerCase();
+            loadManifest.appName = appName;
+            loadManifest.appLink = appLink;
+            
+            localStorage.setItem('__PWAData', JSON.stringify({
+              appName,
+              appLink
+            }));
+            
+            attemp_db.setStore('apps');
+        	  attemp_db.get(appLink, appData => {
+        	    if (appData)
+            	  attemp_db.update({appName:appLink,html:e.data.xml})
+            	else
+            	  attemp_db.insert({appName:appLink,html:e.data.xml})
+        	  })
+        	  
+            document.head.appendChild(loadManifest());
+            window.addEventListener('beforeinstallprompt', function() {
+              L('install load')
+            });
+          }
           
           if (document.readyState == 'complete') {
             thorLoad(data.js)
@@ -227,11 +260,11 @@
         let attempt = 0;
         let interval = setInterval(() => {
           
-          if (attempt > 10 || typeof(TMPInstallHandler) !== 'undefined')
+          if (attempt > 10 || typeof(installHandler) !== 'undefined')
             clearInterval(interval);
             
-          if (typeof(TMPInstallHandler) !== 'undefined')
-            TMPInstallHandler(e);
+          if (typeof(installHandler) !== 'undefined')
+            installHandler(e);
             
           attempt++;
           
