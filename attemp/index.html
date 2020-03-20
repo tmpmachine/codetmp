@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+  
   <title>Attemp</title>
   <link type="image/x-icon" rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII="/>
   <meta charset="utf-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta content="Local web app development host for TMPmachine" name="Description"/>
+  <meta content="Local web app development host for TMPmachine" property="og:description"/>
+  
 </head>
 <body>
   
@@ -61,6 +66,28 @@
   
     (function() {
       
+      let L = console.log;
+      
+      if (window.location.href.includes('localapp')) {
+        
+        let appName = window.location.href.split('localapp/')[1];
+        
+        let el = document.createElement('script');
+        el.setAttribute('src', '/js/idb.js');
+        el.onload = () => {
+          arc7db.open(function() {
+            arc7db.get('123', function(appData) {
+              if (appData)
+                writeHTML(appData.html);
+              else
+                document.write('App data: <b>'+appName+'</b> not found. Please reinstall web app from TMPmachine.');
+            });
+          });
+        };
+        document.head.appendChild(el);
+        
+        return;
+      }
       
       function loadManifest(appData = {shortName: 'App short name', name: 'App name'}) {
         
@@ -83,9 +110,9 @@
           src512 = canvas.toDataURL();
         }
         
-        let appId = '123';
+        let appName = '123';
         
-        let blob = new Blob([`{"name": "${appData.name}","short_name": "${appData.name}", "icons": [{ "src": "${src512}", "type": "image/png", "sizes": "512x512" }, { "src": "${src192}", "type": "image/png", "sizes": "192x192" }], "scope": "https://attemp.web.app/apps/${appId}", "start_url": "https://attemp.web.app/apps/${appId}", "display": "standalone", "background_color": "#596d92", "theme_color": "#3f5173" }`], {type: 'application/json'});
+        let blob = new Blob([`{"name": "${appData.name}", "icons": [{ "src": "${src512}", "type": "image/png", "sizes": "512x512" }, { "src": "${src192}", "type": "image/png", "sizes": "192x192" }], "scope": "https://attemp.web.app/localapp/${appName}", "start_url": "https://attemp.web.app/localapp/${appName}", "display": "standalone", "background_color": "#596d92", "theme_color": "#3f5173" }`], {type: 'application/json'});
   
         let link = document.createElement('link');
         link.rel = 'manifest';
@@ -93,17 +120,17 @@
         return link;
       }
       
-      document.head.appendChild(loadManifest());
-      window.addEventListener('beforeinstallprompt', handleInstall);
+      if (localStorage.getItem('__localAppStatus')) {
+        document.head.appendChild(loadManifest());
+        window.addEventListener('beforeinstallprompt', handleInstall);
+      }
       
       window.addEventListener('message', thorReceiver, false);
-      tota__ = [0, 0]
+      
       function thorRunJS(js) {
         for (let j of js) {
           let s = document.createElement('script');
           if (j.startsWith('<script>')) {
-            tota__[0] += (j.substring(8, j.length-9).length)
-            tota__[1] += s.textContent.length
             s.textContent = j.substring(8, j.length-9);
           } else {
             s.src = j.substring(13, j.length-11);
@@ -169,7 +196,9 @@
           document.close();
           
           document.head.appendChild(loadManifest());
-          window.addEventListener('beforeinstallprompt', handleInstall);
+          window.addEventListener('beforeinstallprompt', function() {
+            L('install load')
+          });
           
           if (document.readyState == 'complete') {
             thorLoad(data.js)
