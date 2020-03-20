@@ -77,6 +77,16 @@
         document.close();
       }
       
+      if (localStorage.getItem('__PWAData')) {
+        let data = JSON.parse(localStorage.getItem('__PWAData'))
+        loadManifest.appName = data.appName;
+        loadManifest.appLink = data.appLink;
+        
+        document.head.appendChild(loadManifest());
+        window.addEventListener('beforeinstallprompt', handleInstall);
+        localStorage.removeItem('__PWAData');
+      }
+      
       if (window.location.href.includes('localapp')) {
         
         let appName = window.location.href.split('localapp/')[1].split('/')[0].split('?')[0].split('&')[0].split('#')[0];
@@ -102,6 +112,13 @@
         let canvas = document.createElement('canvas');
         let ctx = canvas.getContext('2d');
         
+        if (typeof(src128) === 'undefined') {
+          canvas.width = 128;
+          canvas.height = 128;
+          ctx.fillRect(0,0,128,128);
+          src128 = canvas.toDataURL();
+        }
+        
         if (typeof(src192) === 'undefined') {
           canvas.width = 192;
           canvas.height = 192;
@@ -109,29 +126,12 @@
           src192 = canvas.toDataURL();
         }
         
-        if (typeof(src512) === 'undefined') {
-          canvas.width = 512;
-          canvas.height = 512;
-          ctx.fillRect(0,0,512,512);
-          src512 = canvas.toDataURL();
-        }
-        
-        let blob = new Blob([`{"name": "${loadManifest.appName}", "icons": [{ "src": "${src512}", "type": "image/png", "sizes": "512x512" }, { "src": "${src192}", "type": "image/png", "sizes": "192x192" }], "scope": "https://attemp.web.app/localapp/${loadManifest.appLink}", "start_url": "https://attemp.web.app/localapp/${loadManifest.appLink}", "display": "standalone", "background_color": "#596d92", "theme_color": "#3f5173" }`], {type: 'application/json'});
+        let blob = new Blob([`{"name": "${loadManifest.appName}", "icons": [{ "src": "${src128}", "type": "image/png", "sizes": "128x128" }, { "src": "${src192}", "type": "image/png", "sizes": "192x192" }], "scope": "https://attemp.web.app/localapp/${loadManifest.appLink}", "start_url": "https://attemp.web.app/localapp/${loadManifest.appLink}", "display": "standalone", "background_color": "#596d92", "theme_color": "#3f5173" }`], {type: 'application/json'});
   
         let link = document.createElement('link');
         link.rel = 'manifest';
         link.href = window.URL.createObjectURL(blob);
         return link;
-      }
-      
-      if (localStorage.getItem('__PWAData')) {
-        let data = JSON.parse(localStorage.getItem('__PWAData'))
-        loadManifest.appName = data.appName;
-        loadManifest.appLink = data.appLink;
-        
-        document.head.appendChild(loadManifest());
-        window.addEventListener('beforeinstallprompt', handleInstall);
-        localStorage.removeItem('__PWAData');
       }
       
       window.addEventListener('message', thorReceiver, false);
@@ -227,10 +227,10 @@
             	  attemp_db.insert({appName:appLink,html:e.data.xml})
         	  })
         	  
-            document.head.appendChild(loadManifest());
-            window.addEventListener('beforeinstallprompt', function() {
-              L('install load')
-            });
+            // document.head.appendChild(loadManifest());
+            // window.addEventListener('beforeinstallprompt', function() {
+              // L('install load')
+            // });
           }
           
           if (document.readyState == 'complete') {
