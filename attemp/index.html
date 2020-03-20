@@ -76,7 +76,7 @@
         el.setAttribute('src', '/js/idb.js');
         el.onload = () => {
           arc7db.open(function() {
-            arc7db.get('123', function(appData) {
+            arc7db.get(appName, function(appData) {
               if (appData)
                 writeHTML(appData.html);
               else
@@ -123,6 +123,7 @@
       if (localStorage.getItem('__localAppStatus')) {
         document.head.appendChild(loadManifest());
         window.addEventListener('beforeinstallprompt', handleInstall);
+        localStorage.removeItem('__localAppStatus');
       }
       
       window.addEventListener('message', thorReceiver, false);

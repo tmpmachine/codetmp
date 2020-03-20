@@ -4,14 +4,14 @@ self.addEventListener('message',function(e){
 });
 
 
-var cacheVersion = '0.017';
+var cacheVersion = '0.018';
 var cacheItem = 'tmp'+cacheVersion;
 
 self.addEventListener('install',function(event) {
   
   var urls = [
     '/',
-    '/js/idb.js',
+    '/idb.js',
     ];
  
   event.waitUntil(

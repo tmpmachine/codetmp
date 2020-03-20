@@ -13,10 +13,10 @@ const arc7db = (function() {
     request.onupgradeneeded = function(e) {
       var db = e.target.result;
       e.target.transaction.onerror = tDB.onerror;
-      if (db.objectStoreNames.contains('user-generated-app')) {
-        db.deleteObjectStore('user-generated-app');
+      if (db.objectStoreNames.contains('apps')) {
+        db.deleteObjectStore('apps');
       }
-      var store = db.createObjectStore('user-generated-app', {
+      var store = db.createObjectStore('apps', {
         keyPath: 'appName'
       });
     };
@@ -33,8 +33,8 @@ const arc7db = (function() {
   
   tDB.get = function(id, callback) {
     var db = datastore;
-    var transaction = db.transaction(['user-generated-app'],'readonly');
-    var objStore = transaction.objectStore('user-generated-app');
+    var transaction = db.transaction(['apps'],'readonly');
+    var objStore = transaction.objectStore('apps');
 
     var request = objStore.get(id);
     request.onsuccess = function(ev) {
@@ -49,8 +49,8 @@ const arc7db = (function() {
   
   tDB.getAll = function(callback) {
     const db = datastore;
-    const transaction = db.transaction(['user-generated-app'],'readonly');
-    const objStore = transaction.objectStore('user-generated-app');
+    const transaction = db.transaction(['apps'],'readonly');
+    const objStore = transaction.objectStore('apps');
 
     const request = objStore.getAll();
     request.onsuccess = function(ev) {
@@ -65,8 +65,8 @@ const arc7db = (function() {
   
   tDB.create = function(data, callback) {
     var db = datastore;
-    var transaction = db.transaction(['user-generated-app'], 'readwrite');
-    var objStore = transaction.objectStore('user-generated-app');
+    var transaction = db.transaction(['apps'], 'readwrite');
+    var objStore = transaction.objectStore('apps');
 
     var request = objStore.put(data);
 
@@ -82,8 +82,8 @@ const arc7db = (function() {
 
   tDB.delete = function(id, callback) {
     var db = datastore;
-    var transaction = db.transaction(['user-generated-app'], 'readwrite');
-    var objStore = transaction.objectStore('user-generated-app');
+    var transaction = db.transaction(['apps'], 'readwrite');
+    var objStore = transaction.objectStore('apps');
 
     var request = objStore.delete(id);
 
