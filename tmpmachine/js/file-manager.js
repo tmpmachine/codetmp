@@ -12,6 +12,260 @@ let activeTab = 0;
 let breadcrumbs = [{folderId:'-1',title:'My Files'}];
 
 
+(function() {
+  
+  function File(data = {}) {
+    
+    let file = fs.new('files');
+    
+    let predefinedData = {
+      fid: fs.data.counter.files,
+      name: 'Untitled File',
+      description: "{}",
+      loaded: true,
+      parentId: activeFolder,
+      modifiedTime: new Date().toISOString(),
+    };
+    
+    for (let key in predefinedData) {
+      if (file.hasOwnProperty(key))
+        file[key] = predefinedData[key];
+    }
+    
+    for (let key in data) {
+      if (file.hasOwnProperty(key))
+        file[key] = data[key];
+    }
+    
+    fs.data.counter.files++;
+    fs.data.files.push(file);
+    
+    fs.save();
+    this.sync(file.fid);
+    fileManager.list();
+    
+    return file;
+  }
+  
+  function Folder(data = {}) {
+    
+    let file = fs.new('folders');
+    
+    let predefinedData = {
+      fid: fs.data.counter.folders,
+      name: 'New Folder',
+      parentId: activeFolder,
+      modifiedTime: new Date().toISOString(),
+    };
+    
+    for (let key in predefinedData) {
+      if (file.hasOwnProperty(key))
+        file[key] = predefinedData[key];
+    }
+    
+    for (let key in data) {
+      if (file.hasOwnProperty(key))
+        file[key] = data[key];
+    }
+    
+    fs.data.counter.folders++;
+    fs.data.folders.push(file);
+    
+    fs.save();
+    this.sync(file.fid);
+    fileManager.list();
+    
+    return file;
+  }
+  
+  File.prototype.sync = function(fid) {
+    handleSync({
+      fid,
+      action: 'create',
+      type: 'files'
+    });
+    drive.syncToDrive();
+  };
+  
+  Folder.prototype.sync = function(fid) {
+    handleSync({
+      fid,
+      action: 'create',
+      type: 'folders'
+    });
+    drive.syncToDrive();
+  };
+  
+  window.File = File;
+  window.Folder = Folder;
+  
+})();
+
+
+(function() {
+  
+  function FileManager() {
+    return this;
+  }
+  
+  function listFolders() {
+    let folders = odin.filterData(activeFolder, fs.data.folders, 'parentId');
+    folders.sort(function(a, b) {
+      return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
+    });
+    for (let f of folders) {
+      if (f.trashed) continue;
+      let el = o.cel('div',{innerHTML:o.creps('tmp-folder-list',f)});
+      $('#file-list').appendChild(el);
+    }
+  }
+  
+  function listFiles() {
+    $('#file-list').appendChild(o.cel('div', { class: 'w3-row w3-padding-small' }));
+    let files = odin.filterData(activeFolder, fs.data.files, 'parentId');
+    files.sort(function(a, b) {
+      return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
+    });
+    for (let {fid, name, trashed} of files) {
+      if (trashed) continue;
+      
+      let clsLock = '';
+      let defaultBg = '#777';
+      
+      defaultBg = getFileColor(name);
+        
+      if (fid === locked)
+        clsLock = 'w3-text-purple';
+      
+      let el = o.cel('div',{ innerHTML: o.creps('tmp-file-list', {
+        fid,
+        name,
+        defaultBg,
+        clsLock
+      }) });
+      
+      $('#file-list').appendChild(el);
+    }
+  }
+  
+  FileManager.prototype.list = function() {
+    
+    $('#file-list').innerHTML = '';
+    
+    listFolders();
+    listFiles();
+    loadBreadCrumbs();
+    
+    $('#btn-rename-folder').classList.toggle('w3-hide', true);
+    selectedFile.splice(0, 1);
+  };
+  
+  
+  // function openFile(fid) {
+  FileManager.prototype.open = function(fid) {
+    
+    let f = odin.dataOf(fid, fs.data.files, 'fid');
+    activeFile = f;
+    
+    Promise.all([
+      
+      (function() {
+        
+        return new Promise(function(resolve, reject) {
+          
+          if (f.loaded) {
+            resolve(f)
+          } else {
+            
+            aww.pop('Downloading file...');
+            
+            new Promise(function(resolveTokenRequest) {
+          
+              if (auth0.state(5))
+                return resolveTokenRequest();
+              else {
+                auth0.requestToken(function() {
+                  return resolveTokenRequest();
+                }, true);
+              }
+              
+            }).then(function() {
+            
+              
+              fetch('https://www.googleapis.com/drive/v3/files/' + f.id + '?alt=media', {
+                method: 'GET',
+                headers: {
+                  'Authorization': 'Bearer ' + auth0.auth.data.token
+                }
+              }).then(function(r) {
+                
+                if (r.ok)
+                  return r.text();
+                else
+                  throw r;
+                
+              }).then(function(media) {
+                
+                f.content = media;
+                f.loaded = true;
+                fs.save();
+                resolve(f);
+                
+              }).catch(reject)
+            })
+          }
+          
+        });
+      })()
+    ]).then(function(file) {
+      
+      if (fileTab.length == 1 && $('#editor').env.editor.getSession().getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
+        closeTab(false);
+  
+      
+      let idx = odin.idxOf(f.fid, fileTab, 'fid')
+      if (idx < 0) {
+        
+        newTab(fileTab.length, {
+          fid: f.fid,
+          scrollTop: 0,
+          row: 0,
+          col: 0,
+          content: f.content,
+          name: f.name,
+          fiber: 'close',
+          file: f,
+          undo: new ace.UndoManager()
+        });
+      } else
+        focusTab(f.fid, false);
+      
+      
+      if ($('#btn-menu-my-files').classList.contains('active'))
+        $('#btn-menu-my-files').click();
+  
+      if (f.name.endsWith('.blogger'))
+        $('#btn-blog-vc').classList.toggle('w3-hide', false);
+      else
+        $('#btn-blog-vc').classList.toggle('w3-hide', true);
+    	
+    	if (file[0].description.startsWith('{'))
+        openDevelopmentSettings(JSON.parse(file[0].description));
+      else
+        openDevelopmentSettings(parseDescriptionOld(file[0].description));
+    	
+    }).catch(function(error) {
+      L(error);
+      aww.pop('Could not download file');
+    });
+  };
+  
+  
+  window.fileManager = new FileManager();
+  
+})();
+
+
 const fm = {
   INSERT: {
     folder: function(data) {

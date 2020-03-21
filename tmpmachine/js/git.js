@@ -1,23 +1,77 @@
 (function() {
   
-  let activeSha;
-  let branch = 'master';
-  let repoName = '';
-  let token = '';
-  let username = '';
-  let email = ''
+  function Git() {
+    this.activeSha;
+    this.branch;
+    this.repoName;
+    this.token;
+    this.username;
+    this.email;
+    
+    return this;
+  }
   
-  function viewFile(name) {
-    fetch('https://api.github.com/repos/'+username+'/'+repoName+'/contents/'+name).then(function(r){
-      return r.json();
-    }).then(function(r){
-      $('#in-name').value = r.name
-      activeSha = r.sha;
-      fetch(r.download_url)
-      .then( (r) => r.text() )
-      .then( (r) => $('#in-upload').value = r )
+  Git.prototype.downloadFile = function(url) {
+    return new Promise((resolve, reject) => {
+      fetch(url).then(function(r) {
+        return r.text();
+      }).then(function(r){
+        resolve(r)
+      })
     })
   }
+  
+  Git.prototype.registerFile = function(file, parentId) {
+    L('downloading '+file.path);
+    git.downloadFile(file.download_url).then(result => {
+      new File({
+        parentId,
+        content: result,
+        name: file.name,
+      });
+    });
+  };
+  
+  Git.prototype.registerDir = function(repo, file, parentId) {
+    let _file = new Folder({
+      parentId,
+      name: file.name,
+    });
+    git.clonePath(repo, file.path, _file.fid);
+  };
+    
+  Git.prototype.readingData = function(repo, files, parentId) {
+    for (let file of files) {
+      if (file.type == 'file')
+        git.registerFile(file, parentId)
+      else if (file.type == 'dir')
+        git.registerDir(repo, file, parentId)
+    }
+  };
+  
+  Git.prototype.clone = function(url) {
+    
+    let segments = url.replace('https://github.com/','').split('/');
+    let repo = {
+      name: segments[1].replace('.git',''),
+      username: segments[0],
+    };
+    
+    git.clonePath(repo);
+  };
+  
+    
+  Git.prototype.clonePath = function(repo, path = '', parentId = activeFolder) {
+    
+    fetch('https://api.github.com/repos/'+repo.username+'/'+repo.name+'/contents/'+path).then(function(r){
+      return r.json(); })
+    .then(function(r){
+      git.readingData(repo, r, parentId);
+    });
+  };
+  
+  window.git = new Git();
+  
   
   function listFile() {
     fetch('https://api.github.com/repos/'+username+'/'+repoName+'/contents/').then(function(r){
