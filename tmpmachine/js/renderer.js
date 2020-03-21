@@ -125,14 +125,15 @@ let previewWindow = null;
         if (loadedScriptAndLink.indexOf(src) < 0) {
           loadedScriptAndLink.push(src);
         } else {
-          body = body.replace(new RegExp(match[0]), '');
+          L(1)
+          body = body.replace(new RegExp(match[0].replace('$','\\$')), '');
           match = getMatch(body);
           continue;
         }
       }
       
       if (src.startsWith('$')) {
-        body = body.replace(match[0], match[0].replace('src','web-src').replace("='$","='").replace('="$','="'));
+        body = body.replace(match[0], match[0].replace('href=','href-web=').replace('src=','src-web=').replace("='$","='").replace('="$','="'));
         continue;
       }
       
@@ -192,7 +193,7 @@ let previewWindow = null;
   
   function renderBlog(isForceDeploy) {
     
-    let body = replaceLocal().replace(/web-src/g, 'src');
+    let body = replaceLocal().replace(/src-web=/g, 'src=').replace(/href-web=/g, 'href=');
     loadedScriptAndLink.length = 0;
     body = clearComments(body);
     
