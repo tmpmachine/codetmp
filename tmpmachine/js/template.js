@@ -1,11 +1,11 @@
 var editorTemplate = [
   {pos: [-3, 1], title: 'HTML', snippet: '<!DOCTYPE html>\n<html>\n<head>\n\n<\/head>\n<body>\n\t\n\t\n\t\n<\/body>\n<\/html>'},
   {pos: [-1, 1], title: 'style', snippet: '<style>\n\t\n<\/style>'},
-  {pos: [-1, 1], title: 'script', snippet: '<script>\n\t\n<\/script>'},
+  {pos: [-1, 1], title: 'inline script', snippet: '<script>\n\t\n<\/script>'},
   {pos: [-2, 14], title: 'template', snippet: '<template id="">\n\t\n<\/template>'},
   {pos: [0, 19], title: 'in template', snippet: '<template include=""><\/template>'},
-  {pos: [0, 17], title: 'in script', snippet: '<script include=""><\/script>'},
-  {pos: [0, 15], title: 'in link', snippet: '<link include=""/>'},
+  {pos: [0, 13], title: 'external script', snippet: '<script src=""><\/script>'},
+  {pos: [0, 12], title: 'link', snippet: '<link href="" rel="stylesheet"/>'},
   {pos: [1, 0], title: 'meta viewport', snippet: '<meta name="viewport" content="width=device-width"/>\n'},
   {pos: [1, 0], title: 'charset', snippet: '<meta charset="utf-8"/>\n'},
 ];

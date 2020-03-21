@@ -47,8 +47,7 @@ let previewWindow = null;
   }
   
   function getMatch(content) {
-    // return content.match(/<file include=.*?><\/file>|<template include=.*?><\/template>|<mscript include=.*?><\/mscript>|<script include=.*?><\/script>|<link include=.*?>|<mlink include=.*?>|@import .*?;/);
-    return content.match(/<file include=.*?><\/file>|<template include=.*?><\/template>|<mscript include=.*?><\/mscript>|<script src=.*?><\/script>|<link include=.*?>|<mlink include=.*?>|@import .*?;/);
+    return content.match(/<file include=.*?><\/file>|<template include=.*?><\/template>|<mscript .*?src=.*?><\/mscript>|<script .*?src=.*?><\/script>|<link .*?href=.*?>|<mlink .*?href=.*?>|@import .*?;/);
   }
   
   function replaceLocal(body, preParent = -1, path = ['root']) {
@@ -85,27 +84,28 @@ let previewWindow = null;
       let isMinified = false;
       let start = 19;
       let end = 13;
+      let src = '';
       
       if (match[0].includes('<mscript')) {
-        start = 18;
-        end = 12;
+        src = match[0].match(/src=['|"].*?['|"]/)[0];
+        src = src.substring(5, src.length - 1);
         isScriptOrLink = true;
         isMinified = true;
         tagName = 'script';
       } else if (match[0].includes('<script')) {
-        start = 13;
-        end = 11;
+        src = match[0].match(/src=['|"].*?['|"]/)[0];
+        src = src.substring(5, src.length - 1);
         isScriptOrLink = true;
         tagName = 'script';
       } else if (match[0].includes('<mlink')) {
-        start = 16;
-        end = 3;
+        src = match[0].match(/href=['|"].*?['|"]/)[0];
+        src = src.substring(6, src.length - 1);
         isScriptOrLink = true;
         isMinified = true;
         tagName = 'style';
       } else if (match[0].includes('<link')) {
-        start = 15;
-        end = 3;
+        src = match[0].match(/href=['|"].*?['|"]/)[0];
+        src = src.substring(6, src.length - 1);
         isScriptOrLink = true;
         tagName = 'style';
       } else if (match[0].includes('<file')) {
@@ -118,8 +118,7 @@ let previewWindow = null;
         end = 2;
       }
       
-        
-      let src = match[0].substring(start, match[0].length-end);
+      src = (src.length > 0) ? src : match[0].substring(start, match[0].length-end);
       let relativeParent = preParent;
       
       if (isScriptOrLink) {
