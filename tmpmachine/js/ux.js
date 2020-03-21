@@ -498,8 +498,9 @@ function toggleInsertSnippet(persistent) {
     $('#search-input').value = '';
     $('#search-input').focus();
   } else {
-    editor.env.editor.focus()
+    setTimeout(() => { document.activeElement.blur() }, 1);
     $('#search-input').value = '';
+    $('#search-input').blur();
   }
 }
 
