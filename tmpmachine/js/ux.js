@@ -249,7 +249,16 @@ const ui = {
     fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
     fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
     focusTab(fid);
-  }
+  },
+  
+  openNewTab: function() {
+    fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
+    fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
+    fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
+    fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
+    fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
+    newTab();
+  },
   
 };
 
@@ -459,6 +468,7 @@ function updateUI() {
       'btn-create-app'        : createBlogApp,
       'btn-menu-template'     : toggleInsertSnippet,
       'btn-new-folder'        : ui.fm.newFolder,
+      'btn-new-file'          : function() { $('#btn-menu-my-files').click(); ui.openNewTab(); },
       'btn-rename-folder'     : ui.fm.renameFolder,
       'btn-backup-revision'   : keepRevision,
       'btn-list-revisions'    : listRevisions,
@@ -1153,18 +1163,6 @@ function renderAndDeployLocked() {
     }
   }
   
-  function toggleMyFiles() {
-    if (!keyHandle.Alt) return;
-    
-    $('#btn-menu-my-files').click()
-    if ($('#btn-menu-my-files').classList.contains('active')) {
-      $('#editor').env.editor.blur();
-      setTimeout(() => { document.activeElement.blur() }, 1);
-    }
-    else
-      $('#editor').env.editor.focus()
-  }
-  
   function keyEscape() {
     if (selectedFile.length > 0) {
       toggleFileHighlight(false);
@@ -1216,6 +1214,18 @@ function renderAndDeployLocked() {
     }
   }
   
+  function toggleMyFiles() {
+    if (!keyHandle.Alt) return;
+    
+    $('#btn-menu-my-files').click()
+    if ($('#btn-menu-my-files').classList.contains('active')) {
+      $('#editor').env.editor.blur();
+      setTimeout(() => { document.activeElement.blur() }, 1);
+    }
+    else
+      $('#editor').env.editor.focus()
+  }
+  
   function toggleTemplate() {
     $('#btn-menu-template').click();
   }
@@ -1226,15 +1236,6 @@ function renderAndDeployLocked() {
       $('#editor').env.editor.blur()
     else
       $('#editor').env.editor.focus()
-  }
-  
-  function openNewTab() {
-    fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
-    fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
-    fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
-    fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
-    fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
-    newTab();
   }
   
   function keyUpHandler(e) {
@@ -1328,7 +1329,7 @@ function renderAndDeployLocked() {
     'Alt+M': toggleMyFiles,
     'Alt+I': toggleFileInfo,
     'Alt+D': function() { event.preventDefault(); toggleTemplate() },
-    'Alt+N': openNewTab,
+    'Alt+N': ui.openNewTab,
     'Alt+W': closeTab,
     'Alt+<': function() { ui.switchTab(-1) },
     'Alt+>': function() { ui.switchTab(1) },
