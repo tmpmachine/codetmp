@@ -1,5 +1,6 @@
 let cantLock = false;
 let debugAttempUrl = '';
+let lastOpenTabIndex = 0;
 
 const ui = {
   
@@ -229,7 +230,27 @@ const ui = {
     let isActive = menu.classList.contains('active');
     
     if (callback) callback(isActive);
+  },
+  
+  switchTab: function(direction = 1) {
+  
+    if (fileTab.length == 1) return;
+    
+    let fid;
+    
+    if (activeTab + direction > 0 && activeTab + direction < fileTab.length)
+      fid = fileTab[activeTab + direction].fid
+    else
+      fid = (activeTab + direction == -1) ? fileTab[fileTab.length - 1].fid : fileTab[0].fid;
+    
+    fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
+    fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
+    fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
+    fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
+    fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
+    focusTab(fid);
   }
+  
 };
 
 
@@ -442,6 +463,7 @@ function updateUI() {
       'btn-menu-preview'      : btnPreview,
       'btn-menu-info'         : btnInfo,
       '.file-settings-button' : showFileSetting,
+      'more-tab'              : ui.switchTab,
     });
     
   });
@@ -498,6 +520,38 @@ function isSameTab(valueCheck1, valueCheck2) {
   return false;
 }
 
+function compressTab(idx) {
+  for (let tab of $('.file-tab'))
+    tab.style.display = 'inline-block';
+
+  $('#more-tab').style.display = ($('.file-tab').length > 1 && getTabWidth() >= $('#file-title').offsetWidth - 48) ? 'inline-block' : 'none';
+  let maxOpenTab = Math.floor(($('#file-title').offsetWidth - 48) / $('.file-tab')[idx].offsetWidth);
+
+  if ($('.file-tab').length > maxOpenTab) {
+    let lastOpenedTabIndex = Math.max(idx, $('.file-tab').length - 1);
+    let firstOpenedTabIndex = Math.max(lastOpenedTabIndex - (maxOpenTab - 1), 0);
+    
+    if (idx >= lastOpenTabIndex && idx <= lastOpenTabIndex + maxOpenTab - 1) {
+      firstOpenedTabIndex = lastOpenTabIndex;
+      lastOpenedTabIndex = firstOpenedTabIndex + maxOpenTab - 1;
+    }
+    
+    while (idx < firstOpenedTabIndex) {
+      lastOpenedTabIndex--;
+      firstOpenedTabIndex--;
+    }
+    
+    for (let i=0; i<$('.file-tab').length; i++) {
+      if (i < firstOpenedTabIndex || i > lastOpenedTabIndex)
+        $('.file-tab')[i].style.display = 'none';
+      else
+        $('.file-tab')[i].style.display = 'inline-block';
+    }
+    
+    lastOpenTabIndex = firstOpenedTabIndex;
+  }
+}
+
 function focusTab(fid, isActiveTab = false, isClose) {
   
   let idx = odin.idxOf(String(fid), fileTab, 'fid');
@@ -507,6 +561,8 @@ function focusTab(fid, isActiveTab = false, isClose) {
     tab.lastElementChild.style.background = '#202020';
   
   $('.file-tab')[idx].lastElementChild.style.background = '#154358';
+  
+  compressTab(idx);
   
   if (!isClose && activeTab !== idx) {
     
@@ -608,10 +664,12 @@ function newTab(position, data) {
     })
   }
   
-  if (position >= 0)
+  if (position >= 0) {
     $('#file-title').insertBefore(el.firstElementChild, $('.file-tab')[position])
-  else
-    $('#file-title').appendChild(el.firstElementChild)
+    if ($('#file-title').lastElementChild !== $('#more-tab'))
+      $('#file-title').append($('#more-tab'))
+  } else
+    $('#file-title').insertBefore(el.firstElementChild, $('#more-tab'))
   
   
   if (data) {
@@ -631,6 +689,13 @@ function newTab(position, data) {
     });
   
   focusTab(fid)
+}
+
+function getTabWidth() {
+  let width = 0;
+  for (let tab of $('.file-tab'))
+    width += tab.offsetWidth;
+  return width;
 }
 
 function closeTab(focus = true, comeback) {
@@ -664,6 +729,7 @@ function closeTab(focus = true, comeback) {
       }
     }
   }
+  
 }
 
 
@@ -1160,25 +1226,6 @@ function renderAndDeployLocked() {
     newTab();
   }
   
-  function switchTab(direction) {
-  
-    if (fileTab.length == 1) return;
-    
-    let fid;
-    
-    if (activeTab + direction > 0 && activeTab + direction < fileTab.length)
-      fid = fileTab[activeTab + direction].fid
-    else
-      fid = (activeTab + direction == -1) ? fileTab[fileTab.length - 1].fid : fileTab[0].fid;
-    
-    fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
-    fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
-    fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
-    fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
-    fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
-    focusTab(fid);
-  }
-  
   function keyUpHandler(e) {
   
     switch (e.keyCode) {
@@ -1272,8 +1319,8 @@ function renderAndDeployLocked() {
     'Alt+D': function() { event.preventDefault(); toggleTemplate() },
     'Alt+N': openNewTab,
     'Alt+W': closeTab,
-    'Alt+<': function() { switchTab(-1) },
-    'Alt+>': function() { switchTab(1) },
+    'Alt+<': function() { ui.switchTab(-1) },
+    'Alt+>': function() { ui.switchTab(1) },
     'Backspace': previousFolder,
     'Escape': keyEscape,
     'Delete': deleteSelected,
