@@ -179,11 +179,14 @@
               [li +left +padding {pos:relative;}
                 Editor
                 [ul {dis:none;l:0;t:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
-                  [li +padding .menu-link data-link='toggle-editor-theme'
-                    Toggle Light Theme
-                  ]
                   [li +padding .menu-link data-link='set-font-size'
                     Set Font Size
+                  ]
+                  [li +padding .menu-link data-link='toggle-wrap-mode'
+                    Toggle Wrap Mode
+                  ]
+                  [li +padding .menu-link data-link='toggle-editor-theme'
+                    Toggle Light Theme
                   ]
                 ]
               ]
@@ -386,7 +389,7 @@
       [M "extension" .i-btn-in]
       [l "Templates" .l-btn-in]
     ]
-    [ +padding-small +center +tiny @syncing]
+    [ +padding-small +center +tiny @syncing {col:#fafafa;}]
   </template>
   <template id="plate-interact-menu">
     [ @in-home .in-window .in-content .bg1 .col1 .active
@@ -415,13 +418,17 @@
         [ +left
           [h5 {fw:bold;} "My Files" .no-select]
         ]
-        [ +button +right @btn-refresh-sync +hover-none +hover-text-black
+        [ +button +right @btn-refresh-sync +hover-none +hide-small +hover-text-black
           [ "Refresh" +hide-medium +hide-small +small +padding-small +left]
           [M "refresh" {col:#fff;}]
         ]
         [ +button +right @btn-new-folder +hover-none +hover-text-black
-          [ "New Folder" +hide-medium +hide-small +small +padding-small +left]
+          [ "New Folder" +hide-small +small +padding-small +left]
           [M "create_new_folder" {col:#fff;}]
+        ]
+        [ +button +right @btn-new-folder +hover-none +hover-text-black
+          [ "New File" +small +padding-small +left]
+          [M "add" {col:#fff;}]
         ]
         [ +button +right @btn-rename-folder +hover-none +hover-text-black +hide
           [ "Rename" +hide-medium +hide-small +small +padding-small +left]

@@ -348,6 +348,12 @@ function attachMenuLinkListener() {
           blurNavigation()
         };
       break;
+      case 'toggle-wrap-mode':
+        link.onclick = () => {
+          let isWrap = editor.env.editor.session.getUseWrapMode();
+          editor.env.editor.session.setUseWrapMode(isWrap ? false : true);
+        };
+      break;
       case 'toggle-editor-theme':
         link.onclick = () => {
           if (editor.env.editor.getTheme().includes('monokai'))
@@ -441,6 +447,8 @@ function updateUI() {
         href: 'fonts/material/material-icons.css'
       }) );
     }
+    
+    fixEditorScreenHeight();
   
     o.listen({
       'btn-blog-vc'           : openBlossemHTMLWidget,
@@ -1371,15 +1379,21 @@ window.onbeforeunload = function(e) {
     return  'Changes you made may not be saved';
 }
 
-window.onresize = function fixEditorScreenHeight() {
+function fixEditorScreenHeight() {
   let i = 0;
   let navBarOffset = $('#nav-bar').offsetHeight;
   for (let H of $('.menu-overflow-header')) {
     $('.menu-overflow-content')[i].style.height = 'calc(100% - ' + (H.offsetHeight + navBarOffset) + 'px)';
     i++;
   }
-};
+  
+  if (editor.offsetWidth <= 600)
+    editor.env.editor.session.setUseWrapMode(false)
+  else
+    editor.env.editor.session.setUseWrapMode(true)
+}
 
+window.onresize = fixEditorScreenHeight;
 
 function authReady() {
   $('#btn-blogsphere-login').style.display = 'none';
