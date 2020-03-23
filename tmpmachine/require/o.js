@@ -1,5 +1,5 @@
 /*
-v0.62 - 4 dec -- change o.click to o.listen, added non array object fallback for o.listen
+v0.63 - 31 -- switched document query selector and selector all
 */
 
 (function () {
@@ -8,23 +8,20 @@ v0.62 - 4 dec -- change o.click to o.listen, added non array object fallback for
     for (let i in data) {
       key[depth] = i;
       if (typeof(data[i]) == 'object')
-        str = roll(str,data[i],JSON.parse(JSON.stringify(key)),depth+1);
+        str = roll(str, data[i], JSON.parse(JSON.stringify(key)), depth + 1);
       else
         str = str.replace((new RegExp('__'+key.join('.')+'__', 'g')), data[i]);
     }
     return str;
   }
     
-  function doCallback(c, param) {
-    return function () {
-      c.apply(null,param);
-    };
-  }
-  
   function listen(el, ev, callback) {
     el.addEventListener(ev, callback);
   }
-    
+  
+  let $ = function(selector, node = document) {
+    return (selector.indexOf('.') === 0) ? node.querySelectorAll(selector) : node.querySelector(selector);
+  };
   
   const o = {
     creps: function (str, data, modifyFunction) {
@@ -56,24 +53,16 @@ v0.62 - 4 dec -- change o.click to o.listen, added non array object fallback for
           els = $(els);
         
         if (els[0] !== undefined) {
-          for (let el of els) {
+          for (let el of els)
             o.classList.toggle(el, className, force);
-          }
-        } else {
-          
-          if (force !== undefined) {
-            if (Array.isArray(className)) {
-              els.classList.toggle(className[0], force);
-              els.classList.toggle(className[1], !force);
-            } else
-              els.classList.toggle(className, force);
-          } else {
-            if (Array.isArray(className)) {
-              els.classList.toggle(className[0]);
-              els.classList.toggle(className[1]);
-            } else
-              els.classList.toggle(className);
-          }
+        } else if (els.length === 0)
+          return;
+        else {
+          if (Array.isArray(className)) {
+            els.classList.toggle(className[0], force);
+            els.classList.toggle(className[1], (force !== undefined) ? !force : undefined);
+          } else
+            els.classList.toggle(className, force);
         }
       },
       replace: function (els, oldClass, newClass){
@@ -95,25 +84,17 @@ v0.62 - 4 dec -- change o.click to o.listen, added non array object fallback for
   	  }
   	  return el;
   	},
-  	listen: function (callback, type) {
+  	listen: function (callback, type, node) {
       if (type === undefined) type = 'click';
       
       for (let i in callback) {
         if (i.startsWith('.')) {
-          if ($(i) !== null) {
-            for (let el of $(i)) {
-              if (!Array.isArray(callback[i]))
-                callback[i] = [callback[i]];
-              if (callback[i][0]) {
-                listen(el, type, doCallback(callback[i][0].bind(el), callback[i][1]));
-              }
-            }
+          if ($(i, node) !== null) {
+            for (let el of $(i, node))
+              listen(el, type, callback[i].bind(el));
           }
-        } else if ($('#'+i) !== null) {
-          if (!Array.isArray(callback[i]))
-            callback[i] = [callback[i]];
-          if (callback[i][0])
-            listen($('#'+i), type, doCallback(callback[i][0].bind($('#'+i)), callback[i][1]));
+        } else if ($('#'+i, node) !== null) {
+          listen($('#'+i, node), type, callback[i].bind($('#'+i, node)));
         } else {
           console.log('o.js (listen) : element with id "'+i+'" not found');
         }
@@ -123,8 +104,8 @@ v0.62 - 4 dec -- change o.click to o.listen, added non array object fallback for
   
   if (window.o === undefined) {
     window.o = o;
-    window.$ = function(selector) {
-      return (selector.indexOf('.') === 0) ? document.querySelectorAll(selector) : document.querySelector(selector);
+    window.$ = function(selector, node = document) {
+      return (selector.indexOf('#') === 0) ? node.querySelector(selector) : node.querySelectorAll(selector);
     };
   } else {
     console.error('o.js:', 'Failed to initialize. Duplicate variable exists.');

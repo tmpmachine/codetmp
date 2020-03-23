@@ -161,7 +161,7 @@ const ui = {
       locked = -1;
     }
   },
-  toggleMenu: function(callback){
+  toggleMenu: function() {
     
     let targetId = this.getAttribute('target');
     let target;
@@ -226,10 +226,6 @@ const ui = {
       selectedFile = [];
       clipBoard = [];
     }
-    
-    let isActive = menu.classList.contains('active');
-    
-    if (callback) callback(isActive);
   },
   
   switchTab: function(direction = 1) {
@@ -682,11 +678,40 @@ function newTab(position, data) {
       })
     })
   } else {
-    fid = '-' + (new Date).getTime()
+    fid = '-' + (new Date).getTime();
+    let fileName = 'Untitled';
+    let lastIndex = 0;
+    let foundUnsaved = false;
+    
+    for (let i=0; i<$('.file-tab').length; i++) {
+      if (typeof(fileTab[i].fid) == 'string') {
+        foundUnsaved = true;
+        let tabName = $('.file-name',$('.file-tab')[i])[0].textContent;
+        if (tabName.split(' ').length > 1) {
+          let index = Number(tabName.split(' ')[1]);
+          lastIndex = Math.max(lastIndex, index);
+        }
+        // else {
+          // lastIndex++;
+        // }
+      }
+    }
+    
+    if (foundUnsaved && lastIndex == 0)
+      fileName += ' 1';
+    // for (let tab of fileTab) {
+        // let index = Number(tab.name.split(' ')[1])
+        // if ()
+      // }
+        // nameIndex++;
+    // }
+    else if (foundUnsaved && lastIndex > 0)
+      fileName += ' '+(lastIndex+1);
+    
     el = o.cel('div', {
       innerHTML: o.creps('tmp-file-tab', {
         fid,
-        name: 'Untitled File',
+        name: fileName,
         fiber: 'close'
       })
     })
