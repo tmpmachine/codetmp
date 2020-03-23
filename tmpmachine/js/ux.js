@@ -691,20 +691,11 @@ function newTab(position, data) {
           let index = Number(tabName.split(' ')[1]);
           lastIndex = Math.max(lastIndex, index);
         }
-        // else {
-          // lastIndex++;
-        // }
       }
     }
     
     if (foundUnsaved && lastIndex == 0)
       fileName += ' 1';
-    // for (let tab of fileTab) {
-        // let index = Number(tab.name.split(' ')[1])
-        // if ()
-      // }
-        // nameIndex++;
-    // }
     else if (foundUnsaved && lastIndex > 0)
       fileName += ' '+(lastIndex+1);
     
