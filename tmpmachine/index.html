@@ -62,7 +62,7 @@
   <template id="plate-homepage">
   [ +padding
     [ +right-align
-      [in +check type="checkbox" checked oninput="changePersonal(this.checked)" @check-show] Show homepage first
+      [in +check type="checkbox" checked oninput="changePersonal(this.checked)" @check-show] [l for="check-show" "Show homepage first"]
     ]
     [h3 {fw:bold;} "What is TMPmachine?"]
     [p
@@ -208,7 +208,7 @@
                 My Account
                 [ul {dis:none;t:0;l:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
                   [li +padding .menu-link data-link='settings'
-                    Synchronize
+                    Settings
                   ]
                 ]
               ]
@@ -378,8 +378,8 @@
       [l "Snippets" .l-btn-in]
     ]
     [ .btn-material .no-select menu="in-settings" @btn-menu-settings
-      [M "account_circle" .i-btn-in]
-      [l "Login" .l-btn-in @txt-login-status]
+      [M "settings" .i-btn-in]
+      [l "Settings" .l-btn-in @txt-login-status]
     ]
     [ .btn-material .no-select menu="in-osk" onclick="$('#my-osk').classList.toggle('hide')" +hide
       [M "keyboard" .i-btn-in]
@@ -468,7 +468,7 @@
     [ @in-settings .in-window .in-content .bg1 .col1 {ov:hidden;}
       [ {h:34px;} +hide-small]
       [ +padding .menu-overflow-header .no-select .border-bottom-dark
-        <h5><b>Sync with Google Drive</b></h5>
+        <h5><b>Settings</b></h5>
       ]
       [ .menu-overflow-content {h:100%}
         [ +padding {h:100%;ov:auto;} .scroll1
@@ -479,6 +479,13 @@
     [ @in-settings-block .in-window .in-block]
   </template>
   <template id="plate-menu-settings">
+    [h6 {fw:bold;} "Editor"]
+    [p
+      [in +check type="checkbox" oninput="ui.toggleWordWrap()" @check-word-wrap] [l for="check-word-wrap" "Word Wrap"]
+    ]
+    [hr]
+    
+    [h6 {fw:bold;} "Sync with Google Drive"]
     [p +small @login-info
       (!) Your files are stored locally in browser storage. Login to synchronize with Google Drive.
     ]

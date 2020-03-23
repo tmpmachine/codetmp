@@ -64,10 +64,10 @@ const THOR = (function() {
         root: {
           drive: {
             startPageToken: ''
-          }
+          },
+          wrapMode: false,
         }
       });
-      
       
       auth0.onready = authReady;
       auth0.onlogin = authLogin;

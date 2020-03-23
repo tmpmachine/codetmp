@@ -260,6 +260,14 @@ const ui = {
     newTab();
   },
   
+  toggleWordWrap: function() {
+    let isWrap = editor.env.editor.session.getUseWrapMode();
+    editor.env.editor.session.setUseWrapMode(isWrap ? false : true);
+    settings.data.wrapMode = editor.env.editor.session.getUseWrapMode();
+    $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
+    settings.save();
+  }
+  
 };
 
 
@@ -358,10 +366,7 @@ function attachMenuLinkListener() {
         };
       break;
       case 'toggle-wrap-mode':
-        link.onclick = () => {
-          let isWrap = editor.env.editor.session.getUseWrapMode();
-          editor.env.editor.session.setUseWrapMode(isWrap ? false : true);
-        };
+        link.onclick = ui.toggleWordWrap;
       break;
       case 'toggle-editor-theme':
         link.onclick = () => {
@@ -436,6 +441,8 @@ function updateUI() {
     $('#btn-home').classList.toggle('active', true)
     $('#btn-home').firstElementChild.classList.toggle('active', true)
   }
+
+  $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
 
   document.body.removeChild($('#preload-style'));
 
@@ -1390,10 +1397,7 @@ function fixEditorScreenHeight() {
     i++;
   }
   
-  if (editor.offsetWidth <= 600)
-    editor.env.editor.session.setUseWrapMode(false)
-  else
-    editor.env.editor.session.setUseWrapMode(true)
+  editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
 }
 
 window.onresize = fixEditorScreenHeight;
