@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html>
+<head>
+  
+  <title>TMPmachine: Temporary Web App Code Editor</title>
+  <meta charset='utf-8'/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" sizes="128x128" href="images/128ap.png">
+  <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
+  <link rel="shortcut icon" sizes="16x16" type='image/x-icon' href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII=">
+  
+  <meta content='PWA (Progressive Web App) code editor for single page web app development' name='Description'/>
+  <meta content='PWA (Progressive Web App) code editor for single page web app development' property='og:description'/>
+  <meta content='TMPmachine: Temporary Web App Code Editor' property='og:title'/>
+  <meta content='notranslate' name='google'/>
+  <meta content='/images/site.png' property='og:image'/>
+  
+  <style>
+    @font-face {
+      font-family: 'Material Icons';
+      font-style: normal;
+      font-weight: 400;
+      src: url('fonts/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2') format('woff2');
+    }
+    .material-icons {
+      font-family: 'Material Icons';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+  <link rel="stylesheet" href="/style.css"/>
+
+</head>
+<body class="bg5">
+  
+  <template><img src='/images/192.png'/></template>
+  <style id="preload-material">
+    .material-icons{max-width:37.5px;overflow:hidden;color:transparent}
+  </style>
+
+  <template id="plate-homepage">
+  [ +padding
+    [ +right-align
+      [in +check type="checkbox" checked oninput="changePersonal(this.checked)" @check-show] [l for="check-show" "Show homepage first"]
+    ]
+    [h3 {fw:bold;} "TMPmachine"]
+    [p
+      [s {fw:bold;} "PWA"] [s +tiny "(Progressive Web App)"] code editor for [s {fw:bold;} "single page web app"] development.
+      
+      [ +tiny
+        Psstt! PWA simply means you can access it <u>offline</u>!!
+      ]
+    ]
+    
+    ---
+    
+    [
+      <span class="loading" id="label-loading">Getting ready...</span>
+      [M "refresh" +spin +small @icon-loading]
+    ]
+    
+    [ +padding-16
+      [btn +button "Start Coding" onclick="$('#btn-home').click()" +blue +round]
+    ]
+    [p +small
+      Notes : Your files are stored locally in browser storage. Login to synchronize with Google Drive.
+      [br]
+    ]
+    
+    ---
+    
+    [h3 {fw:bold;} "Links"]
+    [ul
+      [li
+        <u>[a href="/PP.html" "Privacy Policy"]</u>
+      ]
+      [li
+        <u>[a href="/TOS.html" "Terms of service"]</u>
+      ]
+      [li
+        <u>[a href="https://github.com/tmpmachine/tmpmachine" "GitHub Page"]</u>
+      ]
+    ]
+    
+    <!--[h3 {fw:bold;} "Why it exists?"]-->
+    <!--[p-->
+      <!--My laptop HDD goes "berserk" [s +small {fw:bold} "i.e. bad sector"], so I need a place to store my JavaScript project and access it from public area at the time. So goes the Google Drive synchronization idea come to live and here comes the temporary code editor so called my IGN, <b>TMPmachine</b>.-->
+    <!--]-->
+    <!--[ +padding]-->
+    
+  ]
+  </template>
+  
+  [ {h:100%;} @main-editor
+    [ .anibar-main-editor-menu {bg:none;}
+      [ {pos:relative;h:100%;w:100%;z-index:2;} +left
+        [ {bg:#eee;h:100%;w:100%;pos:absolute;ov-y:auto;}
+          [ +padding
+            <!--plate-menu-info-->
+          ]
+        ]
+      ]
+    ]
+  
+    [ +left +hide-large +hide-medium {pos:relative;h:100%;ov-x:hidden;ov-y:auto;} +animate-left @sidebar +card-4
+      <!--plate-sidebar-->
+      [ .bg5 {pos:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;}]
+    ]
+    [x {h:100%;pos:relative;} .scroll1 .anibar-main-editor-pusher .anibar--blocker
+      <!--plate-interact-menu-->
+      
+      [ .in-window {ov:hidden;}
+        [ {pos:relative;h:100%;}
+          [ +blue +hide {pos:fixed;z:2;h:calc(100% - 41px);r:0;w:200px;ov-y:scroll;t:41px;} onscroll="$('#editor').env.editor.getSession().setScrollTop(this.scrollTop)"
+            [ @scroll-chair {w:200px;bg:linear-gradient(dodgerblue,lightblue);}]
+          ]
+          
+          [a href="javascript:void(0)" @nav-bar-blur {pos:absolute;z:-22;dis:none;}]
+          [ @nav-bar +hide-small .hoverable .no-select {bg:#1d1f25;} {h:34px;pos:relative;z:888;dis:block;w:100%;} +small {col:#fafafa;}
+            [ul {p:0;m:0;list-style:none;dis:block;}
+              [li +left +padding {pos:relative;}
+                File
+                [ul {l:0;bg:#000;t:0;w:340px;p:0;m:0;list-style:none;dis:none;pos:absolute;}
+                  [li +padding .menu-link data-link='save'
+                    Save
+                    [s "Ctrl + S" +tiny +opacity +right]
+                  ]
+                  [li +padding .menu-link data-link='preview'
+                    Preview
+                    [s "Ctrl + Enter" +tiny +opacity +right]
+                  ]
+                  [li +padding .menu-link data-link='deploy' .auth-required .unauthorized
+                    Deploy to Blogger
+                    [s "Alt + Enter" +tiny +opacity +right]
+                  ]
+                  [li +padding .menu-link data-link='deploy-single' .auth-required .unauthorized
+                    Deploy to Blogger (Active tab)
+                    [s "Alt + Shift + Enter" +tiny +opacity +right]
+                  ]
+                  [li +padding .menu-link data-link='download-rendered'
+                    Download File
+                  ]
+                ]
+              ]
+              [li +left +padding {pos:relative;}
+                Explorer
+                [ul {dis:none;l:0;t:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
+                  [li +padding .menu-link data-link='my-files'
+                    My Files
+                    [s "Alt + M" +tiny +opacity +right]
+                  ]
+                  [li +padding .menu-link data-link='file info'
+                    File Info
+                    [s "Alt + I" +tiny +opacity +right]
+                  ]
+                  [li +padding .menu-link data-link='trash'
+                    Trash
+                  ]
+                ]
+              ]
+              [li +left +padding {pos:relative;}
+                Editor
+                [ul {dis:none;l:0;t:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
+                  [li +padding .menu-link data-link='set-font-size'
+                    Set Font Size
+                  ]
+                  [li +padding .menu-link data-link='toggle-wrap-mode'
+                    Toggle Wrap Mode
+                  ]
+                  [li +padding .menu-link data-link='toggle-editor-theme'
+                    Toggle Light Theme
+                  ]
+                ]
+              ]
+              [li +left +padding {pos:relative;}
+                Help
+                [ul {dis:none;t:0;l:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
+                  [li
+                    [a +padding {dis:block} href="/PP.html" target="_blank" "Privacy Policy"]
+                  ]
+                  [li
+                    [a +padding {dis:block} href="/TOS.html" target="_blank" "Terms of Service"]
+                  ]
+                  [li +padding .menu-link data-link='about'
+                    About TMPmachine
+                  ]
+                ]
+              ]
+              [li +left +padding {pos:relative;}
+                My Account
+                [ul {dis:none;t:0;l:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
+                  [li +padding .menu-link data-link='settings'
+                    Settings
+                  ]
+                ]
+              ]
+              [li +right +padding +tiny
+                [ @txt-sync]
+              ]
+            ]
+          ]
+          
+          [ @file-title-wrapper .menu-overflow-header
+            [ {bg:#141414;pos:relative;} @file-title
+              <!--xplate-ninja-space-->
+              [ {p:6px 0;w:1px;ov:hidden} +right {visibility:hidden;}
+                [M "close" ]
+              ]
+              
+              <!---->
+              [ +left {bg:#101113;pos:relative;z:1;} @more-tab {dis:none}
+                [
+                  [x {pos:relative;p:18px 24px;lh:1.5em;}
+                    [ onclick="" .file-tab-name data-title="__name__" {pos:absolute;l:0;t:0;w:100%;col:#fff!;} .no-select +small {fw:bold;} +left {dis:flex;align-items:center;justify-content:center;h:100%}
+                      [M "navigate_next"]
+                    ]
+                  ]
+                ]
+                [ {h:0.25rem;bg:#202020;}]
+              ]
+              <!---->
+            ]
+            
+          ]
+          
+          [ @editor-wrapper +padding spellcheck="false" {pos:absolute;w:100%;h:100%;} .menu-overflow-content
+            [ @editor {pos:absolute;top:0;bottom:0;left:0;right:0;}]
+            [ @blocker-editor .bg6 {pos:absolute;t:0;l:0;r:0;b:0;z-index:6;}]
+          ]
+        ]
+      ]
+      
+    ]
+  ]
+  
+  <!--plate-search-template-->
+  
+  <template id="plate-search-template">
+    <style>
+      .search-hints.selected{background:#eee;}
+      .search-hints{border-top:1px solid #e8e8e8;}
+      .search-hints.last{border-bottom:1px solid #e8e8e8;}
+      .search-box a{text-decoration:none}
+      a{text-decoration:none}
+      #search-404,#search-loading{position:absolute;top:0px;left:-1px;right:-1px;}
+      input{outline:none;}
+      
+      #book-scroll-wrap.active{transform:translateY(0%)!important;}
+      #book-scroll.active{transform:translateY(-36px);}
+      #book-scrool{transition-timing-function: linear;}
+    </style>
+    
+    [ .search-box {position:fixed;z:8177;t:0;w:100%;} +container +hide
+      
+      [ +padding-large]
+      [ +left-align {max-width:400px;margin:auto;}
+        [ {position:relative;} +card
+          [ .search-box {position:relative;}
+            [ {position:relative;z-index:1;} +round +white
+              [ +left +right
+                [l for="search-input"
+                  [M "search" .ai-button @btn-somefun +container +padding-16 +xlarge onclick="somefun(this)"]
+                ]
+              ]
+              [ .button-tb {ov:hidden;}
+                [in @search-input +padding-16 +round {width:100%;border:0;} autocomplete='off' onkeydown='wgSearch.selectHints(null,event)' oninput='wgSearch.find(this.value)' placeholder='Search snippets' type='text' name='q' +white +padding]
+              ]
+            ]
+          ]
+        ]
+        [ @search-result {pos:relative;z:1;t:-2px;}]
+      ]
+      
+    ]
+  </template>
+  <template id="tmp-hints">
+    [ +white
+      <div onmouseover='wgSearch.selectHints(__index__)'>
+        [ onclick="insertTemplate(__index__)" .search-hints {pos:relative;}
+          [ +padding +block "__title__"]
+        ]
+      </div>
+    ]
+  </template>
+  <template id="tmp-hints-last">
+    [ {rad:0 0 4px 4px;}  +white {ov:hidden;}
+      <div onmouseover='wgSearch.selectHints(__index__)'>
+        [ onclick="insertTemplate(__index__)" .search-hints .last {pos:relative;}
+          [ +padding +block "__title__"]
+        ]
+      </div>
+    ]
+  </template>
+  <template id="plate-sidebar">
+    [ {pos:relative;z-index:0;}
+      [ .btn-material .no-select menu="in-home" @btn-home
+        [M "home" .i-btn-in]
+        [l "Home" .l-btn-in]
+      ]
+    ]
+    [ {pos:relative;z-index:0;}
+      [ .btn-material .no-select @btn-menu-save
+        [M "save" .i-btn-in]
+        [l "Save" .l-btn-in]
+      ]
+    ]
+    [ {pos:relative;z-index:0;}
+      [ .btn-material .no-select @btn-menu-preview
+        [M "play_arrow" .i-btn-in]
+        [l "Preview" .l-btn-in]
+      ]
+    ]
+    
+    [ {pos:relative;z-index:0;}
+      [ .btn-material .no-select menu="in-info" @btn-menu-info +animate-left
+        [M "info" .i-btn-in]
+        [l "File Info" .l-btn-in]
+      ]
+    ]
+    [ {pos:relative;z-index:0;} +hide @btn-assets +animate-left {display:none;}
+      [ .btn-material .no-select menu="in-assets"
+        [M "web_asset" .i-btn-in]
+        [l "Assets" .l-btn-in]
+      ]
+    ]
+    [ .btn-material .no-select menu="in-my-files" @btn-menu-my-files
+      [M "folder" .i-btn-in]
+      [l "My Files" .l-btn-in]
+    ]
+    [ .btn-material .no-select menu="in-trash" @btn-menu-trash
+      [M "delete" .i-btn-in]
+      [l "Trash" .l-btn-in]
+    ]
+    [ +hide .btn-material .no-select @btn-menu-template
+      [M "extension" .i-btn-in]
+      [l "Snippets" .l-btn-in]
+    ]
+    [ .btn-material .no-select menu="in-settings" @btn-menu-settings
+      [M "settings" .i-btn-in]
+      [l "Settings" .l-btn-in @txt-login-status]
+    ]
+    [ .btn-material .no-select menu="in-osk" onclick="$('#my-osk').classList.toggle('hide')" +hide
+      [M "keyboard" .i-btn-in]
+      [l "Keyboard" .l-btn-in]
+    ]
+    [ .btn-material .no-select menu="in-osk" onclick="$('.search-box')[0].classList.toggle('w3-hide');if (!$('.search-box')[0].classList.contains('w3-hide')) $('#search-input').focus()" +hide
+      [M "extension" .i-btn-in]
+      [l "Templates" .l-btn-in]
+    ]
+    [ +padding-small +center +tiny @syncing {col:#fafafa;}]
+  </template>
+  <template id="plate-interact-menu">
+    [ @in-home .in-window .in-content .bg1 .col1 .active
+      [ {pos:absolute;t:0;l:0;h:100%;ov:auto;z-index:2;w:100%;}
+        [ {h:34px;} +hide-small]
+        <!--plate-homepage-->
+      ]
+    ]
+    [ @in-home-block .in-window .in-block {z-index:0;}]
+    
+    [ @in-assets .in-window {bg:none;w:200px;} .in-content .bg1 .col1
+      [ {pos:relative;h:100%;}
+        [ .menu-overflow-header
+          <!--plate-ninja-space-->
+        ]
+        [ +padding {bg:#eee;h:100%;w:100%;pos:absolute;} .menu-overflow-content
+          
+        ]
+      ]
+    ]
+    [ @in-assets-block .in-window .in-block]
+    
+    [ @in-my-files .in-window .in-content .bg1 .col1 {overflow:hidden;}
+      [ {h:34px;} +hide-small]
+      [ +padding .menu-overflow-header .border-bottom-dark
+        [ +left
+          [h5 {fw:bold;} "My Files" .no-select]
+        ]
+        [ +button +right @btn-refresh-sync +hover-none +hide-small +hover-text-black
+          [ "Refresh" +hide-medium +hide-small +small +padding-small +left]
+          [M "refresh" {col:#fff;}]
+        ]
+        [ +button +right @btn-new-folder +hover-none +hover-text-black
+          [ "New Folder" +hide-small +small +padding-small +left]
+          [M "create_new_folder" {col:#fff;}]
+        ]
+        [ +button +right @btn-new-file +hover-none +hover-text-black
+          [ "New File" +small +padding-small +left]
+          [M "add" {col:#fff;}]
+        ]
+        [ +button +right @btn-rename-folder +hover-none +hover-text-black +hide
+          [ "Rename" +hide-medium +hide-small +small +padding-small +left]
+          [M "edit" {col:#fff;}]
+        ]
+      ]
+      [ {h:100%;} .menu-overflow-content
+        [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
+          [ +padding-small +right-align +tiny .no-select {mt:1em}
+            [c +half +center @action-info "&nbsp;"]
+            [c +half "Build v1.0746 - 23 March 2020" +opacity]
+          ]
+          [ @breadcrumbs .no-select +small +padding]
+          [ @file-list +padding]
+        ]
+      ]
+    ]
+    [ @in-my-files-block .in-window .in-block]
+    
+    
+    [ @in-trash .in-window .in-content .bg1 .col1 {overflow:hidden;}
+      [ {h:34px;} +hide-small]
+      [ +padding .menu-overflow-header  .border-bottom-dark
+        [ +left .no-select
+          <h5><b>Trash [s +tiny "(Preview only)"] [s +black +round +tiny "Beta" {p:0 2px 2px ;} ]</b></h5>
+        ]
+      ]
+      [ {h:100%;} .menu-overflow-content
+        [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
+          [ @list-trash +padding]
+        ]
+      ]
+    ]
+    [ @in-trash-block .in-window .in-block]
+    
+    
+    [ @in-settings .in-window .in-content .bg1 .col1 {ov:hidden;}
+      [ {h:34px;} +hide-small]
+      [ +padding .menu-overflow-header .no-select .border-bottom-dark
+        <h5><b>Settings</b></h5>
+      ]
+      [ .menu-overflow-content {h:100%}
+        [ +padding {h:100%;ov:auto;} .scroll1
+          <!--plate-menu-settings-->
+        ]
+      ]
+    ]
+    [ @in-settings-block .in-window .in-block]
+  </template>
+  <template id="plate-menu-settings">
+    [h6 {fw:bold;} "Editor"]
+    [p
+      [in +check type="checkbox" oninput="ui.toggleWordWrap()" @check-word-wrap] [l for="check-word-wrap" "Word Wrap"]
+    ]
+    [hr]
+    
+    [h6 {fw:bold;} "Sync with Google Drive"]
+    [p +small @login-info
+      (!) Your files are stored locally in browser storage. Login to synchronize with Google Drive.
+    ]
+    
+    [btn {bor:0;outline:none;w:191px;h:46px;p:0;} @btn-blogsphere-login]
+    [btn @btn-blogsphere-logout +button +blue {dis:none;} "Logout"]
+    
+    [ {dis:none;}
+      [img src="/images/google/1x/btn_google_signin_dark_pressed_web.png"]
+      [img src="/images/google/1x/btn_google_signin_dark_focus_web.png"]
+    ]
+    
+    [p +small "By using <b>TMPmachine</b>, you're considered agreed to terms and condition written on articles below :"]
+    [ul
+      [li
+         <u>[a {fw:bold;} target="_blank" href="/TOS.html" "Terms of Service"]</u>
+      ]
+      [li
+         <u>[a {fw:bold;} href="/PP.html" "Privacy Policy" target="_blank"]</u>
+      ]
+    ]
+  </template>
+  <template id="plate-menu-info">
+    [ {pos:relative;h:100%;}
+      
+      [ @menu-basic
+        
+        [ +hide-medium +hide-large +button +border +margin-bottom +block onclick="environment.close()"
+          [ "Close" +small +padding-small {fw:bold;} +left]
+        ]
+        
+        [ +button @btn-open-directory +border +margin-bottom +block +hide
+          [ "Open Directory" +small +padding-small {fw:bold;} +left]
+        ]
+        
+        [ +button @btn-download-file +border +margin-bottom +block
+          [ "Download" +small +padding-small {fw:bold;} +left]
+          [M "input" +medium +padding-small {transform:rotate(90deg)}]
+        ]
+        
+        [small "Development"]
+        <div>
+          [btn class="file-settings-button" data-section="revisions" "+ Revisions"]
+          [btn class="file-settings-button" data-section="blogger" "+ Blogger"]
+          [btn class="file-settings-button" data-section="blossem" "+ Blossem"]
+          [hr]
+        </div>
+          
+        [small "PWA Options"]
+        <div>
+          [in @in-PWA-enabled type="checkbox"] [l for="in-PWA-enabled" +tiny "Preview file as PWA"]
+          [ +tiny "(caution: will update installed PWA)"]
+          [ {h:5px}]
+          [ +tiny  "PWA Name (experimental)"]
+          [in @in-PWA-app-name .description name="pwa-name"]
+        </div>
+        
+        <div class="auth-required unauthorized hide file-settings" data-section="blossem">
+          [ +tiny "Blossem template URL"]
+          [in @in-blossem {w:100%;} .description name="blossem"]
+          [hr]
+        </div>
+        
+        <div class="auth-required unauthorized hide file-settings" data-section="blogger">
+          [ +tiny "Blog name"]
+          [in @in-blog-name {w:100%;} .description name="blogName"]
+          [ +tiny "Blog ID"]
+          [in @in-blog-id {w:100%;} .description name="blogId"]
+          [ +tiny "Entry ID"]
+          [in @in-eid {w:100%;} .description name="entryId"]
+          [ +tiny "Summary"]
+          [t @in-summary {w:100%;resize:none;h:100px;} .description name="summary"]
+          [
+            [in type="checkbox" @chk-bibibi .description name="isSummaryFix"] [l for="chk-bibibi" "Post summary fix"]
+          ]
+          [
+            [in type="checkbox" @chk-more-tag .description name="isBreak"] [l for="chk-more-tag" "Use More tag"]
+          ]
+          [
+            [in type="checkbox" @chk-in-pre .description name="isWrap"] [l for="chk-in-pre" "Wrap in &lt;pre&gt;"]
+          ]
+          [
+            [in type="checkbox" @chk-blogger-app .description name="isApp"] [l for="chk-blogger-app" "Deploy as Blogger Apps"]
+          ]
+          
+          [ +tiny "Render and deploy option" {mt:1em}]
+          [
+            [in type="checkbox" @chk-render-plate-html checked="checked"] [l for="chk-render-plate-html" "Render Plate-HTML"]
+          ]
+          [
+            [in type="checkbox" @chk-deploy-minified] [l for="chk-deploy-minified" "Render as minified app"]
+          ]
+          
+          
+          [btn @btn-create-template "Create Blog Template"]
+          [btn @btn-create-entry "Create Blog Entry"]
+          [btn @btn-create-app "Create Blogger App"]
+          [hr]
+        </div>
+        
+        <div class="auth-required unauthorized hide file-settings" data-section="revisions">
+          [btn @btn-backup-revision "Backup Revision" +button +border +margin-top]
+          [btn @btn-list-revisions "List Revisions" +button +border +margin-top]
+          [btn @btn-blog-vc "Open version control" +button +border +margin-top +hide]
+          [hr]
+          [ @list-revisions]
+          [hr]
+        </div>
+        
+        <!--[hr]-->
+        <!--[btn "Delete" +hide-large +hide-medium @btn-delete-file +red +button +border +margin-bottom +block]-->
+        
+      ]
+    ]
+  </template>
+  <!--plate-system-->
+  <template id="plate-system">
+    [ @templateLoader .limbo]
+    [ @limbo-template .limbo]
+    [ @limbo-element .limbo]
+  </template>
+  <template id="plate-ninja-space">
+    [ {p:6px 10px;} +right {visibility:hidden;}
+      [M "close" ]
+    ]
+  </template>
+
+  <template id="tmp-list-revision">
+    [
+      [ "__id__"]
+      [ +small "__modifiedTime__"]
+      [btn "Delete" +button onclick="deleteRevision('__id__',this)"]
+      [btn "Rollback" +button onclick="rollbackRevision('__id__')"]
+    ]
+  </template>
+  <template id="tmp-list-blog">
+    [ +padding
+      __id__ : __name__
+      [M "delete" +button onclick="removeBlog('__id__')"]
+    ]
+  </template>
+  <template id="tmp-list-deploy">
+    [ +white +border +left-align +block +button onclick="fileDeploy('__id__')"
+      __name__
+      [ +small "__id__"]
+    ]
+  </template>
+  <template id="tmp-missing">
+    [ {padding:4px 8px;} +__background__
+      __txt__
+    ]
+  </template>
+    
+  
+  <template id="tmp-breadcrumb">
+    [ +padding onclick="openBread(__folderId__)" +button
+      __title__
+    ]
+  </template>
+  <template id="tmp-breadcrumb-fake">
+    [ +padding +button +grey {bg:#ddd!;}
+      __title__
+    ]
+  </template>
+  
+  <template id="tmp-file-list">
+    [ .file-list +left +left-align .files {m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
+      [ {pos:absolute;z:8177;t:0;l:0;}
+        [M "lock" .__clsLock__ .btn-lock @btn-lock__fid__ onclick='lockRender(this, __fid__, "__name__")' +button {col:#aaa;} +hover-none]
+      ]
+      [ {pos:absolute;z:8177;t:0;r:0;}
+        [M "edit" onclick="fileRename(__fid__)" +button {col:#aaa;} +hover-none]
+      ]
+      [ onclick='openFileConfirm(this)' title='__name__' data-type="file" data='__fid__' .file-list-clicker
+        [ +center +padding-32
+          [M +xxlarge "insert_drive_file" {col:#777;}]
+        ]
+        [ +padding .bg2
+          [c {w:24px;}
+            [M +medium {p:2px 0;} "insert_drive_file" {col:__defaultBg__!;} +left]
+          ]
+          [x +small +left-align +padding {fw:bold;pos:relative;}
+            [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
+              __name__
+            ]
+          ]
+        ]
+      ]
+    ]
+  </template>
+  <template id="tmp-list-file-trash">
+    [ .file-list +left +left-align .files {m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
+      [ +center +padding-32
+        [M +xxlarge "insert_drive_file" {col:#777;}]
+      ]
+      [ .bg2 +padding
+        [c {w:24px;}
+          [M +medium {p:2px 0;} "insert_drive_file" {col:__defaultBg__!;} +left]
+        ]
+        [x +small +left-align +padding {fw:bold;pos:relative;}
+          [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
+            __name__
+          ]
+        ]
+      ]
+    ]
+  </template>
+  
+  <template id="tmp-folder-list">
+    [ .folder-list onclick='openFolderConfirm(this)' title="__name__" data-type="folder" data='__fid__' +left +left-align {m:0.1em;p:0;} .pointer .no-select .folders .bg2 .hover-bg3-light
+      [ +padding
+        [c {w:24px;}
+          [M +medium {p:2px 0;} "folder" {col:__defaultBg__!;} +left]
+        ]
+        [x +small +left-align +padding {fw:bold;pos:relative;}
+          [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
+            __name__
+          ]
+        ]
+      ]
+    ]
+  </template>
+  <template id="tmp-list-folder-trash">
+    [ .folder-list +left +left-align {m:0.1em;p:0;} .pointer .no-select .folders .bg2 .hover-bg3-light
+      [ +padding
+        [c {w:24px;}
+          [M +medium {p:2px 0;} "folder" {col:__defaultBg__!;} +left]
+        ]
+        [x +small +left-align +padding {fw:bold;pos:relative;}
+          [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
+            __name__
+          ]
+        ]
+      ]
+    ]
+  </template>
+  
+  <template id="tmp-file-tab">
+    [ +left {w:180px;bg:#101113;pos:relative;z:1;} .file-tab data-title="__name__"
+      [
+        [ {p:6px 10px;} +right
+          [M +right "__fiber__" +button +hover-none +hover-text-light-grey +medium +text-gray .icon-rename onclick="fileClose('__fid__')" {p:4px 0 4px 9px;}]
+        ]
+        [x {pos:relative;p:18px 24px;lh:1.5em;}
+          [ "__name__" onclick="focusTab('__fid__', true)" .file-tab-name data-title="__name__" {pos:absolute;l:0;t:0;w:100%;col:#fff!;} .no-select +small .file-name {p:10px 10px 10px 19px;} {fw:bold;} +left]
+        ]
+      ]
+      [ {h:0.25rem;bg:#202020;}]
+    ]
+  </template>
+  
+  [ @update-notif {pos:fixed;b:0;l:0;bg:#312c2c;col:#ccc;z:8177;fw:bold;w:100%;}
+    [ +right
+      [ @btn-refresh "Refresh" {tt:uppercase;fw:bold;col:#d8d782;} +left +padding-16 +container]
+      [ @btn-dismiss "Dismiss" {tt:uppercase;fw:bold;} +left +padding-16 +container]
+    ]
+    [x
+      [ +padding-16 +container "New version available" +small]
+    ]
+  ]
+  
+  <!-- required for Blogsphere apps library -->
+  <script id="arc7-updater" type="plain/text">
+    arc7db.open(function(){let blogId='<blogId>';let appId='<appId>';fetch('https://www.blogger.com/feeds/'+blogId+'/posts/summary/'+appId+'?alt=json&rand='+new Date().getTime()).then(function(result){return result.json()}).then(function(json){let updated=(new Date(json.entry.updated.$t)).getTime();arc7db.get(appId,function(data){if(updated>data.updated){fetch('https://www.blogger.com/feeds/'+blogId+'/posts/default/'+appId+'?alt=json&rand='+new Date().getTime()).then(function(result){return result.json()}).then(function(json){let entry=json.entry.content.$t.split("<a name='more'></a> bbb");let data={appId:json.entry.id.$t.split('post-')[1],title:json.entry.title.$t,updated:(new Date(json.entry.updated.$t)).getTime(),summary:entry.splice(0,1),content:entry.join("<a name='more'></a> bbb").substring(397+5,json.entry.content.$t.length-6).replace(/<br \/>/g,'\n')};function installApp(){arc7db.create(data,function(){arc7db.get(data.appId,function(data){if(data)
+location.href=location.href;else setTimeout(installApp,2000)})})}
+arc7db.delete(data.appId,function(){installApp()})})}})})})
+  </script>
+  <!--service worker handler-->
+  <script>
+    (function() {
+      
+      function clientUpdateHandler(swo) {
+        let $ = function(query) {
+          return document.querySelector(query);
+        }
+        
+        if (clientUpdateHandler.swo)
+          clientUpdateHandler.swo.waiting.postMessage({action: 'skipWaiting'});
+        else if (swo)
+          swo.waiting.postMessage({action: 'skipWaiting'});
+          
+        new Promise(function(resolve, reject) {
+        
+          if ($('#update-notif') !== null) {
+            
+            $('#update-notif').classList.toggle('active', true);
+            $('#btn-refresh').onclick = resolve;
+            $('#btn-dismiss').onclick = reject;
+          } else {
+            
+            clientUpdateHandler.wait = setInterval(function() {
+              
+              if ($('#update-notif') !== null) {
+                
+                clearInterval(clientUpdateHandler.wait)
+                $('#update-notif').classList.toggle('active', true);
+                $('#btn-refresh').onclick = resolve;
+                $('#btn-dismiss').onclick = reject;
+              }
+              
+            }, 1000)
+          }
+        
+        }).then(function() {
+          
+          $('#update-notif').classList.toggle('active', false);
+          location.href = location.href;
+          
+        }).catch(function() {
+          
+          $('#update-notif').classList.toggle('active', false);
+          
+        });
+      }
+      
+      if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
+
+        navigator.serviceWorker.register('/sw.js').then(function(swo) {
+          if (!navigator.serviceWorker.controller)
+            return
+      
+          if (swo.waiting) {
+            swo.waiting.postMessage({action: 'skipWaiting'});
+            if (typeof(clientUpdateHandler) === 'undefined') {
+              
+              if (window.confirm('App updated. Reload?'))
+                location.href = location.href;
+            } else {
+              clientUpdateHandler.swo = swo;
+              clientUpdateHandler(swo);
+            }
+            return;
+          }
+      
+          if (swo.installing) {
+            swo.installing.addEventListener('statechange', function(e) {
+              if (swo.installing.state == 'installed') {
+                swo.waiting.postMessage({action: 'skipWaiting'});
+                if (typeof(clientUpdateHandler) === 'undefined') {
+                  
+                  if (window.confirm('App updated. Reload?'))
+                    location.href = location.href;
+                } else {
+                  clientUpdateHandler.swo = swo;
+                  clientUpdateHandler(swo);
+                }
+              }
+            })
+            return;
+          }
+          
+          swo.addEventListener('updatefound', function() {
+            swo.installing.addEventListener('statechange', function(e) {
+              if (this.state == 'installed') {
+                swo.waiting.postMessage({action: 'skipWaiting'});
+                if (typeof(clientUpdateHandler) === 'undefined') {
+                  if (window.confirm('App updated. Reload?'))
+                    location.href = location.href;
+                } else {
+                  clientUpdateHandler.swo = swo;
+                  clientUpdateHandler(swo);
+                }
+              }
+            })
+          })
+        }).catch(function(e) {
+          console.error('Something went wrong.')
+        });
+      }
+    })();
+  </script>
+  <script src="js/engine.js"></script>
+</body>
+</html>

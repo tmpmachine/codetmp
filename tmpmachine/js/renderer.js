@@ -198,7 +198,7 @@ let previewWindow = null;
     body = clearComments(body);
     
     if ($('#chk-render-plate-html').checked)
-      body = plate.cook(body);
+      body = (typeof(plate) != 'undefined') ? plate.cook(body) : body;
     
     if (isForceDeploy) {
       uploadBody = body;

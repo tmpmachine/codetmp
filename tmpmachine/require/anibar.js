@@ -1,4 +1,5 @@
 /*
+0.013 - 24 March 2020 - disable animation on first load
 0.012 - 15 March 2020 - fix library load error
 */
 
@@ -33,6 +34,7 @@
       
       if (document.querySelector('.anibar-'+prefix+'-pusher').classList.contains('anibar--blocker'))
         document.querySelector('.anibar-'+prefix+'-pusher').addEventListener('click', this.close);
+        
       let style = document.createElement('style');
       style.innerHTML = `
         #${prefix} {
@@ -68,8 +70,7 @@
         	width: 300px;
         	height: 100%;
         	background: #48a770;
-        	-webkit-transition: all 0.5s;
-        	transition: all 0.5s;
+        	/* --transition-- */
         }
         
         .anibar--active.anibar-${prefix}-pusher.anibar--blocker::after {
@@ -89,7 +90,7 @@
         
         .anibar--active.anibar-${prefix}-menu {
         	-webkit-transform: translateX(0);
-        	transform: translateX(0);
+        	transform: translateX(0)!important;
         }
           
         @media (max-width:600px) {
@@ -103,6 +104,9 @@
           }
         }`;
       document.body.appendChild(style);
+      setTimeout(()=>{
+        style.innerHTML = style.innerHTML.replace('/* --transition-- */', '-webkit-transition: all 0.5s;transition: all 0.5s;');
+      }, 1);
       return this;
     };
     

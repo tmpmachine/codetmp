@@ -3,24 +3,27 @@
 <head>
   
   <title>TMPmachine: Temporary Web App Code Editor</title>
-  
   <meta charset='utf-8'/>
-  
-  <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
+  <link rel="manifest" href="manifest.json"/>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="apple-touch-icon" sizes="128x128" href="images/128ap.png">
-  <link rel="manifest" href="manifest.json"/>
-
+  <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
+  <link rel="shortcut icon" sizes="16x16" type='image/x-icon' href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII=">
+  
+  <meta content='PWA (Progressive Web App) code editor for single page web app development' name='Description'/>
+  <meta content='PWA (Progressive Web App) code editor for single page web app development' property='og:description'/>
+  <meta content='TMPmachine: Temporary Web App Code Editor' property='og:title'/>
+  <meta content='notranslate' name='google'/>
+  <meta content='/images/site.png' property='og:image'/>
+  
   <style>
-    /* fallback */
     @font-face {
       font-family: 'Material Icons';
       font-style: normal;
       font-weight: 400;
-      src: url(fonts/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+      src: url('fonts/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2') format('woff2');
     }
-    
     .material-icons {
       font-family: 'Material Icons';
       font-weight: normal;
@@ -37,247 +40,480 @@
       -webkit-font-smoothing: antialiased;
     }
   </style>
-  <!--<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>-->
-  <link rel="stylesheet" href="css/style.css"/>
-  
-  <link rel="shortcut icon" sizes="16x16" type='image/x-icon' href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII=">
-  
-  <meta content='PWA (Progressive Web App) code editor for single page web app development' name='Description'/>
-  <meta content='PWA (Progressive Web App) code editor for single page web app development' property='og:description'/>
-  <meta content='TMPmachine: Temporary Web App Code Editor' property='og:title'/>
-  <meta content='notranslate' name='google'/>
-  
-  <meta content='/images/site.png' property='og:image'/>
-  
+  <link rel="stylesheet" href="/style.css"/>
+
 </head>
 <body class="bg5">
-  <template>
-    <img src='/images/192.png'/>
-  </template>
   
-  <style id="preload-style">
-    body { color:transparent; }
+  <template><img src='/images/192.png'/></template>
+  <style id="preload-material">
+    .material-icons{max-width:37.5px;overflow:hidden;color:transparent}
   </style>
 
-  <template id="plate-homepage">
-  [ +padding
-    [ +right-align
-      [in +check type="checkbox" checked oninput="changePersonal(this.checked)" @check-show] [l for="check-show" "Show homepage first"]
-    ]
-    [h3 {fw:bold;} "What is TMPmachine?"]
-    [p
-      [s {fw:bold;} "PWA"] [s +tiny "(Progressive Web App)"] code editor for [s {fw:bold;} "single page web app"] development.
+  
+  
+  <div id="main-editor" class="w3-row" style="height:100%;">
+    <div class="w3-row anibar-main-editor-menu" style="background:none;">
+      <div class="w3-row w3-left" style="position:relative;height:100%;width:100%;z-index:2;">
+        <div class="w3-row" style="background:#eee;height:100%;width:100%;position:absolute;overflow-y:auto;">
+          <div class="w3-row w3-padding">
+            
+    <div class="w3-row" style="position:relative;height:100%;">
       
-      [ +tiny
+      <div id="menu-basic" class="w3-row">
+        
+        <div class="w3-row w3-hide-medium w3-hide-large w3-button w3-border w3-margin-bottom w3-block" onclick="environment.close()">
+          <div class="w3-row w3-small w3-padding-small w3-left" style="font-weight:bold;">Close</div>
+        </div>
+        
+        <div id="btn-open-directory" class="w3-row w3-button w3-border w3-margin-bottom w3-block w3-hide">
+          <div class="w3-row w3-small w3-padding-small w3-left" style="font-weight:bold;">Open Directory</div>
+        </div>
+        
+        <div id="btn-download-file" class="w3-row w3-button w3-border w3-margin-bottom w3-block">
+          <div class="w3-row w3-small w3-padding-small w3-left" style="font-weight:bold;">Download</div>
+          <i class="material-icons w3-medium w3-padding-small" style="transform:rotate(90deg);">input</i>
+        </div>
+        
+        <small>Development</small>
+        <div>
+          <button class="file-settings-button" data-section="revisions">+ Revisions</button>
+          <button class="file-settings-button" data-section="blogger">+ Blogger</button>
+          <button class="file-settings-button" data-section="blossem">+ Blossem</button>
+          <hr/>
+        </div>
+          
+        <small>PWA Options</small>
+        <div>
+          <input id="in-PWA-enabled" type="checkbox"/> <label class="w3-tiny" for="in-PWA-enabled">Preview file as PWA</label>
+          <div class="w3-row w3-tiny">(caution: will update installed PWA)</div>
+          <div class="w3-row" style="height:5px;"></div>
+          <div class="w3-row w3-tiny">PWA Name (experimental)</div>
+          <input id="in-PWA-app-name" class="description" name="pwa-name"/>
+        </div>
+        
+        <div class="auth-required unauthorized hide file-settings" data-section="blossem">
+          <div class="w3-row w3-tiny">Blossem template URL</div>
+          <input id="in-blossem" class="description" name="blossem" style="width:100%;"/>
+          <hr/>
+        </div>
+        
+        <div class="auth-required unauthorized hide file-settings" data-section="blogger">
+          <div class="w3-row w3-tiny">Blog name</div>
+          <input id="in-blog-name" class="description" name="blogName" style="width:100%;"/>
+          <div class="w3-row w3-tiny">Blog ID</div>
+          <input id="in-blog-id" class="description" name="blogId" style="width:100%;"/>
+          <div class="w3-row w3-tiny">Entry ID</div>
+          <input id="in-eid" class="description" name="entryId" style="width:100%;"/>
+          <div class="w3-row w3-tiny">Summary</div>
+          <textarea id="in-summary" class="description" name="summary" style="width:100%;resize:none;height:100px;"></textarea>
+          <div class="w3-row">
+            <input id="chk-bibibi" class="description" type="checkbox" name="isSummaryFix"/> <label for="chk-bibibi">Post summary fix</label>
+          </div>
+          <div class="w3-row">
+            <input id="chk-more-tag" class="description" type="checkbox" name="isBreak"/> <label for="chk-more-tag">Use More tag</label>
+          </div>
+          <div class="w3-row">
+            <input id="chk-in-pre" class="description" type="checkbox" name="isWrap"/> <label for="chk-in-pre">Wrap in &lt;pre&gt;</label>
+          </div>
+          <div class="w3-row">
+            <input id="chk-blogger-app" class="description" type="checkbox" name="isApp"/> <label for="chk-blogger-app">Deploy as Blogger Apps</label>
+          </div>
+          
+          <div class="w3-row w3-tiny" style="margin-top:1em;">Render and deploy option</div>
+          <div class="w3-row">
+            <input id="chk-render-plate-html" type="checkbox" checked="checked"/> <label for="chk-render-plate-html">Render Plate-HTML</label>
+          </div>
+          <div class="w3-row">
+            <input id="chk-deploy-minified" type="checkbox"/> <label for="chk-deploy-minified">Render as minified app</label>
+          </div>
+          
+          
+          <button id="btn-create-template">Create Blog Template</button>
+          <button id="btn-create-entry">Create Blog Entry</button>
+          <button id="btn-create-app">Create Blogger App</button>
+          <hr/>
+        </div>
+        
+        <div class="auth-required unauthorized hide file-settings" data-section="revisions">
+          <button id="btn-backup-revision" class="w3-button w3-border w3-margin-top">Backup Revision</button>
+          <button id="btn-list-revisions" class="w3-button w3-border w3-margin-top">List Revisions</button>
+          <button id="btn-blog-vc" class="w3-button w3-border w3-margin-top w3-hide">Open version control</button>
+          <hr/>
+          <div id="list-revisions" class="w3-row"></div>
+          <hr/>
+        </div>
+        
+        <!--<hr/>-->
+        <!--<button id="btn-delete-file" class="w3-hide-large w3-hide-medium w3-red w3-button w3-border w3-margin-bottom w3-block">Delete</button>-->
+        
+      </div>
+    </div>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div id="sidebar" class="w3-row w3-left w3-hide-large w3-hide-medium w3-animate-left w3-card-4" style="position:relative;height:100%;overflow-x:hidden;overflow-y:auto;">
+      
+    <div class="w3-row" style="position:relative;z-index:0;">
+      <div id="btn-home" class="w3-row btn-material no-select" menu="in-home">
+        <i class="material-icons i-btn-in">home</i>
+        <label class="l-btn-in">Home</label>
+      </div>
+    </div>
+    <div class="w3-row" style="position:relative;z-index:0;">
+      <div id="btn-menu-save" class="w3-row btn-material no-select">
+        <i class="material-icons i-btn-in">save</i>
+        <label class="l-btn-in">Save</label>
+      </div>
+    </div>
+    <div class="w3-row" style="position:relative;z-index:0;">
+      <div id="btn-menu-preview" class="w3-row btn-material no-select">
+        <i class="material-icons i-btn-in">play_arrow</i>
+        <label class="l-btn-in">Preview</label>
+      </div>
+    </div>
+    
+    <div class="w3-row" style="position:relative;z-index:0;">
+      <div id="btn-menu-info" class="w3-row btn-material no-select w3-animate-left" menu="in-info">
+        <i class="material-icons i-btn-in">info</i>
+        <label class="l-btn-in">File Info</label>
+      </div>
+    </div>
+    <div id="btn-assets" class="w3-row w3-hide w3-animate-left" style="position:relative;z-index:0;display:none;">
+      <div class="w3-row btn-material no-select" menu="in-assets">
+        <i class="material-icons i-btn-in">web_asset</i>
+        <label class="l-btn-in">Assets</label>
+      </div>
+    </div>
+    <div id="btn-menu-my-files" class="w3-row btn-material no-select" menu="in-my-files">
+      <i class="material-icons i-btn-in">folder</i>
+      <label class="l-btn-in">My Files</label>
+    </div>
+    <div id="btn-menu-trash" class="w3-row btn-material no-select" menu="in-trash">
+      <i class="material-icons i-btn-in">delete</i>
+      <label class="l-btn-in">Trash</label>
+    </div>
+    <div id="btn-menu-template" class="w3-row w3-hide btn-material no-select">
+      <i class="material-icons i-btn-in">extension</i>
+      <label class="l-btn-in">Snippets</label>
+    </div>
+    <div id="btn-menu-settings" class="w3-row btn-material no-select" menu="in-settings">
+      <i class="material-icons i-btn-in">settings</i>
+      <label id="txt-login-status" class="l-btn-in">Settings</label>
+    </div>
+    <div class="w3-row btn-material no-select w3-hide" menu="in-osk" onclick="$('#my-osk').classList.toggle('hide')">
+      <i class="material-icons i-btn-in">keyboard</i>
+      <label class="l-btn-in">Keyboard</label>
+    </div>
+    <div class="w3-row btn-material no-select w3-hide" menu="in-osk" onclick="$('.search-box')[0].classList.toggle('w3-hide');if (!$('.search-box')[0].classList.contains('w3-hide')) $('#search-input').focus()">
+      <i class="material-icons i-btn-in">extension</i>
+      <label class="l-btn-in">Templates</label>
+    </div>
+    <div id="syncing" class="w3-row w3-padding-small w3-center w3-tiny" style="color:#fafafa;"></div>
+  
+      <div class="w3-row bg5" style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;"></div>
+    </div>
+    <div class="w3-rest scroll1 anibar-main-editor-pusher anibar--blocker" style="height:100%;position:relative;">
+      
+    <div id="in-home" class="w3-row in-window in-content bg1 col1 active">
+      <div class="w3-row" style="position:absolute;top:0;left:0;height:100%;overflow:auto;z-index:2;width:100%;">
+        <div class="w3-row w3-hide-small" style="height:34px;"></div>
+        
+  <div class="w3-row w3-padding">
+    <div class="w3-row w3-right-align">
+      <input id="check-show" class="w3-check" type="checkbox" checked oninput="changePersonal(this.checked)"/> <label for="check-show">Show homepage first</label>
+    </div>
+    <h3 style="font-weight:bold;">TMPmachine</h3>
+    <p>
+      <span style="font-weight:bold;">PWA</span> <span class="w3-tiny">(Progressive Web App)</span> code editor for <span style="font-weight:bold;">single page web app</span> development.
+      
+      <div class="w3-row w3-tiny">
         Psstt! PWA simply means you can access it <u>offline</u>!!
-      ]
-    ]
+      </div>
+    </p>
     
     ---
     
-    [ +padding-16
-      [btn +button "Start Coding" onclick="$('#btn-home').click()" +blue +round]
-    ]
-    [p +small
+    <div class="w3-row">
+      <span class="loading" id="label-loading">Getting ready...</span>
+      <i id="icon-loading" class="material-icons w3-spin w3-small">refresh</i>
+    </div>
+    
+    <div class="w3-row w3-padding-16">
+      <button class="w3-button w3-blue w3-round" onclick="$('#btn-home').click()">Start Coding</button>
+    </div>
+    <p class="w3-small">
       Notes : Your files are stored locally in browser storage. Login to synchronize with Google Drive.
-      [br]
-    ]
+      <br/>
+    </p>
     
     ---
     
-    [h3 {fw:bold;} "Links"]
-    [ul
-      [li
-        <u>[a href="/PP.html" "Privacy Policy"]</u>
-      ]
-      [li
-        <u>[a href="/TOS.html" "Terms of service"]</u>
-      ]
-      [li
-        <u>[a href="https://github.com/tmpmachine/tmpmachine" "GitHub Page"]</u>
-      ]
-    ]
+    <h3 style="font-weight:bold;">Links</h3>
+    <ul>
+      <li>
+        <u><a href="/PP.html">Privacy Policy</a></u>
+      </li>
+      <li>
+        <u><a href="/TOS.html">Terms of service</a></u>
+      </li>
+      <li>
+        <u><a href="https://github.com/tmpmachine/tmpmachine">GitHub Page</a></u>
+      </li>
+    </ul>
     
-    ---
+    <!--<h3 style="font-weight:bold;">Why it exists?</h3>-->
+    <!--<-->
+      <!--My laptop HDD goes "berserk" <span class="w3-small" style="font-weight:bold;">i.e. bad sector</span>, so I need a place to store my JavaScript project and access it from public area at the time. So goes the Google Drive synchronization idea come to live and here comes the temporary code editor so called my IGN, <b>TMPmachine</b>.-->
+    <!--]-->
+    <!--<div class="w3-row w3-padding"></div>-->
     
-    [h3 {fw:bold;} "Why it exists?"]
-    [p
-      My laptop HDD goes "berserk" [s +small {fw:bold} "i.e. bad sector"], so I need a place to store my JavaScript project and access it from public area at the time. So goes the Google Drive synchronization idea come to live and here comes the temporary code editor so called my IGN, <b>TMPmachine</b>.
-    ]
-    [ +padding]
+  </div>
+  
+      </div>
+    </div>
+    <div id="in-home-block" class="w3-row in-window in-block" style="z-index:0;"></div>
     
-  ]
-  </template>
+    <div id="in-assets" class="w3-row in-window in-content bg1 col1" style="background:none;width:200px;">
+      <div class="w3-row" style="position:relative;height:100%;">
+        <div class="w3-row menu-overflow-header">
+          
+    <div class="w3-row w3-right" style="padding:6px 10px;visibility:hidden;">
+      <i class="material-icons">close</i>
+    </div>
   
-
+        </div>
+        <div class="w3-row w3-padding menu-overflow-content" style="background:#eee;height:100%;width:100%;position:absolute;">
+          
+        </div>
+      </div>
+    </div>
+    <div id="in-assets-block" class="w3-row in-window in-block"></div>
+    
+    <div id="in-my-files" class="w3-row in-window in-content bg1 col1" style="overflow:hidden;">
+      <div class="w3-row w3-hide-small" style="height:34px;"></div>
+      <div class="w3-row w3-padding menu-overflow-header border-bottom-dark">
+        <div class="w3-row w3-left">
+          <h5 class="no-select" style="font-weight:bold;">My Files</h5>
+        </div>
+        <div id="btn-refresh-sync" class="w3-row w3-button w3-right w3-hover-none w3-hide-small w3-hover-text-black">
+          <div class="w3-row w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Refresh</div>
+          <i class="material-icons" style="color:#fff;">refresh</i>
+        </div>
+        <div id="btn-new-folder" class="w3-row w3-button w3-right w3-hover-none w3-hover-text-black">
+          <div class="w3-row w3-hide-small w3-small w3-padding-small w3-left">New Folder</div>
+          <i class="material-icons" style="color:#fff;">create_new_folder</i>
+        </div>
+        <div id="btn-new-file" class="w3-row w3-button w3-right w3-hover-none w3-hover-text-black">
+          <div class="w3-row w3-small w3-padding-small w3-left">New File</div>
+          <i class="material-icons" style="color:#fff;">add</i>
+        </div>
+        <div id="btn-rename-folder" class="w3-row w3-button w3-right w3-hover-none w3-hover-text-black w3-hide">
+          <div class="w3-row w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Rename</div>
+          <i class="material-icons" style="color:#fff;">edit</i>
+        </div>
+      </div>
+      <div class="w3-row menu-overflow-content" style="height:100%;">
+        <div class="w3-row scroll1" style="height:100%;overflow:auto;z-index:1;position:relative;">
+          <div class="w3-row w3-padding-small w3-right-align w3-tiny no-select" style="margin-top:1em;">
+            <div id="action-info" class="w3-col w3-half w3-center">&nbsp;</div>
+            <div class="w3-col w3-half w3-opacity">Build v1.0746 - 23 March 2020</div>
+          </div>
+          <div id="breadcrumbs" class="w3-row no-select w3-small w3-padding"></div>
+          <div id="file-list" class="w3-row w3-padding"></div>
+        </div>
+      </div>
+    </div>
+    <div id="in-my-files-block" class="w3-row in-window in-block"></div>
+    
+    
+    <div id="in-trash" class="w3-row in-window in-content bg1 col1" style="overflow:hidden;">
+      <div class="w3-row w3-hide-small" style="height:34px;"></div>
+      <div class="w3-row w3-padding menu-overflow-header border-bottom-dark">
+        <div class="w3-row w3-left no-select">
+          <h5><b>Trash <span class="w3-tiny">(Preview only)</span> <span class="w3-black w3-round w3-tiny" style="padding:0 2px 2px ;">Beta</span></b></h5>
+        </div>
+      </div>
+      <div class="w3-row menu-overflow-content" style="height:100%;">
+        <div class="w3-row scroll1" style="height:100%;overflow:auto;z-index:1;position:relative;">
+          <div id="list-trash" class="w3-row w3-padding"></div>
+        </div>
+      </div>
+    </div>
+    <div id="in-trash-block" class="w3-row in-window in-block"></div>
+    
+    
+    <div id="in-settings" class="w3-row in-window in-content bg1 col1" style="overflow:hidden;">
+      <div class="w3-row w3-hide-small" style="height:34px;"></div>
+      <div class="w3-row w3-padding menu-overflow-header no-select border-bottom-dark">
+        <h5><b>Settings</b></h5>
+      </div>
+      <div class="w3-row menu-overflow-content" style="height:100%;">
+        <div class="w3-row w3-padding scroll1" style="height:100%;overflow:auto;">
+          
+    <h6 style="font-weight:bold;">Editor</h6>
+    <p>
+      <input id="check-word-wrap" class="w3-check" type="checkbox" oninput="ui.toggleWordWrap()"/> <label for="check-word-wrap">Word Wrap</label>
+    </p>
+    <hr/>
+    
+    <h6 style="font-weight:bold;">Sync with Google Drive</h6>
+    <p id="login-info" class="w3-small">
+      (!) Your files are stored locally in browser storage. Login to synchronize with Google Drive.
+    </p>
+    
+    <button id="btn-blogsphere-login" style="border:0;outline:none;width:191px;height:46px;padding:0;"></button>
+    <button id="btn-blogsphere-logout" class="w3-button w3-blue" style="display:none;">Logout</button>
+    
+    <div class="w3-row" style="display:none;">
+      <img src="/images/google/1x/btn_google_signin_dark_pressed_web.png"/>
+      <img src="/images/google/1x/btn_google_signin_dark_focus_web.png"/>
+    </div>
+    
+    <p class="w3-small">By using <b>TMPmachine</b>, you're considered agreed to terms and condition written on articles below :</p>
+    <ul>
+      <li>
+         <u><a target="_blank" href="/TOS.html" style="font-weight:bold;">Terms of Service</a></u>
+      </li>
+      <li>
+         <u><a href="/PP.html" target="_blank" style="font-weight:bold;">Privacy Policy</a></u>
+      </li>
+    </ul>
   
-  [ {h:100%;} @main-editor
-    [ .anibar-main-editor-menu {bg:none;}
-      [ {pos:relative;h:100%;w:100%;z-index:2;} +left
-        [ +padding {bg:#eee;h:100%;w:100%;pos:absolute;ov-y:auto;}
-          <!--plate-menu-info-->
-        ]
-      ]
-    ]
+        </div>
+      </div>
+    </div>
+    <div id="in-settings-block" class="w3-row in-window in-block"></div>
   
-    [ +left +hide-large +hide-medium {pos:relative;h:100%;ov-x:hidden;ov-y:auto;} +animate-left @sidebar +card-4
-      <!--plate-sidebar-->
-      [ .bg5 {pos:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;}]
-    ]
-    [x {h:100%;pos:relative;} .scroll1 .anibar-main-editor-pusher .anibar--blocker
-      <!--plate-interact-menu-->
       
-      [ .in-window {ov:hidden;}
-        [ {pos:relative;h:100%;}
-          [ +blue +hide {pos:fixed;z:2;h:calc(100% - 41px);r:0;w:200px;ov-y:scroll;t:41px;} onscroll="$('#editor').env.editor.getSession().setScrollTop(this.scrollTop)"
-            [ @scroll-chair {w:200px;bg:linear-gradient(dodgerblue,lightblue);}]
-          ]
+      <div class="w3-row in-window" style="overflow:hidden;">
+        <div class="w3-row" style="position:relative;height:100%;">
+          <div class="w3-row w3-blue w3-hide" onscroll="$('#editor').env.editor.getSession().setScrollTop(this.scrollTop)" style="position:fixed;z-index:2;height:calc(100% - 41px);right:0;width:200px;overflow-y:scroll;top:41px;">
+            <div id="scroll-chair" class="w3-row" style="width:200px;background:linear-gradient(dodgerblue,lightblue);"></div>
+          </div>
           
-          [a href="javascript:void(0)" @nav-bar-blur {pos:absolute;z:-22;dis:none;}]
-          [ @nav-bar +hide-small .hoverable .no-select {bg:#1d1f25;} {h:34px;pos:relative;z:888;dis:block;w:100%;} +small {col:#fafafa;}
-            [ul {p:0;m:0;list-style:none;dis:block;}
-              [li +left +padding {pos:relative;}
+          <a id="nav-bar-blur" href="javascript:void(0)" style="position:absolute;z-index:-22;display:none;"></a>
+          <div id="nav-bar" class="w3-row w3-hide-small hoverable no-select w3-small" style="background:#1d1f25;height:34px;position:relative;z-index:888;display:block;width:100%;color:#fafafa;">
+            <ul style="padding:0;margin:0;list-style:none;display:block;">
+              <li class="w3-left w3-padding" style="position:relative;">
                 File
-                [ul {l:0;bg:#000;t:0;w:340px;p:0;m:0;list-style:none;dis:none;pos:absolute;}
-                  [li +padding .menu-link data-link='save'
+                <ul style="left:0;background:#000;top:0;width:340px;padding:0;margin:0;list-style:none;display:none;position:absolute;">
+                  <li class="w3-padding menu-link" data-link='save'>
                     Save
-                    [s "Ctrl + S" +tiny +opacity +right]
-                  ]
-                  [li +padding .menu-link data-link='preview'
+                    <span class="w3-tiny w3-opacity w3-right">Ctrl + S</span>
+                  </li>
+                  <li class="w3-padding menu-link" data-link='preview'>
                     Preview
-                    [s "Ctrl + Enter" +tiny +opacity +right]
-                  ]
-                  [li +padding .menu-link data-link='deploy' .auth-required .unauthorized
+                    <span class="w3-tiny w3-opacity w3-right">Ctrl + Enter</span>
+                  </li>
+                  <li class="w3-padding menu-link auth-required unauthorized" data-link='deploy'>
                     Deploy to Blogger
-                    [s "Alt + Enter" +tiny +opacity +right]
-                  ]
-                  [li +padding .menu-link data-link='deploy-single' .auth-required .unauthorized
+                    <span class="w3-tiny w3-opacity w3-right">Alt + Enter</span>
+                  </li>
+                  <li class="w3-padding menu-link auth-required unauthorized" data-link='deploy-single'>
                     Deploy to Blogger (Active tab)
-                    [s "Alt + Shift + Enter" +tiny +opacity +right]
-                  ]
-                  [li +padding .menu-link data-link='download-rendered'
-                    Download Rendered File
-                  ]
-                ]
-              ]
-              [li +left +padding {pos:relative;}
+                    <span class="w3-tiny w3-opacity w3-right">Alt + Shift + Enter</span>
+                  </li>
+                  <li class="w3-padding menu-link" data-link='download-rendered'>
+                    Download File
+                  </li>
+                </ul>
+              </li>
+              <li class="w3-left w3-padding" style="position:relative;">
                 Explorer
-                [ul {dis:none;l:0;t:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
-                  [li +padding .menu-link data-link='my-files'
+                <ul style="display:none;left:0;top:0;background:#000;width:200px;padding:0;margin:0;list-style:none;position:absolute;">
+                  <li class="w3-padding menu-link" data-link='my-files'>
                     My Files
-                    [s "Alt + M" +tiny +opacity +right]
-                  ]
-                  [li +padding .menu-link data-link='file info'
+                    <span class="w3-tiny w3-opacity w3-right">Alt + M</span>
+                  </li>
+                  <li class="w3-padding menu-link" data-link='file info'>
                     File Info
-                    [s "Alt + I" +tiny +opacity +right]
-                  ]
-                  [li +padding .menu-link data-link='trash'
+                    <span class="w3-tiny w3-opacity w3-right">Alt + I</span>
+                  </li>
+                  <li class="w3-padding menu-link" data-link='trash'>
                     Trash
-                  ]
-                ]
-              ]
-              [li +left +padding {pos:relative;}
+                  </li>
+                </ul>
+              </li>
+              <li class="w3-left w3-padding" style="position:relative;">
                 Editor
-                [ul {dis:none;l:0;t:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
-                  [li +padding .menu-link data-link='set-font-size'
+                <ul style="display:none;left:0;top:0;background:#000;width:200px;padding:0;margin:0;list-style:none;position:absolute;">
+                  <li class="w3-padding menu-link" data-link='set-font-size'>
                     Set Font Size
-                  ]
-                  [li +padding .menu-link data-link='toggle-wrap-mode'
+                  </li>
+                  <li class="w3-padding menu-link" data-link='toggle-wrap-mode'>
                     Toggle Wrap Mode
-                  ]
-                  [li +padding .menu-link data-link='toggle-editor-theme'
+                  </li>
+                  <li class="w3-padding menu-link" data-link='toggle-editor-theme'>
                     Toggle Light Theme
-                  ]
-                ]
-              ]
-              [li +left +padding {pos:relative;}
+                  </li>
+                </ul>
+              </li>
+              <li class="w3-left w3-padding" style="position:relative;">
                 Help
-                [ul {dis:none;t:0;l:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
-                  [li
-                    [a +padding {dis:block} href="/PP.html" target="_blank" "Privacy Policy"]
-                  ]
-                  [li
-                    [a +padding {dis:block} href="/TOS.html" target="_blank" "Terms of Service"]
-                  ]
-                  [li +padding .menu-link data-link='about'
+                <ul style="display:none;top:0;left:0;background:#000;width:200px;padding:0;margin:0;list-style:none;position:absolute;">
+                  <li>
+                    <a class="w3-padding" href="/PP.html" target="_blank" style="display:block;">Privacy Policy</a>
+                  </li>
+                  <li>
+                    <a class="w3-padding" href="/TOS.html" target="_blank" style="display:block;">Terms of Service</a>
+                  </li>
+                  <li class="w3-padding menu-link" data-link='about'>
                     About TMPmachine
-                  ]
-                ]
-              ]
-              [li +left +padding {pos:relative;}
+                  </li>
+                </ul>
+              </li>
+              <li class="w3-left w3-padding" style="position:relative;">
                 My Account
-                [ul {dis:none;t:0;l:0;bg:#000;w:200px;p:0;m:0;list-style:none;pos:absolute;}
-                  [li +padding .menu-link data-link='settings'
+                <ul style="display:none;top:0;left:0;background:#000;width:200px;padding:0;margin:0;list-style:none;position:absolute;">
+                  <li class="w3-padding menu-link" data-link='settings'>
                     Settings
-                  ]
-                ]
-              ]
-              [li +right +padding +tiny
-                [ @txt-sync]
-              ]
-            ]
-          ]
-          <style>
-            #nav-bar {
-              cursor: default;
-            }
-            #nav-bar ul li li {
-              cursor: pointer;
-              background: #3a3a3a;
-            }
-            #nav-bar.hoverable ul li:hover ul {
-              display: inline-block!important;
-            }
-            #nav-bar ul li ul {
-              margin-top: 34px!important;
-            }
-            #nav-bar ul li:hover {
-              background: #333!important;
-            }
-            #nav-bar ul li ul li:hover {
-              background: #555!important;
-            }
-          </style>
+                  </li>
+                </ul>
+              </li>
+              <li class="w3-right w3-padding w3-tiny">
+                <div id="txt-sync" class="w3-row"></div>
+              </li>
+            </ul>
+          </div>
           
-          
-          [ @file-title-wrapper .menu-overflow-header
-            [ {bg:#141414;pos:relative;} @file-title
+          <div id="file-title-wrapper" class="w3-row menu-overflow-header">
+            <div id="file-title" class="w3-row" style="background:#141414;position:relative;">
               <!--xplate-ninja-space-->
-              [ {p:6px 0;w:1px;ov:hidden} +right {visibility:hidden;}
-                [M "close" ]
-              ]
+              <div class="w3-row w3-right" style="padding:6px 0;width:1px;overflow:hidden;visibility:hidden;">
+                <i class="material-icons">close</i>
+              </div>
               
               <!---->
-              [ +left {bg:#101113;pos:relative;z:1;} @more-tab {dis:none}
-                [
-                  [x {pos:relative;p:18px 24px;lh:1.5em;}
-                    [ onclick="" .file-tab-name data-title="__name__" {pos:absolute;l:0;t:0;w:100%;col:#fff!;} .no-select +small {fw:bold;} +left {dis:flex;align-items:center;justify-content:center;h:100%}
-                      [M "navigate_next"]
-                    ]
-                  ]
-                ]
-                [ {h:0.25rem;bg:#202020;}]
-              ]
+              <div id="more-tab" class="w3-row w3-left" style="background:#101113;position:relative;z-index:1;display:none;">
+                <div class="w3-row">
+                  <div class="w3-rest" style="position:relative;padding:18px 24px;line-height:1.5em;">
+                    <div class="w3-row file-tab-name no-select w3-small w3-left" onclick="" data-title="__name__" style="position:absolute;left:0;top:0;width:100%;color:#fff!important;font-weight:bold;display:flex;align-items:center;justify-content:center;height:100%;">
+                      <i class="material-icons">navigate_next</i>
+                    </div>
+                  </div>
+                </div>
+                <div class="w3-row" style="height:0.25rem;background:#202020;"></div>
+              </div>
               <!---->
-            ]
+            </div>
             
-            
-          ]
+          </div>
           
-          [ @editor-wrapper +padding spellcheck="false" {pos:absolute;w:100%;h:100%;} .menu-overflow-content
-            [ @editor {pos:absolute;top:0;bottom:0;left:0;right:0;}]
-            [ @blocker-editor .bg6 {pos:absolute;t:0;l:0;r:0;b:0;z-index:6;}]
-          ]
-        ]
-      ]
+          <div id="editor-wrapper" class="w3-row w3-padding menu-overflow-content" spellcheck="false" style="position:absolute;width:100%;height:100%;">
+            <div id="editor" class="w3-row" style="position:absolute;top:0;bottom:0;left:0;right:0;"></div>
+            <div id="blocker-editor" class="w3-row bg6" style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:6;"></div>
+          </div>
+        </div>
+      </div>
       
-    ]
-  ]
-  
-  <!--plate-search-template-->
+    </div>
+  </div>
   
   
-  <template id="plate-search-template">
     <style>
       .search-hints.selected{background:#eee;}
       .search-hints{border-top:1px solid #e8e8e8;}
@@ -292,597 +528,305 @@
       #book-scrool{transition-timing-function: linear;}
     </style>
     
-    [ .search-box {position:fixed;z:8177;t:0;w:100%;} +container +hide
+    <div class="w3-row search-box w3-container w3-hide" style="position:fixed;z-index:8177;top:0;width:100%;">
       
-      [ +padding-large]
-      [ +left-align {max-width:400px;margin:auto;}
-        [ {position:relative;} +card
-          [ .search-box {position:relative;}
-            [ {position:relative;z-index:1;} +round +white
-              [ +left +right
-                [l for="search-input"
-                  [M "search" .ai-button @btn-somefun +container +padding-16 +xlarge onclick="somefun(this)"]
-                ]
-              ]
-              [ .button-tb {ov:hidden;}
-                [in @search-input +padding-16 +round {width:100%;border:0;} autocomplete='off' onkeydown='wgSearch.selectHints(null,event)' oninput='wgSearch.find(this.value)' placeholder='Search snippets' type='text' name='q' +white +padding]
-              ]
-            ]
-          ]
-        ]
-        [ @search-result {pos:relative;z:1;t:-2px;}]
-      ]
-      
-    ]
-  </template>
-  <template id="tmp-hints">
-    [ +white
-      <div onmouseover='wgSearch.selectHints(__index__)'>
-        [ onclick="insertTemplate(__index__)" .search-hints {pos:relative;}
-          [ +padding +block "__title__"]
-        ]
+      <div class="w3-row w3-padding-large"></div>
+      <div class="w3-row w3-left-align" style="max-width:400px;margin:auto;">
+        <div class="w3-row w3-card" style="position:relative;">
+          <div class="w3-row search-box" style="position:relative;">
+            <div class="w3-row w3-round w3-white" style="position:relative;z-index:1;">
+              <div class="w3-row w3-left w3-right">
+                <label for="search-input">
+                  <i id="btn-somefun" class="material-icons ai-button w3-container w3-padding-16 w3-xlarge" onclick="somefun(this)">search</i>
+                </label>
+              </div>
+              <div class="w3-row button-tb" style="overflow:hidden;">
+                <input id="search-input" class="w3-padding-16 w3-round w3-white w3-padding" autocomplete='off' onkeydown='wgSearch.selectHints(null,event)' oninput='wgSearch.find(this.value)' placeholder='Search snippets' type='text' name='q' style="width:100%;border:0;"/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="search-result" class="w3-row" style="position:relative;z-index:1;top:-2px;"></div>
       </div>
-    ]
+      
+    </div>
+  
+  
+  
+  <template id="tmp-hints">
+    <div class="w3-row w3-white">
+      <div onmouseover='wgSearch.selectHints(__index__)'>
+        <div class="w3-row search-hints" onclick="insertTemplate(__index__)" style="position:relative;">
+          <div class="w3-row w3-padding w3-block">__title__</div>
+        </div>
+      </div>
+    </div>
   </template>
   <template id="tmp-hints-last">
-    [ {rad:0 0 4px 4px;}  +white {ov:hidden;}
+    <div class="w3-row w3-white" style="border-radius:0 0 4px 4px;overflow:hidden;">
       <div onmouseover='wgSearch.selectHints(__index__)'>
-        [ onclick="insertTemplate(__index__)" .search-hints .last {pos:relative;}
-          [ +padding +block "__title__"]
-        ]
+        <div class="w3-row search-hints last" onclick="insertTemplate(__index__)" style="position:relative;">
+          <div class="w3-row w3-padding w3-block">__title__</div>
+        </div>
       </div>
-    ]
+    </div>
   </template>
-  <template id="plate-sidebar">
-    [ {pos:relative;z-index:0;}
-      [ .btn-material .no-select menu="in-home" @btn-home
-        [M "home" .i-btn-in]
-        [l "Home" .l-btn-in]
-      ]
-    ]
-    [ {pos:relative;z-index:0;}
-      [ .btn-material .no-select @btn-menu-save
-        [M "save" .i-btn-in]
-        [l "Save" .l-btn-in]
-      ]
-    ]
-    [ {pos:relative;z-index:0;}
-      [ .btn-material .no-select @btn-menu-preview
-        [M "play_arrow" .i-btn-in]
-        [l "Preview" .l-btn-in]
-      ]
-    ]
-    
-    [ {pos:relative;z-index:0;}
-      [ .btn-material .no-select menu="in-info" @btn-menu-info +animate-left
-        [M "info" .i-btn-in]
-        [l "File Info" .l-btn-in]
-      ]
-    ]
-    [ {pos:relative;z-index:0;} +hide @btn-assets +animate-left {display:none;}
-      [ .btn-material .no-select menu="in-assets"
-        [M "web_asset" .i-btn-in]
-        [l "Assets" .l-btn-in]
-      ]
-    ]
-    [ .btn-material .no-select menu="in-my-files" @btn-menu-my-files
-      [M "folder" .i-btn-in]
-      [l "My Files" .l-btn-in]
-    ]
-    [ .btn-material .no-select menu="in-trash" @btn-menu-trash
-      [M "delete" .i-btn-in]
-      [l "Trash" .l-btn-in]
-    ]
-    [ +hide .btn-material .no-select @btn-menu-template
-      [M "extension" .i-btn-in]
-      [l "Snippets" .l-btn-in]
-    ]
-    [ .btn-material .no-select menu="in-settings" @btn-menu-settings
-      [M "settings" .i-btn-in]
-      [l "Settings" .l-btn-in @txt-login-status]
-    ]
-    [ .btn-material .no-select menu="in-osk" onclick="$('#my-osk').classList.toggle('hide')" +hide
-      [M "keyboard" .i-btn-in]
-      [l "Keyboard" .l-btn-in]
-    ]
-    [ .btn-material .no-select menu="in-osk" onclick="$('.search-box')[0].classList.toggle('w3-hide');if (!$('.search-box')[0].classList.contains('w3-hide')) $('#search-input').focus()" +hide
-      [M "extension" .i-btn-in]
-      [l "Templates" .l-btn-in]
-    ]
-    [ +padding-small +center +tiny @syncing {col:#fafafa;}]
-  </template>
-  <template id="plate-interact-menu">
-    [ @in-home .in-window .in-content .bg1 .col1 .active
-      [ {pos:absolute;t:0;l:0;h:100%;ov:auto;z-index:2;w:100%;}
-        [ {h:34px;} +hide-small]
-        <!--plate-homepage-->
-      ]
-    ]
-    [ @in-home-block .in-window .in-block {z-index:0;}]
-    
-    [ @in-assets .in-window {bg:none;w:200px;} .in-content .bg1 .col1
-      [ {pos:relative;h:100%;}
-        [ .menu-overflow-header
-          <!--plate-ninja-space-->
-        ]
-        [ +padding {bg:#eee;h:100%;w:100%;pos:absolute;} .menu-overflow-content
-          
-        ]
-      ]
-    ]
-    [ @in-assets-block .in-window .in-block]
-    
-    [ @in-my-files .in-window .in-content .bg1 .col1 {overflow:hidden;}
-      [ {h:34px;} +hide-small]
-      [ +padding .menu-overflow-header .border-bottom-dark
-        [ +left
-          [h5 {fw:bold;} "My Files" .no-select]
-        ]
-        [ +button +right @btn-refresh-sync +hover-none +hide-small +hover-text-black
-          [ "Refresh" +hide-medium +hide-small +small +padding-small +left]
-          [M "refresh" {col:#fff;}]
-        ]
-        [ +button +right @btn-new-folder +hover-none +hover-text-black
-          [ "New Folder" +hide-small +small +padding-small +left]
-          [M "create_new_folder" {col:#fff;}]
-        ]
-        [ +button +right @btn-new-file +hover-none +hover-text-black
-          [ "New File" +small +padding-small +left]
-          [M "add" {col:#fff;}]
-        ]
-        [ +button +right @btn-rename-folder +hover-none +hover-text-black +hide
-          [ "Rename" +hide-medium +hide-small +small +padding-small +left]
-          [M "edit" {col:#fff;}]
-        ]
-      ]
-      [ {h:100%;} .menu-overflow-content
-        [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
-          [ +padding-small +right-align +tiny .no-select {mt:1em}
-            [c +half +center @action-info "&nbsp;"]
-            [c +half "Build v1.0746 - 23 March 2020" +opacity]
-          ]
-          [ @breadcrumbs .no-select +small +padding]
-          [ @file-list +padding]
-        ]
-      ]
-    ]
-    [ @in-my-files-block .in-window .in-block]
-    
-    
-    [ @in-trash .in-window .in-content .bg1 .col1 {overflow:hidden;}
-      [ {h:34px;} +hide-small]
-      [ +padding .menu-overflow-header  .border-bottom-dark
-        [ +left .no-select
-          <h5><b>Trash [s +tiny "(Preview only)"] [s +black +round +tiny "Beta" {p:0 2px 2px ;} ]</b></h5>
-        ]
-      ]
-      [ {h:100%;} .menu-overflow-content
-        [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
-          [ @list-trash +padding]
-        ]
-      ]
-    ]
-    [ @in-trash-block .in-window .in-block]
-    
-    
-    [ @in-settings .in-window .in-content .bg1 .col1 {ov:hidden;}
-      [ {h:34px;} +hide-small]
-      [ +padding .menu-overflow-header .no-select .border-bottom-dark
-        <h5><b>Settings</b></h5>
-      ]
-      [ .menu-overflow-content {h:100%}
-        [ +padding {h:100%;ov:auto;} .scroll1
-          <!--plate-menu-settings-->
-        ]
-      ]
-    ]
-    [ @in-settings-block .in-window .in-block]
-  </template>
-  <template id="plate-menu-settings">
-    [h6 {fw:bold;} "Editor"]
-    [p
-      [in +check type="checkbox" oninput="ui.toggleWordWrap()" @check-word-wrap] [l for="check-word-wrap" "Word Wrap"]
-    ]
-    [hr]
-    
-    [h6 {fw:bold;} "Sync with Google Drive"]
-    [p +small @login-info
-      (!) Your files are stored locally in browser storage. Login to synchronize with Google Drive.
-    ]
-    
-    [btn {bor:0;outline:none;w:191px;h:46px;p:0;} @btn-blogsphere-login]
-    [btn @btn-blogsphere-logout +button +blue {dis:none;} "Logout"]
-    
-    [ {dis:none;}
-      [img src="/images/google/1x/btn_google_signin_dark_pressed_web.png"]
-      [img src="/images/google/1x/btn_google_signin_dark_focus_web.png"]
-    ]
-    
-    [p +small "By using <b>TMPmachine</b>, you're considered agreed to terms and condition written on articles below :"]
-    [ul
-      [li
-         <u>[a {fw:bold;} target="_blank" href="/TOS.html" "Terms of Service"]</u>
-      ]
-      [li
-         <u>[a {fw:bold;} href="/PP.html" "Privacy Policy" target="_blank"]</u>
-      ]
-    ]
-    
-    <style>
-      #btn-blogsphere-login {background-image: url('/images/google/1x/btn_google_signin_dark_normal_web.png')}
-      #btn-blogsphere-login:hover {background-image: url('/images/google/1x/btn_google_signin_dark_focus_web.png')!important}
-      #btn-blogsphere-login:active {background-image: url('/images/google/1x/btn_google_signin_dark_pressed_web.png')!important}
-    </style>
-        
-  </template>
-  <template id="plate-menu-info">
-    [ {pos:relative;h:100%;}
-      
-      [ @menu-basic
-        
-        [ +hide-medium +hide-large +button +border +margin-bottom +block onclick="environment.close()"
-          [ "Close" +small +padding-small {fw:bold;} +left]
-        ]
-        
-        [ +button @btn-open-directory +border +margin-bottom +block
-          [ "Open Directory" +small +padding-small {fw:bold;} +left]
-        ]
-        
-        [ +button @btn-download-file +border +margin-bottom +block
-          [ "Download" +small +padding-small {fw:bold;} +left]
-          [M "input" +medium +padding-small {transform:rotate(90deg)}]
-        ]
-        
-        [small "Development"]
-        <div>
-          [btn class="file-settings-button" data-section="revisions" "+ Revisions"]
-          [btn class="file-settings-button" data-section="blogger" "+ Blogger"]
-          [btn class="file-settings-button" data-section="blossem" "+ Blossem"]
-          [hr]
-        </div>
-          
-        [small "PWA Options"]
-        <div>
-          [in @in-PWA-enabled type="checkbox"] [l for="in-PWA-enabled" +tiny "Preview file as PWA"]
-          [ +tiny "(caution: will update installed PWA)"]
-          [ {h:5px}]
-          [ +tiny  "PWA Name (experimental)"]
-          [in @in-PWA-app-name .description name="pwa-name"]
-        </div>
-        
-        <div class="auth-required unauthorized hide file-settings" data-section="blossem">
-          [ +tiny "Blossem template URL"]
-          [in @in-blossem {w:100%;} .description name="blossem"]
-          [hr]
-        </div>
-        
-        <div class="auth-required unauthorized hide file-settings" data-section="blogger">
-          [ +tiny "Blog name"]
-          [in @in-blog-name {w:100%;} .description name="blogName"]
-          [ +tiny "Blog ID"]
-          [in @in-blog-id {w:100%;} .description name="blogId"]
-          [ +tiny "Entry ID"]
-          [in @in-eid {w:100%;} .description name="entryId"]
-          [ +tiny "Summary"]
-          [t @in-summary {w:100%;resize:none;h:100px;} .description name="summary"]
-          [
-            [in type="checkbox" @chk-bibibi .description name="isSummaryFix"] [l for="chk-bibibi" "Post summary fix"]
-          ]
-          [
-            [in type="checkbox" @chk-more-tag .description name="isBreak"] [l for="chk-more-tag" "Use More tag"]
-          ]
-          [
-            [in type="checkbox" @chk-in-pre .description name="isWrap"] [l for="chk-in-pre" "Wrap in &lt;pre&gt;"]
-          ]
-          [
-            [in type="checkbox" @chk-blogger-app .description name="isApp"] [l for="chk-blogger-app" "Deploy as Blogger Apps"]
-          ]
-          
-          [ +tiny "Render and deploy option" {mt:1em}]
-          [
-            [in type="checkbox" @chk-render-plate-html checked="checked"] [l for="chk-render-plate-html" "Render Plate-HTML"]
-          ]
-          [
-            [in type="checkbox" @chk-deploy-minified] [l for="chk-deploy-minified" "Render as minified app"]
-          ]
-          
-          
-          [btn @btn-create-template "Create Blog Template"]
-          [btn @btn-create-entry "Create Blog Entry"]
-          [btn @btn-create-app "Create Blogger App"]
-          [hr]
-        </div>
-        
-        <div class="auth-required unauthorized hide file-settings" data-section="revisions">
-          [btn @btn-backup-revision "Backup Revision" +button +border +margin-top]
-          [btn @btn-list-revisions "List Revisions" +button +border +margin-top]
-          [btn @btn-blog-vc "Open version control" +button +border +margin-top +hide]
-          [hr]
-          [ @list-revisions]
-          [hr]
-        </div>
-      ]
-      
-      [hr]
-      [btn "Delete" +hide @btn-delete-file +red +button +border +margin-bottom +block]
-    ]
-  </template>
-  <!--plate-system-->
-  <template id="plate-system">
-    [ @templateLoader .limbo]
-    [ @limbo-template .limbo]
-    [ @limbo-element .limbo]
-  </template>
-  <template id="plate-ninja-space">
-    [ {p:6px 10px;} +right {visibility:hidden;}
-      [M "close" ]
-    ]
-  </template>
-
   
+  
+  
+  
+  
+    <div id="templateLoader" class="w3-row limbo"></div>
+    <div id="limbo-template" class="w3-row limbo"></div>
+    <div id="limbo-element" class="w3-row limbo"></div>
+  
+  
+  
+
   <template id="tmp-list-revision">
-    [
-      [ "__id__"]
-      [ +small "__modifiedTime__"]
-      [btn "Delete" +button onclick="deleteRevision('__id__',this)"]
-      [btn "Rollback" +button onclick="rollbackRevision('__id__')"]
-    ]
+    <div class="w3-row">
+      <div class="w3-row">__id__</div>
+      <div class="w3-row w3-small">__modifiedTime__</div>
+      <button class="w3-button" onclick="deleteRevision('__id__',this)">Delete</button>
+      <button class="w3-button" onclick="rollbackRevision('__id__')">Rollback</button>
+    </div>
   </template>
   <template id="tmp-list-blog">
-    [ +padding
+    <div class="w3-row w3-padding">
       __id__ : __name__
-      [M "delete" +button onclick="removeBlog('__id__')"]
-    ]
+      <i class="material-icons w3-button" onclick="removeBlog('__id__')">delete</i>
+    </div>
   </template>
   <template id="tmp-list-deploy">
-    [ +white +border +left-align +block +button onclick="fileDeploy('__id__')"
+    <div class="w3-row w3-white w3-border w3-left-align w3-block w3-button" onclick="fileDeploy('__id__')">
       __name__
-      [ +small "__id__"]
-    ]
+      <div class="w3-row w3-small">__id__</div>
+    </div>
   </template>
   <template id="tmp-missing">
-    [ {padding:4px 8px;} +__background__
+    <div class="w3-row w3-__background__" style="padding:4px 8px;">
       __txt__
-    ]
+    </div>
   </template>
     
   
   <template id="tmp-breadcrumb">
-    [ +padding onclick="openBread(__folderId__)" +button
+    <div class="w3-row w3-padding w3-button" onclick="openBread(__folderId__)">
       __title__
-    ]
+    </div>
   </template>
   <template id="tmp-breadcrumb-fake">
-    [ +padding +button +grey {bg:#ddd!;}
+    <div class="w3-row w3-padding w3-button w3-grey" style="background:#ddd!important;">
       __title__
-    ]
+    </div>
   </template>
   
   <template id="tmp-file-list">
-    [ .file-list +left +left-align .files {m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
-      [ {pos:absolute;z:8177;t:0;l:0;}
-        [M "lock" .__clsLock__ .btn-lock @btn-lock__fid__ onclick='lockRender(this, __fid__, "__name__")' +button {col:#aaa;} +hover-none]
-      ]
-      [ {pos:absolute;z:8177;t:0;r:0;}
-        [M "edit" onclick="fileRename(__fid__)" +button {col:#aaa;} +hover-none]
-      ]
-      [ onclick='openFileConfirm(this)' title='__name__' data-type="file" data='__fid__' .file-list-clicker
-        [ +center +padding-32
-          [M +xxlarge "insert_drive_file" {col:#777;}]
-        ]
-        [ +padding .bg2
-          [c {w:24px;}
-            [M +medium {p:2px 0;} "insert_drive_file" {col:__defaultBg__!;} +left]
-          ]
-          [x +small +left-align +padding {fw:bold;pos:relative;}
-            [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
+    <div class="w3-row file-list w3-left w3-left-align files pointer no-select bg7 hover-bg3-light" style="margin:0.1em;padding:0;position:relative;">
+      <div class="w3-row" style="position:absolute;z-index:8177;top:0;left:0;">
+        <i id="btn-lock__fid__" class="material-icons __clsLock__ btn-lock w3-button w3-hover-none" onclick='lockRender(this, __fid__, "__name__")' style="color:#aaa;">lock</i>
+      </div>
+      <div class="w3-row" style="position:absolute;z-index:8177;top:0;right:0;">
+        <i class="material-icons w3-button w3-hover-none" onclick="fileRename(__fid__)" style="color:#aaa;">edit</i>
+      </div>
+      <div class="w3-row file-list-clicker" onclick='openFileConfirm(this)' title='__name__' data-type="file" data='__fid__'>
+        <div class="w3-row w3-center w3-padding-32">
+          <i class="material-icons w3-xxlarge" style="color:#777;">insert_drive_file</i>
+        </div>
+        <div class="w3-row w3-padding bg2">
+          <div class="w3-col" style="width:24px;">
+            <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__defaultBg__!important;">insert_drive_file</i>
+          </div>
+          <div class="w3-rest w3-small w3-left-align w3-padding" style="font-weight:bold;position:relative;">
+            <div class="w3-row" style="position:absolute;width:100%;top:0;left:0;height:100%;">
               __name__
-            ]
-          ]
-        ]
-      ]
-    ]
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </template>
   <template id="tmp-list-file-trash">
-    [ .file-list +left +left-align .files {m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
-      [ +center +padding-32
-        [M +xxlarge "insert_drive_file" {col:#777;}]
-      ]
-      [ .bg2 +padding
-        [c {w:24px;}
-          [M +medium {p:2px 0;} "insert_drive_file" {col:__defaultBg__!;} +left]
-        ]
-        [x +small +left-align +padding {fw:bold;pos:relative;}
-          [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
+    <div class="w3-row file-list w3-left w3-left-align files pointer no-select bg7 hover-bg3-light" style="margin:0.1em;padding:0;position:relative;">
+      <div class="w3-row w3-center w3-padding-32">
+        <i class="material-icons w3-xxlarge" style="color:#777;">insert_drive_file</i>
+      </div>
+      <div class="w3-row bg2 w3-padding">
+        <div class="w3-col" style="width:24px;">
+          <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__defaultBg__!important;">insert_drive_file</i>
+        </div>
+        <div class="w3-rest w3-small w3-left-align w3-padding" style="font-weight:bold;position:relative;">
+          <div class="w3-row" style="position:absolute;width:100%;top:0;left:0;height:100%;">
             __name__
-          ]
-        ]
-      ]
-    ]
+          </div>
+        </div>
+      </div>
+    </div>
   </template>
   
   <template id="tmp-folder-list">
-    [ .folder-list onclick='openFolderConfirm(this)' title="__name__" data-type="folder" data='__fid__' +left +left-align {m:0.1em;p:0;} .pointer .no-select .folders .bg2 .hover-bg3-light
-      [ +padding
-        [c {w:24px;}
-          [M +medium {p:2px 0;} "folder" {col:__defaultBg__!;} +left]
-        ]
-        [x +small +left-align +padding {fw:bold;pos:relative;}
-          [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
+    <div class="w3-row folder-list w3-left w3-left-align pointer no-select folders bg2 hover-bg3-light" onclick='openFolderConfirm(this)' title="__name__" data-type="folder" data='__fid__' style="margin:0.1em;padding:0;">
+      <div class="w3-row w3-padding">
+        <div class="w3-col" style="width:24px;">
+          <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__defaultBg__!important;">folder</i>
+        </div>
+        <div class="w3-rest w3-small w3-left-align w3-padding" style="font-weight:bold;position:relative;">
+          <div class="w3-row" style="position:absolute;width:100%;top:0;left:0;height:100%;">
             __name__
-          ]
-        ]
-      ]
-    ]
+          </div>
+        </div>
+      </div>
+    </div>
   </template>
   <template id="tmp-list-folder-trash">
-    [ .folder-list +left +left-align {m:0.1em;p:0;} .pointer .no-select .folders .bg2 .hover-bg3-light
-      [ +padding
-        [c {w:24px;}
-          [M +medium {p:2px 0;} "folder" {col:__defaultBg__!;} +left]
-        ]
-        [x +small +left-align +padding {fw:bold;pos:relative;}
-          [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
+    <div class="w3-row folder-list w3-left w3-left-align pointer no-select folders bg2 hover-bg3-light" style="margin:0.1em;padding:0;">
+      <div class="w3-row w3-padding">
+        <div class="w3-col" style="width:24px;">
+          <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__defaultBg__!important;">folder</i>
+        </div>
+        <div class="w3-rest w3-small w3-left-align w3-padding" style="font-weight:bold;position:relative;">
+          <div class="w3-row" style="position:absolute;width:100%;top:0;left:0;height:100%;">
             __name__
-          ]
-        ]
-      ]
-    ]
+          </div>
+        </div>
+      </div>
+    </div>
   </template>
   
   <template id="tmp-file-tab">
-    [ +left {w:180px;bg:#101113;pos:relative;z:1;} .file-tab data-title="__name__"
-      [
-        [ {p:6px 10px;} +right
-          [M +right "__fiber__" +button +hover-none +hover-text-light-grey +medium +text-gray .icon-rename onclick="fileClose('__fid__')" {p:4px 0 4px 9px;}]
-        ]
-        [x {pos:relative;p:18px 24px;lh:1.5em;}
-          [ "__name__" onclick="focusTab('__fid__', true)" .file-tab-name data-title="__name__" {pos:absolute;l:0;t:0;w:100%;col:#fff!;} .no-select +small .file-name {p:10px 10px 10px 19px;} {fw:bold;} +left]
-        ]
-      ]
-      [ {h:0.25rem;bg:#202020;}]
-    ]
+    <div class="w3-row w3-left file-tab" data-title="__name__" style="width:180px;background:#101113;position:relative;z-index:1;">
+      <div class="w3-row">
+        <div class="w3-row w3-right" style="padding:6px 10px;">
+          <i class="material-icons w3-right w3-button w3-hover-none w3-hover-text-light-grey w3-medium w3-text-gray icon-rename" onclick="fileClose('__fid__')" style="padding:4px 0 4px 9px;">__fiber__</i>
+        </div>
+        <div class="w3-rest" style="position:relative;padding:18px 24px;line-height:1.5em;">
+          <div class="w3-row file-tab-name no-select w3-small file-name w3-left" onclick="focusTab('__fid__', true)" data-title="__name__" style="position:absolute;left:0;top:0;width:100%;color:#fff!important;padding:10px 10px 10px 19px;font-weight:bold;">__name__</div>
+        </div>
+      </div>
+      <div class="w3-row" style="height:0.25rem;background:#202020;"></div>
+    </div>
   </template>
   
-  [ @update-notif {pos:fixed;b:0;l:0;bg:#312c2c;col:#ccc;z:8177;fw:bold;w:100%;}
-    [ +right
-      [ @btn-refresh "Refresh" {tt:uppercase;fw:bold;col:#d8d782;} +left +padding-16 +container]
-      [ @btn-dismiss "Dismiss" {tt:uppercase;fw:bold;} +left +padding-16 +container]
-    ]
-    [x
-      [ +padding-16 +container "New version available" +small]
-    ]
-  ]
+  <div id="update-notif" class="w3-row" style="position:fixed;bottom:0;left:0;background:#312c2c;color:#ccc;z-index:8177;font-weight:bold;width:100%;">
+    <div class="w3-row w3-right">
+      <div id="btn-refresh" class="w3-row w3-left w3-padding-16 w3-container" style="text-transform:uppercase;font-weight:bold;color:#d8d782;">Refresh</div>
+      <div id="btn-dismiss" class="w3-row w3-left w3-padding-16 w3-container" style="text-transform:uppercase;font-weight:bold;">Dismiss</div>
+    </div>
+    <div class="w3-rest">
+      <div class="w3-row w3-padding-16 w3-container w3-small">New version available</div>
+    </div>
+  </div>
   
-  <style>
-    #update-notif {
-      display: none;
-    }
-    #update-notif.active {
-      display: block;
-    }
-  </style>
-  
+  <!-- required for Blogsphere apps library -->
   <script id="arc7-updater" type="plain/text">
     arc7db.open(function(){let blogId='<blogId>';let appId='<appId>';fetch('https://www.blogger.com/feeds/'+blogId+'/posts/summary/'+appId+'?alt=json&rand='+new Date().getTime()).then(function(result){return result.json()}).then(function(json){let updated=(new Date(json.entry.updated.$t)).getTime();arc7db.get(appId,function(data){if(updated>data.updated){fetch('https://www.blogger.com/feeds/'+blogId+'/posts/default/'+appId+'?alt=json&rand='+new Date().getTime()).then(function(result){return result.json()}).then(function(json){let entry=json.entry.content.$t.split("<a name='more'></a> bbb");let data={appId:json.entry.id.$t.split('post-')[1],title:json.entry.title.$t,updated:(new Date(json.entry.updated.$t)).getTime(),summary:entry.splice(0,1),content:entry.join("<a name='more'></a> bbb").substring(397+5,json.entry.content.$t.length-6).replace(/<br \/>/g,'\n')};function installApp(){arc7db.create(data,function(){arc7db.get(data.appId,function(data){if(data)
 location.href=location.href;else setTimeout(installApp,2000)})})}
 arc7db.delete(data.appId,function(){installApp()})})}})})})
   </script>
-  
-  
-  <script src="js/engine.js"></script>
+  <!--service worker handler-->
   <script>
-  
-    function clientUpdateHandler(swo) {
+    (function() {
       
-      let $ = function(query) {
-        return document.querySelector(query);
+      function clientUpdateHandler(swo) {
+        let $ = function(query) {
+          return document.querySelector(query);
+        }
+        
+        if (clientUpdateHandler.swo)
+          clientUpdateHandler.swo.waiting.postMessage({action: 'skipWaiting'});
+        else if (swo)
+          swo.waiting.postMessage({action: 'skipWaiting'});
+          
+        new Promise(function(resolve, reject) {
+        
+          if ($('#update-notif') !== null) {
+            
+            $('#update-notif').classList.toggle('active', true);
+            $('#btn-refresh').onclick = resolve;
+            $('#btn-dismiss').onclick = reject;
+          } else {
+            
+            clientUpdateHandler.wait = setInterval(function() {
+              
+              if ($('#update-notif') !== null) {
+                
+                clearInterval(clientUpdateHandler.wait)
+                $('#update-notif').classList.toggle('active', true);
+                $('#btn-refresh').onclick = resolve;
+                $('#btn-dismiss').onclick = reject;
+              }
+              
+            }, 1000)
+          }
+        
+        }).then(function() {
+          
+          $('#update-notif').classList.toggle('active', false);
+          location.href = location.href;
+          
+        }).catch(function() {
+          
+          $('#update-notif').classList.toggle('active', false);
+          
+        });
       }
       
-      if (clientUpdateHandler.swo)
-        clientUpdateHandler.swo.waiting.postMessage({action: 'skipWaiting'});
-      else if (swo)
-        swo.waiting.postMessage({action: 'skipWaiting'});
-        
-      new Promise(function(resolve, reject) {
+      if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
+
+        navigator.serviceWorker.register('/sw.js').then(function(swo) {
+          if (!navigator.serviceWorker.controller)
+            return
       
-        if ($('#update-notif') !== null) {
-          
-          $('#update-notif').classList.toggle('active', true);
-          $('#btn-refresh').onclick = resolve;
-          $('#btn-dismiss').onclick = reject;
-        } else {
-          
-          clientUpdateHandler.wait = setInterval(function() {
-            
-            if ($('#update-notif') !== null) {
+          if (swo.waiting) {
+            swo.waiting.postMessage({action: 'skipWaiting'});
+            if (typeof(clientUpdateHandler) === 'undefined') {
               
-              clearInterval(clientUpdateHandler.wait)
-              $('#update-notif').classList.toggle('active', true);
-              $('#btn-refresh').onclick = resolve;
-              $('#btn-dismiss').onclick = reject;
+              if (window.confirm('App updated. Reload?'))
+                location.href = location.href;
+            } else {
+              clientUpdateHandler.swo = swo;
+              clientUpdateHandler(swo);
             }
-            
-          }, 1000)
-        }
+            return;
+          }
       
-      }).then(function() {
-        
-        $('#update-notif').classList.toggle('active', false);
-        location.href = location.href;
-        
-      }).catch(function() {
-        
-        $('#update-notif').classList.toggle('active', false);
-        
-      });
-    }
-  
-    // service worker handler
-    if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
-      
-      navigator.serviceWorker.register('/sw.js').then(function(swo) {
-        
-        if (!navigator.serviceWorker.controller)
-          return
-    
-        if (swo.waiting) {
-          
-          swo.waiting.postMessage({action: 'skipWaiting'});
-          if (typeof(clientUpdateHandler) === 'undefined') {
-            
-            if (window.confirm('App updated. Reload?'))
-              location.href = location.href;
-          } else {
-            clientUpdateHandler.swo = swo;
-            clientUpdateHandler(swo);
+          if (swo.installing) {
+            swo.installing.addEventListener('statechange', function(e) {
+              if (swo.installing.state == 'installed') {
+                swo.waiting.postMessage({action: 'skipWaiting'});
+                if (typeof(clientUpdateHandler) === 'undefined') {
+                  
+                  if (window.confirm('App updated. Reload?'))
+                    location.href = location.href;
+                } else {
+                  clientUpdateHandler.swo = swo;
+                  clientUpdateHandler(swo);
+                }
+              }
+            })
+            return;
           }
           
-          return
-        }
-    
-        if (swo.installing) {
-          
-          swo.installing.addEventListener('statechange', function(e) {
-            
-            if (swo.installing.state == 'installed') {
-              
-              swo.waiting.postMessage({action: 'skipWaiting'});
-              if (typeof(clientUpdateHandler) === 'undefined') {
-                
-                if (window.confirm('App updated. Reload?'))
-                  location.href = location.href;
-              } else {
-                clientUpdateHandler.swo = swo;
-                clientUpdateHandler(swo);
+          swo.addEventListener('updatefound', function() {
+            swo.installing.addEventListener('statechange', function(e) {
+              if (this.state == 'installed') {
+                swo.waiting.postMessage({action: 'skipWaiting'});
+                if (typeof(clientUpdateHandler) === 'undefined') {
+                  if (window.confirm('App updated. Reload?'))
+                    location.href = location.href;
+                } else {
+                  clientUpdateHandler.swo = swo;
+                  clientUpdateHandler(swo);
+                }
               }
-            }
+            })
           })
-          return
-        }
-        
-        swo.addEventListener('updatefound', function() {
-          
-          swo.installing.addEventListener('statechange', function(e) {
-            if (this.state == 'installed') {
-              
-              swo.waiting.postMessage({action: 'skipWaiting'});
-              if (typeof(clientUpdateHandler) === 'undefined') {
-                
-                if (window.confirm('App updated. Reload?'))
-                  location.href = location.href;
-              } else {
-                clientUpdateHandler.swo = swo;
-                clientUpdateHandler(swo);
-              }
-            }
-          })
-        })
-      }).catch(function(e) {
-        console.error('Something went wrong.')
-      });
-    }
-    
+        }).catch(function(e) {
+          console.error('Something went wrong.')
+        });
+      }
+    })();
   </script>
+  <script src="js/engine.js"></script>
 </body>
 </html>

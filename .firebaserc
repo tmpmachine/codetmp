@@ -1,5 +1,18 @@
 {
   "projects": {
-    "tmpmachine": "tmpmachine"
+    "tmpmachine": "tmpmachine",
+    "default": "tmpmachine"
+  },
+  "targets": {
+    "tmpmachine": {
+      "hosting": {
+        "tmpmachine": [
+          "tmpmachine"
+        ],
+        "attemp2": [
+          "attemp2"
+        ]
+      }
+    }
   }
 }

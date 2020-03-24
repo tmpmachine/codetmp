@@ -4,17 +4,17 @@ self.addEventListener('message', function(e) {
 });
 
 
-let cacheVersion = '1.0746';
+let cacheVersion = '1.08';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('install', function(event) {
 
   let urls = [
     '/',
-    '/404.html',
+    // '/404.html',
     '/TOS.html',
     '/PP.html',
-    '/css/style.css',
+    '/style.css',
     '/ace/theme-monokai.js',
     '/ace/theme-github.js',
     '/ace/mode-html.js',
@@ -36,35 +36,30 @@ self.addEventListener('install', function(event) {
     '/require/anibar.js',
     '/require/plate.js',
     '/require/o.js',
-    '/require/opopnomi.js',
     '/require/lsdb.js',
     '/require/odin.js',
     '/require/auth0.js',
     '/require/oblog.js',
     '/require/aww.js',
-    '/require/w3-4.10.css',
 
     '/js/git.js',
-    '/js/engine.js',
     '/js/template.js',
-    '/js/idb.js',
     '/js/renderer.js',
     '/js/ux.js',
     '/js/file-manager.js',
     '/js/drive.js',
-    '/js/debug.js',
+    '/js/engine.js',
     
-    '/ace/ace.js',
-    
-    '/plugins/custom-editor-init.js',
-    '/plugins/drag-drop.js',
-    
+    '/ace/ace-14.1.20.js',
+    '/js/custom-editor-init.js',
+    '/js/drag-drop.js',
     
     '/fonts/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2',
     ];
  
   event.waitUntil(
     caches.open(cacheItem).then(function(cache) {
+      console.log(cache)
       return cache.addAll(urls);
     })
   );

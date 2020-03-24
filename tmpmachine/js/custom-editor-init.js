@@ -1,4 +1,4 @@
-THOR.plugins.load('loadEditor', function(compatibilityMode) {
+TMP.plugins.load('loadEditor', function(compatibilityMode) {
     
   let editor = ace.edit("editor");
   editor.setTheme("ace/theme/monokai", () => {

@@ -987,21 +987,11 @@ function openFolder(folderId) {
 
 
 
-function fileDownload(data) {
+function fileDownload() {
   
-  let chunks;
-  if (data) {
-    chunks = data;
-    name = window.prompt('Export file name', 'export-'+new Date().toLocaleDateString().replace(/\//g,'-')+'.bthor');
-    
-  } else {
-    name = activeFile ? activeFile.name : window.prompt('File name :', $('.file-name')[activeTab].textContent);
-    chunks = $('#editor').env.editor.getValue();
-    
-    if (window.confirm('Plate-HTML > HTML?'))
-      chunks = plate.cook(chunks);
-  }
-  
+  let name = activeFile ? activeFile.name : $('.file-name',$('.file-tab')[activeTab])[0].textContent+'.html';
+  let chunks = activeFile ? activeFile.content : $('#editor').env.editor.getValue();
+
   if (name === 'null' || !name)
     return;
   

@@ -324,7 +324,7 @@ function attachMenuLinkListener() {
       break;
       case 'download-rendered':
         link.onclick = () => {
-          fileDownload(uploadBody);
+          fileDownload();
           blurNavigation()
         };
       break;
@@ -440,31 +440,26 @@ function updateUI() {
 
   $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
 
-  document.body.removeChild($('#preload-style'));
-
   fixCss(function() {
-  
-    THOR.plugins.loadEditor(false);
-    THOR.plugins.dragDrop();
   
     newTab();
     
     window.name = 'parent';
     window.environment = anibar('main-editor');
   
-    if ($('#btn-menu-save').offsetWidth > 100) {
+    // if ($('#btn-menu-save').offsetWidth > 100) {
       
-      document.head.appendChild( o.cel('link', {
-        rel: 'stylesheet',
-        href: 'fonts/material/material-icons.css'
-      }) );
-    }
+      // document.head.appendChild( o.cel('link', {
+        // rel: 'stylesheet',
+        // href: 'fonts/material/material-icons.css'
+      // }) );
+    // }
     
     fixEditorScreenHeight();
-  
+    window.onresize = fixEditorScreenHeight;
+    
     o.listen({
       'btn-blog-vc'           : openBlossemHTMLWidget,
-      'btn-blogsphere-login'  : auth0.login,
       'btn-blogsphere-logout' : btnBlogsphereLogout,
       'btn-create-template'   : createBlogTemplate,
       'btn-create-entry'      : createBlogEntry,
@@ -475,16 +470,18 @@ function updateUI() {
       'btn-rename-folder'     : ui.fm.renameFolder,
       'btn-backup-revision'   : keepRevision,
       'btn-list-revisions'    : listRevisions,
-      'btn-delete-file'       : btnDeleteFile,
+      // 'btn-delete-file'       : btnDeleteFile,
       'btn-open-directory'    : btnOpenDirectory,
-      'btn-download-file'     : fileDownload,
-      'btn-refresh-sync'      : drive.syncFromDrive,
+      'btn-download-file'     : function() { fileDownload() },
       'btn-menu-save'         : fileSave,
       '.btn-material'         : ui.toggleMenu,
       'btn-menu-preview'      : btnPreview,
       'btn-menu-info'         : btnInfo,
       '.file-settings-button' : showFileSetting,
       'more-tab'              : ui.switchTab,
+      
+      'btn-blogsphere-login'  : function() { auth0.login() },
+      'btn-refresh-sync'      : function() { drive.syncFromDrive() },
     });
     
   });
@@ -1412,11 +1409,7 @@ function fixEditorScreenHeight() {
     $('.menu-overflow-content')[i].style.height = 'calc(100% - ' + (H.offsetHeight + navBarOffset) + 'px)';
     i++;
   }
-  
-  editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
 }
-
-window.onresize = fixEditorScreenHeight;
 
 function authReady() {
   $('#btn-blogsphere-login').style.display = 'none';
