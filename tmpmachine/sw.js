@@ -4,14 +4,13 @@ self.addEventListener('message', function(e) {
 });
 
 
-let cacheVersion = '1.08';
+let cacheVersion = '1.081';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('install', function(event) {
 
   let urls = [
     '/',
-    // '/404.html',
     '/TOS.html',
     '/PP.html',
     '/style.css',
@@ -59,7 +58,6 @@ self.addEventListener('install', function(event) {
  
   event.waitUntil(
     caches.open(cacheItem).then(function(cache) {
-      console.log(cache)
       return cache.addAll(urls);
     })
   );
