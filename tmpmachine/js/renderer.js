@@ -1,6 +1,9 @@
 let uploadBody = '';
 let locked = -1;
 let previewWindow = null;
+let PWALoadWindow = null;
+let PWAPreviewWindow = null;
+let isPWAFrameLoaded = false;
 
 (function() {
   
@@ -125,7 +128,6 @@ let previewWindow = null;
         if (loadedScriptAndLink.indexOf(src) < 0) {
           loadedScriptAndLink.push(src);
         } else {
-          L(1)
           body = body.replace(new RegExp(match[0].replace('$','\\$')), '');
           match = getMatch(body);
           continue;
@@ -209,6 +211,55 @@ let previewWindow = null;
     if (check.hasBlossemURL) {
       previewWindow.postMessage({tmp:true, html: body}, '*');
       uploadBody = body;
+    } else if ($('#in-PWA-enabled').checked) {
+      if (!$('#PWAFrame'))
+        $('#limbo-element').append(o.cel('iframe', {id:'PWAFrame',name:'PWAFrame'}));
+      
+      if (!isPWAFrameLoaded) {
+        aww.pop('Waiting for PWA installer...');
+        if (debugPWAUrl.length > 0)
+          PWALoadWindow = window.open(debugPWAUrl,'PWAFrame');
+        else
+          PWALoadWindow = window.open('https://localpwa.web.app/','PWAFrame');
+      }
+      
+      let waitFirstLoad = setInterval(() => {
+        
+        if (isPWAFrameLoaded) {
+          aww.pop('Saving app data on device...');
+          let canvas = document.createElement('canvas');
+          let ctx = canvas.getContext('2d');
+          let backgrounds = ['#000839','#ffa41b','#000000','#192b58','#ffa34d','#f67575','#d4f8e8'];
+          let bg = backgrounds[Math.floor(Math.random()*6)+0];
+
+          let src128 = {
+            url: $('#in-PWA-src-128-url').value.trim(),
+            type: $('#in-PWA-src-128-type').value.trim(),
+          }
+          if (!['image/png','image/jpg','image/jpeg'].includes(src128.type))
+            src128.type = 'image/png';
+          if (src128.url.length == 0)
+            src128.url = location.origin+'/images/128.png';
+          
+          let src192 = {
+            url: $('#in-PWA-src-192-url').value.trim(),
+            type: $('#in-PWA-src-192-type').value.trim(),
+          }
+          if (!['image/png','image/jpg','image/jpeg'].includes(src192.type))
+            src192.type = 'image/png';
+          if (src192.url.length == 0)
+            src192.url = location.origin+'/images/192.png';
+          
+          PWALoadWindow.postMessage({type:'install',appData:{
+            src128,
+            src192,
+            url: $('#in-PWA-app-url').value.trim(),
+            name: $('#in-PWA-app-name').value.trim(),
+            html: body,
+          }}, '*');
+          clearInterval(waitFirstLoad);
+        }
+      }, 100)
     } else {
       previewWindow.postMessage({type:'reload'}, '*');
     
@@ -225,8 +276,6 @@ let previewWindow = null;
           
           previewWindow.postMessage({
             type: 'template',
-            isPWAEnabled: $('#in-PWA-enabled').checked,
-            appName: $('#in-PWA-app-name').value,
             xml: body
           }, '*');
           waitRender = null;
@@ -239,13 +288,24 @@ let previewWindow = null;
   window.renderBlog = renderBlog;
   
   window.addEventListener('message', function(e) {
-    
-    if (e.data.type !== undefined && e.data.type == 'loaded') {
-      
-      if (waitRender !== null)
-        loadingStatus = 200;
-      else
-        renderBlog();
+    if (e.data.type) {
+      if (e.data.type == 'loaded') {
+        if (waitRender !== null)
+          loadingStatus = 200;
+        else
+          renderBlog();
+      }
+      else if (e.data.type == 'pwa-frame-isReady')
+        isPWAFrameLoaded = true;
+      else if (e.data.type == 'pwa-app-installed') {
+        aww.pop('PWA ready!');
+        PWAPreviewWindow = window.open(e.data.url, 'preview');
+        setTimeout(() => {
+          PWAPreviewWindow.blur();
+          window.focus();
+          editor.env.editor.focus();
+        }, 100)
+      }
     }
     
   }, false);

@@ -501,16 +501,36 @@
           [btn class="file-settings-button" data-section="revisions" "+ Revisions"]
           [btn class="file-settings-button" data-section="blogger" "+ Blogger"]
           [btn class="file-settings-button" data-section="blossem" "+ Blossem"]
+          [btn class="file-settings-button" data-section="pwa" "+ PWA"]
           [hr]
         </div>
           
-        [small "PWA Options"]
-        <div>
-          [in @in-PWA-enabled type="checkbox"] [l for="in-PWA-enabled" +tiny "Preview file as PWA"]
-          [ +tiny "(caution: will update installed PWA)"]
-          [ {h:5px}]
-          [ +tiny  "PWA Name (experimental)"]
-          [in @in-PWA-app-name .description name="pwa-name"]
+        <div class="hide file-settings" data-section="pwa">
+          [small "PWA Options (experimental)"]
+          <div>
+            [in @in-PWA-enabled type="checkbox"] [l for="in-PWA-enabled" +tiny "Preview as PWA"]
+            [ +tiny "(caution: will update installed PWA)"]
+            [ {h:5px}]
+            [ +tiny  "Required settings :" {mt:.5em;fw:bold}]
+            [ +tiny  "App Name"]
+            [in @in-PWA-app-name .description name="pwa-name"]
+            [ +tiny  "URL"]
+            [in @in-PWA-app-url .description name="pwa-url" placeholder="my-first-app"]
+            
+            [ +tiny  "Optional settings :" {mt:.5em;fw:bold}]
+            
+            [ +tiny  "App icon URL (128x128)"]
+            [in @in-PWA-src-128-url .description name="pwa-src-128-url"]
+            
+            [ +tiny  "type"]
+            [in @in-PWA-src-128-type .description name="pwa-src-128-type"]
+            
+            [ +tiny  "App icon URL (192x192)"]
+            [in @in-PWA-src-192-url .description name="pwa-src-192-url"]
+            
+            [ +tiny  "type"]
+            [in @in-PWA-src-192-type .description name="pwa-src-192-type"]
+          </div>
         </div>
         
         <div class="auth-required unauthorized hide file-settings" data-section="blossem">

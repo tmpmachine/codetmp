@@ -4,15 +4,12 @@ self.addEventListener('message',function(e){
 });
 
 
-var cacheVersion = '0.019';
-var cacheItem = 'tmp'+cacheVersion;
+let cacheVersion = '0.02';
+let cacheItem = 'tmp'+cacheVersion;
 
 self.addEventListener('install',function(event) {
   
-  var urls = [
-    '/',
-    '/idb.js',
-    ];
+  let urls = ['/'];
  
   event.waitUntil(
     caches.open(cacheItem).then(function(cache){
@@ -35,32 +32,17 @@ self.addEventListener('activate',function(e){
 
 self.addEventListener('fetch', function(e) {
   
-  if (e.request.url.includes('/localapp/')) {
-    e.respondWith(
-      caches.match(e.request.url.split('localapp/')[0]).then(function(resp) {
-        if (resp)
-          return resp;
-        
-        return fetch(e.request).then(function(r) {
-          return r;
-        }).catch(function() {
-          console.error('Check connection.');
-        });
-      })
-    );
-  } else {
-    e.respondWith(
-      caches.match(e.request).then(function(resp) {
-        if (resp)
-          return resp;
-        
-        return fetch(e.request).then(function(r) {
-          return r;
-        }).catch(function() {
-          console.error('Check connection.');
-        });
-      })
-    );
-  }
+  e.respondWith(
+    caches.match(e.request).then(function(resp) {
+      if (resp)
+        return resp;
+      
+      return fetch(e.request).then(function(r) {
+        return r;
+      }).catch(function() {
+        console.error('Check connection.');
+      });
+    })
+  );
   
 });

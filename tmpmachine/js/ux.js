@@ -1,5 +1,6 @@
 let cantLock = false;
 let debugAttempUrl = '';
+let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 
 const ui = {
@@ -487,8 +488,8 @@ function updateUI() {
   });
 }
 
-function showFileSetting(section = this.dataset.section) {
-  
+function showFileSetting() {
+  let section = this.dataset.section;
   for (let element of $('.file-settings-button')) {
     if (element.dataset.section == section)
       element.classList.toggle('hide', true);
@@ -1217,8 +1218,8 @@ function renderAndDeployLocked() {
   function renderFile() {
     
     if (!cantLock) {
-      cantLock = true;
-      if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null)
+      let isPWA = $('#in-PWA-enabled').checked;
+      if (!isPWA && (previewWindow === null || previewWindow.window === null || previewWindow.parent === null))
         previewRenderedFile();
       else
         renderBlog();

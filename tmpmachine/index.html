@@ -80,16 +80,36 @@
           <button class="file-settings-button" data-section="revisions">+ Revisions</button>
           <button class="file-settings-button" data-section="blogger">+ Blogger</button>
           <button class="file-settings-button" data-section="blossem">+ Blossem</button>
+          <button class="file-settings-button" data-section="pwa">+ PWA</button>
           <hr/>
         </div>
           
-        <small>PWA Options</small>
-        <div>
-          <input id="in-PWA-enabled" type="checkbox"/> <label class="w3-tiny" for="in-PWA-enabled">Preview file as PWA</label>
-          <div class="w3-row w3-tiny">(caution: will update installed PWA)</div>
-          <div class="w3-row" style="height:5px;"></div>
-          <div class="w3-row w3-tiny">PWA Name (experimental)</div>
-          <input id="in-PWA-app-name" class="description" name="pwa-name"/>
+        <div class="hide file-settings" data-section="pwa">
+          <small>PWA Options (experimental)</small>
+          <div>
+            <input id="in-PWA-enabled" type="checkbox"/> <label class="w3-tiny" for="in-PWA-enabled">Preview as PWA</label>
+            <div class="w3-row w3-tiny">(caution: will update installed PWA)</div>
+            <div class="w3-row" style="height:5px;"></div>
+            <div class="w3-row w3-tiny" style="margin-top:.5em;font-weight:bold;">Required settings :</div>
+            <div class="w3-row w3-tiny">App Name</div>
+            <input id="in-PWA-app-name" class="description" name="pwa-name"/>
+            <div class="w3-row w3-tiny">URL</div>
+            <input id="in-PWA-app-url" class="description" name="pwa-url" placeholder="my-first-app"/>
+            
+            <div class="w3-row w3-tiny" style="margin-top:.5em;font-weight:bold;">Optional settings :</div>
+            
+            <div class="w3-row w3-tiny">App icon URL (128x128)</div>
+            <input id="in-PWA-src-128-url" class="description" name="pwa-src-128-url"/>
+            
+            <div class="w3-row w3-tiny">type</div>
+            <input id="in-PWA-src-128-type" class="description" name="pwa-src-128-type"/>
+            
+            <div class="w3-row w3-tiny">App icon URL (192x192)</div>
+            <input id="in-PWA-src-192-url" class="description" name="pwa-src-192-url"/>
+            
+            <div class="w3-row w3-tiny">type</div>
+            <input id="in-PWA-src-192-type" class="description" name="pwa-src-192-type"/>
+          </div>
         </div>
         
         <div class="auth-required unauthorized hide file-settings" data-section="blossem">
