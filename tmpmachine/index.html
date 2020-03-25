@@ -87,7 +87,7 @@
         <div class="hide file-settings" data-section="pwa">
           <small>PWA Options (experimental)</small>
           <div>
-            <input id="in-PWA-enabled" type="checkbox"/> <label class="w3-tiny" for="in-PWA-enabled">Preview as PWA</label>
+            <input id="in-PWA-enabled" class="description" type="checkbox" name="pwa-preview"/> <label class="w3-tiny" for="in-PWA-enabled">Preview as PWA</label>
             <div class="w3-row w3-tiny">(caution: will update installed PWA)</div>
             <div class="w3-row" style="height:5px;"></div>
             <div class="w3-row w3-tiny" style="margin-top:.5em;font-weight:bold;">Required settings :</div>
@@ -340,7 +340,7 @@
         <div class="w3-row scroll1" style="height:100%;overflow:auto;z-index:1;position:relative;">
           <div class="w3-row w3-padding-small w3-right-align w3-tiny no-select" style="margin-top:1em;">
             <div id="action-info" class="w3-col w3-half w3-center">&nbsp;</div>
-            <div class="w3-col w3-half w3-opacity">Build v1.09 - 25 March 2020</div>
+            <div class="w3-col w3-half w3-opacity">Build v1.081 - 24 March 2020</div>
           </div>
           <div id="breadcrumbs" class="w3-row no-select w3-small w3-padding"></div>
           <div id="file-list" class="w3-row w3-padding"></div>
@@ -794,6 +794,7 @@ arc7db.delete(data.appId,function(){installApp()})})}})})})
       if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
 
         navigator.serviceWorker.register('/sw.js').then(function(swo) {
+          return
           if (!navigator.serviceWorker.controller)
             return
       

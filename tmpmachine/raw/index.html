@@ -508,7 +508,7 @@
         <div class="hide file-settings" data-section="pwa">
           [small "PWA Options (experimental)"]
           <div>
-            [in @in-PWA-enabled type="checkbox"] [l for="in-PWA-enabled" +tiny "Preview as PWA"]
+            [in @in-PWA-enabled type="checkbox" .description name="pwa-preview"] [l for="in-PWA-enabled" +tiny "Preview as PWA"]
             [ +tiny "(caution: will update installed PWA)"]
             [ {h:5px}]
             [ +tiny  "Required settings :" {mt:.5em;fw:bold}]
@@ -794,6 +794,7 @@ arc7db.delete(data.appId,function(){installApp()})})}})})})
       if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
 
         navigator.serviceWorker.register('/sw.js').then(function(swo) {
+          return
           if (!navigator.serviceWorker.controller)
             return
       

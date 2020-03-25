@@ -1,30 +1,30 @@
-[debug] [2020-03-24T07:07:32.001Z] ----------------------------------------------------------------------
-[debug] [2020-03-24T07:07:32.023Z] Command:       /usr/local/bin/node /usr/local/bin/firebase serve
-[debug] [2020-03-24T07:07:32.024Z] CLI Version:   7.13.1
-[debug] [2020-03-24T07:07:32.024Z] Platform:      linux
-[debug] [2020-03-24T07:07:32.024Z] Node Version:  v10.19.0
-[debug] [2020-03-24T07:07:32.163Z] Time:          Tue Mar 24 2020 14:07:32 GMT+0700 (GMT+07:00)
-[debug] [2020-03-24T07:07:32.163Z] ----------------------------------------------------------------------
-[debug] [2020-03-24T07:07:32.163Z] 
-[debug] [2020-03-24T07:07:32.421Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2020-03-24T07:07:32.422Z] > authorizing via signed-in user
-[debug] [2020-03-24T07:07:32.427Z] [iam] checking project tmpmachine for permissions ["firebase.projects.get"]
-[debug] [2020-03-24T07:07:32.443Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
-[debug] [2020-03-24T07:07:32.444Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+[debug] [2020-03-25T12:12:10.722Z] ----------------------------------------------------------------------
+[debug] [2020-03-25T12:12:10.727Z] Command:       /usr/local/bin/node /usr/local/bin/firebase serve
+[debug] [2020-03-25T12:12:10.728Z] CLI Version:   7.13.1
+[debug] [2020-03-25T12:12:10.728Z] Platform:      linux
+[debug] [2020-03-25T12:12:10.728Z] Node Version:  v10.19.0
+[debug] [2020-03-25T12:12:10.729Z] Time:          Wed Mar 25 2020 19:12:10 GMT+0700 (GMT+07:00)
+[debug] [2020-03-25T12:12:10.729Z] ----------------------------------------------------------------------
+[debug] [2020-03-25T12:12:10.729Z] 
+[debug] [2020-03-25T12:12:10.746Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-03-25T12:12:10.747Z] > authorizing via signed-in user
+[debug] [2020-03-25T12:12:10.747Z] [iam] checking project tmpmachine for permissions ["firebase.projects.get"]
+[debug] [2020-03-25T12:12:10.752Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2020-03-25T12:12:10.753Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
  <request body omitted>
-[debug] [2020-03-24T07:07:33.617Z] <<< HTTP RESPONSE 200
-[debug] [2020-03-24T07:07:33.730Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/tmpmachine:testIamPermissions  
+[debug] [2020-03-25T12:12:11.010Z] <<< HTTP RESPONSE 200
+[debug] [2020-03-25T12:12:11.100Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/tmpmachine:testIamPermissions  
 
-[debug] [2020-03-24T07:07:35.094Z] <<< HTTP RESPONSE 200
-[debug] [2020-03-24T07:07:35.097Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/tmpmachine  
+[debug] [2020-03-25T12:12:12.407Z] <<< HTTP RESPONSE 200
+[debug] [2020-03-25T12:12:12.410Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/tmpmachine  
  
-[debug] [2020-03-24T07:07:35.528Z] <<< HTTP RESPONSE 200
+[debug] [2020-03-25T12:12:13.416Z] <<< HTTP RESPONSE 200
 [info] 
 [info] === Serving from '/home/chronos/user/Downloads/TMPmachine'...
 [info] 
-[debug] [2020-03-24T07:07:35.536Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/tmpmachine/webApps/-/config  
+[debug] [2020-03-25T12:12:13.426Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/tmpmachine/webApps/-/config  
  
-[debug] [2020-03-24T07:07:37.168Z] <<< HTTP RESPONSE 200
+[debug] [2020-03-25T12:12:14.508Z] <<< HTTP RESPONSE 200
 [info] i  hosting[attemp]: Serving hosting files from: attemp
 [info] ✔  hosting[attemp]: Local server: http://localhost:5000
 [info] i  hosting[tmpmachine]: Serving hosting files from: tmpmachine

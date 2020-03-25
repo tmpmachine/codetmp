@@ -478,7 +478,7 @@ function updateUI() {
       '.btn-material'         : ui.toggleMenu,
       'btn-menu-preview'      : btnPreview,
       'btn-menu-info'         : btnInfo,
-      '.file-settings-button' : showFileSetting,
+      '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
       'more-tab'              : ui.switchTab,
       
       'btn-blogsphere-login'  : function() { auth0.login() },
@@ -488,8 +488,7 @@ function updateUI() {
   });
 }
 
-function showFileSetting() {
-  let section = this.dataset.section;
+function showFileSetting(section) {
   for (let element of $('.file-settings-button')) {
     if (element.dataset.section == section)
       element.classList.toggle('hide', true);
@@ -639,12 +638,20 @@ function openDevelopmentSettings(settings) {
     fixOldSettings(key, desc, settings);
 	}
 	
+	for (let element of $('.file-settings-button'))
+    element.classList.toggle('hide', false);
+	
+	for (let element of $('.file-settings'))
+    element.classList.toggle('hide', true);
+	
   if (settings.blogName || settings.blog)
     showFileSetting('blogger');
   if (settings.hasRevision)
     showFileSetting('revisions');
   if (settings.blossem)
     showFileSetting('blossem');
+  if (settings['pwa-name'])
+    showFileSetting('pwa');
 }
 
 function setEditorMode(fileName = '') {
