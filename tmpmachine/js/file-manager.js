@@ -694,8 +694,10 @@ function openFile(fid) {
         file: f,
         undo: new ace.UndoManager()
       });
-    } else
+    } else {
+      fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
       focusTab(f.fid, false);
+    }
     
     if ($('#btn-menu-my-files').classList.contains('active'))
       $('#btn-menu-my-files').click();

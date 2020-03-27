@@ -585,9 +585,7 @@ function focusTab(fid, isActiveTab = false, isClose) {
   
   compressTab(idx);
   
-  // if (!isClose && activeTab !== idx) {
-  if (!isClose) {
-    
+  if (!isClose && activeTab !== idx) {
     fileTab[activeTab].undo = $('#editor').env.editor.getSession().getUndoManager();
     fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
     fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
