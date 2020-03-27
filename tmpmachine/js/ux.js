@@ -1181,6 +1181,30 @@ function renderAndDeployLocked() {
           }
         }
       }
+    } else {
+      let fid = fileTab[activeTab].fid;
+      let notFile = false;
+      if (typeof(fid) == 'string') {
+        locked = -1;
+        notFile = true;
+      } else
+        locked = (locked == fid) ? -1 : fid;
+      
+      if (locked == fid || notFile) {
+        aww.pop('File locked');
+        $('.file-tab')[activeTab].lastElementChild.style.background = 'orange';
+        clearTimeout(lockFile.wait);
+        lockFile.wait = setTimeout(() => {
+          $('.file-tab')[activeTab].lastElementChild.style.background = '#154358';
+        }, 200)
+      } else {
+        aww.pop('File unlocked');
+        $('.file-tab')[activeTab].lastElementChild.style.background = 'inherit';
+        clearTimeout(lockFile.wait);
+        lockFile.wait = setTimeout(() => {
+          $('.file-tab')[activeTab].lastElementChild.style.background = '#154358';
+        }, 200)
+      }
     }
   }
   
@@ -1275,7 +1299,7 @@ function renderAndDeployLocked() {
   }
   
   function openFileDirectory() {
-    if (!activeFile) return
+    if (!activeFile || $('#btn-menu-my-files').classList.contains('active')) return
     breadcrumbs.splice(1);
     let stack = [];
     let parentId = activeFile.parentId;
@@ -1314,8 +1338,8 @@ function renderAndDeployLocked() {
   }
   
   function keyCodeOf(key) {
-    let keys = ['S','<','>','W','I','L','M','Escape','Delete','N','D','Enter','Backspace','O'];
-    let keyCode = [83,188,190,87,73,76,77,27,46,78,68,13,8,79];
+    let keys = ['1','S','<','>','W','I','L','M','Escape','Delete','N','D','Enter','Backspace','O'];
+    let keyCode = [49,83,188,190,87,73,76,77,27,46,78,68,13,8,79];
     return keyCode[keys.indexOf(key)];
   }
   
