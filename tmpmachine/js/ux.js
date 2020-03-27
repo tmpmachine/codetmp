@@ -1310,6 +1310,9 @@ function renderAndDeployLocked() {
     }
     loadBreadCrumbs();
     $('#btn-menu-my-files').click();
+    
+    if (breadcrumbs.length > 1)
+      breadcrumbs.pop();
     openFolder(activeFile.parentId);
   }
   

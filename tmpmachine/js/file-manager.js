@@ -928,9 +928,13 @@ function parseDescriptionOld(txt) {
 function openFolder(folderId) {
   activeFolder = folderId;
   
-  let folder = odin.dataOf(folderId, fs.data.folders, 'fid');
-  title = folder.name;
-  breadcrumbs.push({folderId:activeFolder, title: title})
+  if (activeFolder == -1) {
+    breadcrumbs.splice(1);
+  } else {
+    let folder = odin.dataOf(folderId, fs.data.folders, 'fid');
+    title = folder.name;
+    breadcrumbs.push({folderId:activeFolder, title: title})
+  }
   
   fileList();
 }

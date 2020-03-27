@@ -85,6 +85,8 @@ TMP.plugins.load('loadEditor', function(compatibilityMode) {
       event.preventDefault();
       let isWrap = editor.env.editor.session.getUseWrapMode();
       editor.session.setUseWrapMode(isWrap ? false : true);
+      settings.data.wrapMode = !isWrap;
+      settings.save();
     }
   });
 
