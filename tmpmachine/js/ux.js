@@ -472,7 +472,6 @@ function updateUI() {
       'btn-backup-revision'   : keepRevision,
       'btn-list-revisions'    : listRevisions,
       // 'btn-delete-file'       : btnDeleteFile,
-      'btn-open-directory'    : btnOpenDirectory,
       'btn-download-file'     : function() { fileDownload() },
       'btn-menu-save'         : fileSave,
       '.btn-material'         : ui.toggleMenu,
@@ -792,11 +791,6 @@ function openBlossemHTMLWidget() {
 
 function btnDeleteFile() {
   ui.fm.deleteFile(activeFile.fid);
-}
-
-function btnOpenDirectory() {
-  openFolder(activeFile.parentFolderId);
-  $('#btn-menu-my-files').click();
 }
 
 function btnInfo() {
@@ -1280,6 +1274,20 @@ function renderAndDeployLocked() {
     }
   }
   
+  function openFileDirectory() {
+    if (!activeFile) return
+    breadcrumbs.splice(1);
+    let stack = [];
+    let parentId = activeFile.parentId;
+    while (parentId != -1) {
+      folder = odin.dataOf(parentId, fs.data.folders, 'fid')
+      breadcrumbs.splice(1, 0, {folderId:folder.fid, title: folder.name})
+      parentId = folder.parentId
+    }
+    loadBreadCrumbs();
+    $('#btn-menu-my-files').click();
+  }
+  
   function keyDownHandler(e) {
     
     switch (e.keyCode) {
@@ -1306,8 +1314,8 @@ function renderAndDeployLocked() {
   }
   
   function keyCodeOf(key) {
-    let keys = ['S','<','>','W','I','L','M','Escape','Delete','N','D','Enter','Backspace'];
-    let keyCode = [83,188,190,87,73,76,77,27,46,78,68,13,8];
+    let keys = ['S','<','>','W','I','L','M','Escape','Delete','N','D','Enter','Backspace','O'];
+    let keyCode = [83,188,190,87,73,76,77,27,46,78,68,13,8,79];
     return keyCode[keys.indexOf(key)];
   }
   
@@ -1351,6 +1359,7 @@ function renderAndDeployLocked() {
   window.keyHandle = keyHandle;
   
   initKeyboardShortcut({
+    'Alt+O': function() { event.preventDefault(); openFileDirectory() },
     'Control+S': function() { event.preventDefault(); fileSave() },
     'Alt+L': lockFile,
     'Alt+M': toggleMyFiles,
