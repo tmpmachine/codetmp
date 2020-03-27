@@ -680,6 +680,7 @@ function openFile(fid) {
 
     
     let idx = odin.idxOf(f.fid, fileTab, 'fid')
+    
     if (idx < 0) {
       
       newTab(fileTab.length, {
@@ -695,7 +696,6 @@ function openFile(fid) {
       });
     } else
       focusTab(f.fid, false);
-    
     
     if ($('#btn-menu-my-files').classList.contains('active'))
       $('#btn-menu-my-files').click();

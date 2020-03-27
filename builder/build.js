@@ -698,7 +698,7 @@ const plate = {
 L = console.log;
 
 let fs = require('fs');
-let content = fs.readFileSync('../raw/index.html','utf8');
+let content = fs.readFileSync('../tmpmachine/build/index.html','utf8');
 
 plate.tag.push({
   short: ' ',
@@ -706,6 +706,6 @@ plate.tag.push({
     class: 'w3-row'
   },
 });
-fs.writeFile('../index.html', plate.cook(content), () => {
+fs.writeFile('../tmpmachine/index.html', plate.cook(content), () => {
   console.log('Done!')
 });
