@@ -299,12 +299,18 @@ let isPWAFrameLoaded = false;
         isPWAFrameLoaded = true;
       else if (e.data.type == 'pwa-app-installed') {
         aww.pop('PWA ready!');
-        PWAPreviewWindow = window.open(e.data.url, 'preview');
-        setTimeout(() => {
-          PWAPreviewWindow.blur();
-          window.focus();
-          editor.env.editor.focus();
-        }, 100)
+        if ($('#in-seperate-PWA-process').checked) {
+          let a = o.cel('a', {
+            href: e.data.url,
+            rel: 'noreferrer',
+            target: '_blank'
+          })
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } else {
+          PWAPreviewWindow = window.open(e.data.url, 'preview');
+        }
       }
     }
     
