@@ -465,7 +465,7 @@ function updateUI() {
       'btn-create-template'   : createBlogTemplate,
       'btn-create-entry'      : createBlogEntry,
       'btn-create-app'        : createBlogApp,
-      'btn-menu-template'     : toggleInsertSnippet,
+      'btn-menu-template'     : function() { toggleInsertSnippet() },
       'btn-new-folder'        : ui.fm.newFolder,
       'btn-new-file'          : function() { $('#btn-menu-my-files').click(); ui.openNewTab(); },
       'btn-rename-folder'     : ui.fm.renameFolder,
@@ -505,8 +505,7 @@ function toggleInsertSnippet(persistent) {
   if ($('#in-my-files').classList.contains('active') || $('#in-settings').classList.contains('active')) return
 
   let el = $('.search-box')[0];
-
-  if (persistent === undefined)
+  if (typeof(persistent) == 'undefined')
     el.classList.toggle('w3-hide');
   else
     el.classList.toggle('w3-hide', !persistent);
