@@ -1420,6 +1420,19 @@ function renderAndDeployLocked() {
   
 })();
 
+
+function autoSync(event) {
+  let isOnline = navigator.onLine ? true : false;
+  if (isOnline) {
+    if (fs.data.rootId !== '') {
+      drive.syncFromDrive();
+      drive.syncToDrive();
+    }
+  }
+    
+}
+window.addEventListener('online', autoSync);
+
 window.addEventListener('copy', function(e) { copyFile(false) });
 window.addEventListener('cut', function(e) { copyFile(true) });
 window.addEventListener('paste', function(e) { pasteFile() });
