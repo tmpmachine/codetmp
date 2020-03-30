@@ -291,7 +291,7 @@ function saveListener(event, bypass = false) {
   }
   
   if ($('#editor').env.editor.isFocused()) {
-    
+    if ($('.icon-rename').length === 0 ) return;
     $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
     $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
     $('#editor').env.editor.removeEventListener('keydown', saveListener);
