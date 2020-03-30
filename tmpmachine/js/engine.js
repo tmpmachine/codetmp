@@ -154,7 +154,7 @@ const TMP = (function() {
   loadBundle(URL1).then(() => {
     
     TMP.loadStorageData();
-    ace.config.set('basePath', '/ace');
+    ace.config.set('basePath', 'ace');
     updateUI();
     TMP.plugins.loadEditor(false);
     editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
