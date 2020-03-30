@@ -231,7 +231,7 @@ const ui = {
   
   switchTab: function(direction = 1) {
   
-    if (fileTab.length == 1) return;
+    if ($('#in-my-files').classList.contains('active') || $('#in-settings').classList.contains('active') || fileTab.length == 1) return
     
     let fid;
     
@@ -478,7 +478,7 @@ function updateUI() {
       'btn-menu-preview'      : btnPreview,
       'btn-menu-info'         : btnInfo,
       '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
-      'more-tab'              : ui.switchTab,
+      'more-tab'              : function() { ui.switchTab(1) },
       
       'btn-blogsphere-login'  : function() { auth0.login() },
       'btn-refresh-sync'      : function() { drive.syncFromDrive() },
