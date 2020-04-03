@@ -128,7 +128,7 @@ let isPWAFrameLoaded = false;
         if (loadedScriptAndLink.indexOf(src) < 0) {
           loadedScriptAndLink.push(src);
         } else {
-          body = body.replace(new RegExp(match[0].replace('$','\\$')), '');
+          body = body.replace(new RegExp(match[0].replace(/\|/g,'\\|').replace(/\[/g,'\\[').replace(/\./g,'\\.').replace(/\(/g,'\\(').replace(/\)/g,'\\)').replace(/\./g,'\\.').replace(/\*/g,'\\*').replace('$','\\$')), '');
           match = getMatch(body);
           continue;
         }
