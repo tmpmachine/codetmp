@@ -4,7 +4,7 @@ self.addEventListener('message', function(e) {
 });
 
 
-let cacheVersion = '1.09241';
+let cacheVersion = '1.093';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('install', function(event) {
@@ -36,6 +36,7 @@ self.addEventListener('install', function(event) {
     '/require/plate.js',
     '/require/o.js',
     '/require/lsdb.js',
+    '/require/keyboard.js',
     '/require/odin.js',
     '/require/auth0.js',
     '/require/oblog.js',

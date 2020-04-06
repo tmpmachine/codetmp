@@ -112,6 +112,7 @@ const TMP = (function() {
   
   let URL1 = [
     'require/o.js',
+    'require/keyboard.js',
     'require/anibar.js',
     'require/lsdb.js',
     'require/odin.js',

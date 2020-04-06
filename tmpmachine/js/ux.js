@@ -274,11 +274,11 @@ function saveListener(event, bypass = false) {
     
     let exclude = [16, 17, 18, 20, 27, 91, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 122, 123];
     if (exclude.indexOf(event.keyCode) >= 0 ||
-    keyHandle.Control && event.keyCode === 67 ||
-    keyHandle.Alt && event.keyCode === 188 ||
-    keyHandle.Alt && event.keyCode === 190 ||
-    keyHandle.Control && event.keyCode === 82 ||
-    keyHandle.Alt && event.keyCode === 13 ||
+    keyboard.Control && event.keyCode === 67 ||
+    keyboard.Alt && event.keyCode === 188 ||
+    keyboard.Alt && event.keyCode === 190 ||
+    keyboard.Control && event.keyCode === 82 ||
+    keyboard.Alt && event.keyCode === 13 ||
     event.ctrlKey && event.key === 'k' ||
     event.altKey && event.key === 'd' ||
     event.altKey && event.key === 'w' ||
@@ -287,7 +287,7 @@ function saveListener(event, bypass = false) {
     event.altKey && event.key === 'i' ||
     event.altKey && event.key === 'l' ||
     event.altKey && event.key === 'j' ||
-    keyHandle.Control && event.keyCode === 13) return;
+    keyboard.Control && event.keyCode === 13) return;
   }
   
   if ($('#editor').env.editor.isFocused()) {
@@ -1161,8 +1161,6 @@ function renderAndDeployLocked() {
  
 (function() {
   
-  let keyboardShortcut = [];
-  
   function previousFolder() {
     if ($('#btn-menu-my-files').classList.contains('active') && $('.breadcrumbs').length > 1) {
       event.preventDefault();
@@ -1232,7 +1230,7 @@ function renderAndDeployLocked() {
   }
   
   function deployFile() {
-    if (keyHandle.Shift)
+    if (keyboard.Shift)
       renderAndDeploySingle();
     else
       renderAndDeployLocked();
@@ -1259,7 +1257,7 @@ function renderAndDeployLocked() {
   }
   
   function toggleMyFiles() {
-    if (!keyHandle.Alt) return;
+    if (!keyboard.Alt) return;
     
     $('#btn-menu-my-files').click()
     if ($('#btn-menu-my-files').classList.contains('active')) {
@@ -1282,21 +1280,6 @@ function renderAndDeployLocked() {
       $('#editor').env.editor.focus()
   }
   
-  function keyUpHandler(e) {
-  
-    switch (e.keyCode) {
-      case 13:
-      case 82:
-        cantLock = false;
-      break;
-  		case 16:
-  		case 17:
-  		case 18:
-  			keyHandle[e.key] = false;
-  		break;
-    }
-  }
-  
   function openFileDirectory() {
     if (!activeFile || $('#btn-menu-my-files').classList.contains('active')) return
     breadcrumbs.splice(1);
@@ -1315,108 +1298,41 @@ function renderAndDeployLocked() {
     openFolder(activeFile.parentId);
   }
   
-  function keyDownHandler(e) {
-    
-    switch (e.keyCode) {
-      case 37:
-      case 38:
-      case 39:
-      case 40:
-        navigationHandler();
-        return;
-      break;
-  		case 16:
-  		case 17:
-  		case 18:
-  			keyHandle[e.key] = true;
-  		break;
-  	}
-  	
-    for (let shortcut of keyboardShortcut) {
-      if (shortcut && shortcut.keyCode == e.keyCode && shortcut.Alt == keyHandle.Alt && shortcut.Control == keyHandle.Control) {
-        shortcut.callback();
-        break;
-      }
-    }
-  }
-  
-  function keyCodeOf(key) {
-    let keys = ['1','S','<','>','W','I','L','M','Escape','Delete','N','D','Enter','Backspace','O'];
-    let keyCode = [49,83,188,190,87,73,76,77,27,46,78,68,13,8,79];
-    return keyCode[keys.indexOf(key)];
-  }
-  
-  function initKeyboardShortcut(data) {
-    
-    for (let i in data) {
-      
-      let shortcut = {
-        Alt: false,
-        Control: false,
-        callback: null
-      };
-      
-      if (i.includes('Alt+'))
-        shortcut.Alt = true
-      else if (i.includes('Control+'))
-        shortcut.Control = true
-      
-      shortcut.keyCode = keyCodeOf(i.replace(/Alt\+|Control\+/g,''));
-      shortcut.callback = data[i];
-      
-      keyboardShortcut.push(shortcut);
-    }
-    
-  }
-  
-  function keyHandle(event) {
-  	if (event.type == 'blur') {
-  	  keyHandle.Shift = false;
-  	  keyHandle.Control = false;
-  	  keyHandle.Alt = false;
-  	} else if (event.type == 'keyup') {
-  	  keyUpHandler(event);
-  	} else if (event.type == 'keydown') {
-  	  keyDownHandler(event);
-  	}
-  }
-  keyHandle.Alt = false;
-  keyHandle.Control = false;
-  keyHandle.Shift = false;
-  window.keyHandle = keyHandle;
-  
-  initKeyboardShortcut({
-    'Alt+O': function() { event.preventDefault(); openFileDirectory() },
-    'Control+S': function() { event.preventDefault(); fileSave() },
-    'Alt+L': lockFile,
-    'Alt+M': toggleMyFiles,
-    'Alt+I': toggleFileInfo,
-    'Alt+D': function() { event.preventDefault(); toggleTemplate() },
-    'Alt+N': ui.openNewTab,
-    'Alt+W': closeTab,
-    'Alt+<': function() { ui.switchTab(-1) },
-    'Alt+>': function() { ui.switchTab(1) },
+  keyboard.listen({
     'Backspace': previousFolder,
     'Escape': keyEscape,
     'Delete': deleteSelected,
+    'Up': navigationHandler,
+    'Left': navigationHandler,
+    'Down': navigationHandler,
+    'Right': navigationHandler,
     'Enter': function() {
       if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
         event.preventDefault();
         doubleClickOnFile();
       }
     },
+  });
+  
+  keyboard.listen({
+    'Alt+Enter': deployFile,
+    'Alt+<': () => ui.switchTab(-1),
+    'Alt+>': () => ui.switchTab(1),
+    'Alt+L': lockFile,
+    'Alt+M': toggleMyFiles,
+    'Alt+I': toggleFileInfo,
+    'Alt+N': ui.openNewTab,
+    'Alt+W': closeTab,
+    'Alt+O': openFileDirectory,
+    'Control+S': fileSave,
+    'Alt+D': toggleTemplate,
     'Control+Enter': function() {
       if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0)
         renameFile();
       else
         renderFile();
     },
-    'Alt+Enter': deployFile,
-  });
-  
-  window.addEventListener('keydown', keyHandle);
-  window.addEventListener('keyup', keyHandle);
-  window.addEventListener('blur', keyHandle);
+  }, true);
   
 })();
 
