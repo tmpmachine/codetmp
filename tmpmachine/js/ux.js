@@ -1324,9 +1324,9 @@ function renderAndDeployLocked() {
     'Alt+N': ui.openNewTab,
     'Alt+W': closeTab,
     'Alt+O': openFileDirectory,
-    'Control+S': fileSave,
+    'Ctrl+S': fileSave,
     'Alt+D': toggleTemplate,
-    'Control+Enter': function() {
+    'Ctrl+Enter': function() {
       if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0)
         renameFile();
       else
