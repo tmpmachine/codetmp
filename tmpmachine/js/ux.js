@@ -484,6 +484,8 @@ function updateUI() {
       'btn-refresh-sync'      : function() { drive.syncFromDrive() },
     });
     
+    applyKeyboardListener();
+    
   });
 }
 
@@ -1159,7 +1161,7 @@ function renderAndDeployLocked() {
 }
  
  
-(function() {
+function applyKeyboardListener() {
   
   function previousFolder() {
     if ($('#btn-menu-my-files').classList.contains('active') && $('.breadcrumbs').length > 1) {
@@ -1334,7 +1336,7 @@ function renderAndDeployLocked() {
     },
   }, true);
   
-})();
+};
 
 
 function autoSync(event) {
