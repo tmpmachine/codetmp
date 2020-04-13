@@ -851,14 +851,15 @@ function createBlogTemplate() {
   oblog.pages.list(response => {
     
     let notFound = true;
-    for (let page of response.items) {
-      if (page.title == 'Template :: '+templateName) {
-        alert('Template already exists in Blogger. Please delete them manually');
-        window.open('https://blogger.com/blogger.g?blogID='+oblog.authModule.auth.data.blogId+'#allpages');
-        notFound = false;
-        break;
+    if (response.items)
+      for (let page of response.items) {
+        if (page.title == 'Template :: '+templateName) {
+          alert('Template already exists in Blogger. Please delete them manually');
+          window.open('https://blogger.com/blogger.g?blogID='+oblog.authModule.auth.data.blogId+'#allpages');
+          notFound = false;
+          break;
+        }
       }
-    }
     
     if (notFound) {
       oblog.pages.insert({
@@ -1231,13 +1232,6 @@ function applyKeyboardListener() {
       fileRename(selectedFile[0].getAttribute('data'));
   }
   
-  function deployFile() {
-    if (keyboard.Shift)
-      renderAndDeploySingle();
-    else
-      renderAndDeployLocked();
-  }
-  
   function renderFile() {
     
     if (!cantLock) {
@@ -1316,8 +1310,10 @@ function applyKeyboardListener() {
     },
   });
   
+  
   keyboard.listen({
-    'Alt+Enter': deployFile,
+    'Alt+Enter': renderAndDeployLocked,
+    'Alt+Shift+Enter': renderAndDeploySingle,
     'Alt+<': () => ui.switchTab(-1),
     'Alt+>': () => ui.switchTab(1),
     'Alt+L': lockFile,
