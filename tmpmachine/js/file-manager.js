@@ -909,9 +909,11 @@ function parseDescriptionOld(txt) {
         oblog.posts.patch(entryId, {
           content
         }, e => {
-  
+          
           if (e == 404)
             aww.pop('404')
+          else if (e == 400)
+            aww.pop('400')
           else
             aww.pop('Update Deployed!')
         })
