@@ -617,6 +617,42 @@ function openFileConfirm(el) {
   }
 }
 
+function getFileAtPath(path, parentId = -1) {
+    
+  while (path.match('//'))
+    path = path.replace('//','/');
+  
+  let dir = path.split('/');
+  let folder;
+  
+  while (dir.length > 1) {
+    
+    if (dir[0] === '..' || dir[0] === '.'  || dir[0] === '') {
+      
+      folder = odin.dataOf(parentId, fs.data.folders, 'fid');
+      if (folder === undefined)
+        break;
+      dir.splice(0, 1);
+      parentId = folder.parentId;
+    } else {
+      
+      let folders = odin.filterData(parentId, fs.data.folders, 'parentId');
+      folder = odin.dataOf(dir[0], folders, 'name');
+      if (folder) {
+        parentId = folder.fid;
+        dir.splice(0, 1);
+      } else {
+        parentId = -2;
+        break;
+      }
+    }
+  }
+  
+  let fileName = path.replace(/.+\//g,'')
+  let files = odin.filterData(parentId, fs.data.files, 'parentId');
+  let found = files.find(file => file.name == fileName);
+  return found;
+}
 
 function openFile(fid) {
   

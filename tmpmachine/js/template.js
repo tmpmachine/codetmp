@@ -1,4 +1,4 @@
-var editorTemplate = [
+let snippets = [
   {pos: [-3, 1], title: 'HTML', snippet: '<!DOCTYPE html>\n<html>\n<head>\n\n<\/head>\n<body>\n\t\n\t\n\t\n<\/body>\n<\/html>'},
   {pos: [-1, 1], title: 'style', snippet: '<style>\n\t\n<\/style>'},
   {pos: [-1, 1], title: 'inline script', snippet: '<script>\n\t\n<\/script>'},
@@ -8,10 +8,111 @@ var editorTemplate = [
   {pos: [0, 12], title: 'link', snippet: '<link href="" rel="stylesheet"/>'},
   {pos: [1, 0], title: 'meta viewport', snippet: '<meta name="viewport" content="width=device-width"/>\n'},
   {pos: [1, 0], title: 'charset', snippet: '<meta charset="utf-8"/>\n'},
+  {pos: [-1, 1], title: 'snippet template', snippet: '<template data-prefix="snippet-name" data-trim="true" data-cursor="1,0">\n\t\n<\/template>'},
+  {title: 'reload snippet', callback: loadSnippets},
 ];
+let customSnippetsCounter = 0
 
-for (let i=0; i<editorTemplate.length; i++)
-  editorTemplate[i].index = i;
+function downloadSnippetFile(fid) {
+          
+  return new Promise(function(resolve, reject) {
+    
+    let f = odin.dataOf(fid, fs.data.files, 'fid');
+    if (!f)
+      resolve();
+      
+    if (f.loaded) {
+      resolve(f);
+    } else {
+      
+      aww.pop('Downloading file...');
+      
+      new Promise(function(resolveTokenRequest) {
+    
+        if (auth0.state(5))
+          return resolveTokenRequest();
+        else {
+          auth0.requestToken(function() {
+            return resolveTokenRequest();
+          }, true);
+        }
+        
+      }).then(function() {
+      
+        
+        fetch('https://www.googleapis.com/drive/v3/files/' + f.id + '?alt=media', {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + auth0.auth.data.token
+          }
+        }).then(function(r) {
+          
+          if (r.ok)
+            return r.text();
+          else
+            throw r;
+          
+        }).then(function(media) {
+          
+          f.content = media;
+          f.loaded = true;
+          fs.save();
+          resolve(f);
+          
+        }).catch(reject);
+      });
+    }
+  });
+}
+
+function applySnippets(html) {
+  let child = html.children;
+  for (let el of child) {
+    let snippet = el.innerHTML;
+    let cursor = el.dataset.cursor ? el.dataset.cursor.split(',') : [1,0];
+    let isTrim = el.dataset.trim ? el.dataset.trim == 'false' ? false : true : true;
+    if (isTrim)
+      snippet = snippet.trim();
+    snippets.push({pos: cursor, title: el.dataset.prefix, snippet});
+    customSnippetsCounter++;
+  }
+  document.body.removeChild(html);
+  
+  for (let i=0; i<snippets.length; i++)
+    snippets[i].index = i;
+}
+
+function loadSnippets() {
+  
+  snippets.length -= customSnippetsCounter;
+  customSnippetsCounter = 0;
+  
+  for (let i=0; i<fs.data.files.length; i++) {
+    if (fs.data.files[i].parentId == -1 && fs.data.files[i].name == 'env.json') {
+      let setup = JSON.parse(fs.data.files[i].content);
+      let files = setup.snippets;
+      
+      for (let path of files) {
+        let f = getFileAtPath(path);
+        if (typeof(f) == 'undefined')
+          L('Environemnt error : snippet '+path+' not found');
+        else
+          downloadSnippetFile(f.fid)
+          .then(f => {
+            let html = o.cel('div');
+            html.style.display = 'none';
+            document.body.append(html);
+            html.innerHTML += f.content;
+            applySnippets(html);
+          });
+      }
+      break;
+    }
+  }
+  
+  for (let i=0; i<snippets.length; i++)
+    snippets[i].index = i;
+}
 
 function handlePostLoad(response) {
   
@@ -62,10 +163,10 @@ var wgSearch = {
     var data = [];
     var extraMatch = [];
     value = value.replace(/-|,|'/g,'');
-    for (var i=0,title,matchIdx,match=1,xmatch=1,wildChar,offset,creps; i<editorTemplate.length; i++)
+    for (var i=0,title,matchIdx,match=1,xmatch=1,wildChar,offset,creps; i<snippets.length; i++)
     {
       if (match > 10) break;
-      titleOri = editorTemplate[i].title;
+      titleOri = snippets[i].title;
       title = titleOri.replace(/-|,|'/g,'');
       matchIdx = title.toLowerCase().indexOf(value.toLowerCase());
       if (matchIdx >= 0)
@@ -78,12 +179,12 @@ var wgSearch = {
         
         if (matchIdx === 0)
         {
-            data.push({index:editorTemplate[i].index,ori:titleOri.replace(/'/g,'!!!'),title:title});
+            data.push({index:snippets[i].index,ori:titleOri.replace(/'/g,'!!!'),title:title});
             match++;
         }
         else
         {
-            extraMatch.push({index:editorTemplate[i].index,ori:titleOri.replace(/'/g,'!!!'),title:title});
+            extraMatch.push({index:snippets[i].index,ori:titleOri.replace(/'/g,'!!!'),title:title});
             xmatch++;
         }
       }
@@ -227,12 +328,17 @@ function somefun(self, bypass) {
 }
 
 function insertTemplate(index) {
-  let data = odin.dataOf(index, editorTemplate, 'index');
-  let curCol = $('#editor').env.editor.getCursorPosition().column
-  $('#editor').env.editor.insert(data.snippet);
-  $('#editor').env.editor.moveCursorToPosition({row:$('#editor').env.editor.getCursorPosition().row+data.pos[0], column: curCol+data.pos[1]});
-  $('#editor').env.editor.focus();
-
+  let data = odin.dataOf(index, snippets, 'index');
+  if (data.callback) {
+    data.callback();
+  } else {
+    let curCol = $('#editor').env.editor.getCursorPosition().column
+    $('#editor').env.editor.insert(data.snippet);
+    $('#editor').env.editor.moveCursorToPosition({row:$('#editor').env.editor.getCursorPosition().row+data.pos[0], column: curCol+data.pos[1]});
+    $('#editor').env.editor.focus();
+  }
   $('#search-result').innerHTML = '';
   toggleInsertSnippet();
 }
+
+loadSnippets();
