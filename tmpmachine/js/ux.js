@@ -1255,6 +1255,9 @@ function applyKeyboardListener() {
   function toggleMyFiles() {
     if (!keyboard.Alt) return;
     
+    if ($('.anibar-main-editor-menu')[0].classList.contains('anibar--active'))
+      toggleFileInfo();
+      
     $('#btn-menu-my-files').click()
     if ($('#btn-menu-my-files').classList.contains('active')) {
       $('#editor').env.editor.blur();
@@ -1269,6 +1272,8 @@ function applyKeyboardListener() {
   }
   
   function toggleFileInfo() {
+    if ($('#btn-menu-my-files').classList.contains('active')) return;
+    
     let isOpened = environment.toggle();
     if (isOpened)
       $('#editor').env.editor.blur()
