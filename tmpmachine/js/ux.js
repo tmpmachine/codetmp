@@ -1229,7 +1229,7 @@ function applyKeyboardListener() {
     if (selectedFile[0].dataset.type === 'folder')
       ui.fm.renameFolder();
     else
-      fileRename(selectedFile[0].getAttribute('data'));
+      fileRename(Number(selectedFile[0].getAttribute('data')));
   }
   
   function renderFile() {

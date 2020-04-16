@@ -474,9 +474,18 @@ function fileRename(fid) {
   fileList();
   
   // editor
-  if (activeFile && fid === activeFile.fid) {
-    setEditorMode(file.name);
-    $('.file-name')[activeTab].textContent = file.name;
+  if (activeFile) {
+    if (fid === activeFile.fid)
+      setEditorMode(file.name);
+    
+    let index = 0
+    for (let tab of fileTab) {
+      if (tab.fid == fid) {
+        $('.file-name')[index].textContent = file.name;
+        break;
+      }
+      index++;
+    }
   }
 }
 
