@@ -88,13 +88,13 @@ function loadSnippets() {
   customSnippetsCounter = 0;
   
   for (let i=0; i<fs.data.files.length; i++) {
-    if (fs.data.files[i].parentId == -1 && fs.data.files[i].name == 'env.json') {
+    if (fs.data.files[i].parentId == -1 && fs.data.files[i].name == 'env.json' && !fs.data.files[i].trashed) {
       let setup = JSON.parse(fs.data.files[i].content);
       let files = setup.snippets;
       
       for (let path of files) {
         let f = getFileAtPath(path);
-        if (typeof(f) == 'undefined')
+        if (typeof(f) == 'undefined' || f.trashed)
           L('Environemnt error : snippet '+path+' not found');
         else
           downloadSnippetFile(f.fid)
