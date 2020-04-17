@@ -68,8 +68,11 @@ function downloadSnippetFile(fid) {
 function applySnippets(html) {
   let child = html.children;
   for (let el of child) {
+    if (!['TEMPLATE','SCRIPT'].includes(el.nodeName)) continue;
+    if (!el.dataset.prefix) continue;
+    
     let snippet = el.innerHTML;
-    let cursor = el.dataset.cursor ? el.dataset.cursor.split(',') : [1,0];
+    let cursor = el.dataset.cursor ? [parseInt(el.dataset.cursor.split(',')[0]), parseInt(el.dataset.cursor.split(',')[1])] : [1,0];
     let isTrim = el.dataset.trim ? el.dataset.trim == 'false' ? false : true : true;
     if (isTrim)
       snippet = snippet.trim();
