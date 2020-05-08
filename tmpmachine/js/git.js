@@ -1,258 +1,246 @@
-(function() {
+let activeSha;
+let branch = '';
+let repoName = '';
+let token = '';
+let username = '';
+let email = '';
+let sha1;
+let sha2;
+let sha3;
+let gitTree = [];
   
-  function Git() {
-    this.activeSha;
-    this.branch;
-    this.repoName;
-    this.token;
-    this.username;
-    this.email;
-    
-    return this;
-  }
-  
-  Git.prototype.downloadFile = function(url) {
-    return new Promise((resolve, reject) => {
-      fetch(url).then(function(r) {
-        return r.text();
-      }).then(function(r){
-        resolve(r)
-      })
-    })
-  }
-  
-  Git.prototype.registerFile = function(file, parentId) {
-    L('downloading '+file.path);
-    git.downloadFile(file.download_url).then(result => {
-      new File({
-        parentId,
-        content: result,
-        name: file.name,
-      });
+const downloadFile = function(url) {
+  return new Promise((resolve, reject) => {
+    fetch(url).then(function(r) {
+      return r.text();
+    }).then(function(r) {
+      resolve(r);
     });
-  };
+  });
+};
   
-  Git.prototype.registerDir = function(repo, file, parentId) {
-    let _file = new Folder({
+const registerFile = function(file, parentId) {
+  L('downloading '+file.path);
+  downloadFile(file.download_url).then(result => {
+    new File({
       parentId,
+      content: result,
       name: file.name,
     });
-    git.clonePath(repo, file.path, _file.fid);
+  });
+};
+  
+const registerDir = function(repo, file, parentId) {
+  let _file = new Folder({
+    parentId,
+    name: file.name,
+  });
+  clonePath(repo, file.path, _file.fid);
+};
+  
+const readingData = function(repo, files, parentId) {
+  for (let file of files) {
+    if (file.type == 'file')
+      registerFile(file, parentId);
+    else if (file.type == 'dir')
+      registerDir(repo, file, parentId);
+  }
+};
+  
+const clonePath = function(repo, path = '', parentId = activeFolder) {
+  
+  fetch('https://api.github.com/repos/'+repo.username+'/'+repo.name+'/contents/'+path).then(function(r){
+    return r.json(); })
+  .then(function(r){
+    readingData(repo, r, parentId);
+  });
+};
+
+
+const clone = function(url) {
+  let segments = url.replace('https://github.com/','').split('/');
+  let repo = {
+    name: segments[1].replace('.git',''),
+    username: segments[0],
   };
-    
-  Git.prototype.readingData = function(repo, files, parentId) {
-    for (let file of files) {
-      if (file.type == 'file')
-        git.registerFile(file, parentId)
-      else if (file.type == 'dir')
-        git.registerDir(repo, file, parentId)
-    }
+  
+  clonePath(repo);
+};
+  
+  
+function listFile() {
+  fetch('https://api.github.com/repos/'+username+'/'+repoName+'/contents/').then(function(r){
+    return r.json(); })
+  .then(function(r){
+    $('#file-list').innerHTML = o.creps('tmp-list',r);
+  });
+}
+  
+function loadFile(self) {
+  let r = new FileReader();
+  r.onload = function() {
+    $('#in-upload').value = this.result;
+  };
+  $('#in-name').value = self.files[0].name;
+  r.readAsText(self.files[0]);
+}
+  
+function createFile(mode) {
+  let fileContent = 'testing 2';
+  let message = window.prompt('message');
+  if (!message) return;
+  
+  body = {
+    "message": message,
+    'committer':{
+      'name':username,
+      'email':email
+    },
+    'content': btoa(fileContent),
+    'branch': branch,
   };
   
-  Git.prototype.clone = function(url) {
-    
-    let segments = url.replace('https://github.com/','').split('/');
-    let repo = {
-      name: segments[1].replace('.git',''),
-      username: segments[0],
-    };
-    
-    git.clonePath(repo);
-  };
-  
-    
-  Git.prototype.clonePath = function(repo, path = '', parentId = activeFolder) {
-    
-    fetch('https://api.github.com/repos/'+repo.username+'/'+repo.name+'/contents/'+path).then(function(r){
-      return r.json(); })
-    .then(function(r){
-      git.readingData(repo, r, parentId);
-    });
-  };
-  
-  window.git = new Git();
-  
-  
-  function listFile() {
-    fetch('https://api.github.com/repos/'+username+'/'+repoName+'/contents/').then(function(r){
-      return r.json(); })
-    .then(function(r){
-      $('#file-list').innerHTML = o.creps('tmp-list',r);
-    })
+  if (mode == 'update') {
+    body.sha = activeSha;
+    aww.pop('Updating file...');
+  } else {
+    aww.pop('Uploading new file...');
   }
   
-  function loadFile(self) {
-    let r = new FileReader();
-    r.onload = function() {
-      $('#in-upload').value = this.result
-    }
-    $('#in-name').value = self.files[0].name;
-    r.readAsText(self.files[0]);
-  }
+  let filename = 'index.html';
+  fetch('https://api.github.com/repos/'+username+'/'+repoName+'/contents/'+filename, {
+    method:'PUT',
+    headers:{
+      'Authorization':'token '+token
+    },
+    body:JSON.stringify(body)
+  }).then(r => {
+    return r.json();
+  }).then(r => {
+    L(r);
+    aww.pop('Done');
+  });
+}
   
-  function createFile(mode) {
-    
-    let fileContent = $('#in-upload').value;
-    let message = window.prompt('message')
-    if (!message) return
-    
-    body = {
-      "message": message,
-      'committer':{
-        'name':username,
-        'email':email
-      },
-      'content': btoa(fileContent),
-      'branch': branch,
-    }
-    
-    if (mode == 'update') {
-      body.sha = activeSha;
-      aww.pop('Updating file...');
-    } else {
-      aww.pop('Uploading new file...');
-    }
-    
-    let filename = $('#in-name').value
-    fetch('https://api.github.com/repos/'+username+'/'+repoName+'/contents/'+filename, {
-      method:'PUT',
+function createBranch() {
+  fetch('https://api.github.com/repos/'+username+'/'+repoName+'/git/refs/heads').then(function(r){
+    return r.json(); })
+  .then(function(r) {
+    let sha = r[0].object.sha;
+    fetch('https://api.github.com/repos/'+username+'/'+repoName+'/git/refs',{
+      method:'POST',
       headers:{
         'Authorization':'token '+token
       },
-      body:JSON.stringify(body)
-    }).then(r => {
-      return r.json()
-    }).then(r => {
-      L(r);
-      aww.pop('Done')
-      listFile();
-    })
-  }
-  
-  function createBranch() {
-    fetch('https://api.github.com/repos/'+username+'/'+repoName+'/git/refs/heads').then(function(r){
-      return r.json(); })
-    .then(function(r){
-      let sha = r[0].object.sha
-      fetch('https://api.github.com/repos/'+username+'/'+repoName+'/git/refs',{
-        method:'POST',
-        headers:{
-          'Authorization':'token '+token
-        },
-        body:JSON.stringify({
-          ref: 'refs/heads/'+branch,
-          sha: sha
-        })
-      }).then((r)=>{
-        return r.json()
-      }).then((r)=>{
-        aww.pop('Done')
-        // listFile();
+      body:JSON.stringify({
+        ref: 'refs/heads/'+branch,
+        sha: sha
       })
-      // $('#file-list').innerHTML = o.creps('tmp-list',r);
-    })
-  }
-  
-  function listBranch() {
-    // GET /repos/:owner/:repo/branches
-    fetch('https://api.github.com/repos/'+username+'/'+repoName+'/branches').then(function(r){
-      return r.json(); })
-    .then(function(r){
-      L(r)
-      // $('#file-list').innerHTML = o.creps('tmp-list',r);
-    })
-  }
-  
-  // get branch info
-  function step1() {
-    
-    fetch('https://api.github.com/repos/'+username+'/'+repoName+'/branches/master', {
-      method:'GET',
-      headers:{
-        'Authorization':'token '+token
-      }
-    }).then(r => {
-      return r.json()
-    }).then(r => {
+    }).then((r)=>{
+      return r.json();
+    }).then((r)=>{
       L(r);
-      step1.sha = r.commit.sha
-    })
-  }
+      aww.pop('Done');
+    });
+  });
+}
   
-  // create a tree
-  function step2() {
-    let tree_sha = step1.sha;
-    let input = {
-      base_tree: tree_sha,
-      tree: [{
-        mode: "100644",
-        path: "etc/view.js",
-        content: "first commit \n second to go /wo markdown",
-        type: "blob"
-      }, {
-        mode: "100644",
-        path: "etc/doramon.id",
-        content: "first commit \n second to <b>go</b> /w markdown",
-        type: "blob"
-      }]
+function listBranch() {
+  fetch('https://api.github.com/repos/'+username+'/'+repoName+'/branches').then(function(r){
+    return r.json(); })
+  .then(function(r){
+    L(r);
+  });
+}
+
+// get branch info
+const step1 = function() {
+  fetch('https://api.github.com/repos/'+username+'/'+repoName+'/branches/'+branch, {
+    method:'GET',
+    headers:{
+      'Authorization':'token '+token
     }
-    
-    fetch('https://api.github.com/repos/'+username+'/'+repoName+'/git/trees', {
-      method:'POST',
-      headers:{
-        'Authorization':'token '+token
-      },
-      body:JSON.stringify(input)
-    }).then(r => {
-      return r.json()
-    }).then(r => {
-      L(r);
-      step2.sha = r.sha;
-    })
-  }
+  }).then(r => {
+    return r.json();
+  }).then(r => {
+    L(r);
+    sha1 = r.commit.sha;
+    step2();
+  });
+};
+
+function appendGitTree(path, content) {
+  gitTree.push({
+    mode: "100644",
+    path,
+    content: content,
+    type: "blob"
+  });
+};
+
+// create a tree
+const step2 = function() {
+  let tree_sha = sha1;
+  let input = {
+    base_tree: tree_sha,
+    tree: gitTree,
+  };
   
-  // commits the tree
-  function step3() {
-    input = {
-      message: window.prompt('message'),
-      tree: step2.sha,
-      committer: {
-        'name':username,
-        'email':email
-      },
-      parents: [step1.sha]
-    }
-  
-    fetch('https://api.github.com/repos/'+username+'/'+repoName+'/git/commits', {
-      method:'POST',
-      headers:{
-        'Authorization':'token '+token
-      },
-      body:JSON.stringify(input)
-    }).then(r => {
-      return r.json()
-    }).then(r => {
-      L(r);
-      step3.sha = r.sha
-    })
-  }
-  
-  // update heads/master refs to point to the new tree
-  function step4() {
-    input = {
-      sha: step3.sha
-    }
-    fetch('https://api.github.com/repos/'+username+'/'+repoName+'/git/refs/heads/master', {
-      method:'PATCH',
-      headers:{
-        'Authorization':'token '+token
-      },
-      body:JSON.stringify(input)
-    }).then(r => {
-      return r.json()
-    }).then(r => {
-      L(r);
-    })
+  fetch('https://api.github.com/repos/'+username+'/'+repoName+'/git/trees', {
+    method:'POST',
+    headers:{
+      'Authorization':'token '+token
+    },
+    body:JSON.stringify(input)
+  }).then(r => {
+    return r.json();
+  }).then(r => {
+    L(r);
+    sha2 = r.sha;
+    step3();
+  });
+};
+
+// commits the tree
+const step3 = function() {
+  input = {
+    message: window.prompt('message'),
+    tree: sha2,
+    committer: {
+      'name':username,
+      'email':email
+    },
+    parents: [sha1]
   }
 
-})();
+  fetch('https://api.github.com/repos/'+username+'/'+repoName+'/git/commits', {
+    method:'POST',
+    headers:{
+      'Authorization':'token '+token
+    },
+    body:JSON.stringify(input)
+  }).then(r => {
+    return r.json()
+  }).then(r => {
+    L(r);
+    sha3 = r.sha
+    step4()
+  })
+}
+
+const step4 = function() {
+  input = {
+    sha: sha3
+  }
+  fetch('https://api.github.com/repos/'+username+'/'+repoName+'/git/refs/heads/'+branch, {
+    method:'PATCH',
+    headers:{
+      'Authorization':'token '+token
+    },
+    body:JSON.stringify(input)
+  }).then(r => {
+    return r.json()
+  }).then(r => {
+    L(r);
+  })
+}

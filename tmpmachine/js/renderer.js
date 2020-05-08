@@ -56,12 +56,14 @@ let isPWAFrameLoaded = false;
   function replaceLocal(body, preParent = -1, path = ['root']) {
 
     if (body === undefined) {
-      
+      gitTree.length = 0;
       if (locked === -1 || (activeFile && locked === activeFile.fid)) {
       
         body = $('#editor').env.editor.getValue();
         
         preParent = activeFile ? activeFile.parentId : activeFolder;
+        // if (activeFile)
+          // appendGitTree(activeFile.name, plate.cook(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
       } else {
       
         let file = odin.dataOf(locked, fs.data.files, 'fid');
@@ -73,7 +75,9 @@ let isPWAFrameLoaded = false;
           body = file.content;
         
         preParent = file.parentId;
+        // appendGitTree(file.name, plate.cook(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
       }
+      
     }
     
   
@@ -152,7 +156,6 @@ let isPWAFrameLoaded = false;
       if (file === undefined) {
         body = body.replace(match[0], '<b style="font-size:0.9em;">THOR unexpected: '+src+' not found.</b><br/>');
       } else {
-        L(path.join('/') + '/' + file.name);
         if (!file.loaded) {
           aww.pop('Downloading required file : '+name);
           drive.downloadDependencies(file);
@@ -171,6 +174,7 @@ let isPWAFrameLoaded = false;
           content = (activeFile && activeFile.fid === file.fid) ? $('#editor').env.editor.getValue() : fileTab[tabIdx].content;
         else
           content = file.content;
+        // appendGitTree((path.join('/') + '/').replace('root/','') + file.name, content);
         
         if ($('#chk-deploy-minified').checked && isMinified)
           content = content.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '').replace(/\n|\t+/g,'');
@@ -201,6 +205,8 @@ let isPWAFrameLoaded = false;
     
     if ($('#chk-render-plate-html').checked)
       body = (typeof(plate) != 'undefined') ? plate.cook(body) : body;
+    
+    appendGitTree('index.html', body);
     
     if (isForceDeploy) {
       uploadBody = body;
