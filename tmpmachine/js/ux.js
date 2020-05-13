@@ -165,7 +165,6 @@ const ui = {
     
     if (!menu.classList.contains('active')) {
       selectedFile = [];
-      clipBoard = [];
     }
   },
   

@@ -809,8 +809,10 @@ function fileDownload() {
   function copyFile(cut) {
     
     for (let f of selectedFile) {
-      if (clipBoard.indexOf(f) < 0)
+      if (clipBoard.indexOf(f) < 0) {
+        clipBoard.length = 0;
         clipBoard.push(f);
+      }
     }
     
     copyParentFolderId = activeFolder;
