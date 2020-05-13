@@ -1,3 +1,5 @@
+.grid{display:grid}
+
 /* W3.CSS 4.12 November 2018 by Jan Egil and Borge Refsnes */
 html{box-sizing:border-box}*,*:before,*:after{box-sizing:inherit}
 /* Extract from normalize.css by Nicolas Gallagher and Jonathan Neal git.io/normalize */
@@ -360,4 +362,7 @@ html,body{height:100%;}
   margin-bottom: 1em;
   border-bottom: 1px solid #ccc;
   padding-bottom: 1em;
+}
+@media (max-width:600px) {
+  #nav-bar{height:0!important;overflow:hidden}
 }

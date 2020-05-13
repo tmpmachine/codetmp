@@ -122,13 +122,9 @@
       <!--plate-interact-menu-->
       
       [ .in-window {ov:hidden;}
-        [ {pos:relative;h:100%;}
-          [ +blue +hide {pos:fixed;z:2;h:calc(100% - 41px);r:0;w:200px;ov-y:scroll;t:41px;} onscroll="$('#editor').env.editor.getSession().setScrollTop(this.scrollTop)"
-            [ @scroll-chair {w:200px;bg:linear-gradient(dodgerblue,lightblue);}]
-          ]
+        [ {pos:relative;h:100%;dis:grid;grid-template-rows:auto auto 1fr}
           
-          [a href="javascript:void(0)" @nav-bar-blur {pos:absolute;z:-22;dis:none;}]
-          [ @nav-bar +hide-small .hoverable .no-select {bg:#1d1f25;} {h:34px;pos:relative;z:888;dis:block;w:100%;} +small {col:#fafafa;}
+          [ @nav-bar .hoverable .no-select {bg:#1d1f25;} {h:34px;pos:relative;z:888;dis:block;w:100%;} +small {col:#fafafa;}
             [ul {p:0;m:0;list-style:none;dis:block;}
               [li +left +padding {pos:relative;}
                 File
@@ -212,30 +208,23 @@
             ]
           ]
           
-          [ @file-title-wrapper .menu-overflow-header
-            [ {bg:#141414;pos:relative;} @file-title
-              <!--xplate-ninja-space-->
-              [ {p:6px 0;w:1px;ov:hidden} +right {visibility:hidden;}
-                [M "close" ]
-              ]
-              
-              <!---->
-              [ +left {bg:#101113;pos:relative;z:1;} @more-tab {dis:none}
-                [
-                  [x {pos:relative;p:18px 24px;lh:1.5em;}
-                    [ onclick="" .file-tab-name data-title="__name__" {pos:absolute;l:0;t:0;w:100%;col:#fff!;} .no-select +small {fw:bold;} +left {dis:flex;align-items:center;justify-content:center;h:100%}
-                      [M "navigate_next"]
-                    ]
+          [ {bg:#141414;pos:relative;} @file-title
+            [ {p:6px 0;w:1px;ov:hidden} +right {visibility:hidden;}
+              [M "close" ]
+            ]
+            [ +left {bg:#101113;pos:relative;z:1;} @more-tab {dis:none}
+              [
+                [x {pos:relative;p:18px 24px;lh:1.5em;}
+                  [ onclick="" .file-tab-name data-title="__name__" {pos:absolute;l:0;t:0;w:100%;col:#fff!;} .no-select +small {fw:bold;} +left {dis:flex;align-items:center;justify-content:center;h:100%}
+                    [M "navigate_next"]
                   ]
                 ]
-                [ {h:0.25rem;bg:#202020;}]
               ]
-              <!---->
+              [ {h:0.25rem;bg:#202020;}]
             ]
-            
           ]
           
-          [ @editor-wrapper +padding spellcheck="false" {pos:absolute;w:100%;h:100%;} .menu-overflow-content
+          [ @editor-wrapper spellcheck="false" {pos:relative}
             [ @editor {pos:absolute;top:0;bottom:0;left:0;right:0;}]
             [ @blocker-editor .bg6 {pos:absolute;t:0;l:0;r:0;b:0;z-index:6;}]
           ]
@@ -382,9 +371,9 @@
     ]
     [ @in-assets-block .in-window .in-block]
     
-    [ @in-my-files .in-window .in-content .bg1 .col1 {overflow:hidden;}
+    [ @in-my-files .in-window .in-content .bg1 .col1 {dis:grid;grid-template-rows:auto auto 1fr}
       [ {h:34px;} +hide-small]
-      [ +padding .menu-overflow-header .border-bottom-dark
+      [ +padding .border-bottom-dark @
         [ +left
           [h5 {fw:bold;} "My Files" .no-select]
         ]
@@ -405,15 +394,12 @@
           [M "edit" {col:#fff;}]
         ]
       ]
-      [ {h:100%;} .menu-overflow-content
-        [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
-          [ +padding-small +right-align +tiny .no-select {mt:1em}
-            [c +half +center @action-info "&nbsp;"]
-            [c +half "Build v1.095, Apr 17" +opacity]
-          ]
+      [ {ov:scroll}
+        [
+          [ {p:4px 8px;fs:10px} "Build v1.1, May 13" {op:0.6;ta:right} .no-select]
           [ @breadcrumbs .no-select +small +padding]
-          [ @file-list +padding]
         ]
+        [ @file-list +padding {dis:flex;flex-flow:wrap}]
       ]
     ]
     [ @in-my-files-block .in-window .in-block]
@@ -422,13 +408,13 @@
     [ @in-trash .in-window .in-content .bg1 .col1 {overflow:hidden;}
       [ {h:34px;} +hide-small]
       [ +padding .menu-overflow-header  .border-bottom-dark
-        [ +left .no-select
+        [ .no-select
           <h5><b>Trash [s +tiny "(Preview only)"] [s +black +round +tiny "Beta" {p:0 2px 2px ;} ]</b></h5>
         ]
       ]
       [ {h:100%;} .menu-overflow-content
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
-          [ @list-trash +padding]
+          [ @list-trash +padding {dis:flex;flex-flow:wrap}]
         ]
       ]
     ]
@@ -498,7 +484,6 @@
         
         [small "Development"]
         <div>
-          [btn class="file-settings-button" data-section="revisions" "+ Revisions"]
           [btn class="file-settings-button" data-section="blogger" "+ Blogger"]
           [btn class="file-settings-button" data-section="blossem" "+ Blossem"]
           [btn class="file-settings-button" data-section="pwa" "+ PWA"]
@@ -581,15 +566,6 @@
           [hr]
         </div>
         
-        <div class="auth-required unauthorized hide file-settings" data-section="revisions">
-          [btn @btn-backup-revision "Backup Revision" +button +border +margin-top]
-          [btn @btn-list-revisions "List Revisions" +button +border +margin-top]
-          [btn @btn-blog-vc "Open version control" +button +border +margin-top +hide]
-          [hr]
-          [ @list-revisions]
-          [hr]
-        </div>
-        
         <!--[hr]-->
         <!--[btn "Delete" +hide-large +hide-medium @btn-delete-file +red +button +border +margin-bottom +block]-->
         
@@ -608,14 +584,6 @@
     ]
   </template>
 
-  <template id="tmp-list-revision">
-    [
-      [ "__id__"]
-      [ +small "__modifiedTime__"]
-      [btn "Delete" +button onclick="deleteRevision('__id__',this)"]
-      [btn "Rollback" +button onclick="rollbackRevision('__id__')"]
-    ]
-  </template>
   <template id="tmp-list-blog">
     [ +padding
       __id__ : __name__
@@ -636,18 +604,18 @@
     
   
   <template id="tmp-breadcrumb">
-    [ +padding onclick="openBread(__folderId__)" +button
+    [ +padding onclick="openBread(__folderId__)" +button .breadcrumbs
       __title__
     ]
   </template>
   <template id="tmp-breadcrumb-fake">
-    [ +padding +button +grey {bg:#ddd!;}
+    [ +padding +button +grey {bg:#ddd!;} .breadcrumbs
       __title__
     ]
   </template>
   
   <template id="tmp-file-list">
-    [ .file-list +left +left-align .files {m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
+    [ .file-list .files {m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
       [ {pos:absolute;z:8177;t:0;l:0;}
         [M "lock" .__clsLock__ .btn-lock @btn-lock__fid__ onclick='lockRender(this, __fid__, "__name__")' +button {col:#aaa;} +hover-none]
       ]
@@ -672,7 +640,7 @@
     ]
   </template>
   <template id="tmp-list-file-trash">
-    [ .file-list +left +left-align .files {m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
+    [ .file-list .files {m:0.1em;p:0;pos:relative;} .pointer .no-select .bg7 .hover-bg3-light
       [ +center +padding-32
         [M +xxlarge "insert_drive_file" {col:#777;}]
       ]
@@ -691,11 +659,11 @@
   
   <template id="tmp-folder-list">
     [ .folder-list onclick='openFolderConfirm(this)' title="__name__" data-type="folder" data='__fid__' +left +left-align {m:0.1em;p:0;} .pointer .no-select .folders .bg2 .hover-bg3-light
-      [ +padding
-        [c {w:24px;}
+      [ {p:8px 16px;dis:grid;grid-template-columns:auto 1fr}
+        [ {w:24px;}
           [M +medium {p:2px 0;} "folder" {col:__defaultBg__!;} +left]
         ]
-        [x +small +left-align +padding {fw:bold;pos:relative;}
+        [small {fw:bold;pos:relative;ov:hidden}
           [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
             __name__
           ]
@@ -705,11 +673,11 @@
   </template>
   <template id="tmp-list-folder-trash">
     [ .folder-list +left +left-align {m:0.1em;p:0;} .pointer .no-select .folders .bg2 .hover-bg3-light
-      [ +padding
-        [c {w:24px;}
+      [ {p:8px 16px;dis:grid;grid-template-columns:auto 1fr}
+        [ {w:24px;}
           [M +medium {p:2px 0;} "folder" {col:__defaultBg__!;} +left]
         ]
-        [x +small +left-align +padding {fw:bold;pos:relative;}
+        [small {fw:bold;pos:relative;ov:hidden}
           [ {pos:absolute;w:100%;top:0;left:0;h:100%;}
             __name__
           ]

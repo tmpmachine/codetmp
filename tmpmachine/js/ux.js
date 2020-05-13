@@ -10,11 +10,8 @@ const ui = {
       
       let folder = odin.dataOf(selectedFile[0].getAttribute('data'), fs.data.folders, 'fid');
       
-      let name = window.prompt('Folder name', folder.name);
-      if (name === null || name === folder.name)
-        return;
-      if (name.trim().length === 0)
-        name = folder.name;
+      let name = getPromptInput('Folder name', folder.name);
+      if (!name || name === folder.name) return;
       
       let modifiedTime = new Date().toISOString();
       folder.name = name;
@@ -35,30 +32,19 @@ const ui = {
     },
     newFolder: function() {
       
-      let name = window.prompt('Folder name','Untitled');
-      if (name === null)
-        return;
-      if (name.trim().length === 0)
-        name = 'Untitled';
+      let name = getPromptInput('Folder name', 'Untitled');
+      if (!name) return;
       
       let modifiedTime = new Date().toISOString();
-      let data = {
+      let folder = new Folder({
         name,
         modifiedTime,
-        parentId: activeFolder
-      };
-      
-      fm.INSERT.folder(data);
-      
-      handleSync({
-        fid: fs.data.counter.folders-1,
-        action: 'create',
-        type: 'folders'
+        parentId: activeFolder,
       });
+      fileManager.sync(folder.fid, 'create', 'folders');
       drive.syncToDrive();
-      
+      fileManager.list();
       fs.save();
-      fileList();
     },
     deleteFolder: function() {
       
@@ -78,52 +64,6 @@ const ui = {
       fs.save();
       fileList();
       selectedFile.splice(0, 1);
-    },
-    newFile: function() {
-      
-      let name = window.prompt('File name', $('.file-name')[activeTab].textContent);
-        
-      if (name === null)
-        return;
-      if (name.trim().length === 0)
-        name = 'Untitled File';
-      
-      let modifiedTime = new Date().toISOString();
-      let data = {
-        name,
-        modifiedTime,
-        content: $('#editor').env.editor.getValue(),
-        loaded: true,
-        parentId: activeFolder,
-        description: getDeploySetting()
-      };
-      
-      let file = fm.INSERT.file(data);
-      
-      handleSync({
-        fid: fs.data.counter.files-1,
-        action: 'create',
-        type: 'files'
-      });
-      drive.syncToDrive();
-      
-      fs.save();
-      fileList();
-      
-      
-      closeTab(false);
-      newTab(activeTab, {
-        fid: file.fid,
-        scrollTop: 0,
-        row: $('#editor').env.editor.getCursorPosition().row,
-        col: $('#editor').env.editor.getCursorPosition().column,
-        name: file.name,
-        content: file.content,
-        fiber: 'close',
-        file: file,
-        undo: new ace.UndoManager()
-      });
-      
     },
     deleteFile: function(fid) {
       
@@ -267,6 +207,14 @@ const ui = {
   
 };
 
+function getPromptInput(message, defaultValue='') {
+  let input = window.prompt('Rename :', defaultValue);
+  if (input === null)
+    return false;
+  if (input.trim().length === 0)
+    return defaultValue;
+  return input;
+}
 
 function saveListener(event, bypass = false) {
   
@@ -448,19 +396,10 @@ function updateUI() {
     window.name = 'parent';
     window.environment = anibar('main-editor');
   
-    // if ($('#btn-menu-save').offsetWidth > 100) {
-      
-      // document.head.appendChild( o.cel('link', {
-        // rel: 'stylesheet',
-        // href: 'fonts/material/material-icons.css'
-      // }) );
-    // }
-    
     fixEditorScreenHeight();
     window.onresize = fixEditorScreenHeight;
     
     o.listen({
-      'btn-blog-vc'           : openBlossemHTMLWidget,
       'btn-blogsphere-logout' : btnBlogsphereLogout,
       'btn-create-template'   : createBlogTemplate,
       'btn-create-entry'      : createBlogEntry,
@@ -469,11 +408,9 @@ function updateUI() {
       'btn-new-folder'        : ui.fm.newFolder,
       'btn-new-file'          : function() { $('#btn-menu-my-files').click(); ui.openNewTab(); },
       'btn-rename-folder'     : ui.fm.renameFolder,
-      'btn-backup-revision'   : keepRevision,
-      'btn-list-revisions'    : listRevisions,
       // 'btn-delete-file'       : btnDeleteFile,
       'btn-download-file'     : function() { fileDownload() },
-      'btn-menu-save'         : fileSave,
+      'btn-menu-save'         : fileManager.save,
       '.btn-material'         : ui.toggleMenu,
       'btn-menu-preview'      : btnPreview,
       'btn-menu-info'         : btnInfo,
@@ -500,8 +437,6 @@ function showFileSetting(section) {
       element.classList.toggle('hide', false);
   }
 }
-
-// end of package
 
 function toggleInsertSnippet(persistent) {
   if ($('#in-my-files').classList.contains('active') || $('#in-settings').classList.contains('active')) return
@@ -645,8 +580,6 @@ function openDevelopmentSettings(settings) {
 	
   if (settings.blogName || settings.blog)
     showFileSetting('blogger');
-  if (settings.hasRevision)
-    showFileSetting('revisions');
   if (settings.blossem)
     showFileSetting('blossem');
   if (settings['pwa-name'])
@@ -780,16 +713,6 @@ function closeTab(focus = true, comeback) {
   
 }
 
-
-function openBlossemHTMLWidget() {
-          
-  oblog.config({ blog: $('#in-blog-name').value });
-  oblog.getBlogId(function(blogId) {
-      
-    window.open('https://www.blogger.com/rearrange?blogID='+blogId+'&action=editWidget&sectionId=main&widgetType=null&widgetId=HTML1')
-  })
-}
-
 function btnDeleteFile() {
   ui.fm.deleteFile(activeFile.fid);
 }
@@ -869,7 +792,7 @@ function createBlogTemplate() {
         aww.pop('blog template created successfully...');
         $('#chk-in-pre').checked = true;
         $('#in-eid').value = 'p'+response.id;
-        fileSave();
+        fileManager.save();
         
       }, 'id')
     }
@@ -896,7 +819,7 @@ function createBlogEntry() {
     
     aww.pop('blog entry created successfully');
     $('#in-eid').value = response.id;
-    fileSave();
+    fileManager.save();
     
   }, 'id')
   
@@ -922,7 +845,7 @@ function createBlogApp() {
     aww.pop('blog entry created successfully');
     $('#in-eid').value = response.id;
     $('#in-blog-id').value = response.blog.id;
-    fileSave();
+    fileManager.save();
     
   }, 'id,blog(id)')
   
@@ -941,6 +864,89 @@ function getFileColor(fileName) {
   else if (fileName.includes('.tmp'))
     defaultBg = '#4aad4d';
   return defaultBg;
+}
+
+function loadBreadCrumbs() {
+  $('#breadcrumbs').innerHTML = '';
+  let i = 0;
+  for (let b of breadcrumbs) {
+    let link;
+    if (i == breadcrumbs.length-1)
+      link = o.cel('div',{innerHTML:o.creps('tmp-breadcrumb-fake', b)});
+    else
+      link = o.cel('div',{innerHTML:o.creps('tmp-breadcrumb', b)});
+    $('#breadcrumbs').appendChild(link.firstElementChild);
+    i++;
+  }
+}
+
+function openBread(id) {
+  activeFolder = id;
+  let idx = odin.idxOf(id,breadcrumbs,'folderId');
+  breadcrumbs = breadcrumbs.slice(0,idx+1);
+  fileList();
+}
+
+function openFolderConfirm(el) {
+  if (selectedFile.length < 1)
+    selectedFile.push(el);
+  
+  if (lastClickEl !== undefined && lastClickEl != el) {
+    selectedFile.splice(0, 1);
+    selectedFile.push(el);
+    
+    toggleFileHighlight(false);
+    doubleClick = false;
+  }
+  
+  if (!doubleClick) {
+    $('#btn-rename-folder').classList.toggle('w3-hide', false);
+    
+    lastClickEl = el;
+    doubleClick = true;
+    toggleFileHighlight(true);
+    setTimeout(function(){
+      doubleClick = false;
+    }, 500);
+  } else {
+    $('#btn-rename-folder').classList.toggle('w3-hide', true);
+    
+    selectedFile.splice(0, 1);
+    
+    doubleClick = false;
+    let folderId = Number(el.getAttribute('data'))
+    openFolder(folderId);
+    toggleFileHighlight(false);
+  }
+}
+
+function openFileConfirm(el) {
+  if (selectedFile.length < 1)
+    selectedFile.push(el);
+  
+  $('#btn-rename-folder').classList.toggle('w3-hide', true);
+  
+  if (lastClickEl !== undefined && lastClickEl != el) {
+    selectedFile.splice(0, 1);
+    selectedFile.push(el);
+    
+    toggleFileHighlight(false);
+    doubleClick = false;
+  }
+  
+  if (!doubleClick) {
+    lastClickEl = el;
+    doubleClick = true;
+    toggleFileHighlight(true);
+    setTimeout(function(){
+      doubleClick = false;
+    },500)
+  } else {
+    selectedFile.splice(0, 1);
+    doubleClick = false;
+    openFile(el.getAttribute('data'));
+    toggleFileHighlight(false);
+  }
 }
       
 function btnBlogsphereLogout  () {
@@ -1095,16 +1101,19 @@ function btnBlogsphereLogout  () {
   
   function navScrollUp() {
     let fileContainerOffsetTop = selectedFile[0].classList.contains('folder-list') ? selectedFile[0].offsetTop : selectedFile[0].parentNode.offsetTop;
-    let scrollTop = (fileContainerOffsetTop - 3);
-    if (scrollTop < $('#file-list').parentNode.scrollTop)
+    let scrollTop = (fileContainerOffsetTop - 8 - 64 - $('#nav-bar').offsetHeight);
+    if (scrollTop < $('#file-list').parentNode.scrollTop) {
       $('#file-list').parentNode.scrollTop = scrollTop;
+    }
   }
   
   function navScrollDown() {
     let fileContainerOffsetTop = selectedFile[0].classList.contains('folder-list') ? selectedFile[0].offsetTop : selectedFile[0].parentNode.offsetTop;
-    let scrollTop = (fileContainerOffsetTop - 108 + selectedFile[0].offsetHeight + 3) - ($('#in-my-files').offsetHeight - 108 - 64 - $('#nav-bar').offsetHeight);
-    if (scrollTop > $('#file-list').parentNode.scrollTop)
-      $('#file-list').parentNode.scrollTop = scrollTop;
+    let scrollTop = (fileContainerOffsetTop + selectedFile[0].offsetHeight + 8);
+    let visibleScreenHeight = $('#file-list').parentNode.scrollTop + 64 + $('#nav-bar').offsetHeight + $('#file-list').parentNode.offsetHeight;
+    if (scrollTop > visibleScreenHeight)
+      $('#file-list').parentNode.scrollTop += scrollTop - visibleScreenHeight;
+      // L(1)
   }
   
   function navigationHandler() {
@@ -1167,7 +1176,7 @@ function applyKeyboardListener() {
   function previousFolder() {
     if ($('#btn-menu-my-files').classList.contains('active') && $('.breadcrumbs').length > 1) {
       event.preventDefault();
-      $('.breadcrumbs')[$('.breadcrumbs').length-2].firstElementChild.click()
+      $('.breadcrumbs')[$('.breadcrumbs').length-2].click()
     }
   }
   
@@ -1327,7 +1336,7 @@ function applyKeyboardListener() {
     'Alt+N': ui.openNewTab,
     'Alt+W': closeTab,
     'Alt+O': openFileDirectory,
-    'Ctrl+S': fileSave,
+    'Ctrl+S': fileManager.save,
     'Alt+D': toggleTemplate,
     'Ctrl+Enter': function() {
       if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0)

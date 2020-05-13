@@ -700,12 +700,13 @@ L = console.log;
 let fs = require('fs');
 let content = fs.readFileSync('../tmpmachine/build/index.html','utf8');
 
-plate.tag.push({
-  short: ' ',
-  attributes: {
-    class: 'w3-row'
-  },
-});
+// plate.tag.push({
+  // short: ' ',
+  // attributes: {
+    // class: 'w3-row'
+    // class: ''
+  // },
+// });
 fs.writeFile('../tmpmachine/index.html', plate.cook(content), () => {
   console.log('Done!')
 });

@@ -1,3 +1,4 @@
+let fileManager = new FileManager();
 let activeFile;
 let activeFolder = -1;
 
@@ -11,102 +12,76 @@ let activeTab = 0;
 
 let breadcrumbs = [{folderId:'-1',title:'My Files'}];
 
-
-(function() {
+function File(data = {}) {
   
-  function File(data = {}) {
-    
-    let file = fs.new('files');
-    
-    let predefinedData = {
-      fid: fs.data.counter.files,
-      name: 'Untitled File',
-      description: "{}",
-      loaded: true,
-      parentId: activeFolder,
-      modifiedTime: new Date().toISOString(),
-    };
-    
-    for (let key in predefinedData) {
-      if (file.hasOwnProperty(key))
-        file[key] = predefinedData[key];
-    }
-    
-    for (let key in data) {
-      if (file.hasOwnProperty(key))
-        file[key] = data[key];
-    }
-    
-    fs.data.counter.files++;
-    fs.data.files.push(file);
-    
-    fs.save();
-    this.sync(file.fid);
-    fileManager.list();
-    
-    return file;
-  }
+  let file = fs.new('files');
   
-  function Folder(data = {}) {
-    
-    let file = fs.new('folders');
-    
-    let predefinedData = {
-      fid: fs.data.counter.folders,
-      name: 'New Folder',
-      parentId: activeFolder,
-      modifiedTime: new Date().toISOString(),
-    };
-    
-    for (let key in predefinedData) {
-      if (file.hasOwnProperty(key))
-        file[key] = predefinedData[key];
-    }
-    
-    for (let key in data) {
-      if (file.hasOwnProperty(key))
-        file[key] = data[key];
-    }
-    
-    fs.data.counter.folders++;
-    fs.data.folders.push(file);
-    
-    fs.save();
-    this.sync(file.fid);
-    fileManager.list();
-    
-    return file;
-  }
-  
-  File.prototype.sync = function(fid) {
-    handleSync({
-      fid,
-      action: 'create',
-      type: 'files'
-    });
-    drive.syncToDrive();
+  let predefinedData = {
+    fid: fs.data.counter.files,
+    name: 'Untitled File',
+    content: $('#editor').env.editor.getValue(),
+    description: fileManager.getDescription(),
+    loaded: true,
+    parentId: activeFolder,
+    modifiedTime: new Date().toISOString(),
   };
   
-  Folder.prototype.sync = function(fid) {
-    handleSync({
-      fid,
-      action: 'create',
-      type: 'folders'
-    });
-    drive.syncToDrive();
+  for (let key in predefinedData) {
+    if (file.hasOwnProperty(key))
+      file[key] = predefinedData[key];
+  }
+  
+  for (let key in data) {
+    if (file.hasOwnProperty(key))
+      file[key] = data[key];
+  }
+  
+  fs.data.counter.files++;
+  fs.data.files.push(file);
+  
+  // fileManager.sync(file.fid, action, 'files');
+  // if (isAutoSync)
+  //   drive.syncToDrive();
+  // if (refreshDirectory)
+  //   fileManager.list();
+  return file;
+}
+
+function Folder(data = {}) {
+  
+  let file = fs.new('folders');
+  
+  let predefinedData = {
+    fid: fs.data.counter.folders,
+    name: 'New Folder',
+    parentId: activeFolder,
+    modifiedTime: new Date().toISOString(),
   };
   
-  window.File = File;
-  window.Folder = Folder;
-  
-})();
-
-
-(function() {
-  
-  function FileManager() {
-    return this;
+  for (let key in predefinedData) {
+    if (file.hasOwnProperty(key))
+      file[key] = predefinedData[key];
   }
+  
+  for (let key in data) {
+    if (file.hasOwnProperty(key))
+      file[key] = data[key];
+  }
+  
+  fs.data.counter.folders++;
+  fs.data.folders.push(file);
+  fs.save();
+  
+  // fileManager.sync(file.fid, action, 'folders');
+  // if (isAutoSync)
+  //   drive.syncToDrive();
+  // if (refreshDirectory)
+  //   fileManager.list();
+  return file;
+}
+
+
+function FileManager() {
   
   function listFolders() {
     let folders = odin.filterData(activeFolder, fs.data.folders, 'parentId');
@@ -121,7 +96,7 @@ let breadcrumbs = [{folderId:'-1',title:'My Files'}];
   }
   
   function listFiles() {
-    $('#file-list').appendChild(o.cel('div', { class: 'w3-row w3-padding-small' }));
+    $('#file-list').appendChild(o.cel('div', { style: 'flex: 0 0 100%', class: 'w3-padding-small' }));
     let files = odin.filterData(activeFolder, fs.data.files, 'parentId');
     files.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
@@ -148,7 +123,73 @@ let breadcrumbs = [{folderId:'-1',title:'My Files'}];
     }
   }
   
-  FileManager.prototype.list = function() {
+  this.sync = function(fid, action, type) {
+    handleSync({
+      fid,
+      action,
+      type,
+    });
+  };
+  
+  this.getDescription = function() {
+    let data = {};
+    for (let desc of $('.description')) {
+      if ((['text','hidden','textarea'].includes(desc.type) && desc.value.length === 0) ||
+      (desc.type == 'checkbox' && !desc.checked)) continue;
+      data[desc.getAttribute('name')] = (desc.type == 'checkbox') ? desc.checked : desc.value;
+    }
+    
+    return JSON.stringify(data);
+  };
+  
+  this.save = function() {
+    
+    let modifiedTime = new Date().toISOString();
+    if (activeFile === undefined) {
+      
+      let name = getPromptInput('File name', $('.file-name')[activeTab].textContent);
+      if (!name) return;
+      
+      let file = new File({
+        name,
+      });
+      fileManager.sync(file.fid, 'create', 'files');
+      drive.syncToDrive();
+      fileManager.list();
+      fs.save();
+      
+      closeTab(false);
+      newTab(activeTab, {
+        fid: file.fid,
+        scrollTop: 0,
+        row: $('#editor').env.editor.getCursorPosition().row,
+        col: $('#editor').env.editor.getCursorPosition().column,
+        name: file.name,
+        content: file.content,
+        fiber: 'close',
+        file: file,
+        undo: new ace.UndoManager()
+      });
+    } else {
+      
+      activeFile.content = $('#editor').env.editor.getValue();
+      activeFile.modifiedTime = modifiedTime;
+      activeFile.description = fileManager.getDescription();
+      handleSync({
+        fid: activeFile.fid,
+        action: 'update',
+        metadata: ['media', 'description'],
+        type: 'files'
+      });
+      drive.syncToDrive();
+      fs.save();
+      
+      $('.icon-rename')[activeTab].textContent = 'close';
+      $('#editor').addEventListener('keydown', saveListener);
+    }
+  };
+  
+  this.list = function() {
     
     $('#file-list').innerHTML = '';
     
@@ -160,9 +201,7 @@ let breadcrumbs = [{folderId:'-1',title:'My Files'}];
     selectedFile.splice(0, 1);
   };
   
-  
-  // function openFile(fid) {
-  FileManager.prototype.open = function(fid) {
+  this.open = function(fid) {
     
     let f = odin.dataOf(fid, fs.data.files, 'fid');
     activeFile = f;
@@ -174,7 +213,7 @@ let breadcrumbs = [{folderId:'-1',title:'My Files'}];
         return new Promise(function(resolve, reject) {
           
           if (f.loaded) {
-            resolve(f)
+            resolve(f);
           } else {
             
             aww.pop('Downloading file...');
@@ -211,8 +250,8 @@ let breadcrumbs = [{folderId:'-1',title:'My Files'}];
                 fs.save();
                 resolve(f);
                 
-              }).catch(reject)
-            })
+              }).catch(reject);
+            });
           }
           
         });
@@ -244,11 +283,6 @@ let breadcrumbs = [{folderId:'-1',title:'My Files'}];
       if ($('#btn-menu-my-files').classList.contains('active'))
         $('#btn-menu-my-files').click();
   
-      if (f.name.endsWith('.blogger'))
-        $('#btn-blog-vc').classList.toggle('w3-hide', false);
-      else
-        $('#btn-blog-vc').classList.toggle('w3-hide', true);
-    	
     	if (file[0].description.startsWith('{'))
         openDevelopmentSettings(JSON.parse(file[0].description));
       else
@@ -259,149 +293,6 @@ let breadcrumbs = [{folderId:'-1',title:'My Files'}];
       aww.pop('Could not download file');
     });
   };
-  
-  
-  window.fileManager = new FileManager();
-  
-})();
-
-
-const fm = {
-  INSERT: {
-    folder: function(data) {
-      
-      let folder = fs.new('folders');
-      folder.fid = fs.data.counter.folders;
-      
-      for (let d in data)
-        folder[d] = data[d];
-
-      fs.data.folders.push(folder);
-      fs.data.counter.folders++;
-      
-    },
-    file: function(data) {
-      
-      let file = fs.new('files');
-      file.fid = fs.data.counter.files;
-      
-      for (let d in data)
-        file[d] = data[d];
-
-      fs.data.files.push(file);
-      fs.data.counter.files++;
-      
-      return file;
-    }
-  }
-};
-
-
-function rollbackRevision(id) {
-  
-  aww.pop('Downloading rollback resource...');
-  
-  fetch(drive.apiUrl+'files/'+activeFile.id+'/revisions/'+id+'?alt=media', {
-    method: 'GET',
-    headers: {
-      'Authorization': 'Bearer '+auth0.auth.data.token
-    }
-  }).then(function(response) {
-    
-    if (response.ok)
-      return response.text();
-    else
-      throw response.status;
-  }).then((media) => {
-    
-    aww.pop('Successfully rollback to selected revision');
-    $('#editor').env.editor.setValue(media);
-    
-  }).catch(() => {
-    
-    aww.pop('Could not download required file: '+data.name);
-    
-  });
-}
-
-function deleteRevision(id, el) {
-  
-  if (!window.confirm('Delete selected revision?')) return;
-  
-   fetch(drive.apiUrl+'files/'+activeFile.id+'/revisions/'+id, {
-    method:'DELETE',
-    headers: {
-      'Authorization':'Bearer '+auth0.auth.data.token
-    }
-  }).then(function(result) {
-    
-    return result;
-  }).then(function() {
-    
-    L('empty response body');
-    el.parentElement.parentElement.removeChild(el.parentElement);
-  });
-  
-}
-
-function keepRevision() {
-  
-  aww.pop('please wait...');
-  fetch(drive.apiUrl+'files/'+activeFile.id+'?fields=headRevisionId', {
-    headers: {
-      'Authorization':'Bearer '+auth0.auth.data.token
-    }
-  }).then(function(r) {
-    
-    return r.json();
-    
-  }).then(function(json) {
-    
-    aww.pop('saving revision...');
-    
-    fetch(drive.apiUrl+'files/'+activeFile.id+'/revisions/'+json.headRevisionId+'?fileds=id', {
-      method: 'PATCH',
-      headers: {
-        'Authorization':'Bearer '+auth0.auth.data.token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        "keepForever": true
-      })
-    }).then(function(r) {
-      
-      return r.json();
-      
-    }).then(function(json) {
-      
-      aww.pop('Ok');
-      
-    });
-    
-  });
-  
-}
-
-function listRevisions() {
-  
-  fetch(drive.apiUrl+'files/'+activeFile.id+'/revisions?fields=revisions(id,modifiedTime,keepForever)', {
-    method:'GET',
-    headers: {
-      'Authorization':'Bearer '+auth0.auth.data.token
-    }
-  }).then(function(result) {
-    return result.json();
-  }).then(function(json) {
-    let keepForever = [];
-    
-    json.revisions.forEach((rev) => {
-      if (rev.keepForever)
-        keepForever.push(rev);
-    });
-    
-    $('#list-revisions').innerHTML = o.creps('tmp-list-revision', keepForever);
-    
-  });
 }
 
 
@@ -416,7 +307,7 @@ function handleSync(sync) {
       for (let i=0; i<fs.data.sync.length-1; i++) {
           let s = fs.data.sync[i];
           
-          if (s.fid === sync.fid) {
+          if (s.fid === sync.fid && s.type == sync.type) {
               if (s.action === 'create' || s.action === 'copy') {
                 
                 if (!sync.metadata.includes('trashed')) {
@@ -454,14 +345,9 @@ function fileRename(fid) {
   
   let file = odin.dataOf(fid, fs.data.files, 'fid');
   
-  let input = window.prompt('Rename :', file.name);
-  if (input === null)
-    return;
-  if (input.trim().length === 0)
-    input = file.name;
-  else
-    file.name = input;
-  
+  let input = getPromptInput('Rename :', file.name);
+  if (!input) return;
+
   handleSync({
     fid,
     action: 'update',
@@ -473,7 +359,6 @@ function fileRename(fid) {
   fs.save();
   fileList();
   
-  // editor
   if (activeFile) {
     if (fid === activeFile.fid)
       setEditorMode(file.name);
@@ -507,7 +392,7 @@ function fileList() {
     $('#file-list').appendChild(el);
   }
   
-  $('#file-list').appendChild(o.cel('div', { class: 'w3-row w3-padding-small' }));
+  $('#file-list').appendChild(o.cel('div', {style:'flex:0 0 100%;height:16px;'}));
   
   let files = odin.filterData(activeFolder, fs.data.files, 'parentId');
   
@@ -539,91 +424,6 @@ function fileList() {
   loadBreadCrumbs();
   $('#btn-rename-folder').classList.toggle('w3-hide', true);
   selectedFile.splice(0, 1);
-}
-
-
-
-function loadBreadCrumbs() {
-  $('#breadcrumbs').innerHTML = '';
-  let i = 0;
-  for (let b of breadcrumbs) {
-    let link;
-    if (i == breadcrumbs.length-1)
-      link = o.cel('div',{innerHTML:o.creps('tmp-breadcrumb-fake', b),class:'w3-inline-block w3-left breadcrumbs'});
-    else
-      link = o.cel('div',{innerHTML:o.creps('tmp-breadcrumb', b),class:'w3-inline-block w3-left breadcrumbs'});
-    $('#breadcrumbs').appendChild(link);
-    i++;
-  }
-}
-
-function openBread(id) {
-  activeFolder = id;
-  let idx = odin.idxOf(id,breadcrumbs,'folderId');
-  breadcrumbs = breadcrumbs.slice(0,idx+1);
-  fileList();
-}
-
-function openFolderConfirm(el) {
-  if (selectedFile.length < 1)
-    selectedFile.push(el);
-  
-  if (lastClickEl !== undefined && lastClickEl != el) {
-    selectedFile.splice(0, 1);
-    selectedFile.push(el);
-    
-    toggleFileHighlight(false);
-    doubleClick = false;
-  }
-  
-  if (!doubleClick) {
-    $('#btn-rename-folder').classList.toggle('w3-hide', false);
-    
-    lastClickEl = el;
-    doubleClick = true;
-    toggleFileHighlight(true);
-    setTimeout(function(){
-      doubleClick = false;
-    }, 500);
-  } else {
-    $('#btn-rename-folder').classList.toggle('w3-hide', true);
-    
-    selectedFile.splice(0, 1);
-    
-    doubleClick = false;
-    let folderId = Number(el.getAttribute('data'))
-    openFolder(folderId);
-    toggleFileHighlight(false);
-  }
-}
-
-function openFileConfirm(el) {
-  if (selectedFile.length < 1)
-    selectedFile.push(el);
-  
-  $('#btn-rename-folder').classList.toggle('w3-hide', true);
-  
-  if (lastClickEl !== undefined && lastClickEl != el) {
-    selectedFile.splice(0, 1);
-    selectedFile.push(el);
-    
-    toggleFileHighlight(false);
-    doubleClick = false;
-  }
-  
-  if (!doubleClick) {
-    lastClickEl = el;
-    doubleClick = true;
-    toggleFileHighlight(true);
-    setTimeout(function(){
-      doubleClick = false;
-    },500)
-  } else {
-    selectedFile.splice(0, 1);
-    doubleClick = false;
-    openFile(el.getAttribute('data'));
-    toggleFileHighlight(false);
-  }
 }
 
 function getFileAtPath(path, parentId = -1) {
@@ -747,11 +547,6 @@ function openFile(fid) {
     if ($('#btn-menu-my-files').classList.contains('active'))
       $('#btn-menu-my-files').click();
 
-    if (f.name.endsWith('.blogger'))
-      $('#btn-blog-vc').classList.toggle('w3-hide', false);
-    else
-      $('#btn-blog-vc').classList.toggle('w3-hide', true);
-  	
   	if (file[0].description.startsWith('{'))
       openDevelopmentSettings(JSON.parse(file[0].description));
     else
@@ -789,48 +584,6 @@ function fileClose(fid) {
   }
   
 }
-
-(function() {
-  
-  function getDeploySetting() {
-    let data = {};
-    for (let desc of $('.description')) {
-      if ((['text','hidden','textarea'].includes(desc.type) && desc.value.length === 0) ||
-      (desc.type == 'checkbox' && !desc.checked)) continue;
-      data[desc.getAttribute('name')] = (desc.type == 'checkbox') ? desc.checked : desc.value;
-    }
-    
-    return JSON.stringify(data);
-  }
-  
-  function fileSave() {
-    
-    let modifiedTime = new Date().toISOString();
-    if (activeFile === undefined)
-      ui.fm.newFile();
-    else {
-      
-      activeFile.content = $('#editor').env.editor.getValue();
-      activeFile.modifiedTime = modifiedTime;
-      activeFile.description = getDeploySetting();
-      handleSync({
-        fid: activeFile.fid,
-        action: 'update',
-        metadata: ['media', 'description'],
-        type: 'files'
-      })
-      drive.syncToDrive();
-      fs.save();
-      
-      $('.icon-rename')[activeTab].textContent = 'close';
-      $('#editor').addEventListener('keydown', saveListener);
-    }
-  }
-  
-  window.getDeploySetting = getDeploySetting;
-  window.fileSave = fileSave;
-  
-})();
 
 function fixOldParse(ob) {
   if (ob.bibibi)
@@ -895,7 +648,7 @@ function parseDescriptionOld(txt) {
       file.description = JSON.stringify(settings);
       if (locked < 0)
         $('#in-blog-id').value = blogId;
-      fileSave();
+      fileManager.save();
       deploy();
     });
   }
@@ -1077,8 +830,8 @@ function fileDownload() {
   window.copyFile = copyFile;
   
   function copySingleFile({ id, fid, description, name, content, loaded }, modifiedTime) {
-    
-    fm.INSERT.file({
+    let action = (loaded) ? 'create' : 'copy';
+    let file = new File({
       id,
       name: (copyParentFolderId == activeFolder) ? name + ' (copy)' : name,
       modifiedTime,
@@ -1086,13 +839,8 @@ function fileDownload() {
       description,
       loaded,
       parentId: activeFolder,
-    });
-    
-    handleSync({
-      fid: fs.data.counter.files-1,
-      action: (loaded) ? 'create' : 'copy',
-      type: 'files'
-    })
+    }, action, false, false);
+    fileManager.sync(file.fid, action, 'files');
   }
   
   function copyBranchFile(fileIds, road, modifiedTime) {
@@ -1103,8 +851,8 @@ function fileDownload() {
     
     if (!trashed) {
       let idx = odin.idxOf(parentId, road, 0);
-      
-      fm.INSERT.file({
+      let action = (loaded) ? 'create' : 'copy';
+      let file = new File({
         id,
         name,
         description,
@@ -1113,16 +861,9 @@ function fileDownload() {
         content,
         loaded,
         parentId: road[idx][1],
-      });
-      
-      handleSync({
-        fid: fs.data.counter.files-1,
-        action: (loaded) ? 'create' : 'copy',
-        type: 'files'
-      })
-      
+      }, action, false, false);
+      fileManager.sync(file.fid, action, 'files');
     }
-    
     fileIds.splice(0, 1);
     copyBranchFile(fileIds, road, modifiedTime);
   }
@@ -1145,17 +886,12 @@ function fileDownload() {
         copyParentFolderId = -2;
       }
       
-      fm.INSERT.folder({
+      let folder = new Folder({
         name,
         modifiedTime,
         parentId: (idx < 0) ? activeFolder : road[idx][1],
-      });
-      
-      handleSync({
-        action: 'create',
-        fid: fs.data.counter.folders-1,
-        type: 'folders'
       })
+      fileManager.sync(folder.fid, 'create', 'folders');
     }
     
     folderIds.splice(0, 1);
@@ -1181,36 +917,27 @@ function fileDownload() {
     
     if (clipBoard.length === 0) return;
     
-    while (clipBoard.length > 0)
-    {
+    while (clipBoard.length > 0) {
       let data;
       let fid = clipBoard[0].getAttribute('data');
       let type = clipBoard[0].getAttribute('data-type');
       let modifiedTime = new Date().toISOString();
       
-      if (type === 'file')
-      {
+      if (type === 'file') {
         data = odin.dataOf(fid, fs.data.files, 'fid');
-        
         if (pasteFile.mode === 'copy')
           copySingleFile(data, modifiedTime);
-        else
-        {
+        else {
           if (data.parentId !== activeFolder)
             fileMove(data, 'files');
         }
-      }
-      else
-      {
-        if (pasteFile.mode === 'copy')
-        {
+      } else {
+        if (pasteFile.mode === 'copy') {
           let branch = getAllBranch(fid);
        
           let road = copyBranchFolder(branch.folderIds, modifiedTime);
           copyBranchFile(branch.fileIds, road, modifiedTime);
-        }
-        else
-        {
+        } else {
           data = odin.dataOf(fid, fs.data.folders, 'fid');
           if (data.parentId !== activeFolder)
             fileMove(data, 'folders');
@@ -1251,7 +978,7 @@ function trashList() {
     $('#list-trash').appendChild(el);
   }
   
-  $('#list-trash').appendChild(o.cel('div', { class: 'w3-row w3-padding-small' }));
+  $('#list-trash').appendChild(o.cel('div', {style:'flex:0 0 100%;height:16px;'}));
   
   let files = odin.filterData(true, fs.data.files, 'trashed');
   

@@ -52,32 +52,31 @@
 
   
   
-  <div id="main-editor" class="w3-row" style="height:100%;">
-    <div class="w3-row anibar-main-editor-menu" style="background:none;">
-      <div class="w3-row w3-left" style="position:relative;height:100%;width:100%;z-index:2;">
-        <div class="w3-row" style="background:#eee;height:100%;width:100%;position:absolute;overflow-y:auto;">
-          <div class="w3-row w3-padding">
+  <div id="main-editor" style="height:100%;">
+    <div class="anibar-main-editor-menu" style="background:none;">
+      <div class="w3-left" style="position:relative;height:100%;width:100%;z-index:2;">
+        <div style="background:#eee;height:100%;width:100%;position:absolute;overflow-y:auto;">
+          <div class="w3-padding">
             
-    <div class="w3-row" style="position:relative;height:100%;">
+    <div style="position:relative;height:100%;">
       
-      <div id="menu-basic" class="w3-row">
+      <div id="menu-basic">
         
-        <div class="w3-row w3-hide-medium w3-hide-large w3-button w3-border w3-margin-bottom w3-block" onclick="environment.close()">
-          <div class="w3-row w3-small w3-padding-small w3-left" style="font-weight:bold;">Close</div>
+        <div class="w3-hide-medium w3-hide-large w3-button w3-border w3-margin-bottom w3-block" onclick="environment.close()">
+          <div class="w3-small w3-padding-small w3-left" style="font-weight:bold;">Close</div>
         </div>
         
-        <div id="btn-open-directory" class="w3-row w3-button w3-border w3-margin-bottom w3-block w3-hide">
-          <div class="w3-row w3-small w3-padding-small w3-left" style="font-weight:bold;">Open Directory</div>
+        <div id="btn-open-directory" class="w3-button w3-border w3-margin-bottom w3-block w3-hide">
+          <div class="w3-small w3-padding-small w3-left" style="font-weight:bold;">Open Directory</div>
         </div>
         
-        <div id="btn-download-file" class="w3-row w3-button w3-border w3-margin-bottom w3-block">
-          <div class="w3-row w3-small w3-padding-small w3-left" style="font-weight:bold;">Download</div>
+        <div id="btn-download-file" class="w3-button w3-border w3-margin-bottom w3-block">
+          <div class="w3-small w3-padding-small w3-left" style="font-weight:bold;">Download</div>
           <i class="material-icons w3-medium w3-padding-small" style="transform:rotate(90deg);">input</i>
         </div>
         
         <small>Development</small>
         <div>
-          <button class="file-settings-button" data-section="revisions">+ Revisions</button>
           <button class="file-settings-button" data-section="blogger">+ Blogger</button>
           <button class="file-settings-button" data-section="blossem">+ Blossem</button>
           <button class="file-settings-button" data-section="pwa">+ PWA</button>
@@ -87,69 +86,69 @@
         <div class="hide file-settings" data-section="pwa">
           <small>PWA Options (experimental)</small>
           <div>
-            <div class="w3-row">
+            <div>
               <input id="in-seperate-PWA-process" class="description" type="checkbox" name="pwa-seperate-process"/> <label class="w3-tiny" for="in-seperate-PWA-process">Seperate window process</label>
             </div>
-            <div class="w3-row">
+            <div>
               <input id="in-PWA-enabled" class="description" type="checkbox" name="pwa-preview"/> <label class="w3-tiny" for="in-PWA-enabled">Preview as PWA</label>
             </div>
-            <div class="w3-row w3-tiny">(caution: will update installed PWA)</div>
-            <div class="w3-row" style="height:5px;"></div>
-            <div class="w3-row w3-tiny" style="margin-top:.5em;font-weight:bold;">Required settings :</div>
-            <div class="w3-row w3-tiny">App Name</div>
+            <div class="w3-tiny">(caution: will update installed PWA)</div>
+            <div style="height:5px;"></div>
+            <div class="w3-tiny" style="margin-top:.5em;font-weight:bold;">Required settings :</div>
+            <div class="w3-tiny">App Name</div>
             <input id="in-PWA-app-name" class="description" name="pwa-name"/>
-            <div class="w3-row w3-tiny">URL</div>
+            <div class="w3-tiny">URL</div>
             <input id="in-PWA-app-url" class="description" name="pwa-url" placeholder="my-first-app"/>
             
-            <div class="w3-row w3-tiny" style="margin-top:.5em;font-weight:bold;">Optional settings :</div>
+            <div class="w3-tiny" style="margin-top:.5em;font-weight:bold;">Optional settings :</div>
             
-            <div class="w3-row w3-tiny">App icon URL (128x128)</div>
+            <div class="w3-tiny">App icon URL (128x128)</div>
             <input id="in-PWA-src-128-url" class="description" name="pwa-src-128-url"/>
             
-            <div class="w3-row w3-tiny">type</div>
+            <div class="w3-tiny">type</div>
             <input id="in-PWA-src-128-type" class="description" name="pwa-src-128-type"/>
             
-            <div class="w3-row w3-tiny">App icon URL (192x192)</div>
+            <div class="w3-tiny">App icon URL (192x192)</div>
             <input id="in-PWA-src-192-url" class="description" name="pwa-src-192-url"/>
             
-            <div class="w3-row w3-tiny">type</div>
+            <div class="w3-tiny">type</div>
             <input id="in-PWA-src-192-type" class="description" name="pwa-src-192-type"/>
           </div>
         </div>
         
         <div class="auth-required unauthorized hide file-settings" data-section="blossem">
-          <div class="w3-row w3-tiny">Blossem template URL</div>
+          <div class="w3-tiny">Blossem template URL</div>
           <input id="in-blossem" class="description" name="blossem" style="width:100%;"/>
           <hr/>
         </div>
         
         <div class="auth-required unauthorized hide file-settings" data-section="blogger">
-          <div class="w3-row w3-tiny">Blog name</div>
+          <div class="w3-tiny">Blog name</div>
           <input id="in-blog-name" class="description" name="blogName" style="width:100%;"/>
-          <div class="w3-row w3-tiny">Blog ID</div>
+          <div class="w3-tiny">Blog ID</div>
           <input id="in-blog-id" class="description" name="blogId" style="width:100%;"/>
-          <div class="w3-row w3-tiny">Entry ID</div>
+          <div class="w3-tiny">Entry ID</div>
           <input id="in-eid" class="description" name="entryId" style="width:100%;"/>
-          <div class="w3-row w3-tiny">Summary</div>
+          <div class="w3-tiny">Summary</div>
           <textarea id="in-summary" class="description" name="summary" style="width:100%;resize:none;height:100px;"></textarea>
-          <div class="w3-row">
+          <div>
             <input id="chk-bibibi" class="description" type="checkbox" name="isSummaryFix"/> <label for="chk-bibibi">Post summary fix</label>
           </div>
-          <div class="w3-row">
+          <div>
             <input id="chk-more-tag" class="description" type="checkbox" name="isBreak"/> <label for="chk-more-tag">Use More tag</label>
           </div>
-          <div class="w3-row">
+          <div>
             <input id="chk-in-pre" class="description" type="checkbox" name="isWrap"/> <label for="chk-in-pre">Wrap in &lt;pre&gt;</label>
           </div>
-          <div class="w3-row">
+          <div>
             <input id="chk-blogger-app" class="description" type="checkbox" name="isApp"/> <label for="chk-blogger-app">Deploy as Blogger Apps</label>
           </div>
           
-          <div class="w3-row w3-tiny" style="margin-top:1em;">Render and deploy option</div>
-          <div class="w3-row">
+          <div class="w3-tiny" style="margin-top:1em;">Render and deploy option</div>
+          <div>
             <input id="chk-render-plate-html" type="checkbox" checked="checked"/> <label for="chk-render-plate-html">Render Plate-HTML</label>
           </div>
-          <div class="w3-row">
+          <div>
             <input id="chk-deploy-minified" type="checkbox"/> <label for="chk-deploy-minified">Render as minified app</label>
           </div>
           
@@ -157,15 +156,6 @@
           <button id="btn-create-template">Create Blog Template</button>
           <button id="btn-create-entry">Create Blog Entry</button>
           <button id="btn-create-app">Create Blogger App</button>
-          <hr/>
-        </div>
-        
-        <div class="auth-required unauthorized hide file-settings" data-section="revisions">
-          <button id="btn-backup-revision" class="w3-button w3-border w3-margin-top">Backup Revision</button>
-          <button id="btn-list-revisions" class="w3-button w3-border w3-margin-top">List Revisions</button>
-          <button id="btn-blog-vc" class="w3-button w3-border w3-margin-top w3-hide">Open version control</button>
-          <hr/>
-          <div id="list-revisions" class="w3-row"></div>
           <hr/>
         </div>
         
@@ -180,94 +170,94 @@
       </div>
     </div>
   
-    <div id="sidebar" class="w3-row w3-left w3-hide-large w3-hide-medium w3-animate-left w3-card-4" style="position:relative;height:100%;overflow-x:hidden;overflow-y:auto;">
+    <div id="sidebar" class="w3-left w3-hide-large w3-hide-medium w3-animate-left w3-card-4" style="position:relative;height:100%;overflow-x:hidden;overflow-y:auto;">
       
-    <div class="w3-row" style="position:relative;z-index:0;">
-      <div id="btn-home" class="w3-row btn-material no-select" menu="in-home">
+    <div style="position:relative;z-index:0;">
+      <div id="btn-home" class="btn-material no-select" menu="in-home">
         <i class="material-icons i-btn-in">home</i>
         <label class="l-btn-in">Home</label>
       </div>
     </div>
-    <div class="w3-row" style="position:relative;z-index:0;">
-      <div id="btn-menu-save" class="w3-row btn-material no-select">
+    <div style="position:relative;z-index:0;">
+      <div id="btn-menu-save" class="btn-material no-select">
         <i class="material-icons i-btn-in">save</i>
         <label class="l-btn-in">Save</label>
       </div>
     </div>
-    <div class="w3-row" style="position:relative;z-index:0;">
-      <div id="btn-menu-preview" class="w3-row btn-material no-select">
+    <div style="position:relative;z-index:0;">
+      <div id="btn-menu-preview" class="btn-material no-select">
         <i class="material-icons i-btn-in">play_arrow</i>
         <label class="l-btn-in">Preview</label>
       </div>
     </div>
     
-    <div class="w3-row" style="position:relative;z-index:0;">
-      <div id="btn-menu-info" class="w3-row btn-material no-select w3-animate-left" menu="in-info">
+    <div style="position:relative;z-index:0;">
+      <div id="btn-menu-info" class="btn-material no-select w3-animate-left" menu="in-info">
         <i class="material-icons i-btn-in">info</i>
         <label class="l-btn-in">File Info</label>
       </div>
     </div>
-    <div id="btn-assets" class="w3-row w3-hide w3-animate-left" style="position:relative;z-index:0;display:none;">
-      <div class="w3-row btn-material no-select" menu="in-assets">
+    <div id="btn-assets" class="w3-hide w3-animate-left" style="position:relative;z-index:0;display:none;">
+      <div class="btn-material no-select" menu="in-assets">
         <i class="material-icons i-btn-in">web_asset</i>
         <label class="l-btn-in">Assets</label>
       </div>
     </div>
-    <div id="btn-menu-my-files" class="w3-row btn-material no-select" menu="in-my-files">
+    <div id="btn-menu-my-files" class="btn-material no-select" menu="in-my-files">
       <i class="material-icons i-btn-in">folder</i>
       <label class="l-btn-in">My Files</label>
     </div>
-    <div id="btn-menu-trash" class="w3-row btn-material no-select" menu="in-trash">
+    <div id="btn-menu-trash" class="btn-material no-select" menu="in-trash">
       <i class="material-icons i-btn-in">delete</i>
       <label class="l-btn-in">Trash</label>
     </div>
-    <div id="btn-menu-template" class="w3-row w3-hide btn-material no-select">
+    <div id="btn-menu-template" class="w3-hide btn-material no-select">
       <i class="material-icons i-btn-in">extension</i>
       <label class="l-btn-in">Snippets</label>
     </div>
-    <div id="btn-menu-settings" class="w3-row btn-material no-select" menu="in-settings">
+    <div id="btn-menu-settings" class="btn-material no-select" menu="in-settings">
       <i class="material-icons i-btn-in">settings</i>
       <label id="txt-login-status" class="l-btn-in">Settings</label>
     </div>
-    <div class="w3-row btn-material no-select w3-hide" menu="in-osk" onclick="$('#my-osk').classList.toggle('hide')">
+    <div class="btn-material no-select w3-hide" menu="in-osk" onclick="$('#my-osk').classList.toggle('hide')">
       <i class="material-icons i-btn-in">keyboard</i>
       <label class="l-btn-in">Keyboard</label>
     </div>
-    <div class="w3-row btn-material no-select w3-hide" menu="in-osk" onclick="$('.search-box')[0].classList.toggle('w3-hide');if (!$('.search-box')[0].classList.contains('w3-hide')) $('#search-input').focus()">
+    <div class="btn-material no-select w3-hide" menu="in-osk" onclick="$('.search-box')[0].classList.toggle('w3-hide');if (!$('.search-box')[0].classList.contains('w3-hide')) $('#search-input').focus()">
       <i class="material-icons i-btn-in">extension</i>
       <label class="l-btn-in">Templates</label>
     </div>
-    <div id="syncing" class="w3-row w3-padding-small w3-center w3-tiny" style="color:#fafafa;"></div>
+    <div id="syncing" class="w3-padding-small w3-center w3-tiny" style="color:#fafafa;"></div>
   
-      <div class="w3-row bg5" style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;"></div>
+      <div class="bg5" style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;"></div>
     </div>
     <div class="w3-rest scroll1 anibar-main-editor-pusher anibar--blocker" style="height:100%;position:relative;">
       
-    <div id="in-home" class="w3-row in-window in-content bg1 col1 active">
-      <div class="w3-row" style="position:absolute;top:0;left:0;height:100%;overflow:auto;z-index:2;width:100%;">
-        <div class="w3-row w3-hide-small" style="height:34px;"></div>
+    <div id="in-home" class="in-window in-content bg1 col1 active">
+      <div style="position:absolute;top:0;left:0;height:100%;overflow:auto;z-index:2;width:100%;">
+        <div class="w3-hide-small" style="height:34px;"></div>
         
-  <div class="w3-row w3-padding">
-    <div class="w3-row w3-right-align">
+  <div class="w3-padding">
+    <div class="w3-right-align">
       <input id="check-show" class="w3-check" type="checkbox" checked oninput="changePersonal(this.checked)"/> <label for="check-show">Show homepage first</label>
     </div>
     <h3 style="font-weight:bold;">TMPmachine</h3>
     <p>
       <span style="font-weight:bold;">PWA</span> <span class="w3-tiny">(Progressive Web App)</span> code editor for <span style="font-weight:bold;">single page web app</span> development.
       
-      <div class="w3-row w3-tiny">
+      <div class="w3-tiny">
         Psstt! PWA simply means you can access it <u>offline</u>!!
       </div>
     </p>
     
     ---
     
-    <div class="w3-row">
+    <div>
       <span class="loading" id="label-loading">Getting ready...</span>
       <i id="icon-loading" class="material-icons w3-spin w3-small">refresh</i>
     </div>
     
-    <div class="w3-row w3-padding-16">
+    <div class="w3-padding-16">
       <button class="w3-button w3-blue w3-round" onclick="$('#btn-home').click()">Start Coding</button>
     </div>
     <p class="w3-small">
@@ -294,90 +284,87 @@
     <!--<-->
       <!--My laptop HDD goes "berserk" <span class="w3-small" style="font-weight:bold;">i.e. bad sector</span>, so I need a place to store my JavaScript project and access it from public area at the time. So goes the Google Drive synchronization idea come to live and here comes the temporary code editor so called my IGN, <b>TMPmachine</b>.-->
     <!--]-->
-    <!--<div class="w3-row w3-padding"></div>-->
+    <!--<div class="w3-padding"></div>-->
     
   </div>
   
       </div>
     </div>
-    <div id="in-home-block" class="w3-row in-window in-block" style="z-index:0;"></div>
+    <div id="in-home-block" class="in-window in-block" style="z-index:0;"></div>
     
-    <div id="in-assets" class="w3-row in-window in-content bg1 col1" style="background:none;width:200px;">
-      <div class="w3-row" style="position:relative;height:100%;">
-        <div class="w3-row menu-overflow-header">
+    <div id="in-assets" class="in-window in-content bg1 col1" style="background:none;width:200px;">
+      <div style="position:relative;height:100%;">
+        <div class="menu-overflow-header">
           
-    <div class="w3-row w3-right" style="padding:6px 10px;visibility:hidden;">
+    <div class="w3-right" style="padding:6px 10px;visibility:hidden;">
       <i class="material-icons">close</i>
     </div>
   
         </div>
-        <div class="w3-row w3-padding menu-overflow-content" style="background:#eee;height:100%;width:100%;position:absolute;">
+        <div class="w3-padding menu-overflow-content" style="background:#eee;height:100%;width:100%;position:absolute;">
           
         </div>
       </div>
     </div>
-    <div id="in-assets-block" class="w3-row in-window in-block"></div>
+    <div id="in-assets-block" class="in-window in-block"></div>
     
-    <div id="in-my-files" class="w3-row in-window in-content bg1 col1" style="overflow:hidden;">
-      <div class="w3-row w3-hide-small" style="height:34px;"></div>
-      <div class="w3-row w3-padding menu-overflow-header border-bottom-dark">
-        <div class="w3-row w3-left">
+    <div id="in-my-files" class="in-window in-content bg1 col1" style="display:grid;grid-template-rows:auto auto 1fr;">
+      <div class="w3-hide-small" style="height:34px;"></div>
+      <div id="" class="w3-padding border-bottom-dark">
+        <div class="w3-left">
           <h5 class="no-select" style="font-weight:bold;">My Files</h5>
         </div>
-        <div id="btn-refresh-sync" class="w3-row w3-button w3-right w3-hover-none w3-hide-small w3-hover-text-black">
-          <div class="w3-row w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Refresh</div>
+        <div id="btn-refresh-sync" class="w3-button w3-right w3-hover-none w3-hide-small w3-hover-text-black">
+          <div class="w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Refresh</div>
           <i class="material-icons" style="color:#fff;">refresh</i>
         </div>
-        <div id="btn-new-folder" class="w3-row w3-button w3-right w3-hover-none w3-hover-text-black">
-          <div class="w3-row w3-hide-small w3-small w3-padding-small w3-left">New Folder</div>
+        <div id="btn-new-folder" class="w3-button w3-right w3-hover-none w3-hover-text-black">
+          <div class="w3-hide-small w3-small w3-padding-small w3-left">New Folder</div>
           <i class="material-icons" style="color:#fff;">create_new_folder</i>
         </div>
-        <div id="btn-new-file" class="w3-row w3-button w3-right w3-hover-none w3-hover-text-black">
-          <div class="w3-row w3-small w3-padding-small w3-left">New File</div>
+        <div id="btn-new-file" class="w3-button w3-right w3-hover-none w3-hover-text-black">
+          <div class="w3-small w3-padding-small w3-left">New File</div>
           <i class="material-icons" style="color:#fff;">add</i>
         </div>
-        <div id="btn-rename-folder" class="w3-row w3-button w3-right w3-hover-none w3-hover-text-black w3-hide">
-          <div class="w3-row w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Rename</div>
+        <div id="btn-rename-folder" class="w3-button w3-right w3-hover-none w3-hover-text-black w3-hide">
+          <div class="w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Rename</div>
           <i class="material-icons" style="color:#fff;">edit</i>
         </div>
       </div>
-      <div class="w3-row menu-overflow-content" style="height:100%;">
-        <div class="w3-row scroll1" style="height:100%;overflow:auto;z-index:1;position:relative;">
-          <div class="w3-row w3-padding-small w3-right-align w3-tiny no-select" style="margin-top:1em;">
-            <div id="action-info" class="w3-col w3-half w3-center">&nbsp;</div>
-            <div class="w3-col w3-half w3-opacity">Build v1.095, Apr 17</div>
-          </div>
-          <div id="breadcrumbs" class="w3-row no-select w3-small w3-padding"></div>
-          <div id="file-list" class="w3-row w3-padding"></div>
+      <div style="overflow:scroll;">
+        <div>
+          <div class="no-select" style="padding:4px 8px;font-size:10px;opacity:0.6;text-align:right;">Build v1.1, May 13</div>
+          <div id="breadcrumbs" class="no-select w3-small w3-padding"></div>
         </div>
+        <div id="file-list" class="w3-padding" style="display:flex;flex-flow:wrap;"></div>
       </div>
     </div>
-    <div id="in-my-files-block" class="w3-row in-window in-block"></div>
+    <div id="in-my-files-block" class="in-window in-block"></div>
     
     
-    <div id="in-trash" class="w3-row in-window in-content bg1 col1" style="overflow:hidden;">
-      <div class="w3-row w3-hide-small" style="height:34px;"></div>
-      <div class="w3-row w3-padding menu-overflow-header border-bottom-dark">
-        <div class="w3-row w3-left no-select">
+    <div id="in-trash" class="in-window in-content bg1 col1" style="overflow:hidden;">
+      <div class="w3-hide-small" style="height:34px;"></div>
+      <div class="w3-padding menu-overflow-header border-bottom-dark">
+        <div class="no-select">
           <h5><b>Trash <span class="w3-tiny">(Preview only)</span> <span class="w3-black w3-round w3-tiny" style="padding:0 2px 2px ;">Beta</span></b></h5>
         </div>
       </div>
-      <div class="w3-row menu-overflow-content" style="height:100%;">
-        <div class="w3-row scroll1" style="height:100%;overflow:auto;z-index:1;position:relative;">
-          <div id="list-trash" class="w3-row w3-padding"></div>
+      <div class="menu-overflow-content" style="height:100%;">
+        <div class="scroll1" style="height:100%;overflow:auto;z-index:1;position:relative;">
+          <div id="list-trash" class="w3-padding" style="display:flex;flex-flow:wrap;"></div>
         </div>
       </div>
     </div>
-    <div id="in-trash-block" class="w3-row in-window in-block"></div>
+    <div id="in-trash-block" class="in-window in-block"></div>
     
     
-    <div id="in-settings" class="w3-row in-window in-content bg1 col1" style="overflow:hidden;">
-      <div class="w3-row w3-hide-small" style="height:34px;"></div>
-      <div class="w3-row w3-padding menu-overflow-header no-select border-bottom-dark">
+    <div id="in-settings" class="in-window in-content bg1 col1" style="overflow:hidden;">
+      <div class="w3-hide-small" style="height:34px;"></div>
+      <div class="w3-padding menu-overflow-header no-select border-bottom-dark">
         <h5><b>Settings</b></h5>
       </div>
-      <div class="w3-row menu-overflow-content" style="height:100%;">
-        <div class="w3-row w3-padding scroll1" style="height:100%;overflow:auto;">
+      <div class="menu-overflow-content" style="height:100%;">
+        <div class="w3-padding scroll1" style="height:100%;overflow:auto;">
           
     <h6 style="font-weight:bold;">Editor</h6>
     <p>
@@ -393,7 +380,7 @@
     <button id="btn-blogsphere-login" style="border:0;outline:none;width:191px;height:46px;padding:0;"></button>
     <button id="btn-blogsphere-logout" class="w3-button w3-blue" style="display:none;">Logout</button>
     
-    <div class="w3-row" style="display:none;">
+    <div style="display:none;">
       <img src="/images/google/1x/btn_google_signin_dark_pressed_web.png"/>
       <img src="/images/google/1x/btn_google_signin_dark_focus_web.png"/>
     </div>
@@ -411,17 +398,13 @@
         </div>
       </div>
     </div>
-    <div id="in-settings-block" class="w3-row in-window in-block"></div>
+    <div id="in-settings-block" class="in-window in-block"></div>
   
       
-      <div class="w3-row in-window" style="overflow:hidden;">
-        <div class="w3-row" style="position:relative;height:100%;">
-          <div class="w3-row w3-blue w3-hide" onscroll="$('#editor').env.editor.getSession().setScrollTop(this.scrollTop)" style="position:fixed;z-index:2;height:calc(100% - 41px);right:0;width:200px;overflow-y:scroll;top:41px;">
-            <div id="scroll-chair" class="w3-row" style="width:200px;background:linear-gradient(dodgerblue,lightblue);"></div>
-          </div>
+      <div class="in-window" style="overflow:hidden;">
+        <div style="position:relative;height:100%;display:grid;grid-template-rows:auto auto 1fr;">
           
-          <a id="nav-bar-blur" href="javascript:void(0)" style="position:absolute;z-index:-22;display:none;"></a>
-          <div id="nav-bar" class="w3-row w3-hide-small hoverable no-select w3-small" style="background:#1d1f25;height:34px;position:relative;z-index:888;display:block;width:100%;color:#fafafa;">
+          <div id="nav-bar" class="hoverable no-select w3-small" style="background:#1d1f25;height:34px;position:relative;z-index:888;display:block;width:100%;color:#fafafa;">
             <ul style="padding:0;margin:0;list-style:none;display:block;">
               <li class="w3-left w3-padding" style="position:relative;">
                 File
@@ -500,37 +483,30 @@
                 </ul>
               </li>
               <li class="w3-right w3-padding w3-tiny">
-                <div id="txt-sync" class="w3-row"></div>
+                <div id="txt-sync"></div>
               </li>
             </ul>
           </div>
           
-          <div id="file-title-wrapper" class="w3-row menu-overflow-header">
-            <div id="file-title" class="w3-row" style="background:#141414;position:relative;">
-              <!--xplate-ninja-space-->
-              <div class="w3-row w3-right" style="padding:6px 0;width:1px;overflow:hidden;visibility:hidden;">
-                <i class="material-icons">close</i>
-              </div>
-              
-              <!---->
-              <div id="more-tab" class="w3-row w3-left" style="background:#101113;position:relative;z-index:1;display:none;">
-                <div class="w3-row">
-                  <div class="w3-rest" style="position:relative;padding:18px 24px;line-height:1.5em;">
-                    <div class="w3-row file-tab-name no-select w3-small w3-left" onclick="" data-title="__name__" style="position:absolute;left:0;top:0;width:100%;color:#fff!important;font-weight:bold;display:flex;align-items:center;justify-content:center;height:100%;">
-                      <i class="material-icons">navigate_next</i>
-                    </div>
+          <div id="file-title" style="background:#141414;position:relative;">
+            <div class="w3-right" style="padding:6px 0;width:1px;overflow:hidden;visibility:hidden;">
+              <i class="material-icons">close</i>
+            </div>
+            <div id="more-tab" class="w3-left" style="background:#101113;position:relative;z-index:1;display:none;">
+              <div>
+                <div class="w3-rest" style="position:relative;padding:18px 24px;line-height:1.5em;">
+                  <div class="file-tab-name no-select w3-small w3-left" onclick="" data-title="__name__" style="position:absolute;left:0;top:0;width:100%;color:#fff!important;font-weight:bold;display:flex;align-items:center;justify-content:center;height:100%;">
+                    <i class="material-icons">navigate_next</i>
                   </div>
                 </div>
-                <div class="w3-row" style="height:0.25rem;background:#202020;"></div>
               </div>
-              <!---->
+              <div style="height:0.25rem;background:#202020;"></div>
             </div>
-            
           </div>
           
-          <div id="editor-wrapper" class="w3-row w3-padding menu-overflow-content" spellcheck="false" style="position:absolute;width:100%;height:100%;">
-            <div id="editor" class="w3-row" style="position:absolute;top:0;bottom:0;left:0;right:0;"></div>
-            <div id="blocker-editor" class="w3-row bg6" style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:6;"></div>
+          <div id="editor-wrapper" spellcheck="false" style="position:relative;">
+            <div id="editor" style="position:absolute;top:0;bottom:0;left:0;right:0;"></div>
+            <div id="blocker-editor" class="bg6" style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:6;"></div>
           </div>
         </div>
       </div>
@@ -553,25 +529,25 @@
       #book-scrool{transition-timing-function: linear;}
     </style>
     
-    <div class="w3-row search-box w3-container w3-hide" style="position:fixed;z-index:8177;top:0;width:100%;">
+    <div class="search-box w3-container w3-hide" style="position:fixed;z-index:8177;top:0;width:100%;">
       
-      <div class="w3-row w3-padding-large"></div>
-      <div class="w3-row w3-left-align" style="max-width:400px;margin:auto;">
-        <div class="w3-row w3-card" style="position:relative;">
-          <div class="w3-row search-box" style="position:relative;">
-            <div class="w3-row w3-round w3-white" style="position:relative;z-index:1;">
-              <div class="w3-row w3-left w3-right">
+      <div class="w3-padding-large"></div>
+      <div class="w3-left-align" style="max-width:400px;margin:auto;">
+        <div class="w3-card" style="position:relative;">
+          <div class="search-box" style="position:relative;">
+            <div class="w3-round w3-white" style="position:relative;z-index:1;">
+              <div class="w3-left w3-right">
                 <label for="search-input">
                   <i id="btn-somefun" class="material-icons ai-button w3-container w3-padding-16 w3-xlarge" onclick="somefun(this)">search</i>
                 </label>
               </div>
-              <div class="w3-row button-tb" style="overflow:hidden;">
+              <div class="button-tb" style="overflow:hidden;">
                 <input id="search-input" class="w3-padding-16 w3-round w3-white w3-padding" autocomplete='off' onkeydown='wgSearch.selectHints(null,event)' oninput='wgSearch.find(this.value)' placeholder='Search snippets' type='text' name='q' style="width:100%;border:0;"/>
               </div>
             </div>
           </div>
         </div>
-        <div id="search-result" class="w3-row" style="position:relative;z-index:1;top:-2px;"></div>
+        <div id="search-result" style="position:relative;z-index:1;top:-2px;"></div>
       </div>
       
     </div>
@@ -579,19 +555,19 @@
   
   
   <template id="tmp-hints">
-    <div class="w3-row w3-white">
+    <div class="w3-white">
       <div onmouseover='wgSearch.selectHints(__index__)'>
-        <div class="w3-row search-hints" onclick="insertTemplate(__index__)" style="position:relative;">
-          <div class="w3-row w3-padding w3-block">__title__</div>
+        <div class="search-hints" onclick="insertTemplate(__index__)" style="position:relative;">
+          <div class="w3-padding w3-block">__title__</div>
         </div>
       </div>
     </div>
   </template>
   <template id="tmp-hints-last">
-    <div class="w3-row w3-white" style="border-radius:0 0 4px 4px;overflow:hidden;">
+    <div class="w3-white" style="border-radius:0 0 4px 4px;overflow:hidden;">
       <div onmouseover='wgSearch.selectHints(__index__)'>
-        <div class="w3-row search-hints last" onclick="insertTemplate(__index__)" style="position:relative;">
-          <div class="w3-row w3-padding w3-block">__title__</div>
+        <div class="search-hints last" onclick="insertTemplate(__index__)" style="position:relative;">
+          <div class="w3-padding w3-block">__title__</div>
         </div>
       </div>
     </div>
@@ -601,69 +577,61 @@
   
   
   
-    <div id="templateLoader" class="w3-row limbo"></div>
-    <div id="limbo-template" class="w3-row limbo"></div>
-    <div id="limbo-element" class="w3-row limbo"></div>
+    <div id="templateLoader" class="limbo"></div>
+    <div id="limbo-template" class="limbo"></div>
+    <div id="limbo-element" class="limbo"></div>
   
   
   
 
-  <template id="tmp-list-revision">
-    <div class="w3-row">
-      <div class="w3-row">__id__</div>
-      <div class="w3-row w3-small">__modifiedTime__</div>
-      <button class="w3-button" onclick="deleteRevision('__id__',this)">Delete</button>
-      <button class="w3-button" onclick="rollbackRevision('__id__')">Rollback</button>
-    </div>
-  </template>
   <template id="tmp-list-blog">
-    <div class="w3-row w3-padding">
+    <div class="w3-padding">
       __id__ : __name__
       <i class="material-icons w3-button" onclick="removeBlog('__id__')">delete</i>
     </div>
   </template>
   <template id="tmp-list-deploy">
-    <div class="w3-row w3-white w3-border w3-left-align w3-block w3-button" onclick="fileDeploy('__id__')">
+    <div class="w3-white w3-border w3-left-align w3-block w3-button" onclick="fileDeploy('__id__')">
       __name__
-      <div class="w3-row w3-small">__id__</div>
+      <div class="w3-small">__id__</div>
     </div>
   </template>
   <template id="tmp-missing">
-    <div class="w3-row w3-__background__" style="padding:4px 8px;">
+    <div class="w3-__background__" style="padding:4px 8px;">
       __txt__
     </div>
   </template>
     
   
   <template id="tmp-breadcrumb">
-    <div class="w3-row w3-padding w3-button" onclick="openBread(__folderId__)">
+    <div class="w3-padding w3-button breadcrumbs" onclick="openBread(__folderId__)">
       __title__
     </div>
   </template>
   <template id="tmp-breadcrumb-fake">
-    <div class="w3-row w3-padding w3-button w3-grey" style="background:#ddd!important;">
+    <div class="w3-padding w3-button w3-grey breadcrumbs" style="background:#ddd!important;">
       __title__
     </div>
   </template>
   
   <template id="tmp-file-list">
-    <div class="w3-row file-list w3-left w3-left-align files pointer no-select bg7 hover-bg3-light" style="margin:0.1em;padding:0;position:relative;">
-      <div class="w3-row" style="position:absolute;z-index:8177;top:0;left:0;">
+    <div class="file-list files pointer no-select bg7 hover-bg3-light" style="margin:0.1em;padding:0;position:relative;">
+      <div style="position:absolute;z-index:8177;top:0;left:0;">
         <i id="btn-lock__fid__" class="material-icons __clsLock__ btn-lock w3-button w3-hover-none" onclick='lockRender(this, __fid__, "__name__")' style="color:#aaa;">lock</i>
       </div>
-      <div class="w3-row" style="position:absolute;z-index:8177;top:0;right:0;">
+      <div style="position:absolute;z-index:8177;top:0;right:0;">
         <i class="material-icons w3-button w3-hover-none" onclick="fileRename(__fid__)" style="color:#aaa;">edit</i>
       </div>
-      <div class="w3-row file-list-clicker" onclick='openFileConfirm(this)' title='__name__' data-type="file" data='__fid__'>
-        <div class="w3-row w3-center w3-padding-32">
+      <div class="file-list-clicker" onclick='openFileConfirm(this)' title='__name__' data-type="file" data='__fid__'>
+        <div class="w3-center w3-padding-32">
           <i class="material-icons w3-xxlarge" style="color:#777;">insert_drive_file</i>
         </div>
-        <div class="w3-row w3-padding bg2">
+        <div class="w3-padding bg2">
           <div class="w3-col" style="width:24px;">
             <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__defaultBg__!important;">insert_drive_file</i>
           </div>
           <div class="w3-rest w3-small w3-left-align w3-padding" style="font-weight:bold;position:relative;">
-            <div class="w3-row" style="position:absolute;width:100%;top:0;left:0;height:100%;">
+            <div style="position:absolute;width:100%;top:0;left:0;height:100%;">
               __name__
             </div>
           </div>
@@ -672,16 +640,16 @@
     </div>
   </template>
   <template id="tmp-list-file-trash">
-    <div class="w3-row file-list w3-left w3-left-align files pointer no-select bg7 hover-bg3-light" style="margin:0.1em;padding:0;position:relative;">
-      <div class="w3-row w3-center w3-padding-32">
+    <div class="file-list files pointer no-select bg7 hover-bg3-light" style="margin:0.1em;padding:0;position:relative;">
+      <div class="w3-center w3-padding-32">
         <i class="material-icons w3-xxlarge" style="color:#777;">insert_drive_file</i>
       </div>
-      <div class="w3-row bg2 w3-padding">
+      <div class="bg2 w3-padding">
         <div class="w3-col" style="width:24px;">
           <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__defaultBg__!important;">insert_drive_file</i>
         </div>
         <div class="w3-rest w3-small w3-left-align w3-padding" style="font-weight:bold;position:relative;">
-          <div class="w3-row" style="position:absolute;width:100%;top:0;left:0;height:100%;">
+          <div style="position:absolute;width:100%;top:0;left:0;height:100%;">
             __name__
           </div>
         </div>
@@ -690,55 +658,55 @@
   </template>
   
   <template id="tmp-folder-list">
-    <div class="w3-row folder-list w3-left w3-left-align pointer no-select folders bg2 hover-bg3-light" onclick='openFolderConfirm(this)' title="__name__" data-type="folder" data='__fid__' style="margin:0.1em;padding:0;">
-      <div class="w3-row w3-padding">
-        <div class="w3-col" style="width:24px;">
+    <div class="folder-list w3-left w3-left-align pointer no-select folders bg2 hover-bg3-light" onclick='openFolderConfirm(this)' title="__name__" data-type="folder" data='__fid__' style="margin:0.1em;padding:0;">
+      <div style="padding:8px 16px;display:grid;grid-template-columns:auto 1fr;">
+        <div style="width:24px;">
           <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__defaultBg__!important;">folder</i>
         </div>
-        <div class="w3-rest w3-small w3-left-align w3-padding" style="font-weight:bold;position:relative;">
-          <div class="w3-row" style="position:absolute;width:100%;top:0;left:0;height:100%;">
+        <small style="font-weight:bold;position:relative;overflow:hidden;">
+          <div style="position:absolute;width:100%;top:0;left:0;height:100%;">
             __name__
           </div>
-        </div>
+        </small>
       </div>
     </div>
   </template>
   <template id="tmp-list-folder-trash">
-    <div class="w3-row folder-list w3-left w3-left-align pointer no-select folders bg2 hover-bg3-light" style="margin:0.1em;padding:0;">
-      <div class="w3-row w3-padding">
-        <div class="w3-col" style="width:24px;">
+    <div class="folder-list w3-left w3-left-align pointer no-select folders bg2 hover-bg3-light" style="margin:0.1em;padding:0;">
+      <div style="padding:8px 16px;display:grid;grid-template-columns:auto 1fr;">
+        <div style="width:24px;">
           <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__defaultBg__!important;">folder</i>
         </div>
-        <div class="w3-rest w3-small w3-left-align w3-padding" style="font-weight:bold;position:relative;">
-          <div class="w3-row" style="position:absolute;width:100%;top:0;left:0;height:100%;">
+        <small style="font-weight:bold;position:relative;overflow:hidden;">
+          <div style="position:absolute;width:100%;top:0;left:0;height:100%;">
             __name__
           </div>
-        </div>
+        </small>
       </div>
     </div>
   </template>
   
   <template id="tmp-file-tab">
-    <div class="w3-row w3-left file-tab" data-title="__name__" style="width:180px;background:#101113;position:relative;z-index:1;">
-      <div class="w3-row">
-        <div class="w3-row w3-right" style="padding:6px 10px;">
+    <div class="w3-left file-tab" data-title="__name__" style="width:180px;background:#101113;position:relative;z-index:1;">
+      <div>
+        <div class="w3-right" style="padding:6px 10px;">
           <i class="material-icons w3-right w3-button w3-hover-none w3-hover-text-light-grey w3-medium w3-text-gray icon-rename" onclick="fileClose('__fid__')" style="padding:4px 0 4px 9px;">__fiber__</i>
         </div>
         <div class="w3-rest" style="position:relative;padding:18px 24px;line-height:1.5em;">
-          <div class="w3-row file-tab-name no-select w3-small file-name w3-left" onclick="focusTab('__fid__', true)" data-title="__name__" style="position:absolute;left:0;top:0;width:100%;color:#fff!important;padding:10px 10px 10px 19px;font-weight:bold;">__name__</div>
+          <div class="file-tab-name no-select w3-small file-name w3-left" onclick="focusTab('__fid__', true)" data-title="__name__" style="position:absolute;left:0;top:0;width:100%;color:#fff!important;padding:10px 10px 10px 19px;font-weight:bold;">__name__</div>
         </div>
       </div>
-      <div class="w3-row" style="height:0.25rem;background:#202020;"></div>
+      <div style="height:0.25rem;background:#202020;"></div>
     </div>
   </template>
   
-  <div id="update-notif" class="w3-row" style="position:fixed;bottom:0;left:0;background:#312c2c;color:#ccc;z-index:8177;font-weight:bold;width:100%;">
-    <div class="w3-row w3-right">
-      <div id="btn-refresh" class="w3-row w3-left w3-padding-16 w3-container" style="text-transform:uppercase;font-weight:bold;color:#d8d782;">Refresh</div>
-      <div id="btn-dismiss" class="w3-row w3-left w3-padding-16 w3-container" style="text-transform:uppercase;font-weight:bold;">Dismiss</div>
+  <div id="update-notif" style="position:fixed;bottom:0;left:0;background:#312c2c;color:#ccc;z-index:8177;font-weight:bold;width:100%;">
+    <div class="w3-right">
+      <div id="btn-refresh" class="w3-left w3-padding-16 w3-container" style="text-transform:uppercase;font-weight:bold;color:#d8d782;">Refresh</div>
+      <div id="btn-dismiss" class="w3-left w3-padding-16 w3-container" style="text-transform:uppercase;font-weight:bold;">Dismiss</div>
     </div>
     <div class="w3-rest">
-      <div class="w3-row w3-padding-16 w3-container w3-small">New version available</div>
+      <div class="w3-padding-16 w3-container w3-small">New version available</div>
     </div>
   </div>
   

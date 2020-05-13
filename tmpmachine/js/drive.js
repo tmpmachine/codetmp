@@ -71,7 +71,7 @@ const drive = {
         }
       } else {
         if (parentFolderId > -2) {
-          fm.INSERT.folder({
+          new Folder({
             id,
             name,
             modifiedTime,
@@ -114,7 +114,7 @@ const drive = {
         }
       } else {
         if (parentFolderId > -2) {
-          fm.INSERT.file({
+          let file = new File({
             id,
             name,
             modifiedTime,
@@ -122,7 +122,6 @@ const drive = {
             description,
             parentId: parentFolderId,
           });
-          
         }
       }
       if (parentFolderId == activeFolder)
@@ -256,7 +255,6 @@ const drive = {
     
     if (action === 'create' || action === 'copy') {
       ({ id, name, description, trashed, modifiedTime, parentId, content } = odin.dataOf(fid, fs.data[type], 'fid'));
-
       method = 'POST';
       metaHeader = {
         modifiedTime,
@@ -360,8 +358,6 @@ const drive = {
     }).then(function() {
       
       drive.syncFile(sync).then((json) => {
-  
-        $('#action-info').innerHTML = '&nbsp;';
         if (json.action === 'create' || json.action === 'copy') {
           let data = odin.dataOf(fs.data.sync[0].fid, fs.data[json.type], 'fid');
           data.id = json.id;
@@ -374,12 +370,12 @@ const drive = {
       }).catch((error) => {
   
         L(error);
+        L(sync);
         drive.syncToDrive.enabled = false;
-        $('#action-info').textContent = 'Refreshing authentication...';
-        auth0.requestToken(() => {
-          $('#action-info').textContent = '';
-          drive.syncToDrive();
-        }, true)
+        // $('#action-info').textContent = 'Refreshing authentication...';
+        // auth0.requestToken(() => {
+        //   drive.syncToDrive();
+        // }, true)
   
       });
     });
