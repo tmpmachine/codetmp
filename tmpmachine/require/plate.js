@@ -1,5 +1,5 @@
 /*
-1.33 : 18 sep 19 -- fix tag skips include error for Blogsphere, function encapsulation, unclose attribute handler, style without break handler
+1.34 - 13 May 20 -- remove w3.css support, added grid css shortcut
 */
 
 (function () {
@@ -63,10 +63,10 @@
       if (match) {
         var open = match[0].match(/<template/g).length;
         var close = match[0].match(/<\/template/g).length;
-        regex = '<template id=("|\')plate-'+id+'("|\')>(.|\n)*?<\/template>'
+        regex = '<template id=("|\')plate-'+id+'("|\')>(.|\n)*?<\/template>';
         while (close < open) {
-          regex += '(.|\n)*?<\/template>'
-          match = fullContent.match(new RegExp(regex))
+          regex += '(.|\n)*?<\/template>';
+          match = fullContent.match(new RegExp(regex));
           open = match[0].match(/<template/g).length;
           close = match[0].match(/<\/template/g).length;
         }
@@ -109,8 +109,6 @@
     ['M'  ,'i'        ,true ,'material-icons'],
     ['ul' ,'ul'       ,true ,''],
     ['li' ,'li'       ,true ,''],
-    ['c'  ,'div'      ,true ,'w3-col'],
-    ['x'  ,'div'      ,true ,'w3-rest'],
     ['tab','table'    ,true ,''],
     ['tr' ,'tr'       ,true ,''],
     ['th' ,'th'       ,true ,''],
@@ -141,10 +139,7 @@
     ['ta:','text-align:'],
     ['ws:','white-space:'],
     
-    ['fl:','float:left;'],
-    ['fr:','float:right;'],
     ['f:','float:'],
-    ['o:','outline:'],
     ['ov:','overflow:'],
     ['ov-y:','overflow-y:'],
     ['ov-x:','overflow-x:'],
@@ -156,47 +151,27 @@
     ['w:','width:'],
     ['h:','height:'],
     
-    ['dis:','display:'],
+    ['d:','display:'],
     ['vis:','visibility:'],
     ['op:','opacity:'],
     
+    ['gr:','grid-template-rows:'],
+    ['gc:','grid-template-columns:'],
     ['col:','color:'],
     ['bg:','background:'],
-    ['bg-p:','background-position:'],
-    ['bg-r:','background-repeat:'],
-    ['bg-a:','background-attachment:'],
-    ['bg-s:','background-size:'],
-    
-    ['ts:','transition:'],
-    ['tr:','transform:'],
     
     ['rad:','border-radius:'],
     
     ['bor:','border:'],
-    ['bor-l:','border-left:'],
-    ['bor-t:','border-top:'],
-    ['bor-r:','border-right:'],
-    ['bor-b:','border-bottom:'],
-    ['bor-w:','border-width:'],
-    ['bor-c:','border-color:'],
     
-    ['posr:','position:relative;'],
-    ['posa:','position:absolute;'],
-    ['posf:','position:fixed;'],
     ['pos:','position:'],
     ['z:','z-index:'],
-    ['t0:','top:0;'],
-    ['l0:','left:0;'],
-    ['r0:','right:0;'],
-    ['b0:','bottom:0;'],
     ['t:','top:'],
     ['l:','left:'],
     ['r:','right:'],
     ['b:','bottom:'],
     
     ['lh:','line-height:'],
-    ['ls:','line-spacing:'],
-    ['lts:','letter-spacing:']
   ];
   
   function grill(meat, attributes) {
@@ -208,7 +183,6 @@
       tag: [],
       class: [
         {short: '.', prefix: ''},
-        {short: '+', prefix: 'w3-'}
       ],
       attributes: [
         {open: '{', close: '}', name: 'style'},
@@ -704,5 +678,5 @@
   if (window.plate === undefined)
     window.plate = plate;
   else
-    console.error('aww.js:', 'Failed to initialize. Duplicate variable exists.');
+    console.error('plate.js:', 'Failed to initialize. Duplicate variable exists.');
 })();
