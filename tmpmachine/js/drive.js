@@ -119,6 +119,7 @@ const drive = {
             name,
             modifiedTime,
             trashed,
+            loaded: false,
             description,
             parentId: parentFolderId,
           });
