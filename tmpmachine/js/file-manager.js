@@ -38,12 +38,6 @@ function File(data = {}) {
   
   fs.data.counter.files++;
   fs.data.files.push(file);
-  
-  // fileManager.sync(file.fid, action, 'files');
-  // if (isAutoSync)
-  //   drive.syncToDrive();
-  // if (refreshDirectory)
-  //   fileManager.list();
   return file;
 }
 
@@ -71,12 +65,6 @@ function Folder(data = {}) {
   fs.data.counter.folders++;
   fs.data.folders.push(file);
   fs.save();
-  
-  // fileManager.sync(file.fid, action, 'folders');
-  // if (isAutoSync)
-  //   drive.syncToDrive();
-  // if (refreshDirectory)
-  //   fileManager.list();
   return file;
 }
 
@@ -348,6 +336,7 @@ function fileRename(fid) {
   let input = getPromptInput('Rename :', file.name);
   if (!input) return;
 
+  file.name = input;
   handleSync({
     fid,
     action: 'update',
