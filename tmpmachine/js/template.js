@@ -145,44 +145,6 @@ function loadSnippets() {
     snippets[i].index = i;
 }
 
-function handlePostLoad(response) {
-  
-  if (response == 400)
-    aww.pop('Entry not found.');
-    
-  let editor = $('#editor').env.editor;
-  $('#editor').env.editor.setValue(response.content);
-  $('#editor').env.editor.clearSelection();
-  $('#editor').env.editor.moveCursorTo(0,0);
-  $('#editor').env.editor.focus();
-}
-
-function handleCommand() {
-  
-  let command = $('#search-input').value;
-  if (command.includes('blog:')) {
-    
-    let blog = command.split('blog:')[1].split('@')[0];
-    let entryId = command.split('blog:')[1].split('@')[1];
-    
-    $('#in-blog-name').value = blog;
-    $('#in-eid').value = entryId;
-    
-    
-    oblog.config({
-      blog
-    });
-    
-    aww.pop('Loading blog content...');
-    if (entryId.startsWith('p'))
-      oblog.pages.get(entryId.substring(1), handlePostLoad, 'content');
-    else
-      oblog.posts.get(entryId, handlePostLoad, 'content');
-    
-    toggleInsertSnippet();
-  }
-}
-
 var wgSearchRes;
 var wgSearch = {
   hints: [],

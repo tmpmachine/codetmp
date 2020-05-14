@@ -52,7 +52,6 @@ self.addEventListener('install', function(event) {
     
     '/ace/ace.js',
     '/js/custom-editor-init.js',
-    '/js/drag-drop.js',
     
     '/fonts/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2',
     ];

@@ -125,7 +125,6 @@ const TMP = (function() {
   
   let URL2 = [
     'js/template.js',
-    'js/drag-drop.js',
     'require/plate.js',
     ];
   
@@ -163,7 +162,6 @@ const TMP = (function() {
     
     loadBundle(URL2).then(() => {
       
-      TMP.plugins.dragDrop();
       document.querySelector('#label-loading').textContent = 'Loading library... (3/3)';
       
       loadBundle(URL3).then(() => {
