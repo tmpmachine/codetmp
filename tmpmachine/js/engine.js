@@ -180,6 +180,7 @@ const TMP = (function() {
         document.querySelector('#label-loading').textContent = 'Machine is ready!';
         document.querySelector('#icon-loading').style.visibility = 'hidden';
         document.querySelector('#icon-loading').classList.toggle('w3-spin');
+        loadSnippets();
       });
     });
   });

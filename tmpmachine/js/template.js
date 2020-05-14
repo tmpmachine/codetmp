@@ -11,12 +11,10 @@ let snippets = [
   {pos: [-1, 1], title: 'snippet template', snippet: '<template data-prefix="snippet-name" data-trim="true" data-cursor="1,0">\n\t\n<\/template>'},
   {title: 'reload snippet', callback: loadSnippets},
 ];
-let customSnippetsCounter = 0
+let customSnippetsCounter = 0;
 
 function downloadSnippetFile(fid) {
-          
   return new Promise(function(resolve, reject) {
-    
     let f = odin.dataOf(fid, fs.data.files, 'fid');
     if (!f)
       resolve();
@@ -25,10 +23,7 @@ function downloadSnippetFile(fid) {
       resolve(f);
     } else {
       
-      aww.pop('Downloading file...');
-      
       new Promise(function(resolveTokenRequest) {
-    
         if (auth0.state(5))
           return resolveTokenRequest();
         else {
@@ -36,29 +31,22 @@ function downloadSnippetFile(fid) {
             return resolveTokenRequest();
           }, true);
         }
-        
       }).then(function() {
-      
-        
         fetch('https://www.googleapis.com/drive/v3/files/' + f.id + '?alt=media', {
           method: 'GET',
           headers: {
             'Authorization': 'Bearer ' + auth0.auth.data.token
           }
         }).then(function(r) {
-          
           if (r.ok)
             return r.text();
           else
             throw r;
-          
         }).then(function(media) {
-          
           f.content = media;
           f.loaded = true;
           fs.save();
           resolve(f);
-          
         }).catch(reject);
       });
     }
@@ -85,6 +73,62 @@ function applySnippets(html) {
     snippets[i].index = i;
 }
 
+function loadEnvironmentSettings(file) {
+  
+  new Promise((resolve, reject) => {
+    if (file.loaded) {
+      resolve(file);
+    } else {
+      
+      new Promise(function(resolveTokenRequest) {
+        if (auth0.state(5))
+          return resolveTokenRequest();
+        else {
+          auth0.requestToken(function() {
+            return resolveTokenRequest();
+          }, true);
+        }
+      }).then(function() {
+        fetch('https://www.googleapis.com/drive/v3/files/'+file.id+'?alt=media', {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + auth0.auth.data.token
+          }
+        }).then(function(r) {
+          
+          if (r.ok)
+            return r.text();
+          else
+            throw r;
+        }).then(function(media) {
+          file.content = media;
+          file.loaded = true;
+          fs.save();
+          resolve(file);
+        }).catch(reject);
+      });
+    }
+    
+  }).then(file => {
+    let setup = JSON.parse(file.content);
+    let files = setup.snippets;
+    for (let path of files) {
+      let f = getFileAtPath(path);
+      if (typeof(f) == 'undefined' || f.trashed)
+        L('Environemnt error : snippet '+path+' not found');
+      else
+        downloadSnippetFile(f.fid)
+        .then(f => {
+          let html = o.cel('div');
+          html.style.display = 'none';
+          document.body.append(html);
+          html.innerHTML += f.content;
+          applySnippets(html);
+        });
+    }
+  });
+}
+
 function loadSnippets() {
   
   snippets.length -= customSnippetsCounter;
@@ -92,23 +136,7 @@ function loadSnippets() {
   
   for (let i=0; i<fs.data.files.length; i++) {
     if (fs.data.files[i].parentId == -1 && fs.data.files[i].name == 'env.json' && !fs.data.files[i].trashed) {
-      let setup = JSON.parse(fs.data.files[i].content);
-      let files = setup.snippets;
-      
-      for (let path of files) {
-        let f = getFileAtPath(path);
-        if (typeof(f) == 'undefined' || f.trashed)
-          L('Environemnt error : snippet '+path+' not found');
-        else
-          downloadSnippetFile(f.fid)
-          .then(f => {
-            let html = o.cel('div');
-            html.style.display = 'none';
-            document.body.append(html);
-            html.innerHTML += f.content;
-            applySnippets(html);
-          });
-      }
+      loadEnvironmentSettings(fs.data.files[i]);
       break;
     }
   }
@@ -310,11 +338,6 @@ var wgSearch = {
   }
 };
 
-
-
-
-
-
 function somefun(self, bypass) {
   if (self.textContent == 'search' && $('#search-input').value.length > 0)
   {
@@ -343,5 +366,3 @@ function insertTemplate(index) {
   $('#search-result').innerHTML = '';
   toggleInsertSnippet();
 }
-
-loadSnippets();
