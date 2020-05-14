@@ -119,7 +119,7 @@ const TMP = (function() {
     'js/renderer.js',
     'js/file-manager.js',
     'js/ux.js',
-    'ace/ace-14.1.20.js',
+    'ace/ace.js',
     'js/custom-editor-init.js',
     ];
   

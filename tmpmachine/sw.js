@@ -4,7 +4,7 @@ self.addEventListener('message', function(e) {
 });
 
 
-let cacheVersion = '1.1';
+let cacheVersion = '1.11';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('install', function(event) {
@@ -50,7 +50,7 @@ self.addEventListener('install', function(event) {
     '/js/drive.js',
     '/js/engine.js',
     
-    '/ace/ace-14.1.20.js',
+    '/ace/ace.js',
     '/js/custom-editor-init.js',
     '/js/drag-drop.js',
     
