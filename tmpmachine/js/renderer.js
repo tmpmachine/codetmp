@@ -34,7 +34,12 @@ let isPWAFrameLoaded = false;
       } else {
         
         let folders = odin.filterData(parentId, fs.data.folders, 'parentId');
-        folder = odin.dataOf(dir[0], folders, 'name');
+        for (let f of folders) {
+          if (f.name == dir[0] && !f.trashed) {
+            folder = f;
+            break;
+          }
+        }
         if (folder) {
           parentId = folder.fid;
           path.push(folder.name);
@@ -132,7 +137,7 @@ let isPWAFrameLoaded = false;
         if (loadedScriptAndLink.indexOf(src) < 0) {
           loadedScriptAndLink.push(src);
         } else {
-          body = body.replace(new RegExp(match[0].replace(/\|/g,'\\|').replace(/\[/g,'\\[').replace(/\./g,'\\.').replace(/\(/g,'\\(').replace(/\)/g,'\\)').replace(/\./g,'\\.').replace(/\*/g,'\\*').replace('$','\\$')), '');
+          // body = body.replace(new RegExp(match[0].replace(/\|/g,'\\|').replace(/\[/g,'\\[').replace(/\./g,'\\.').replace(/\(/g,'\\(').replace(/\)/g,'\\)').replace(/\./g,'\\.').replace(/\*/g,'\\*').replace('$','\\$')), '');
           match = getMatch(body);
           continue;
         }
