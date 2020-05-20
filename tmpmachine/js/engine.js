@@ -3,11 +3,11 @@ L = console.log;
 const TMP = (function() {
   
   return {
-    plugins: {
-      load(name, func) {
-        TMP.plugins[name] = func;
-      }
-    },
+    // plugins: {
+    //   load(name, func) {
+    //     TMP.plugins[name] = func;
+    //   }
+    // },
     loadStorageData() {
       
       window.fs = new lsdb('B-THOR-fs', {
@@ -156,8 +156,8 @@ const TMP = (function() {
     TMP.loadStorageData();
     ace.config.set('basePath', 'ace');
     updateUI();
-    TMP.plugins.loadEditor(false);
-    editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
+    // TMP.plugins.loadEditor(false);
+    // editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
     document.querySelector('#label-loading').textContent = 'You can start coding now... (2/3)';
     
     loadBundle(URL2).then(() => {

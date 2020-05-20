@@ -179,20 +179,20 @@ const ui = {
     else
       fid = (activeTab + direction == -1) ? fileTab[fileTab.length - 1].fid : fileTab[0].fid;
     
-    fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
-    fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
-    fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
-    fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
-    fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
+    // fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
+    // fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
+    // fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
+    // fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
+    // fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
     focusTab(fid);
   },
   
   openNewTab: function() {
-    fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
-    fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
-    fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
-    fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
-    fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
+    // fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
+    // fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
+    // fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
+    // fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
+    // fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
     newTab();
   },
   
@@ -465,15 +465,15 @@ function changePersonal(value) {
 }
 
 
-function isSameTab(valueCheck1, valueCheck2) {
+// function isSameTab(valueCheck1, valueCheck2) {
   
-  if (valueCheck1 == valueCheck2) {
-    $('#editor').env.editor.focus();
-    return true;
-  }
+//   if (valueCheck1 == valueCheck2) {
+//     $('#editor').env.editor.focus();
+//     return true;
+//   }
   
-  return false;
-}
+//   return false;
+// }
 
 function compressTab(idx) {
   for (let tab of $('.file-tab'))
@@ -507,10 +507,11 @@ function compressTab(idx) {
   }
 }
 
-function focusTab(fid, isActiveTab = false, isClose) {
+// function focusTab(fid, isActiveTab = false, isClose) {
+function focusTab(fid) {
   
   let idx = odin.idxOf(String(fid), fileTab, 'fid');
-  if (isActiveTab && isSameTab(activeTab, idx)) return;
+  // if (isActiveTab && isSameTab(activeTab, idx)) return;
   
   for (let tab of $('.file-tab'))
     tab.lastElementChild.style.background = '#202020';
@@ -519,27 +520,31 @@ function focusTab(fid, isActiveTab = false, isClose) {
   
   compressTab(idx);
   
-  if (!isClose && activeTab !== idx) {
-    fileTab[activeTab].undo = $('#editor').env.editor.getSession().getUndoManager();
-    fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
-    fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
-    fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
-    fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
-    fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
-    $('#editor').env.editor.getSession().setUndoManager(new ace.UndoManager())
-  }
+  // if (!isClose && activeTab !== idx) {
+  //   fileTab[activeTab].undo = $('#editor').env.editor.getSession().getUndoManager();
+  //   fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
+  //   fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
+  //   fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
+  //   fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
+  //   fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
+  //   $('#editor').env.editor.getSession().setUndoManager(new ace.UndoManager())
+  // }
   
   activeTab = idx;
+  $('#editor-wrapper').innerHTML = '';
+  $('#editor-wrapper').append(fileTab[idx].editor)
   
-  $('#editor').env.editor.setValue(fileTab[activeTab].content);
-  $('#editor').env.editor.clearSelection();
-  $('#editor').env.editor.getSession().setScrollTop(fileTab[activeTab].scrollTop);
-  $('#editor').env.editor.moveCursorTo(fileTab[activeTab].row, fileTab[activeTab].col);
-  $('#editor').env.editor.focus()
-  $('#editor').env.editor.getSession().setUndoManager(fileTab[activeTab].undo)
+  // L(activeTab)
+  // $('#editor').env.editor.setValue(fileTab[activeTab].content);
+  // $('#editor').env.editor.clearSelection();
+  // $('#editor').env.editor.getSession().setScrollTop(fileTab[activeTab].scrollTop);
+  // $('#editor').env.editor.moveCursorTo(fileTab[activeTab].row, fileTab[activeTab].col);
+  fileTab[idx].editor.env.editor.focus();
+  // fileTab[idx].editor.focus();
+  // $('#editor').env.editor.getSession().setUndoManager(fileTab[activeTab].undo)
 
   activeFile = (String(fid)[0] == '-') ? undefined : fileTab[activeTab].file;
-  setEditorMode(fileTab[activeTab].name);
+  // setEditorMode(fileTab[activeTab].name);
   
   let settings = {};
   if (activeFile)
@@ -596,6 +601,121 @@ function setEditorMode(fileName = '') {
     $('#editor').env.editor.session.setMode("ace/mode/json");
   else
     $('#editor').env.editor.session.setMode("ace/mode/html");
+}
+
+function initEditor() {
+  let editorElement = document.createElement('div');
+  editorElement.classList.add('editor');
+  editorElement.style.opacity = '0'
+  let editor = ace.edit(editorElement);
+  
+  editor.setTheme("ace/theme/monokai", () => {
+    editorElement.style.opacity = '1';
+    // $('#blocker-editor').style.display = 'none';
+  });
+  editor.session.setMode("ace/mode/html");
+  editor.session.setUseWrapMode(true);
+  editor.session.setTabSize(2);
+  editor.setFontSize(14);
+  editor.clearSelection();
+  editor.focus();
+  editor.moveCursorTo(0,0);
+  
+  editor.commands.addCommand({
+    name: "movelinesup",
+    bindKey: {win:"Ctrl-Shift-Up"},
+    exec: function(editor) {
+      editor.moveLinesUp();
+      saveListener(null, true);
+    }
+  });
+  editor.commands.addCommand({
+    name: "movelinesdown",
+    bindKey: {win:"Ctrl-Shift-Down"},
+    exec: function(editor) {
+      editor.moveLinesDown();
+      saveListener(null, true);
+    }
+  });
+  editor.commands.addCommand({
+    name: "select-or-more-after",
+    bindKey: {win:"Ctrl-D"},
+    exec: function(editor) {
+      if (editor.selection.isEmpty())
+        editor.selection.selectWord();
+      else
+        editor.execCommand("selectMoreAfter");
+    }
+  });
+  editor.commands.addCommand({
+    name: "removeline",
+    bindKey: {win: "Ctrl-Shift-K"},
+    exec: function(editor) {
+      editor.removeLines();
+      saveListener(null, true);
+    }
+  });
+  
+  let fontSizeScale = [12, 14, 16, 18, 21, 24, 30, 36, 48];
+  let defaultFontSize = 1;
+  let fontSize = 1;
+  editor.commands.addCommand({
+    name: "decrease-font-size",
+    bindKey: {win: "Ctrl--"},
+    exec: function(editor) {
+      event.preventDefault();
+      if (fontSize > 0) fontSize--;
+      editor.setFontSize(fontSizeScale[fontSize]);
+    }
+  });
+  editor.commands.addCommand({
+    name: "increase-font-size",
+    bindKey: {win: "Ctrl-="},
+    exec: function(editor) {
+      event.preventDefault();
+      if (fontSize < fontSizeScale.length - 1) fontSize++;
+      editor.setFontSize(fontSizeScale[fontSize]);
+    }
+  });
+  editor.commands.addCommand({
+    name: "reset-font-size",
+    bindKey: {win: "Ctrl-0"},
+    exec: function(editor) {
+      event.preventDefault();
+      fontSize = defaultFontSize;
+      editor.setFontSize(fontSizeScale[defaultFontSize]);
+    }
+  });
+  
+  editor.commands.addCommand({
+    name: "toggle-wrap-mode",
+    bindKey: {win: "Alt-R"},
+    exec: function(editor) {
+      event.preventDefault();
+      let isWrap = editor.env.editor.session.getUseWrapMode();
+      editor.session.setUseWrapMode(isWrap ? false : true);
+      settings.data.wrapMode = !isWrap;
+      settings.save();
+    }
+  });
+
+  editor.clearSelection();
+  editor.focus();
+  editor.moveCursorTo(0,0);
+  editor.commands.removeCommand('fold');
+  editor.session.on("change", function(delta) {
+    // L(1)
+    // if ($('.icon-rename').length === 0 ) return;
+    // L(delta)
+    $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
+    $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
+    // $('#editor').env.editor.removeEventListener('keydown', saveListener);
+    // if (ignoreChanges) return console.log("ignore changes made by me")
+      // console.log("handle changes made in some other way")
+  })
+  // editorElement.addEventListener('keydown', saveListener);
+   
+  return editorElement;
 }
 
 function newTab(position, data) {
@@ -657,16 +777,18 @@ function newTab(position, data) {
       fileTab.splice(position, 0, data);
     else
       fileTab.push(data)
-  } else
+  } else {
     fileTab.push({
+      editor: initEditor(),
       fid,
-      scrollTop: 0,
-      row: 0,
-      col: 0,
+      // scrollTop: 0,
+      // row: 0,
+      // col: 0,
       content: '',
       fiber: 'close',
       undo: new ace.UndoManager()
     });
+  }
   
   focusTab(fid)
 }
@@ -694,8 +816,7 @@ function closeTab(focus = true, comeback) {
   if (focus) {
     
     if (fileTab.length == 0) {
-      
-      $('#editor').env.editor.setValue('');
+      // $('#editor').env.editor.setValue('');
       newTab()
       activeFile = undefined;
     } else {
@@ -703,9 +824,9 @@ function closeTab(focus = true, comeback) {
       if (comeback === undefined) {
         
         if (activeTab == 0)
-          focusTab(fileTab[0].fid, false, true);
+          focusTab(fileTab[0].fid);
         else
-          focusTab(fileTab[activeTab-1].fid, false, true);
+          focusTab(fileTab[activeTab-1].fid);
       }
     }
   }
@@ -1268,11 +1389,13 @@ function applyKeyboardListener() {
       
     $('#btn-menu-my-files').click()
     if ($('#btn-menu-my-files').classList.contains('active')) {
-      $('#editor').env.editor.blur();
+      // $('#editor').env.editor.blur();
+      fileTab[activeTab].editor.env.editor.blur();
       setTimeout(() => { document.activeElement.blur() }, 1);
+    } else {
+      fileTab[activeTab].editor.env.editor.focus();
     }
-    else
-      $('#editor').env.editor.focus()
+      // $('#editor').env.editor.focus()
   }
   
   function toggleTemplate() {

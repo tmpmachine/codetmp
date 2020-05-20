@@ -19,7 +19,7 @@ function File(data = {}) {
   let predefinedData = {
     fid: fs.data.counter.files,
     name: 'Untitled File',
-    content: $('#editor').env.editor.getValue(),
+    content: fileTab[activeTab].editor.env.editor.getValue(),
     description: fileManager.getDescription(),
     loaded: true,
     parentId: activeFolder,
@@ -149,9 +149,9 @@ function FileManager() {
       closeTab(false);
       newTab(activeTab, {
         fid: file.fid,
-        scrollTop: 0,
-        row: $('#editor').env.editor.getCursorPosition().row,
-        col: $('#editor').env.editor.getCursorPosition().column,
+        // scrollTop: 0,
+        // row: fileTab[activeTab].editor.env.editor.getCursorPosition().row,
+        // col: fileTab[activeTab].editor.env.editor.getCursorPosition().column,
         name: file.name,
         content: file.content,
         fiber: 'close',
@@ -160,7 +160,7 @@ function FileManager() {
       });
     } else {
       
-      activeFile.content = $('#editor').env.editor.getValue();
+      activeFile.content = fileTab[activeTab].editor.env.editor.getValue();
       activeFile.modifiedTime = modifiedTime;
       activeFile.description = fileManager.getDescription();
       handleSync({
@@ -173,7 +173,7 @@ function FileManager() {
       fs.save();
       
       $('.icon-rename')[activeTab].textContent = 'close';
-      $('#editor').addEventListener('keydown', saveListener);
+      // $('#editor').addEventListener('keydown', saveListener);
     }
   };
   
@@ -246,7 +246,7 @@ function FileManager() {
       })()
     ]).then(function(file) {
       
-      if (fileTab.length == 1 && $('#editor').env.editor.getSession().getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
+      if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
         closeTab(false);
   
       
@@ -255,9 +255,9 @@ function FileManager() {
         
         newTab(fileTab.length, {
           fid: f.fid,
-          scrollTop: 0,
-          row: 0,
-          col: 0,
+          // scrollTop: 0,
+          // row: 0,
+          // col: 0,
           content: f.content,
           name: f.name,
           fiber: 'close',
@@ -509,7 +509,7 @@ function openFile(fid) {
     })()
   ]).then(function(file) {
     
-    if (fileTab.length == 1 && $('#editor').env.editor.getSession().getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
+    if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
       closeTab(false);
 
     
@@ -519,9 +519,9 @@ function openFile(fid) {
       
       newTab(fileTab.length, {
         fid: f.fid,
-        scrollTop: 0,
-        row: 0,
-        col: 0,
+        // scrollTop: 0,
+        // row: 0,
+        // col: 0,
         content: f.content,
         name: f.name,
         fiber: 'close',
@@ -529,7 +529,7 @@ function openFile(fid) {
         undo: new ace.UndoManager()
       });
     } else {
-      fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
+      fileTab[activeTab].content = fileTab[activeTab].editor.env.editor.getValue();
       focusTab(f.fid, false);
     }
     
@@ -785,7 +785,7 @@ function openFolder(folderId) {
 function fileDownload() {
   
   let name = activeFile ? activeFile.name : $('.file-name',$('.file-tab')[activeTab])[0].textContent+'.html';
-  let chunks = activeFile ? activeFile.content : $('#editor').env.editor.getValue();
+  let chunks = activeFile ? activeFile.content : fileTab[activeTab].editor.env.editor.getValue();
 
   if (name === 'null' || !name)
     return;
