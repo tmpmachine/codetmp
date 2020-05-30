@@ -64,7 +64,7 @@ let isPWAFrameLoaded = false;
       gitTree.length = 0;
       if (locked === -1 || (activeFile && locked === activeFile.fid)) {
       
-        body = $('#editor').env.editor.getValue();
+        body = fileTab[activeTab].editor.env.editor.getValue();
         
         preParent = activeFile ? activeFile.parentId : activeFolder;
         // if (activeFile)
@@ -176,7 +176,7 @@ let isPWAFrameLoaded = false;
         let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
         let content;
         if (tabIdx >= 0)
-          content = (activeFile && activeFile.fid === file.fid) ? $('#editor').env.editor.getValue() : fileTab[tabIdx].content;
+          content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].content;
         else
           content = file.content;
         // appendGitTree((path.join('/') + '/').replace('root/','') + file.name, content);
