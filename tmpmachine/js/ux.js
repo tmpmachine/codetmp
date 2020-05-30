@@ -435,7 +435,7 @@ function toggleInsertSnippet(persistent) {
   } else {
     setTimeout(() => { document.activeElement.blur() }, 1);
     if (typeof(persistent) === 'undefined')
-      editor.env.editor.focus();
+      fileTab[activeTab].editor.env.editor.focus();
     $('#search-input').value = '';
     $('#search-input').blur();
   }

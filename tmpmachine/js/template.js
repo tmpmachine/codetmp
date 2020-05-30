@@ -320,10 +320,10 @@ function insertTemplate(index) {
   if (data.callback) {
     data.callback();
   } else {
-    let curCol = $('#editor').env.editor.getCursorPosition().column
-    $('#editor').env.editor.insert(data.snippet);
-    $('#editor').env.editor.moveCursorToPosition({row:$('#editor').env.editor.getCursorPosition().row+data.pos[0], column: curCol+data.pos[1]});
-    $('#editor').env.editor.focus();
+    let curCol = fileTab[activeTab].editor.env.editor.getCursorPosition().column
+    fileTab[activeTab].editor.env.editor.insert(data.snippet);
+    fileTab[activeTab].editor.env.editor.moveCursorToPosition({row:fileTab[activeTab].editor.env.editor.getCursorPosition().row+data.pos[0], column: curCol+data.pos[1]});
+    fileTab[activeTab].editor.env.editor.focus();
   }
   $('#search-result').innerHTML = '';
   toggleInsertSnippet();
