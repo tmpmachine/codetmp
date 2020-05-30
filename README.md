@@ -4,33 +4,8 @@ A simple web development environment for those who loves prototyping with high m
 ## Official Website
 [http://tmpmachine.web.app](http://tmpmachine.web.app)
 
-
-## Environment Keyboard shortcut
-
-| Command       | Description |
-| ---           | --- |
-| Alt + W       | Close tab |
-| Alt + N       | New tab |
-| Alt + <       | Previous tab |
-| Alt + >       | Next tab |
-| Alt + D       | Toggle snippet |
-| Alt + M       | Toggle my files |
-| Alt + I       | Toggle File Info |
-| Ctrl + S      | Save current file |
-| Ctrl + Enter  | Render active file tab or locked file |
-| Alt + Enter   | Deploy active file tab |
-
-## My Files Keyboard shortcut
-| Command       | Description |
-| ---           | --- |
-| Ctrl + C      | Copy file/folder       |
-| Ctrl + V      | Paste file/folder      |
-| Ctrl + L      | Lock file              |
-
-
-
-## Plate-HTML
-You can write HTML tags in Plate-HTML (P-HTML) format
+## Divless/Close tagless-HTML
+The main reason TMPmachine exists is that I personally hate the way HTML tag is written, especially the div tag. Here, you can write HTML tags without the closing tag. Keep in mind that it will be difficult to tract unclosed tag. 
 ```html
 Basic tag writing
 [ ]        is equal to     <div></div>
@@ -42,7 +17,7 @@ Basic attributes and content writing
 [ {background:red}]
 [ "This is the content of the div"]
 [
-  This is also content, but without quotes
+  This is also content, but without quotes and extra spaces
 ]
 
 Advanced writing
