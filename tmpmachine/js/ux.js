@@ -75,15 +75,13 @@ const ui = {
       let data = odin.dataOf(fid, fs.data.files, 'fid');
       data.trashed = true;
       
-      if (activeFile && data.fid === activeFile.fid)
-      {
+      if (activeFile && data.fid === activeFile.fid) {
         activeFile = undefined;
         $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
         $('#editor').addEventListener('keydown', saveListener);
       }
       
-      for (let sync of fs.data.sync)
-      {
+      for (let sync of fs.data.sync) {
         if (sync.action === 52 && sync.copyId === fid)
           sync.action = 12;
       }
@@ -133,13 +131,12 @@ const ui = {
     }
 
     if (!menu) {
-      
       setTimeout(function(){
         target.classList.toggle('active',false);
         target.lastElementChild.classList.toggle('active',false);
         target.firstElementChild.classList.toggle('active',false);
       }, 500);
-      return
+      return;
     }
     
     
@@ -148,7 +145,7 @@ const ui = {
       if (el !== target) {
         
         if (!el.classList.contains('active')) continue;
-        el.classList.toggle('active',false)
+        el.classList.toggle('active',false);
         el.lastElementChild.classList.toggle('active',false);
         el.firstElementChild.classList.toggle('active',false);
         let menuId = el.getAttribute('menu');
@@ -178,21 +175,10 @@ const ui = {
       fid = fileTab[activeTab + direction].fid
     else
       fid = (activeTab + direction == -1) ? fileTab[fileTab.length - 1].fid : fileTab[0].fid;
-    
-    // fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
-    // fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
-    // fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
-    // fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
-    // fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
     focusTab(fid);
   },
   
   openNewTab: function() {
-    // fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
-    // fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
-    // fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
-    // fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
-    // fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
     newTab();
   },
   
@@ -395,9 +381,6 @@ function updateUI() {
     window.name = 'parent';
     window.environment = anibar('main-editor');
   
-    fixEditorScreenHeight();
-    window.onresize = fixEditorScreenHeight;
-    
     o.listen({
       'btn-blogsphere-logout' : btnBlogsphereLogout,
       'btn-create-template'   : createBlogTemplate,
@@ -460,20 +443,8 @@ function toggleInsertSnippet(persistent) {
 
 
 function changePersonal(value) {
-  
   localStorage.setItem('homepage', value);
 }
-
-
-// function isSameTab(valueCheck1, valueCheck2) {
-  
-//   if (valueCheck1 == valueCheck2) {
-//     $('#editor').env.editor.focus();
-//     return true;
-//   }
-  
-//   return false;
-// }
 
 function compressTab(idx) {
   for (let tab of $('.file-tab'))
@@ -507,11 +478,9 @@ function compressTab(idx) {
   }
 }
 
-// function focusTab(fid, isActiveTab = false, isClose) {
 function focusTab(fid) {
   
   let idx = odin.idxOf(String(fid), fileTab, 'fid');
-  // if (isActiveTab && isSameTab(activeTab, idx)) return;
   
   for (let tab of $('.file-tab'))
     tab.lastElementChild.style.background = '#202020';
@@ -519,38 +488,21 @@ function focusTab(fid) {
   $('.file-tab')[idx].lastElementChild.style.background = '#154358';
   
   compressTab(idx);
-  
-  // if (!isClose && activeTab !== idx) {
-  //   fileTab[activeTab].undo = $('#editor').env.editor.getSession().getUndoManager();
-  //   fileTab[activeTab].scrollTop = $('#editor').env.editor.getSession().getScrollTop();
-  //   fileTab[activeTab].row = $('#editor').env.editor.getCursorPosition().row;
-  //   fileTab[activeTab].col = $('#editor').env.editor.getCursorPosition().column;
-  //   fileTab[activeTab].content = $('#editor').env.editor.getSession().getValue();
-  //   fileTab[activeTab].fiber = $('.icon-rename')[activeTab].textContent;
-  //   $('#editor').env.editor.getSession().setUndoManager(new ace.UndoManager())
-  // }
-  
   activeTab = idx;
   $('#editor-wrapper').innerHTML = '';
   $('#editor-wrapper').append(fileTab[idx].editor)
   
-  // L(activeTab)
-  // $('#editor').env.editor.setValue(fileTab[activeTab].content);
-  // $('#editor').env.editor.clearSelection();
-  // $('#editor').env.editor.getSession().setScrollTop(fileTab[activeTab].scrollTop);
-  // $('#editor').env.editor.moveCursorTo(fileTab[activeTab].row, fileTab[activeTab].col);
   fileTab[idx].editor.env.editor.focus();
-  // fileTab[idx].editor.focus();
-  // $('#editor').env.editor.getSession().setUndoManager(fileTab[activeTab].undo)
-
+  fileTab[idx].editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
   activeFile = (String(fid)[0] == '-') ? undefined : fileTab[activeTab].file;
-  // setEditorMode(fileTab[activeTab].name);
+  setEditorMode(fileTab[activeTab].name);
   
-  let settings = {};
-  if (activeFile)
-    settings = activeFile.description.startsWith('{') ? JSON.parse(activeFile.description) : parseDescriptionOld(activeFile.description);
-    
-  openDevelopmentSettings(settings);
+  let fileSettings = {};
+  if (activeFile) {
+    fileSettings = activeFile.description.startsWith('{') ? JSON.parse(activeFile.description) : parseDescriptionOld(activeFile.description);
+  }
+  
+  openDevelopmentSettings(fileSettings);
   
 }
 
@@ -591,19 +543,20 @@ function openDevelopmentSettings(settings) {
 }
 
 function setEditorMode(fileName = '') {
+  let editor = fileTab[activeTab].editor.env.editor;
   if (fileName.endsWith('.txt'))
-    $('#editor').env.editor.session.setMode();
+    editor.session.setMode();
   else if (fileName.endsWith('.css'))
-    $('#editor').env.editor.session.setMode("ace/mode/css");
+    editor.session.setMode("ace/mode/css");
   else if (fileName.endsWith('.js'))
-    $('#editor').env.editor.session.setMode("ace/mode/javascript");
+    editor.session.setMode("ace/mode/javascript");
   else if (fileName.endsWith('.json'))
-    $('#editor').env.editor.session.setMode("ace/mode/json");
+    editor.session.setMode("ace/mode/json");
   else
-    $('#editor').env.editor.session.setMode("ace/mode/html");
+    editor.session.setMode("ace/mode/html");
 }
 
-function initEditor() {
+function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   let editorElement = document.createElement('div');
   editorElement.classList.add('editor');
   editorElement.style.opacity = '0'
@@ -611,10 +564,9 @@ function initEditor() {
   
   editor.setTheme("ace/theme/monokai", () => {
     editorElement.style.opacity = '1';
-    // $('#blocker-editor').style.display = 'none';
   });
   editor.session.setMode("ace/mode/html");
-  editor.session.setUseWrapMode(true);
+  editor.session.setUseWrapMode(settings.data.wrapMode);
   editor.session.setTabSize(2);
   editor.setFontSize(14);
   editor.clearSelection();
@@ -641,10 +593,11 @@ function initEditor() {
     name: "select-or-more-after",
     bindKey: {win:"Ctrl-D"},
     exec: function(editor) {
-      if (editor.selection.isEmpty())
+      if (editor.selection.isEmpty()) {
         editor.selection.selectWord();
-      else
+      } else {
         editor.execCommand("selectMoreAfter");
+      }
     }
   });
   editor.commands.addCommand({
@@ -687,33 +640,17 @@ function initEditor() {
     }
   });
   
-  editor.commands.addCommand({
-    name: "toggle-wrap-mode",
-    bindKey: {win: "Alt-R"},
-    exec: function(editor) {
-      event.preventDefault();
-      let isWrap = editor.env.editor.session.getUseWrapMode();
-      editor.session.setUseWrapMode(isWrap ? false : true);
-      settings.data.wrapMode = !isWrap;
-      settings.save();
-    }
-  });
-
+  editor.setValue(content)
   editor.clearSelection();
+  
   editor.focus();
-  editor.moveCursorTo(0,0);
+  editor.getSession().setScrollTop(scrollTop);
+  editor.moveCursorTo(row, col);
   editor.commands.removeCommand('fold');
   editor.session.on("change", function(delta) {
-    // L(1)
-    // if ($('.icon-rename').length === 0 ) return;
-    // L(delta)
     $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
     $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
-    // $('#editor').env.editor.removeEventListener('keydown', saveListener);
-    // if (ignoreChanges) return console.log("ignore changes made by me")
-      // console.log("handle changes made in some other way")
   })
-  // editorElement.addEventListener('keydown', saveListener);
    
   return editorElement;
 }
@@ -781,12 +718,7 @@ function newTab(position, data) {
     fileTab.push({
       editor: initEditor(),
       fid,
-      // scrollTop: 0,
-      // row: 0,
-      // col: 0,
-      content: '',
       fiber: 'close',
-      undo: new ace.UndoManager()
     });
   }
   
@@ -816,7 +748,6 @@ function closeTab(focus = true, comeback) {
   if (focus) {
     
     if (fileTab.length == 0) {
-      // $('#editor').env.editor.setValue('');
       newTab()
       activeFile = undefined;
     } else {
@@ -1233,7 +1164,6 @@ function btnBlogsphereLogout  () {
     let visibleScreenHeight = $('#file-list').parentNode.scrollTop + 64 + $('#nav-bar').offsetHeight + $('#file-list').parentNode.offsetHeight;
     if (scrollTop > visibleScreenHeight)
       $('#file-list').parentNode.scrollTop += scrollTop - visibleScreenHeight;
-      // L(1)
   }
   
   function navigationHandler() {
@@ -1389,13 +1319,17 @@ function applyKeyboardListener() {
       
     $('#btn-menu-my-files').click()
     if ($('#btn-menu-my-files').classList.contains('active')) {
-      // $('#editor').env.editor.blur();
       fileTab[activeTab].editor.env.editor.blur();
       setTimeout(() => { document.activeElement.blur() }, 1);
     } else {
       fileTab[activeTab].editor.env.editor.focus();
     }
-      // $('#editor').env.editor.focus()
+  }
+  
+  function toggleWrapMode() {
+    settings.data.wrapMode = !settings.data.wrapMode;
+    settings.save();
+    focusTab(fileTab[activeTab].fid);
   }
   
   function toggleTemplate() {
@@ -1454,6 +1388,7 @@ function applyKeyboardListener() {
     'Alt+>': () => ui.switchTab(1),
     'Alt+L': lockFile,
     'Alt+M': toggleMyFiles,
+    'Alt+R': toggleWrapMode,
     'Alt+I': toggleFileInfo,
     'Alt+N': ui.openNewTab,
     'Alt+W': closeTab,
@@ -1488,7 +1423,6 @@ window.addEventListener('cut', function(e) { copyFile(true) });
 window.addEventListener('paste', function(e) { pasteFile() });
 
 window.onbeforeunload = function(e) {
-  
   let notSaved = false;
   for (let icon of $('.icon-rename')) {
     if (icon.textContent !== 'close') {
@@ -1506,15 +1440,6 @@ window.onbeforeunload = function(e) {
   
   if (notSaved)
     return  'Changes you made may not be saved';
-}
-
-function fixEditorScreenHeight() {
-  let i = 0;
-  let navBarOffset = $('#nav-bar').offsetHeight;
-  for (let H of $('.menu-overflow-header')) {
-    $('.menu-overflow-content')[i].style.height = 'calc(100% - ' + (H.offsetHeight + navBarOffset) + 'px)';
-    i++;
-  }
 }
 
 function authReady() {

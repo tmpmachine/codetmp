@@ -1,82 +1,67 @@
 L = console.log;
 
-const TMP = (function() {
-  
-  return {
-    // plugins: {
-    //   load(name, func) {
-    //     TMP.plugins[name] = func;
-    //   }
-    // },
-    loadStorageData() {
-      
-      window.fs = new lsdb('B-THOR-fs', {
-        root: {
-          rootId: '',
-          files: [],
-          folders: [],
-          blogs: [],
-          sync: [],
-          counter: {
-            files: 0,
-            folders: 0
-          }
-        },
-      
-        blogs: {
-          name: '',
-          id: ''
-        },
-        folders:{
-          fid: 0,
-          parentId: -1,
-          
-          id: '',
-          name: '',
-          description: '',
-          modifiedTime: '',
-          trashed: false,
-          isSync: false
-        },
-        files: {
-          fid: 0,
-          parentId: -1,
-          modifiedTime: '',
-          isLock: false,
-          loaded: false,
-          
-          id: '',
-          name: '',
-          content: '',
-          description: '',
-          trashed: false,
-        },
-        sync: {
-          action: '',
-          fid: -1,
-          source: -1,
-          metadata: [],
-          type: '',
-        },
-      });
-      
-      window.settings = new lsdb('TmP-settings', {
-        root: {
-          drive: {
-            startPageToken: ''
-          },
-          wrapMode: false,
-        }
-      });
-      
-    }
-
-  };
-})();
-
-
-
 (function() {
+  
+  function loadStorageData() {
+    window.fs = new lsdb('B-THOR-fs', {
+      root: {
+        rootId: '',
+        files: [],
+        folders: [],
+        blogs: [],
+        sync: [],
+        counter: {
+          files: 0,
+          folders: 0
+        }
+      },
+    
+      blogs: {
+        name: '',
+        id: ''
+      },
+      folders:{
+        fid: 0,
+        parentId: -1,
+        
+        id: '',
+        name: '',
+        description: '',
+        modifiedTime: '',
+        trashed: false,
+        isSync: false
+      },
+      files: {
+        fid: 0,
+        parentId: -1,
+        modifiedTime: '',
+        isLock: false,
+        loaded: false,
+        
+        id: '',
+        name: '',
+        content: '',
+        description: '',
+        trashed: false,
+      },
+      sync: {
+        action: '',
+        fid: -1,
+        source: -1,
+        metadata: [],
+        type: '',
+      },
+    });
+    
+    window.settings = new lsdb('TmP-settings', {
+      root: {
+        drive: {
+          startPageToken: ''
+        },
+        wrapMode: false,
+      }
+    });
+  }
   
   const require = (url) => {
     
@@ -120,7 +105,6 @@ const TMP = (function() {
     'js/file-manager.js',
     'js/ux.js',
     'ace/ace.js',
-    'js/custom-editor-init.js',
     ];
   
   let URL2 = [
@@ -153,11 +137,9 @@ const TMP = (function() {
   document.querySelector('#label-loading').textContent = 'Loading engine... (1/3)';
   loadBundle(URL1).then(() => {
     
-    TMP.loadStorageData();
+    loadStorageData();
     ace.config.set('basePath', 'ace');
     updateUI();
-    // TMP.plugins.loadEditor(false);
-    // editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
     document.querySelector('#label-loading').textContent = 'You can start coding now... (2/3)';
     
     loadBundle(URL2).then(() => {

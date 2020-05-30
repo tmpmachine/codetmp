@@ -51,7 +51,6 @@ self.addEventListener('install', function(event) {
     '/js/engine.js',
     
     '/ace/ace.js',
-    '/js/custom-editor-init.js',
     
     '/fonts/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2',
     ];

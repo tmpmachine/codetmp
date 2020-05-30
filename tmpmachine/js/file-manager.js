@@ -146,17 +146,17 @@ function FileManager() {
       fileManager.list();
       fs.save();
       
+      let scrollTop = fileTab[activeTab].editor.env.editor.getSession().getScrollTop();
+      let row = fileTab[activeTab].editor.env.editor.getCursorPosition().row;
+      let col = fileTab[activeTab].editor.env.editor.getCursorPosition().column;
+      
       closeTab(false);
       newTab(activeTab, {
         fid: file.fid,
-        // scrollTop: 0,
-        // row: fileTab[activeTab].editor.env.editor.getCursorPosition().row,
-        // col: fileTab[activeTab].editor.env.editor.getCursorPosition().column,
         name: file.name,
-        content: file.content,
         fiber: 'close',
         file: file,
-        undo: new ace.UndoManager()
+        editor: initEditor(file.content, scrollTop, row, col),
       });
     } else {
       
@@ -173,7 +173,6 @@ function FileManager() {
       fs.save();
       
       $('.icon-rename')[activeTab].textContent = 'close';
-      // $('#editor').addEventListener('keydown', saveListener);
     }
   };
   
@@ -255,14 +254,11 @@ function FileManager() {
         
         newTab(fileTab.length, {
           fid: f.fid,
-          // scrollTop: 0,
-          // row: 0,
-          // col: 0,
           content: f.content,
           name: f.name,
           fiber: 'close',
           file: f,
-          undo: new ace.UndoManager()
+          editor: initEditor(),
         });
       } else
         focusTab(f.fid, false);
@@ -282,7 +278,6 @@ function FileManager() {
     });
   };
 }
-
 
 function handleSync(sync) {
   
@@ -509,24 +504,20 @@ function openFile(fid) {
     })()
   ]).then(function(file) {
     
-    if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
+    if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-') {
       closeTab(false);
+    }
 
     
     let idx = odin.idxOf(f.fid, fileTab, 'fid')
     
     if (idx < 0) {
-      
       newTab(fileTab.length, {
         fid: f.fid,
-        // scrollTop: 0,
-        // row: 0,
-        // col: 0,
-        content: f.content,
+        editor: initEditor(f.content),
         name: f.name,
         fiber: 'close',
         file: f,
-        undo: new ace.UndoManager()
       });
     } else {
       fileTab[activeTab].content = fileTab[activeTab].editor.env.editor.getValue();
