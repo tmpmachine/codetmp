@@ -642,7 +642,7 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   
   editor.setValue(content)
   editor.clearSelection();
-  
+  editor.getSession().setUndoManager(new ace.UndoManager())
   editor.focus();
   editor.getSession().setScrollTop(scrollTop);
   editor.moveCursorTo(row, col);
