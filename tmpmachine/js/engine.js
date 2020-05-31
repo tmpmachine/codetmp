@@ -59,6 +59,7 @@ L = console.log;
           startPageToken: ''
         },
         wrapMode: false,
+        autoSync: true,
       }
     });
   }

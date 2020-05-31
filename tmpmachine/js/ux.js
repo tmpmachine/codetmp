@@ -185,10 +185,15 @@ const ui = {
     let isWrap = editor.env.editor.session.getUseWrapMode();
     editor.env.editor.session.setUseWrapMode(isWrap ? false : true);
     settings.data.wrapMode = editor.env.editor.session.getUseWrapMode();
-    $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
     settings.save();
-  }
+    $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
+  },
   
+  toggleAutoSync: function() {
+    settings.data.autoSync = !settings.data.autoSync;
+    settings.save();
+    $('#check-auto-sync').checked = settings.data.autoSync ? true : false;
+  }
 };
 
 function getPromptInput(message, defaultValue='') {
@@ -334,6 +339,7 @@ function updateUI() {
   
   fileList();
   $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
+  $('#check-auto-sync').checked = settings.data.autoSync ? true : false;
 
   newTab();
   

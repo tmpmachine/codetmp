@@ -325,11 +325,12 @@
           
     <h6 style="font-weight:bold;">Editor</h6>
     <p>
-      <input id="check-word-wrap" class="w3-check" type="checkbox" oninput="ui.toggleWordWrap()"/> <label for="check-word-wrap">Word Wrap</label>
+      <input id="check-word-wrap" class="w3-check" type="checkbox" checked oninput="ui.toggleWordWrap()"/> <label for="check-word-wrap">Word Wrap</label>
     </p>
     <hr/>
     
     <h6 style="font-weight:bold;">Sync with Google Drive</h6>
+    <input id="check-auto-sync" class="w3-check" type="checkbox" oninput="ui.toggleAutoSync()" checked/> <label for="check-auto-sync">Automatically sync files and folders</label>
     <p id="login-info" class="w3-small">
       (!) Your files are stored locally in browser storage. Login to synchronize with Google Drive.
     </p>

@@ -339,7 +339,7 @@ const drive = {
     
     $('#syncing').textContent = '';
     $('#txt-sync').textContent = '';
-    if (!fs.data.rootId) return;
+    if (!fs.data.rootId || !settings.data.autoSync) return;
     if (sync === undefined || drive.syncToDrive.enabled) return;
     
     drive.syncToDrive.enabled = true;
