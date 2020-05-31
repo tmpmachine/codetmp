@@ -360,18 +360,6 @@ function fixCss(callback, total = 0, epoch = 5) {
 function updateUI() {
   
   fileList();
-  if (localStorage.getItem('homepage') == 'false') {
-    
-    $('#check-show').checked = false;
-    $('#btn-home').classList.toggle('active', false)
-    $('#btn-home').firstElementChild.classList.toggle('active', false)
-    $('#in-home').classList.toggle('active');
-  } else {
-    
-    $('#btn-home').classList.toggle('active', true)
-    $('#btn-home').firstElementChild.classList.toggle('active', true)
-  }
-
   $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
 
   fixCss(function() {
@@ -441,10 +429,6 @@ function toggleInsertSnippet(persistent) {
   }
 }
 
-
-function changePersonal(value) {
-  localStorage.setItem('homepage', value);
-}
 
 function compressTab(idx) {
   for (let tab of $('.file-tab'))

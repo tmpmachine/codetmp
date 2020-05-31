@@ -134,17 +134,13 @@ L = console.log;
     });
   }
   
-  document.querySelector('#label-loading').textContent = 'Loading engine... (1/3)';
   loadBundle(URL1).then(() => {
     
     loadStorageData();
     ace.config.set('basePath', 'ace');
     updateUI();
-    document.querySelector('#label-loading').textContent = 'You can start coding now... (2/3)';
     
     loadBundle(URL2).then(() => {
-      
-      document.querySelector('#label-loading').textContent = 'Loading library... (3/3)';
       
       loadBundle(URL3).then(() => {
         
@@ -157,9 +153,6 @@ L = console.log;
           redirect: (location.href.includes('file:')) ? false : true,
         });
         oblog.connect(auth0);
-        document.querySelector('#label-loading').textContent = 'Machine is ready!';
-        document.querySelector('#icon-loading').style.visibility = 'hidden';
-        document.querySelector('#icon-loading').classList.toggle('w3-spin');
         loadSnippets();
       });
     });

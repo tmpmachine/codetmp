@@ -52,32 +52,14 @@
 
   <template id="plate-homepage">
   [ +padding
-    [ +right-align
-      [in +check type="checkbox" checked oninput="changePersonal(this.checked)" @check-show] [l for="check-show" "Show homepage first"]
-    ]
     [h3 {fw:bold;} "TMPmachine"]
     [p
-      [s {fw:bold;} "PWA"] [s +tiny "(Progressive Web App)"] code editor for [s {fw:bold;} "single page web app"] development.
-      
-      [ +tiny
-        Psstt! PWA simply means you can access it <u>offline</u>!!
-      ]
+      Static web development sandbox.
     ]
     
     ---
     
-    [
-      <span class="loading" id="label-loading">Getting ready...</span>
-      [M "refresh" +spin +small @icon-loading]
-    ]
-    
-    [ +padding-16
-      [btn +button "Start Coding" onclick="$('#btn-home').click()" +blue +round]
-    ]
-    [p +small
-      Notes : Your files are stored locally in browser storage. Login to synchronize with Google Drive.
-      [br]
-    ]
+    [p +small "Note : Your files are stored locally in browser storage. Login to synchronize with Google Drive (Settings > Sync with Google Drive)."]
     
     ---
     
@@ -348,7 +330,7 @@
     [ +padding-small +center +tiny @syncing {col:#fafafa;}]
   </template>
   <template id="plate-interact-menu">
-    [ @in-home .in-window .in-content .bg1 .col1 .active
+    [ @in-home .in-window .in-content .bg1 .col1
       [ {pos:absolute;t:0;l:0;h:100%;ov:auto;z-index:2;w:100%;}
         [ {h:34px;} +hide-small]
         <!--plate-homepage-->
