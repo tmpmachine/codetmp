@@ -7,7 +7,6 @@ let isPWAFrameLoaded = false;
 
 (function() {
   
-  let loadedScriptAndLink = [];
   let loadingStatus = 0;
   let waitRender = null;
   
@@ -55,7 +54,7 @@ let isPWAFrameLoaded = false;
   }
   
   function getMatch(content) {
-    return content.match(/<file include=.*?><\/file>|<template include=.*?><\/template>|<mscript .*?src=.*?><\/mscript>|<script .*?src=.*?><\/script>|<link .*?href=.*?>|<mlink .*?href=.*?>|@import .*?;/);
+    return content.match(/<file include=.*?><\/file>|<template include=.*?><\/template>|<script .*?src=.*?><\/script>|<link .*?href=.*?>/);
   }
   
   function replaceLocal(body, preParent = -1, path = ['root']) {
@@ -75,7 +74,7 @@ let isPWAFrameLoaded = false;
         
         let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
         if (tabIdx >= 0)
-          body = fileTab[tabIdx].content;
+          body = fileTab[tabIdx].editor.env.editor.getValue();
         else
           body = file.content;
         
@@ -89,7 +88,7 @@ let isPWAFrameLoaded = false;
     let match = getMatch(body);
     
     while (match !== null) {
-      
+
       let tagName;
       let isScriptOrLink = false;
       let isFile = false;
@@ -98,23 +97,11 @@ let isPWAFrameLoaded = false;
       let end = 13;
       let src = '';
       
-      if (match[0].includes('<mscript')) {
-        src = match[0].match(/src=['|"].*?['|"]/)[0];
-        src = src.substring(5, src.length - 1);
-        isScriptOrLink = true;
-        isMinified = true;
-        tagName = 'script';
-      } else if (match[0].includes('<script')) {
+      if (match[0].includes('<script')) {
         src = match[0].match(/src=['|"].*?['|"]/)[0];
         src = src.substring(5, src.length - 1);
         isScriptOrLink = true;
         tagName = 'script';
-      } else if (match[0].includes('<mlink')) {
-        src = match[0].match(/href=['|"].*?['|"]/)[0];
-        src = src.substring(6, src.length - 1);
-        isScriptOrLink = true;
-        isMinified = true;
-        tagName = 'style';
       } else if (match[0].includes('<link')) {
         src = match[0].match(/href=['|"].*?['|"]/)[0];
         src = src.substring(6, src.length - 1);
@@ -125,23 +112,10 @@ let isPWAFrameLoaded = false;
         end = 9;
         isScriptOrLink = true;
         isFile = true;
-      } else if (match[0].includes('@import ')) {
-        start = 9;
-        end = 2;
       }
       
       src = (src.length > 0) ? src : match[0].substring(start, match[0].length-end);
       let relativeParent = preParent;
-      
-      if (isScriptOrLink) {
-        if (loadedScriptAndLink.indexOf(src) < 0) {
-          loadedScriptAndLink.push(src);
-        } else {
-          // body = body.replace(new RegExp(match[0].replace(/\|/g,'\\|').replace(/\[/g,'\\[').replace(/\./g,'\\.').replace(/\(/g,'\\(').replace(/\)/g,'\\)').replace(/\./g,'\\.').replace(/\*/g,'\\*').replace('$','\\$')), '');
-          match = getMatch(body);
-          continue;
-        }
-      }
       
       if (src.startsWith('https://') || src.startsWith('http://')) {
         body = body.replace(match[0], match[0].replace('href=','href-web=').replace('src=','src-web='));
@@ -176,7 +150,7 @@ let isPWAFrameLoaded = false;
         let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
         let content;
         if (tabIdx >= 0)
-          content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].content;
+          content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
         else
           content = file.content;
         // appendGitTree((path.join('/') + '/').replace('root/','') + file.name, content);
@@ -205,7 +179,6 @@ let isPWAFrameLoaded = false;
   function renderBlog(isForceDeploy) {
     
     let body = replaceLocal().replace(/src-web=/g, 'src=').replace(/href-web=/g, 'href=');
-    loadedScriptAndLink.length = 0;
     body = clearComments(body);
     
     if ($('#chk-render-plate-html').checked)
