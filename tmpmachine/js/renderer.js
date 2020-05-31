@@ -119,6 +119,7 @@ let isPWAFrameLoaded = false;
       
       if (src.startsWith('https://') || src.startsWith('http://')) {
         body = body.replace(match[0], match[0].replace('href=','href-web=').replace('src=','src-web='));
+        match = getMatch(body);
         continue;
       }
       
