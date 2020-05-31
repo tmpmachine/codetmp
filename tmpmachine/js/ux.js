@@ -357,7 +357,6 @@ function updateUI() {
     'btn-menu-info'         : btnInfo,
     '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
     'more-tab'              : function() { ui.switchTab(1) },
-    
     'btn-blogsphere-login'  : function() { auth0.login() },
     'btn-refresh-sync'      : function() { drive.syncFromDrive() },
   });
