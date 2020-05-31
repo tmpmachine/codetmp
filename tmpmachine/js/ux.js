@@ -139,7 +139,6 @@ const ui = {
       return;
     }
     
-    
     for (let el of $('.btn-material')) {
       
       if (el !== target) {
@@ -331,69 +330,40 @@ function attachMenuLinkListener() {
   }
 }
 
-function fixCss(callback, total = 0, epoch = 5) {
-  
-  let i = 0;
-  let totOffset = 0;
-  let navBarOffset = $('#nav-bar').offsetHeight;
-  
-  for (let H of $('.menu-overflow-header')) {
-    
-    $('.menu-overflow-content')[i].style.height = 'calc(100% - '+(H.offsetHeight+navBarOffset)+'px)';
-    i++;
-    totOffset += H.offsetHeight+navBarOffset;
-  }
-  
-  if (total === totOffset)
-    epoch -= 1;
-  
-  if (epoch >= 0) {
-    setTimeout(function() {
-      fixCss(callback, totOffset, epoch);
-    }, 50)
-  } else {
-    callback();
-    attachMenuLinkListener();
-  }
-}
-
 function updateUI() {
   
   fileList();
   $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
 
-  fixCss(function() {
+  newTab();
   
-    newTab();
+  window.name = 'parent';
+  window.environment = anibar('main-editor');
+
+  o.listen({
+    'btn-blogsphere-logout' : btnBlogsphereLogout,
+    'btn-create-template'   : createBlogTemplate,
+    'btn-create-entry'      : createBlogEntry,
+    'btn-create-app'        : createBlogApp,
+    'btn-menu-template'     : function() { toggleInsertSnippet() },
+    'btn-new-folder'        : ui.fm.newFolder,
+    'btn-new-file'          : function() { $('#btn-menu-my-files').click(); ui.openNewTab(); },
+    'btn-rename-folder'     : ui.fm.renameFolder,
+    // 'btn-delete-file'       : btnDeleteFile,
+    'btn-download-file'     : function() { fileDownload() },
+    'btn-menu-save'         : fileManager.save,
+    '.btn-material'         : ui.toggleMenu,
+    'btn-menu-preview'      : btnPreview,
+    'btn-menu-info'         : btnInfo,
+    '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
+    'more-tab'              : function() { ui.switchTab(1) },
     
-    window.name = 'parent';
-    window.environment = anibar('main-editor');
-  
-    o.listen({
-      'btn-blogsphere-logout' : btnBlogsphereLogout,
-      'btn-create-template'   : createBlogTemplate,
-      'btn-create-entry'      : createBlogEntry,
-      'btn-create-app'        : createBlogApp,
-      'btn-menu-template'     : function() { toggleInsertSnippet() },
-      'btn-new-folder'        : ui.fm.newFolder,
-      'btn-new-file'          : function() { $('#btn-menu-my-files').click(); ui.openNewTab(); },
-      'btn-rename-folder'     : ui.fm.renameFolder,
-      // 'btn-delete-file'       : btnDeleteFile,
-      'btn-download-file'     : function() { fileDownload() },
-      'btn-menu-save'         : fileManager.save,
-      '.btn-material'         : ui.toggleMenu,
-      'btn-menu-preview'      : btnPreview,
-      'btn-menu-info'         : btnInfo,
-      '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
-      'more-tab'              : function() { ui.switchTab(1) },
-      
-      'btn-blogsphere-login'  : function() { auth0.login() },
-      'btn-refresh-sync'      : function() { drive.syncFromDrive() },
-    });
-    
-    applyKeyboardListener();
-    
+    'btn-blogsphere-login'  : function() { auth0.login() },
+    'btn-refresh-sync'      : function() { drive.syncFromDrive() },
   });
+  
+  applyKeyboardListener();
+  attachMenuLinkListener();
 }
 
 function showFileSetting(section) {

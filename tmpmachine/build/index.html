@@ -53,9 +53,7 @@
   <template id="plate-homepage">
   [ +padding
     [h3 {fw:bold;} "TMPmachine"]
-    [p
-      Static web development sandbox.
-    ]
+    [p "Static web development sandbox."]
     
     ---
     
@@ -75,13 +73,6 @@
         <u>[a href="https://github.com/tmpmachine/tmpmachine" "GitHub Page"]</u>
       ]
     ]
-    
-    <!--[h3 {fw:bold;} "Why it exists?"]-->
-    <!--[p-->
-      <!--My laptop HDD goes "berserk" [s +small {fw:bold} "i.e. bad sector"], so I need a place to store my JavaScript project and access it from public area at the time. So goes the Google Drive synchronization idea come to live and here comes the temporary code editor so called my IGN, <b>TMPmachine</b>.-->
-    <!--]-->
-    <!--[ +padding]-->
-    
   ]
   </template>
   
@@ -338,18 +329,6 @@
     ]
     [ @in-home-block .in-window .in-block {z-index:0;}]
     
-    [ @in-assets .in-window {bg:none;w:200px;} .in-content .bg1 .col1
-      [ {pos:relative;h:100%;}
-        [ .menu-overflow-header
-          <!--plate-ninja-space-->
-        ]
-        [ +padding {bg:#eee;h:100%;w:100%;pos:absolute;} .menu-overflow-content
-          
-        ]
-      ]
-    ]
-    [ @in-assets-block .in-window .in-block]
-    
     [ @in-my-files .in-window .in-content .bg1 .col1 {dis:grid;grid-template-rows:auto auto 1fr}
       [ {h:34px;} +hide-small]
       [ +padding .border-bottom-dark @
@@ -386,12 +365,12 @@
     
     [ @in-trash .in-window .in-content .bg1 .col1 {overflow:hidden;}
       [ {h:34px;} +hide-small]
-      [ +padding .menu-overflow-header  .border-bottom-dark
+      [ +padding .border-bottom-dark
         [ .no-select
           <h5><b>Trash [s +tiny "(Preview only)"] [s +black +round +tiny "Beta" {p:0 2px 2px ;} ]</b></h5>
         ]
       ]
-      [ {h:100%;} .menu-overflow-content
+      [ {h:100%;}
         [ {h:100%;ov:auto;z-index:1;pos:relative;} .scroll1
           [ @list-trash +padding {dis:flex;flex-flow:wrap}]
         ]
@@ -402,10 +381,10 @@
     
     [ @in-settings .in-window .in-content .bg1 .col1 {ov:hidden;}
       [ {h:34px;} +hide-small]
-      [ +padding .menu-overflow-header .no-select .border-bottom-dark
+      [ +padding .no-select .border-bottom-dark
         <h5><b>Settings</b></h5>
       ]
-      [ .menu-overflow-content {h:100%}
+      [ {h:100%}
         [ +padding {h:100%;ov:auto;} .scroll1
           <!--plate-menu-settings-->
         ]
@@ -575,12 +554,6 @@
       [ +small "__id__"]
     ]
   </template>
-  <template id="tmp-missing">
-    [ {padding:4px 8px;} +__background__
-      __txt__
-    ]
-  </template>
-    
   
   <template id="tmp-breadcrumb">
     [ +padding onclick="openBread(__folderId__)" +button .breadcrumbs
