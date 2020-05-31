@@ -78,7 +78,7 @@ const ui = {
       if (activeFile && data.fid === activeFile.fid) {
         activeFile = undefined;
         $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
-        $('#editor').addEventListener('keydown', saveListener);
+        fileTab[activeTab].editor.addEventListener('keydown', saveListener);
       }
       
       for (let sync of fs.data.sync) {
@@ -223,11 +223,11 @@ function saveListener(event, bypass = false) {
     keyboard.Control && event.keyCode === 13) return;
   }
   
-  if ($('#editor').env.editor.isFocused()) {
+  if (fileTab[activeTab].editor.env.editor.isFocused()) {
     if ($('.icon-rename').length === 0 ) return;
     $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
     $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
-    $('#editor').env.editor.removeEventListener('keydown', saveListener);
+    fileTab[activeTab].editor.env.editor.removeEventListener('keydown', saveListener);
   }
 }
   
@@ -280,9 +280,9 @@ function attachMenuLinkListener() {
           setTimeout(function() {
             let isOpened = environment.toggle();
             if (isOpened)
-              $('#editor').env.editor.blur()
+              fileTab[activeTab].editor.env.editor.blur()
             else
-              $('#editor').env.editor.focus()
+              fileTab[activeTab].editor.env.editor.focus()
           }, 1)
           
           blurNavigation()
@@ -772,9 +772,9 @@ function btnInfo() {
   
   let isOpened = environment.toggle();
   if (isOpened)
-    $('#editor').env.editor.blur()
+    fileTab[activeTab].editor.env.editor.blur()
   else
-    $('#editor').env.editor.focus()
+    fileTab[activeTab].editor.env.editor.focus()
 }
 
 
@@ -1274,7 +1274,7 @@ function applyKeyboardListener() {
       selectedFile.length = 0;
     } else if ($('#btn-menu-my-files').classList.contains('active')) {
       $('#btn-menu-my-files').click();
-      $('#editor').env.editor.focus();
+      fileTab[activeTab].editor.env.editor.focus();
     }
   }
   
@@ -1341,9 +1341,9 @@ function applyKeyboardListener() {
     
     let isOpened = environment.toggle();
     if (isOpened)
-      $('#editor').env.editor.blur()
+      fileTab[activeTab].editor.env.editor.blur()
     else
-      $('#editor').env.editor.focus()
+      fileTab[activeTab].editor.env.editor.focus()
   }
   
   function openFileDirectory() {
