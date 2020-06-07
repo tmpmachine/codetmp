@@ -182,6 +182,7 @@ const ui = {
   },
   
   toggleWordWrap: function() {
+    let editor = fileTab[activeTab].editor;
     let isWrap = editor.env.editor.session.getUseWrapMode();
     editor.env.editor.session.setUseWrapMode(isWrap ? false : true);
     settings.data.wrapMode = editor.env.editor.session.getUseWrapMode();
@@ -1136,6 +1137,7 @@ function btnBlogsphereLogout  () {
     switch (event.keyCode) {
       case 37:
       case 38:
+        L(1)
         if (event.keyCode == 37)
           left();
         else
