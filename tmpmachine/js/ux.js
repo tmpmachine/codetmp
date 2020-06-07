@@ -1137,7 +1137,6 @@ function btnBlogsphereLogout  () {
     switch (event.keyCode) {
       case 37:
       case 38:
-        L(1)
         if (event.keyCode == 37)
           left();
         else
