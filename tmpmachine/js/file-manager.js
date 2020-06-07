@@ -285,36 +285,37 @@ function handleSync(sync) {
     sync.metadata = [];
     fs.data.sync.push(sync);
   } else if (sync.action === 'update') {
-      fs.data.sync.push(sync);
+    // Reduce request load by merging/changing sync request.
+    // Do not reorder sync with type of files to prevent file being created before the folder in Google Drive.
+    if (sync.type == 'files') fs.data.sync.push(sync);
     
-      for (let i=0; i<fs.data.sync.length-1; i++) {
-          let s = fs.data.sync[i];
-          
-          if (s.fid === sync.fid && s.type == sync.type) {
-              if (s.action === 'create' || s.action === 'copy') {
-                
-                if (!sync.metadata.includes('trashed')) {
-                  fs.data.sync.splice(i, 1);
-                  sync.action = s.action;
-                  sync.metadata = [];
-                }
-                
-              } else {
-                
-                for (let meta of s.metadata) {
-                  if (sync.metadata.indexOf(meta) < 0)
-                    sync.metadata.push(meta);
-                    
-                  if (meta === 'parents')
-                    sync.source = s.source;
-                }
-                
-                fs.data.sync.splice(i, 1);
-              }
-              break;
-          }
-      }
+    for (let i=0; i<fs.data.sync.length-1; i++) {
+      let s = fs.data.sync[i];
       
+      if (s.fid === sync.fid && s.type == sync.type) {
+        switch (s.action) {
+          case 'create':
+          case 'copy':
+            if (!sync.metadata.includes('trashed')) {
+              if (sync.type == 'files') fs.data.sync.splice(i, 1);
+              sync.action = s.action;
+              sync.metadata = [];
+            }
+            break;
+          case 'update':
+            for (let meta of s.metadata) {
+              if (sync.metadata.indexOf(meta) < 0)
+                sync.metadata.push(meta);
+                
+              if (meta === 'parents')
+                sync.source = s.source;
+            }
+            if (sync.type == 'files') fs.data.sync.splice(i, 1);
+            break;
+        }
+        break;
+      }
+    }
   } else if (sync.action === 'delete') {
     for (let i=0; i<fs.data.sync.length; i++) {
       if (fs.data.sync[i].fid === sync.fid)
