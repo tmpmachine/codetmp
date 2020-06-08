@@ -1,6 +1,4 @@
-/*
-1.34 - 13 May 20 -- remove w3.css support, added grid css shortcut
-*/
+/* v1.35 - 9 June */
 
 (function () {
   
@@ -141,8 +139,6 @@
     
     ['f:','float:'],
     ['ov:','overflow:'],
-    ['ov-y:','overflow-y:'],
-    ['ov-x:','overflow-x:'],
     
     ['mw:','min-width:'],
     ['mh:','min-height:'],
@@ -155,8 +151,9 @@
     ['vis:','visibility:'],
     ['op:','opacity:'],
     
-    ['gr:','grid-template-rows:'],
-    ['gc:','grid-template-columns:'],
+    ['rows:','grid-template-rows:'],
+    ['cols:','grid-template-columns:'],
+    ['gap:','grid-gap:'],
     ['col:','color:'],
     ['bg:','background:'],
     
