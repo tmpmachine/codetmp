@@ -287,7 +287,7 @@ function handleSync(sync) {
   } else if (sync.action === 'update') {
     // Reduce request load by merging/changing sync request.
     // Do not reorder sync with type of files to prevent file being created before the folder in Google Drive.
-    if (sync.type == 'files') fs.data.sync.push(sync);
+    fs.data.sync.push(sync);
     
     for (let i=0; i<fs.data.sync.length-1; i++) {
       let s = fs.data.sync[i];
@@ -297,9 +297,11 @@ function handleSync(sync) {
           case 'create':
           case 'copy':
             if (!sync.metadata.includes('trashed')) {
-              if (sync.type == 'files') fs.data.sync.splice(i, 1);
-              sync.action = s.action;
-              sync.metadata = [];
+              if (sync.type == 'files') {
+                fs.data.sync.splice(i, 1);
+                sync.action = s.action;
+                sync.metadata = [];
+              }
             }
             break;
           case 'update':
