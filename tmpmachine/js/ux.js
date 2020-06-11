@@ -1324,6 +1324,19 @@ function applyKeyboardListener() {
     openFolder(activeFile.parentId);
   }
   
+  function copyUploadBody() {
+    let textarea = document.createElement('textarea');
+    textarea.style.height = '0';
+    document.body.append(textarea);
+    renderBlog(true);
+    textarea.value = uploadBody;
+    textarea.select();
+    document.execCommand('copy');
+    aww.pop('Copied to clipboard');
+    document.body.removeChild(textarea)
+    fileTab[activeTab].editor.env.editor.focus()
+  }
+  
   keyboard.listen({
     'Backspace': previousFolder,
     'Escape': keyEscape,
@@ -1347,6 +1360,7 @@ function applyKeyboardListener() {
     'Alt+<': () => ui.switchTab(-1),
     'Alt+>': () => ui.switchTab(1),
     'Alt+L': lockFile,
+    'Alt+B': copyUploadBody,
     'Alt+M': toggleMyFiles,
     'Alt+R': toggleWrapMode,
     'Alt+I': toggleFileInfo,
