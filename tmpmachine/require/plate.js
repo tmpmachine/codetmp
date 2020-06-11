@@ -154,6 +154,10 @@
     ['rows:','grid-template-rows:'],
     ['cols:','grid-template-columns:'],
     ['gap:','grid-gap:'],
+    ['col-start:','grid-column-start:'],
+    ['col-end:','grid-column-end:'],
+    ['row-start:','grid-row-start:'],
+    ['row-end:','grid-row-end:'],
     ['col:','color:'],
     ['bg:','background:'],
     
