@@ -1,4 +1,4 @@
-/* v1.35 - 9 June */
+/* v1.36 - 15 June 2020 */
 
 (function () {
   
@@ -252,6 +252,7 @@
     const newMatch = [];
     var charBypass = '';
     var mode = '';
+    let waitingCloseBracket = false;
     
     function finishTag() {
       var tagName = tagStack.join('');
@@ -443,7 +444,7 @@
             innerLock = '';
           }
         }
-
+        
         switch (char) {
           case lt:
             
@@ -451,14 +452,20 @@
             pointer = 1;
             if (mode === '')
               mode = 'open';
+            waitingCloseBracket = true;
               
             break;
           case '[':
             
-            attMode = '';
-            unClose++;
-            ht.push(lt);
-            mode = 'getTagName';
+            // prevent changing mode if it's an actual HTML tag
+            if (waitingCloseBracket) {
+              ht.push(char);
+            } else {
+              attMode = '';
+              unClose++;
+              ht.push(lt);
+              mode = 'getTagName';
+            }
             
             break;
           case ']':
@@ -633,6 +640,9 @@
             } else if (mode == 'getTagName') {
               tagStack.push(char);
             } else {
+              if (char == gt && waitingCloseBracket) {
+                waitingCloseBracket = false;
+              }
               ht.push(char)
             }
           
