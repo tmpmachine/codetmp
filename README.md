@@ -46,6 +46,74 @@ Advanced writing
 [ .class-1 @element-id .class-2 {background:red} contenteditable="true" "This is the content" .class-3 {padding:8px}]
 ```
 
+## HTML Shortname
+| HTML Tag | Shortname |
+| --- | --- |
+| div	 |  |
+| video	 | v |
+| a	 | a |
+| audio	 | au |
+| button	 | btn |
+| canvas	 | can |
+| input	 | in |
+| span	 | s |
+| label	 | l |
+| textarea	 | t |
+| select	 | sel |
+| option	 | opt |
+
+## CSS Shortname
+| CSS Property | Shortname |
+| --- | --- |
+| padding	 | p |
+| padding-left	 | pl |
+| padding-top	 | pt |
+| padding-right	 | pr |
+| padding-bottom	 | pb |
+| margin	 | m |
+| margin-left	 | ml |
+| margin-top	 | mt |
+| margin-right	 | mr |
+| margin-bottom	 | mb |
+| text-decoration	 | td |
+| text-transform	 | tt |
+| font-family	 | ff |
+| font-size	 | fs |
+| font-style	 | ft |
+| font-weight	 | fw |
+| text-align	 | ta |
+| white-space	 | ws |
+| float	 | f |
+| overflow	 | ov |
+| min-width	 | mw |
+| min-height	 | mh |
+| max-width	 | Mw |
+| max-height	 | Mh |
+| width	 | w |
+| height	 | h |
+| display	 | d |
+| visibility	 | vis |
+| opacity	 | op |
+| grid-template-rows	 | rows |
+| grid-template-columns	 | cols |
+| grid-gap	 | gap |
+| grid-column-start	 | col-start |
+| grid-column-end	 | col-end |
+| grid-row-start	 | row-start |
+| grid-row-end	 | row-end |
+| color	 | col |
+| background	 | bg |
+| border-radius	 | rad |
+| border	 | bor |
+| position	 | pos |
+| z-index	 | z |
+| top	 | t |
+| left	 | l |
+| right	 | r |
+| bottom	 | b |
+| line-height	 | lh |
+
+
 ## Contribute
 Not gonna lie, it's a spaghetti code and I'm still refactoring it, but I'll give you a little guide on where to get started. By the way I'm a simple minded man and hate environment setup. So, you can just grab a clone of this repo and run tmpmachine/index.html withour local server. Really, the only time that I'm using shell/console is when I need to change UI or deploy to firebase project.
 
