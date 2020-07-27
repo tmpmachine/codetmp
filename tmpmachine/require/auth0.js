@@ -1,5 +1,5 @@
 /*
-v0.042 - 6 sep 19 -- encapsulation
+v0.043 - 28 jul 20 -- change login URL format
 */
 
 (function () {
@@ -115,9 +115,9 @@ v0.042 - 6 sep 19 -- encapsulation
       
       let loginUrl;
       if (auth0.auth.data.redirect && !isRefresh)
-        loginUrl = 'https://'+auth0.auth.data.portal+'.blogspot.com/search?q=(title:'+auth0.auth.data.line+'|key-'+auth0.auth.data.key+'|'+location.href;
+        loginUrl = 'https://'+auth0.auth.data.portal+'.blogspot.com/search?q=(title:'+auth0.auth.data.line+'&key='+auth0.auth.data.key+'&redirect='+location.href;
       else
-        loginUrl = 'https://'+auth0.auth.data.portal+'.blogspot.com/search?q=(title:'+auth0.auth.data.line+'|key-'+auth0.auth.data.key+'|';
+        loginUrl = 'https://'+auth0.auth.data.portal+'.blogspot.com/search?q=(title:'+auth0.auth.data.line+'&key='+auth0.auth.data.key;
       
       let el = document.createElement('iframe');
       el.setAttribute('id','auth0Portal');
