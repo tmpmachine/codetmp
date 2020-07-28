@@ -1,5 +1,5 @@
 /*
-v0.043 - 28 jul 20 -- change login URL format
+v0.0431 - 28 jul 20 -- fix no key login URL
 */
 
 (function () {
@@ -113,11 +113,13 @@ v0.043 - 28 jul 20 -- change login URL format
       auth0.callback = callback;
       window.addEventListener("message", auth0.onMessage);
       
+      let key = (auth0.auth.data.key.length === 0) ? '-' : auth0.auth.data.key; 
+
       let loginUrl;
       if (auth0.auth.data.redirect && !isRefresh)
-        loginUrl = 'https://'+auth0.auth.data.portal+'.blogspot.com/search?q=(title:'+auth0.auth.data.line+'&key='+auth0.auth.data.key+'&redirect='+location.href;
+        loginUrl = 'https://'+auth0.auth.data.portal+'.blogspot.com/search?q=(title:'+auth0.auth.data.line+'&key='+key+'&redirect='+location.href;
       else
-        loginUrl = 'https://'+auth0.auth.data.portal+'.blogspot.com/search?q=(title:'+auth0.auth.data.line+'&key='+auth0.auth.data.key;
+        loginUrl = 'https://'+auth0.auth.data.portal+'.blogspot.com/search?q=(title:'+auth0.auth.data.line+'&key='+key;
       
       let el = document.createElement('iframe');
       el.setAttribute('id','auth0Portal');
