@@ -140,6 +140,7 @@ L = console.log;
     loadStorageData();
     ace.config.set('basePath', 'ace');
     updateUI();
+    logWarningMessage();
     
     loadBundle(URL2).then(() => {
       

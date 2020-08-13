@@ -336,6 +336,14 @@ function attachMenuLinkListener() {
   }
 }
 
+function logWarningMessage() {
+	let cssRule = "color:rgb(249,162,34);font-size:60px;font-weight:bold";
+	setTimeout(console.log.bind(console, "%cATTENTION", cssRule), 0); 
+	setTimeout(console.log.bind(console, "Someone might be tyring to steal your data by asking you to enter malicious code from here!"), 0); 
+	setTimeout(console.log.bind(console, "If this was not intended, you can close this window by clicking 'x' on the top right corner of this window or by closing current browsing tab."), 0); 
+	setTimeout(console.log.bind(console, "Ignore this message if you're well aware of what you're going to do."), 0); 
+}
+
 function updateUI() {
   
   fileList();
