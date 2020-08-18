@@ -124,7 +124,7 @@ Advanced writing
 
 
 ## Contribute
-Not gonna lie, it's a spaghetti code and I'm still refactoring it, but I'll give you a little guide on where to get started. By the way I'm a simple minded man and hate environment setup. So, you can just grab a clone of this repo and run tmpmachine/index.html withour local server. Really, the only time that I'm using shell/console is when I need to change UI or deploy to firebase project.
+You can just grab a clone of this repo and open `tmpmachine/index.html` without local server. You will need `node.js` if you want to actually change the UI (documentation TBA).
 
 ### Changing UI
 Update tmpmachine/build/index.html, then execute builder/build.js with node.
