@@ -5,7 +5,15 @@ TMPmachine is all about :
 - Lightweight
 - Autosync with Google Drive
 
-No code checking, no live update, run your code with keyboard combination (Ctrl + Enter). Got bugs? That's your problem. If you just want to test a few lines of code without worrying to save file locally, then TMPmachine is for you.
+No code checking, no live update, run your code with keyboard combination (Ctrl + Enter). If you just want to test a few lines of code without worrying to save files locally, then TMPmachine is for you. It's not a perfect IDE for web app development but it does the job. 
+
+## The Mechanism
+TMPmachine is replacing all of :
+- <script src="*location*"></script> with <script> *... code ...* </script>
+- <link href="*location*" rel="stylesheet"/> with <style> *... style ...* </style>
+- Divless, nameless close tag HTML with HTML tags.
+- special HTML template code (TBA)
+All in all, it's just bunch of regex working behind the scene.
 
 ## Official Website
 [http://tmpmachine.web.app](http://tmpmachine.web.app)
