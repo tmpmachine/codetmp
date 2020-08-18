@@ -9,8 +9,8 @@ No code checking, no live update, run your code with keyboard combination (Ctrl 
 
 ## The Mechanism
 TMPmachine is replacing all of :
-- <script src="*location*"></script> with <script> *... code ...* </script>
-- <link href="*location*" rel="stylesheet"/> with <style> *... style ...* </style>
+- `<script src="*location*"></script>` with `<script> *... code ...* </script>`
+- `<link href="*location*" rel="stylesheet"/>` with `<style> *... style ...* </style>`
 - Divless, nameless close tag HTML with HTML tags.
 - special HTML template code (TBA)
 All in all, it's just bunch of regex working behind the scene.
