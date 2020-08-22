@@ -9,6 +9,8 @@ let snippets = [
   {pos: [1, 0], title: 'meta viewport', snippet: '<meta name="viewport" content="width=device-width"/>\n'},
   {pos: [1, 0], title: 'charset', snippet: '<meta charset="utf-8"/>\n'},
   {pos: [-1, 1], title: 'snippet template', snippet: '<template data-prefix="snippet-name" data-trim="true" data-cursor="1,0">\n\t\n<\/template>'},
+  {pos: [1, 0], title: 'querySelector()', snippet: '<script> $ = function(selector, node=document) { let nodes = node.querySelectorAll(selector); return nodes.length === 1 ? nodes[0] : nodes } </script>'},
+  {pos: [1, 0], title: 'console.log()', snippet: '<script> L = console.log </script>'},
   {title: 'reload snippet', callback: loadSnippets},
 ];
 let customSnippetsCounter = 0;
