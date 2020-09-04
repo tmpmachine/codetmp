@@ -436,7 +436,6 @@
         [small "Development"]
         <div>
           [btn class="file-settings-button" data-section="blogger" "+ Blogger"]
-          [btn class="file-settings-button" data-section="blossem" "+ Blossem"]
           [btn class="file-settings-button" data-section="pwa" "+ PWA"]
           [hr]
         </div>
@@ -472,12 +471,6 @@
             [ +tiny  "type"]
             [in @in-PWA-src-192-type .description name="pwa-src-192-type"]
           </div>
-        </div>
-        
-        <div class="auth-required unauthorized hide file-settings" data-section="blossem">
-          [ +tiny "Blossem template URL"]
-          [in @in-blossem {w:100%;} .description name="blossem"]
-          [hr]
         </div>
         
         <div class="auth-required unauthorized hide file-settings" data-section="blogger">
@@ -753,6 +746,6 @@ arc7db.delete(data.appId,function(){installApp()})})}})})})
       }
     })();
   </script>
-  <script src="js/engine.js"></script>
+  <script src="js/index.js"></script>
 </body>
 </html>

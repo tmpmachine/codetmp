@@ -102,7 +102,7 @@ L = console.log;
     'require/anibar.js',
     'require/lsdb.js',
     'require/odin.js',
-    'js/renderer.js',
+    'js/preview.js',
     'js/file-manager.js',
     'js/ux.js',
     'ace/ace.js',
@@ -128,8 +128,8 @@ L = console.log;
         bundleURL.push(require(URL));
       Promise.all(bundleURL).then(() => {
         resolve();
-      }).catch( (s) => {
-        console.log(s);
+      }).catch(error => {
+        console.log(error);
         console.log('Could not load one or more required file(s).');
       });
     });

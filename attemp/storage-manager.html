@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  
+  <title>Attemp</title>
+  <link type="image/x-icon" rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII="/>
+  <meta charset="utf-8"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta content="TMPmachine HTML previewer" name="Description"/>
+  <meta content="TMPmachine HTML previewer" property="og:description"/>
+  
+</head>
+<body>
+  
+  <script> L = console.log </script>
+  <!-- service worker handler -->
+  <script>
+    if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
+      
+      navigator.serviceWorker.addEventListener('controllerchange',function() {
+        location.href = location.href;
+      });
+      
+      navigator.serviceWorker.register('/sw.js').then(function(sw) {
+        if (!navigator.serviceWorker.controller) {
+          return;
+        }
+    
+        if (sw.waiting) {
+          sw.waiting.postMessage({action: 'skipWaiting'});
+          location.href = location.href;
+          return;
+        }
+    
+        if (sw.installing) {
+          sw.installing.addEventListener('statechange', function() {
+            if (sw.installing.state == 'installed') {
+              sw.waiting.postMessage({action: 'skipWaiting'});
+              location.href = location.href;
+            }
+          })
+          return;
+        }
+        
+        sw.addEventListener('updatefound',function() {
+          sw.installing.addEventListener('statechange', function() {
+            if (this.state == 'installed') {
+              sw.waiting.postMessage({action: 'skipWaiting'});
+              location.href = location.href;
+            }
+          })
+        })
+      }).catch(function() {
+        console.error('Something went wrong.')
+      });
+    }
+  </script>
+  <script>
+
+    (function() {
+            
+      if (window.opener !== null) {
+        window.opener.postMessage({type:'preview-frame-isReady'}, '*');
+      }
+      window.addEventListener('message', messageReceiver, false);
+
+      function messageReceiver(e) {
+        if (e.data && e.data.type == 'install') {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'store',
+            html: e.data.appData.html, 
+          });
+        }
+      }
+
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.message == 'cached') {
+          window.opener.postMessage({message:'cached', url: location.origin}, '*');
+        }
+      });
+
+    })();
+
+  </script>
+  
+</body>
+</html>

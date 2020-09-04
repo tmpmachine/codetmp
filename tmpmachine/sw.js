@@ -1,18 +1,15 @@
+let cacheVersion = '1.19';
+let cacheItem = 'tmp-'+cacheVersion;
+
 self.addEventListener('message', function(e) {
   if (e.data.action == 'skipWaiting')
     self.skipWaiting();
 });
 
-
-let cacheVersion = '1.18';
-let cacheItem = 'tmp-'+cacheVersion;
-
 self.addEventListener('install', function(event) {
 
   let urls = [
     '/',
-    '/TOS.html',
-    '/PP.html',
     '/style.css',
     '/ace/theme-monokai.js',
     '/ace/theme-github.js',
@@ -45,16 +42,15 @@ self.addEventListener('install', function(event) {
 
     '/js/git.js',
     '/js/template.js',
-    '/js/renderer.js',
+    '/js/preview.js',
     '/js/ux.js',
     '/js/file-manager.js',
     '/js/drive.js',
-    '/js/engine.js',
+    '/js/index.js',
     
     '/ace/ace.js',
-    
     '/fonts/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2',
-    ];
+  ];
  
   event.waitUntil(
     caches.open(cacheItem).then(function(cache) {

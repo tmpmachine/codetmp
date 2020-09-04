@@ -2,8 +2,9 @@ let uploadBody = '';
 let locked = -1;
 let previewWindow = null;
 let PWALoadWindow = null;
-let PWAPreviewWindow = null;
+let PreviewLoadWindow = null;
 let isPWAFrameLoaded = false;
+let isPreviewFrameLoaded = false;
 
 (function() {
   
@@ -177,7 +178,7 @@ let isPWAFrameLoaded = false;
     return xml;
   }
   
-  function renderBlog(isForceDeploy) {
+  function previewHTML(isForceDeploy) {
     
     let body = replaceLocal().replace(/src-web=/g, 'src=').replace(/href-web=/g, 'href=');
     body = clearComments(body);
@@ -192,11 +193,7 @@ let isPWAFrameLoaded = false;
       return;
     }
     
-    let check = checkBlossemURL();
-    if (check.hasBlossemURL) {
-      previewWindow.postMessage({tmp:true, html: body}, '*');
-      uploadBody = body;
-    } else if ($('#in-PWA-enabled').checked) {
+    if ($('#in-PWA-enabled').checked) {
       if (!$('#PWAFrame'))
         $('#limbo-element').append(o.cel('iframe', {id:'PWAFrame',name:'PWAFrame'}));
       
@@ -235,7 +232,7 @@ let isPWAFrameLoaded = false;
           if (src192.url.length == 0)
             src192.url = location.origin+'/images/192.png';
           
-          PWALoadWindow.postMessage({type:'install',appData:{
+          PWALoadWindow.postMessage({type:'install', appData:{
             src128,
             src192,
             url: $('#in-PWA-app-url').value.trim(),
@@ -246,56 +243,70 @@ let isPWAFrameLoaded = false;
         }
       }, 100)
     } else {
-      previewWindow.postMessage({type:'reload'}, '*');
-    
-      waitRender = function () {
-        
-        if (loadingStatus != 200) {
-          setTimeout(function(){
-            if (waitRender)
-              waitRender();
-            loadingStatus = 0;
-          }, 500);
+      
+      if (!$('#PreviewFrame'))
+        $('#limbo-element').append(o.cel('iframe', {id:'PreviewFrame',name:'PreviewFrame'}));
+      
+      if (!isPreviewFrameLoaded) {
+        if (previewUrl.length > 0) {
+          previewLoadWindow = window.open(previewUrl,'PreviewFrame');
         } else {
-          uploadBody = body;
-          
-          previewWindow.postMessage({
-            type: 'template',
-            xml: body
-          }, '*');
-          waitRender = null;
+          previewLoadWindow = window.open('https://attemp.web.app/','PreviewFrame');
         }
-      };
-      waitRender();
+      }
+      
+      let waitPreviewLoad = setInterval(() => {
+        if (isPreviewFrameLoaded) {
+          previewLoadWindow.postMessage({type:'install', appData:{
+            url: 'default',
+            name: 'default',
+            html: body,
+          }}, '*');
+          clearInterval(waitPreviewLoad);
+        }
+      }, 100);
     }
   }
   
-  window.renderBlog = renderBlog;
+  window.previewHTML = previewHTML;
   
   window.addEventListener('message', function(e) {
     if (e.data.type) {
-      if (e.data.type == 'loaded') {
-        if (waitRender !== null)
-          loadingStatus = 200;
-        else
-          renderBlog();
+      switch (e.data.type) {
+      	case 'loaded':
+	        if (waitRender !== null) {
+	          loadingStatus = 200;
+	        } else {
+	          previewHTML();
+	        }
+	      	break;
+	    case 'pwa-frame-isReady':
+	        isPWAFrameLoaded = true;
+	      	break;
+	    case 'preview-frame-isReady':
+	        isPreviewFrameLoaded = true;
+	      	break;
+	    case 'pwa-app-installed':
+	        aww.pop('PWA ready!');
+	        if ($('#in-seperate-PWA-process').checked) {
+	          let a = o.cel('a', {
+	            href: e.data.url,
+	            rel: 'noreferrer',
+	            target: '_blank'
+	          })
+	          document.body.appendChild(a);
+	          a.click();
+	          document.body.removeChild(a);
+	        } else {
+	          window.open(e.data.url, 'preview');
+	        }
+	      	break;
       }
-      else if (e.data.type == 'pwa-frame-isReady')
-        isPWAFrameLoaded = true;
-      else if (e.data.type == 'pwa-app-installed') {
-        aww.pop('PWA ready!');
-        if ($('#in-seperate-PWA-process').checked) {
-          let a = o.cel('a', {
-            href: e.data.url,
-            rel: 'noreferrer',
-            target: '_blank'
-          })
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        } else {
-          PWAPreviewWindow = window.open(e.data.url, 'preview');
-        }
+    }
+
+    if (e.data.message) {
+      if (e.data.message == 'cached') {
+        window.open(e.data.url, 'preview');
       }
     }
     

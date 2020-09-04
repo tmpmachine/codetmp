@@ -1,5 +1,4 @@
-let cantLock = false;
-let debugAttempUrl = '';
+let previewUrl = 'http://localhost:5000/storage-manager.html';
 let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 
@@ -368,7 +367,7 @@ function updateUI() {
     'btn-download-file'     : function() { fileDownload() },
     'btn-menu-save'         : fileManager.save,
     '.btn-material'         : ui.toggleMenu,
-    'btn-menu-preview'      : btnPreview,
+    'btn-menu-preview'      : function() { previewHTML() },
     'btn-menu-info'         : btnInfo,
     '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
     'more-tab'              : function() { ui.switchTab(1) },
@@ -504,8 +503,6 @@ function openDevelopmentSettings(settings) {
 	
   if (settings.blogName || settings.blog)
     showFileSetting('blogger');
-  if (settings.blossem)
-    showFileSetting('blossem');
   if (settings['pwa-name'])
     showFileSetting('pwa');
 }
@@ -745,40 +742,6 @@ function btnInfo() {
     fileTab[activeTab].editor.env.editor.focus()
 }
 
-
-function checkBlossemURL() {
-  let data = (locked >= 0) ? odin.dataOf(locked, fs.data.files, 'fid') : activeFile;
-  let hasBlossemURL = false;
-  let blossemURL = '';
-  
-  if (data) {
-    let desc = JSON.parse(data.description);
-    hasBlossemURL = desc.blossem ? true : false;
-    blossemURL = desc.blossem ? desc.blossem : '';
-  }
-  
-  return { hasBlossemURL, blossemURL };
-}
-
-function previewRenderedFile() {
-  let check = checkBlossemURL();
-  if (check.hasBlossemURL) {
-    previewWindow = window.open(check.blossemURL, 'blossem');
-  } else {
-    if (debugAttempUrl.length > 0)
-      previewWindow = window.open(debugAttempUrl, 'preview');
-    else
-      previewWindow = window.open('https://attemp.web.app/', 'preview');
-  }
-}
-
-function btnPreview() {
-  if (previewWindow === null || previewWindow.window === null || previewWindow.parent === null)
-    previewRenderedFile();
-
-  renderBlog();
-}
-      
 function createBlogTemplate() {
   
   let templateName = window.prompt('Template name');
@@ -1176,15 +1139,13 @@ function btnBlogsphereLogout  () {
 function renderAndDeploySingle() {
   let tmpLocked = locked;
   locked = -1;
-  
-  renderBlog(true);
+  previewHTML(true);
   deploy();
-  
   locked = tmpLocked;
 }
 
 function renderAndDeployLocked() {
-  renderBlog(true);
+  previewHTML(true);
   deploy();
 }
  
@@ -1259,17 +1220,6 @@ function applyKeyboardListener() {
       fileRename(Number(selectedFile[0].getAttribute('data')));
   }
   
-  function renderFile() {
-    
-    if (!cantLock) {
-      let isPWA = $('#in-PWA-enabled').checked;
-      if (!isPWA && (previewWindow === null || previewWindow.window === null || previewWindow.parent === null))
-        previewRenderedFile();
-      else
-        renderBlog();
-    }
-  }
-  
   function deleteSelected() {
     if (selectedFile.length > 0) {
       if (selectedFile[0].getAttribute('data-type') === 'folder')
@@ -1336,7 +1286,7 @@ function applyKeyboardListener() {
     let textarea = document.createElement('textarea');
     textarea.style.height = '0';
     document.body.append(textarea);
-    renderBlog(true);
+    previewHTML(true);
     textarea.value = uploadBody;
     textarea.select();
     document.execCommand('copy');
@@ -1378,15 +1328,14 @@ function applyKeyboardListener() {
     'Ctrl+S': fileManager.save,
     'Alt+D': toggleTemplate,
     'Ctrl+Enter': function() {
-      if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0)
+      if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
         renameFile();
-      else
-        renderFile();
+      } else {
+        previewHTML();
+      }
     },
   }, true);
-  
 };
-
 
 function autoSync(event) {
   let isOnline = navigator.onLine ? true : false;
