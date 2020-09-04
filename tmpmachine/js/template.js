@@ -17,7 +17,7 @@ let customSnippetsCounter = 0;
 
 function downloadSnippetFile(fid) {
   return new Promise(function(resolve, reject) {
-    let f = odin.dataOf(fid, fs.data.files, 'fid');
+    let f = odin.dataOf(fid, fileStorage.data.files, 'fid');
     if (!f)
       resolve();
       
@@ -47,7 +47,7 @@ function downloadSnippetFile(fid) {
         }).then(function(media) {
           f.content = media;
           f.loaded = true;
-          fs.save();
+          fileStorage.save();
           resolve(f);
         }).catch(reject);
       });
@@ -105,7 +105,7 @@ function loadEnvironmentSettings(file) {
         }).then(function(media) {
           file.content = media;
           file.loaded = true;
-          fs.save();
+          fileStorage.save();
           resolve(file);
         }).catch(reject);
       });
@@ -136,9 +136,9 @@ function loadSnippets() {
   snippets.length -= customSnippetsCounter;
   customSnippetsCounter = 0;
   
-  for (let i=0; i<fs.data.files.length; i++) {
-    if (fs.data.files[i].parentId == -1 && fs.data.files[i].name == 'env.json' && !fs.data.files[i].trashed) {
-      loadEnvironmentSettings(fs.data.files[i]);
+  for (let i=0; i<fileStorage.data.files.length; i++) {
+    if (fileStorage.data.files[i].parentId == -1 && fileStorage.data.files[i].name == 'env.json' && !fileStorage.data.files[i].trashed) {
+      loadEnvironmentSettings(fileStorage.data.files[i]);
       break;
     }
   }

@@ -1,9 +1,40 @@
 L = console.log;
 
+const requireExternalFiles = (url) => {  
+  return new Promise((resolve, reject) => {
+    let el;
+    if (url.includes('.css')) {
+      el = document.createElement('link');
+      el.setAttribute('href', url);
+      el.setAttribute('rel', 'stylesheet');
+    } else {
+      el = document.createElement('script');
+      el.setAttribute('src', url);
+    }
+    el.onload = () => resolve(url);
+    el.onerror = () => reject(url);
+    document.head.appendChild(el);
+  });
+};
+
+function loadExternalFiles(URLs) {
+  return new Promise(resolve => {
+    let bundleURL = [];
+    for (let URL of URLs)
+      bundleURL.push(requireExternalFiles(URL));
+    Promise.all(bundleURL).then(() => {
+      resolve();
+    }).catch(error => {
+      console.log(error);
+      console.log('Could not load one or more required file(s).');
+    });
+  });
+}
+
 (function() {
   
   function loadStorageData() {
-    window.fs = new lsdb('B-THOR-fs', {
+    window.fileStorage = new lsdb('B-THOR-fs', {
       root: {
         rootId: '',
         files: [],
@@ -58,31 +89,14 @@ L = console.log;
         drive: {
           startPageToken: ''
         },
+        editor: {
+          enableEmmet: false,
+        },
         wrapMode: false,
         autoSync: true,
       }
     });
   }
-  
-  const require = (url) => {
-    
-    return new Promise((resolve, reject) => {
-      
-      let el;
-      if (url.includes('.css')) {
-        el = document.createElement('link');
-        el.setAttribute('href', url);
-        el.setAttribute('rel', 'stylesheet');
-      } else {
-        el = document.createElement('script');
-        el.setAttribute('src', url);
-      }
-      
-      el.onload = () => resolve(url);
-      el.onerror = () => reject(url);
-      document.head.appendChild(el);
-    });
-  };
   
   Promise.all([
     new Promise(resolve => {
@@ -121,30 +135,16 @@ L = console.log;
     'js/drive.js',
     ];
   
-  function loadBundle(URLs) {
-    return new Promise(resolve => {
-      let bundleURL = [];
-      for (let URL of URLs)
-        bundleURL.push(require(URL));
-      Promise.all(bundleURL).then(() => {
-        resolve();
-      }).catch(error => {
-        console.log(error);
-        console.log('Could not load one or more required file(s).');
-      });
-    });
-  }
-  
-  loadBundle(URL1).then(() => {
+  loadExternalFiles(URL1).then(() => {
     
     loadStorageData();
     ace.config.set('basePath', 'ace');
     updateUI();
     logWarningMessage();
     
-    loadBundle(URL2).then(() => {
+    loadExternalFiles(URL2).then(() => {
       
-      loadBundle(URL3).then(() => {
+      loadExternalFiles(URL3).then(() => {
         
         auth0.onready = authReady;
         auth0.onlogin = authLogin;

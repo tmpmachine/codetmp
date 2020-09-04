@@ -346,7 +346,7 @@
       ]
       [ {ov:auto}
         [
-          [ {p:4px 8px;fs:10px} "Build v1.177, Jun 28" {op:0.6;ta:right} .no-select]
+          [ {p:4px 8px;fs:10px} "Build v1.2, Sep 5" {op:0.6;ta:right} .no-select]
           [ @breadcrumbs .no-select +small +padding]
         ]
         [ @file-list +padding {dis:flex;flex-flow:wrap}]
@@ -388,6 +388,9 @@
     [h6 {fw:bold;} "Editor"]
     [p
       [in +check type="checkbox" checked oninput="ui.toggleWordWrap()" @check-word-wrap] [l for="check-word-wrap" "Word Wrap"]
+    ]
+    [p
+      [in +check type="checkbox" checked oninput="ui.toggleEmmet()" @check-emmet] [l for="check-emmet" "Emmet Support"]
     ]
     [hr]
     

@@ -2,12 +2,27 @@ let previewUrl = 'http://localhost:5000/storage-manager.html';
 let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 
+const editorManager = {
+  initEmmet: function() {
+    loadExternalFiles([
+      'ace/ext-emmet.js',
+      'ace/emmet-core/emmet.js',
+    ]).then(() => {
+      require(["ace/ace", "ace/ext/emmet"], function() {
+        for (let tab of fileTab) {
+          tab.editor.env.editor.setOption('enableEmmet', true);
+        }
+      });
+    })
+  },
+}
+
 const ui = {
   
   fm: {
     renameFolder: function() {
       
-      let folder = odin.dataOf(selectedFile[0].getAttribute('data'), fs.data.folders, 'fid');
+      let folder = odin.dataOf(selectedFile[0].getAttribute('data'), fileStorage.data.folders, 'fid');
       
       let name = getPromptInput('Folder name', folder.name);
       if (!name || name === folder.name) return;
@@ -49,7 +64,7 @@ const ui = {
       
       if (!window.confirm('Sub files & folders will also be delete. Delete anyway?')) return;
       
-      let data = odin.dataOf(selectedFile[0].getAttribute('data'), fs.data.folders, 'fid');
+      let data = odin.dataOf(selectedFile[0].getAttribute('data'), fileStorage.data.folders, 'fid');
       data.trashed = true;
       
       handleSync({
@@ -71,7 +86,7 @@ const ui = {
       if (typeof(fid) === 'undefined')
         fid = selectedFile[0].getAttribute('data');
         
-      let data = odin.dataOf(fid, fs.data.files, 'fid');
+      let data = odin.dataOf(fid, fileStorage.data.files, 'fid');
       data.trashed = true;
       
       if (activeFile && data.fid === activeFile.fid) {
@@ -80,7 +95,7 @@ const ui = {
         fileTab[activeTab].editor.addEventListener('keydown', saveListener);
       }
       
-      for (let sync of fs.data.sync) {
+      for (let sync of fileStorage.data.sync) {
         if (sync.action === 52 && sync.copyId === fid)
           sync.action = 12;
       }
@@ -187,6 +202,18 @@ const ui = {
     settings.data.wrapMode = editor.env.editor.session.getUseWrapMode();
     settings.save();
     $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
+  },
+
+  toggleEmmet: function() {
+    let isEnabled = settings.data.editor.enableEmmet;
+    $('#check-emmet').checked = isEnabled ? false : true;
+    settings.data.editor.enableEmmet = isEnabled ? false : true;
+    settings.save();
+    if (settings.data.editor.enableEmmet) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'enableEmmet', 
+      });
+    }
   },
   
   toggleAutoSync: function() {
@@ -347,6 +374,7 @@ function updateUI() {
   
   fileList();
   $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
+  $('#check-emmet').checked = settings.data.editor.enableEmmet ? true : false;
   $('#check-auto-sync').checked = settings.data.autoSync ? true : false;
 
   newTab();
@@ -377,6 +405,9 @@ function updateUI() {
   
   applyKeyboardListener();
   attachMenuLinkListener();
+  if (settings.data.editor.enableEmmet) {
+    editorManager.initEmmet();
+  }
 }
 
 function showFileSetting(section) {
@@ -537,7 +568,7 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   editor.clearSelection();
   editor.focus();
   editor.moveCursorTo(0,0);
-  
+
   editor.commands.addCommand({
     name: "movelinesup",
     bindKey: {win:"Ctrl-Shift-Up"},
@@ -617,6 +648,10 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
     $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
   })
    
+  if (settings.data.editor.enableEmmet) {
+    editor.setOption('enableEmmet', true);
+  }
+
   return editorElement;
 }
 
@@ -1270,7 +1305,7 @@ function applyKeyboardListener() {
     let stack = [];
     let parentId = activeFile.parentId;
     while (parentId != -1) {
-      folder = odin.dataOf(parentId, fs.data.folders, 'fid')
+      folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid')
       breadcrumbs.splice(1, 0, {folderId:folder.fid, title: folder.name})
       parentId = folder.parentId
     }
@@ -1340,7 +1375,7 @@ function applyKeyboardListener() {
 function autoSync(event) {
   let isOnline = navigator.onLine ? true : false;
   if (isOnline) {
-    if (fs.data.rootId !== '') {
+    if (fileStorage.data.rootId !== '') {
       drive.syncFromDrive();
       drive.syncToDrive();
     }
@@ -1377,7 +1412,7 @@ function authReady() {
   $('#btn-blogsphere-login').style.display = 'none';
   $('#btn-blogsphere-logout').style.display = 'block';
   
-  if (fs.data.rootId === '')
+  if (fileStorage.data.rootId === '')
     drive.readAppData();
   else {
     drive.syncFromDrive();

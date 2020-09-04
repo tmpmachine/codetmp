@@ -17,7 +17,7 @@ function File(data = {}) {
   let file = fs.new('files');
   
   let predefinedData = {
-    fid: fs.data.counter.files,
+    fid: fileStorage.data.counter.files,
     name: 'Untitled File',
     content: fileTab[activeTab].editor.env.editor.getValue(),
     description: fileManager.getDescription(),
@@ -36,8 +36,8 @@ function File(data = {}) {
       file[key] = data[key];
   }
   
-  fs.data.counter.files++;
-  fs.data.files.push(file);
+  fileStorage.data.counter.files++;
+  fileStorage.data.files.push(file);
   return file;
 }
 
@@ -46,7 +46,7 @@ function Folder(data = {}) {
   let file = fs.new('folders');
   
   let predefinedData = {
-    fid: fs.data.counter.folders,
+    fid: fileStorage.data.counter.folders,
     name: 'New Folder',
     parentId: activeFolder,
     modifiedTime: new Date().toISOString(),
@@ -62,9 +62,9 @@ function Folder(data = {}) {
       file[key] = data[key];
   }
   
-  fs.data.counter.folders++;
-  fs.data.folders.push(file);
-  fs.save();
+  fileStorage.data.counter.folders++;
+  fileStorage.data.folders.push(file);
+  fileStorage.save();
   return file;
 }
 
@@ -72,7 +72,7 @@ function Folder(data = {}) {
 function FileManager() {
   
   function listFolders() {
-    let folders = odin.filterData(activeFolder, fs.data.folders, 'parentId');
+    let folders = odin.filterData(activeFolder, fileStorage.data.folders, 'parentId');
     folders.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
     });
@@ -85,7 +85,7 @@ function FileManager() {
   
   function listFiles() {
     $('#file-list').appendChild(o.cel('div', { style: 'flex: 0 0 100%', class: 'w3-padding-small' }));
-    let files = odin.filterData(activeFolder, fs.data.files, 'parentId');
+    let files = odin.filterData(activeFolder, fileStorage.data.files, 'parentId');
     files.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
     });
@@ -144,7 +144,7 @@ function FileManager() {
       fileManager.sync(file.fid, 'create', 'files');
       drive.syncToDrive();
       fileManager.list();
-      fs.save();
+      fileStorage.save();
       
       let scrollTop = fileTab[activeTab].editor.env.editor.getSession().getScrollTop();
       let row = fileTab[activeTab].editor.env.editor.getCursorPosition().row;
@@ -170,7 +170,7 @@ function FileManager() {
         type: 'files'
       });
       drive.syncToDrive();
-      fs.save();
+      fileStorage.save();
       
       $('.icon-rename')[activeTab].textContent = 'close';
     }
@@ -190,7 +190,7 @@ function FileManager() {
   
   this.open = function(fid) {
     
-    let f = odin.dataOf(fid, fs.data.files, 'fid');
+    let f = odin.dataOf(fid, fileStorage.data.files, 'fid');
     activeFile = f;
     
     Promise.all([
@@ -234,7 +234,7 @@ function FileManager() {
                 
                 f.content = media;
                 f.loaded = true;
-                fs.save();
+                fileStorage.save();
                 resolve(f);
                 
               }).catch(reject);
@@ -283,14 +283,14 @@ function handleSync(sync) {
   
   if (sync.action === 'create' || sync.action === 'copy') {
     sync.metadata = [];
-    fs.data.sync.push(sync);
+    fileStorage.data.sync.push(sync);
   } else if (sync.action === 'update') {
     // Reduce request load by merging/changing sync request.
     // Do not reorder sync with type of files to prevent file being created before the folder in Google Drive.
-    fs.data.sync.push(sync);
+    fileStorage.data.sync.push(sync);
     
-    for (let i=0; i<fs.data.sync.length-1; i++) {
-      let s = fs.data.sync[i];
+    for (let i=0; i<fileStorage.data.sync.length-1; i++) {
+      let s = fileStorage.data.sync[i];
       
       if (s.fid === sync.fid && s.type == sync.type) {
         switch (s.action) {
@@ -298,7 +298,7 @@ function handleSync(sync) {
           case 'copy':
             if (!sync.metadata.includes('trashed')) {
               if (sync.type == 'files') {
-                fs.data.sync.splice(i, 1);
+                fileStorage.data.sync.splice(i, 1);
                 sync.action = s.action;
                 sync.metadata = [];
               }
@@ -312,16 +312,16 @@ function handleSync(sync) {
               if (meta === 'parents')
                 sync.source = s.source;
             }
-            if (sync.type == 'files') fs.data.sync.splice(i, 1);
+            if (sync.type == 'files') fileStorage.data.sync.splice(i, 1);
             break;
         }
         break;
       }
     }
   } else if (sync.action === 'delete') {
-    for (let i=0; i<fs.data.sync.length; i++) {
-      if (fs.data.sync[i].fid === sync.fid)
-        fs.data.sync.splice(i, 1);
+    for (let i=0; i<fileStorage.data.sync.length; i++) {
+      if (fileStorage.data.sync[i].fid === sync.fid)
+        fileStorage.data.sync.splice(i, 1);
     }
   }
 }
@@ -329,7 +329,7 @@ function handleSync(sync) {
 
 function fileRename(fid) {
   
-  let file = odin.dataOf(fid, fs.data.files, 'fid');
+  let file = odin.dataOf(fid, fileStorage.data.files, 'fid');
   
   let input = getPromptInput('Rename :', file.name);
   if (!input) return;
@@ -343,7 +343,7 @@ function fileRename(fid) {
   });
   drive.syncToDrive();
   
-  fs.save();
+  fileStorage.save();
   fileList();
   
   if (activeFile) {
@@ -366,7 +366,7 @@ function fileList() {
   var el;
   $('#file-list').innerHTML = '';
   
-  let folders = odin.filterData(activeFolder, fs.data.folders, 'parentId');
+  let folders = odin.filterData(activeFolder, fileStorage.data.folders, 'parentId');
   
   folders.sort(function(a, b) {
     return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
@@ -381,7 +381,7 @@ function fileList() {
   
   $('#file-list').appendChild(o.cel('div', {style:'flex:0 0 100%;height:16px;'}));
   
-  let files = odin.filterData(activeFolder, fs.data.files, 'parentId');
+  let files = odin.filterData(activeFolder, fileStorage.data.files, 'parentId');
   
   files.sort(function(a, b) {
     return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
@@ -425,14 +425,14 @@ function getFileAtPath(path, parentId = -1) {
     
     if (dir[0] === '..' || dir[0] === '.'  || dir[0] === '') {
       
-      folder = odin.dataOf(parentId, fs.data.folders, 'fid');
+      folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
       if (folder === undefined)
         break;
       dir.splice(0, 1);
       parentId = folder.parentId;
     } else {
       
-      let folders = odin.filterData(parentId, fs.data.folders, 'parentId');
+      let folders = odin.filterData(parentId, fileStorage.data.folders, 'parentId');
       folder = odin.dataOf(dir[0], folders, 'name');
       if (folder) {
         parentId = folder.fid;
@@ -445,14 +445,14 @@ function getFileAtPath(path, parentId = -1) {
   }
   
   let fileName = path.replace(/.+\//g,'')
-  let files = odin.filterData(parentId, fs.data.files, 'parentId');
+  let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
   let found = files.find(file => file.name == fileName);
   return found;
 }
 
 function openFile(fid) {
   
-  let f = odin.dataOf(fid, fs.data.files, 'fid');
+  let f = odin.dataOf(fid, fileStorage.data.files, 'fid');
   activeFile = f;
   
   Promise.all([
@@ -496,7 +496,7 @@ function openFile(fid) {
               
               f.content = media;
               f.loaded = true;
-              fs.save();
+              fileStorage.save();
               resolve(f);
               
             }).catch(reject)
@@ -648,7 +648,7 @@ function parseDescriptionOld(txt) {
 
   function deploy() {
     
-    let data = (locked >= 0) ? odin.dataOf(locked, fs.data.files, 'fid') : activeFile;
+    let data = (locked >= 0) ? odin.dataOf(locked, fileStorage.data.files, 'fid') : activeFile;
     let {blogName, blogId, entryId, summary = '', isBreak, isApp, isWrap, isSummaryFix} = data.description.startsWith('{') ? JSON.parse(data.description) : parseDescriptionOld(data.description);
 
     if (blogName && entryId) {
@@ -714,7 +714,7 @@ function openFolder(folderId) {
   if (activeFolder == -1) {
     breadcrumbs.splice(1);
   } else {
-    let folder = odin.dataOf(folderId, fs.data.folders, 'fid');
+    let folder = odin.dataOf(folderId, fileStorage.data.folders, 'fid');
     title = folder.name;
     breadcrumbs.push({folderId:activeFolder, title: title})
   }
@@ -730,8 +730,8 @@ function openFolder(folderId) {
     let folders = []
     
     for (let p of parents) {
-      let f = odin.filterData(p.fid, fs.data.files, 'parentId');
-      let f2 = odin.filterData(p.fid, fs.data.folders, 'parentId');
+      let f = odin.filterData(p.fid, fileStorage.data.files, 'parentId');
+      let f2 = odin.filterData(p.fid, fileStorage.data.folders, 'parentId');
       
       for (let i of f)
         files.push(i)
@@ -751,7 +751,7 @@ function openFolder(folderId) {
   
   function getAllBranch(fid) {
     let files = [];
-    let folders = odin.filterData(fid, fs.data.folders, 'fid')
+    let folders = odin.filterData(fid, fileStorage.data.folders, 'fid')
     
     let data = getBranch(folders);
     
@@ -832,7 +832,7 @@ function fileDownload() {
     
     if (fileIds.length === 0) return;
     
-    ({ id, fid, name, description, parentId, content, loaded, trashed } = odin.dataOf(fileIds[0], fs.data.files, 'fid'));
+    ({ id, fid, name, description, parentId, content, loaded, trashed } = odin.dataOf(fileIds[0], fileStorage.data.files, 'fid'));
     
     if (!trashed) {
       let idx = odin.idxOf(parentId, road, 0);
@@ -859,10 +859,10 @@ function fileDownload() {
     
     let folderId = folderIds[0];
     
-    ({ name, modifiedTime, parentId, trashed } = odin.dataOf(folderId, fs.data.folders, 'fid'));
+    ({ name, modifiedTime, parentId, trashed } = odin.dataOf(folderId, fileStorage.data.folders, 'fid'));
     
     if (!trashed) {
-      road.push([folderId, fs.data.counter.folders]);
+      road.push([folderId, fileStorage.data.counter.folders]);
       
       let idx = odin.idxOf(parentId, road, 0);
       
@@ -909,7 +909,7 @@ function fileDownload() {
       let modifiedTime = new Date().toISOString();
       
       if (type === 'file') {
-        data = odin.dataOf(fid, fs.data.files, 'fid');
+        data = odin.dataOf(fid, fileStorage.data.files, 'fid');
         if (pasteFile.mode === 'copy')
           copySingleFile(data, modifiedTime);
         else {
@@ -923,7 +923,7 @@ function fileDownload() {
           let road = copyBranchFolder(branch.folderIds, modifiedTime);
           copyBranchFile(branch.fileIds, road, modifiedTime);
         } else {
-          data = odin.dataOf(fid, fs.data.folders, 'fid');
+          data = odin.dataOf(fid, fileStorage.data.folders, 'fid');
           if (data.parentId !== activeFolder)
             fileMove(data, 'folders');
         }
@@ -934,7 +934,7 @@ function fileDownload() {
     }
     
     drive.syncToDrive();
-    fs.save();
+    fileStorage.save();
     fileList();
     
     copyParentFolderId = -2;
@@ -952,7 +952,7 @@ function trashList() {
   var el;
   $('#list-trash').innerHTML = '';
   
-  let folders = odin.filterData(true, fs.data.folders, 'trashed');
+  let folders = odin.filterData(true, fileStorage.data.folders, 'trashed');
   
   folders.sort(function(a, b) {
     return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
@@ -965,7 +965,7 @@ function trashList() {
   
   $('#list-trash').appendChild(o.cel('div', {style:'flex:0 0 100%;height:16px;'}));
   
-  let files = odin.filterData(true, fs.data.files, 'trashed');
+  let files = odin.filterData(true, fileStorage.data.files, 'trashed');
   
   files.sort(function(a, b) {
     return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;

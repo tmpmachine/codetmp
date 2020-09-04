@@ -8,9 +8,6 @@ let isPreviewFrameLoaded = false;
 
 (function() {
   
-  let loadingStatus = 0;
-  let waitRender = null;
-  
   function getDirectory(source, parentId, path) {
     
     while (source.match('//'))
@@ -23,7 +20,7 @@ let isPreviewFrameLoaded = false;
       
       if (dir[0] === '..' || dir[0] === '.'  || dir[0] === '') {
         
-        folder = odin.dataOf(parentId, fs.data.folders, 'fid');
+        folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
         if (folder === undefined) {
           acFold = -2;
           break;
@@ -33,7 +30,7 @@ let isPreviewFrameLoaded = false;
         parentId = folder.parentId;
       } else {
         
-        let folders = odin.filterData(parentId, fs.data.folders, 'parentId');
+        let folders = odin.filterData(parentId, fileStorage.data.folders, 'parentId');
         for (let f of folders) {
           if (f.name == dir[0] && !f.trashed) {
             folder = f;
@@ -71,7 +68,7 @@ let isPreviewFrameLoaded = false;
           // appendGitTree(activeFile.name, plate.cook(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
       } else {
       
-        let file = odin.dataOf(locked, fs.data.files, 'fid');
+        let file = odin.dataOf(locked, fileStorage.data.files, 'fid');
         
         let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
         if (tabIdx >= 0)
@@ -131,7 +128,7 @@ let isPreviewFrameLoaded = false;
       
       let absolutePath = JSON.parse(JSON.stringify(path));
       let parentId = getDirectory(src, relativeParent, path);
-      let files = odin.filterData(parentId, fs.data.files, 'parentId');
+      let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
       let name = src.replace(/.*?\//g,'');
       let file = odin.dataOf(name, files, 'name');
       if (file === undefined) {
@@ -270,46 +267,47 @@ let isPreviewFrameLoaded = false;
   
   window.previewHTML = previewHTML;
   
-  window.addEventListener('message', function(e) {
-    if (e.data.type) {
-      switch (e.data.type) {
-      	case 'loaded':
-	        if (waitRender !== null) {
-	          loadingStatus = 200;
-	        } else {
-	          previewHTML();
-	        }
-	      	break;
-	    case 'pwa-frame-isReady':
-	        isPWAFrameLoaded = true;
-	      	break;
-	    case 'preview-frame-isReady':
-	        isPreviewFrameLoaded = true;
-	      	break;
-	    case 'pwa-app-installed':
-	        aww.pop('PWA ready!');
-	        if ($('#in-seperate-PWA-process').checked) {
-	          let a = o.cel('a', {
-	            href: e.data.url,
-	            rel: 'noreferrer',
-	            target: '_blank'
-	          })
-	          document.body.appendChild(a);
-	          a.click();
-	          document.body.removeChild(a);
-	        } else {
-	          window.open(e.data.url, 'preview');
-	        }
-	      	break;
-      }
-    }
-
-    if (e.data.message) {
-      if (e.data.message == 'cached') {
-        window.open(e.data.url, 'preview');
-      }
-    }
-    
-  }, false);
-  
 })();
+
+window.addEventListener('message', function(e) {
+  if (e.data.type) {
+    switch (e.data.type) {
+    case 'pwa-frame-isReady':
+        isPWAFrameLoaded = true;
+        break;
+    case 'preview-frame-isReady':
+        isPreviewFrameLoaded = true;
+        break;
+    case 'pwa-app-installed':
+        aww.pop('PWA ready!');
+        if ($('#in-seperate-PWA-process').checked) {
+          let a = o.cel('a', {
+            href: e.data.url,
+            rel: 'noreferrer',
+            target: '_blank'
+          })
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } else {
+          window.open(e.data.url, 'preview');
+        }
+        break;
+    }
+  }
+
+  if (e.data.message) {
+    if (e.data.message == 'cached') {
+      window.open(e.data.url, 'preview');
+    }
+  }
+
+}, false);
+
+navigator.serviceWorker.addEventListener('message', e => {
+  if (e.data.message) {
+    if (e.data.message == 'emmet-cached') {
+      editorManager.initEmmet();
+    }
+  }
+});

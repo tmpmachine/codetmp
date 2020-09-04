@@ -1,7 +1,7 @@
 function getAvailParents() {
-  let folds = ['"'+fs.data.rootId+'"'];
+  let folds = ['"'+fileStorage.data.rootId+'"'];
   
-  fs.data.folders.map((folder) => {
+  fileStorage.data.folders.map((folder) => {
     if (folder.id.length > 0 && !folder.isSync)
       folds.push('"'+folder.id+'"');
   });
@@ -10,9 +10,9 @@ function getAvailParents() {
 }
 
 function getRegisteredParents() {
-  let folds = [fs.data.rootId];
+  let folds = [fileStorage.data.rootId];
   
-  fs.data.folders.map((folder) => {
+  fileStorage.data.folders.map((folder) => {
     if (folder.id !== '')
       folds.push(folder.id);
   });
@@ -41,7 +41,7 @@ const drive = {
         aww.pop('Successfully download required file: '+data.name);
         data.content = media;
         data.loaded = true;
-        fs.save();
+        fileStorage.save();
         
       }).catch(() => {
         
@@ -56,7 +56,7 @@ const drive = {
     if (folders.length === 0) return newBranch;
     
     let {id, name, modifiedTime, trashed, parents} = folders[0];
-    let f = odin.dataOf(id, fs.data.folders, 'id');
+    let f = odin.dataOf(id, fileStorage.data.folders, 'id');
 
     if (parents) {
       
@@ -93,7 +93,7 @@ const drive = {
     if (files.length === 0) return;
     
     let {id, name, description = '', modifiedTime, trashed, parents} = files[0];
-    let f = odin.dataOf(id, fs.data.files, 'id');
+    let f = odin.dataOf(id, fileStorage.data.files, 'id');
 
     if (parents) {
       
@@ -168,7 +168,7 @@ const drive = {
       
       drive.registerFolder(allFolders);
       drive.registerFile(allFiles);
-      fs.save();
+      fileStorage.save();
 
       if (json.nextPageToken)
         drive.listChanges(json.nextPageToken);
@@ -186,9 +186,9 @@ const drive = {
     
     if (settings.data.drive.startPageToken.length === 0) {
       
-      if (!fs.data.rootId) return;
+      if (!fileStorage.data.rootId) return;
       if (parents.length === 0) {
-        fs.save();
+        fileStorage.save();
         drive.getStartPageToken();
         return;
       }
@@ -225,11 +225,11 @@ const drive = {
         else {
           
           for (let parentId of parents) {
-            let folder = odin.dataOf(parentId.substring(1, parentId.length-1), fs.data.folders, 'id');
+            let folder = odin.dataOf(parentId.substring(1, parentId.length-1), fileStorage.data.folders, 'id');
             if (folder)
               folder.isSync = true;
           }
-          fs.save();
+          fileStorage.save();
           
           drive.syncFromDrive(newBranch);
         }
@@ -335,16 +335,16 @@ const drive = {
     });
 
   },
-  syncToDrive: function(sync = fs.data.sync[0]) {
+  syncToDrive: function(sync = fileStorage.data.sync[0]) {
     
     $('#syncing').textContent = '';
     $('#txt-sync').textContent = '';
-    if (!fs.data.rootId || !settings.data.autoSync) return;
+    if (!fileStorage.data.rootId || !settings.data.autoSync) return;
     if (sync === undefined || drive.syncToDrive.enabled) return;
     
     drive.syncToDrive.enabled = true;
-    $('#syncing').textContent = 'Sync ('+fs.data.sync.length+')';
-    $('#txt-sync').textContent = 'Sync ('+fs.data.sync.length+')';
+    $('#syncing').textContent = 'Sync ('+fileStorage.data.sync.length+')';
+    $('#txt-sync').textContent = 'Sync ('+fileStorage.data.sync.length+')';
     
     new Promise(function(resolveTokenRequest) {
         
@@ -360,13 +360,13 @@ const drive = {
       
       drive.syncFile(sync).then((json) => {
         if (json.action === 'create' || json.action === 'copy') {
-          let data = odin.dataOf(fs.data.sync[0].fid, fs.data[json.type], 'fid');
+          let data = odin.dataOf(fileStorage.data.sync[0].fid, fs.data[json.type], 'fid');
           data.id = json.id;
         }
-        fs.data.sync.splice(0, 1);
+        fileStorage.data.sync.splice(0, 1);
         drive.syncToDrive.enabled = false;
         drive.syncToDrive();
-        fs.save();
+        fileStorage.save();
   
       }).catch((error) => {
   
@@ -382,8 +382,8 @@ const drive = {
     });
   },
   initAppData: function(systemFolderId) {
-    fs.data.rootId = systemFolderId;
-    fs.save();
+    fileStorage.data.rootId = systemFolderId;
+    fileStorage.save();
     drive.syncFromDrive();
   },
   readAppData: function() {
@@ -503,15 +503,15 @@ const drive = {
   },
   getParents: function(parentId) {
     if (parentId === -1)
-      return { id: fs.data.rootId} ;
+      return { id: fileStorage.data.rootId} ;
       
-    return odin.dataOf(parentId, fs.data.folders, 'fid');
+    return odin.dataOf(parentId, fileStorage.data.folders, 'fid');
   },
   getParentId: function(id) {
-    if (id === fs.data.rootId)
+    if (id === fileStorage.data.rootId)
       return -1;
       
-    let data = odin.dataOf(id, fs.data.folders, 'id');
+    let data = odin.dataOf(id, fileStorage.data.folders, 'id');
     if (data)
       return data.fid;
     else

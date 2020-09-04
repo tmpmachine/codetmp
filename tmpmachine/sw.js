@@ -1,9 +1,21 @@
-let cacheVersion = '1.19';
+L = console.log;
+let cacheVersion = '1.2';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
-  if (e.data.action == 'skipWaiting')
+  if (e.data.action == 'skipWaiting') {
     self.skipWaiting();
+  } else if (e.data && e.data.type == 'enableEmmet') {
+  	e.waitUntil(Promise.all([
+    caches.open(cacheItem).then(function(cache) {
+      return cache.addAll([
+      	'/ace/emmet-core/emmet.js',
+      	'/ace/ext-emmet.js',
+      ]);
+    }),
+    e.source.postMessage({message:'emmet-cached'}),
+  ])); 
+  }
 });
 
 self.addEventListener('install', function(event) {
@@ -52,23 +64,24 @@ self.addEventListener('install', function(event) {
     '/fonts/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2',
   ];
  
-  event.waitUntil(
+  event.waitUntil(Promise.all([
     caches.open(cacheItem).then(function(cache) {
       return cache.addAll(urls);
-    })
-  );
-  
+    }),
+  	self.skipWaiting(),
+  ]));  
 });
 
 self.addEventListener('activate', function(e) {
-  e.waitUntil(
+  e.waitUntil(Promise.all([
     caches.keys().then(function(c) {
       c.map(function(cname) {
         if (!cname.endsWith(cacheVersion))
           caches.delete(cname);
       });
-    })
-  );
+    }),
+  	self.clients.claim(),
+  ]));
 });
 
 self.addEventListener('fetch', function(e) {
