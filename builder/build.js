@@ -681,6 +681,8 @@ const plate = {
     else
       farm = true;
   
+    meat = meat.replace(/\r/g,'')
+
     fullMeat = fullMeat ? fullMeat : meat;
     meat = grill(meat, fullMeat, attributes);
     
