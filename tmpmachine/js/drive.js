@@ -255,7 +255,7 @@ const drive = {
     let form = new FormData();
     
     if (action === 'create' || action === 'copy') {
-      ({ id, name, description, trashed, modifiedTime, parentId, content } = odin.dataOf(fid, fs.data[type], 'fid'));
+      ({ id, name, description, trashed, modifiedTime, parentId, content } = odin.dataOf(fid, fileStorage.data[type], 'fid'));
       method = 'POST';
       metaHeader = {
         modifiedTime,
@@ -274,7 +274,7 @@ const drive = {
       
     } else if (action === 'update') {
       
-      ({ id, name, description, trashed, modifiedTime, parentId, content } = odin.dataOf(fid, fs.data[type], 'fid'));
+      ({ id, name, description, trashed, modifiedTime, parentId, content } = odin.dataOf(fid, fileStorage.data[type], 'fid'));
 
       fetchUrl = drive.apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id';
       method = 'PATCH';
@@ -360,7 +360,7 @@ const drive = {
       
       drive.syncFile(sync).then((json) => {
         if (json.action === 'create' || json.action === 'copy') {
-          let data = odin.dataOf(fileStorage.data.sync[0].fid, fs.data[json.type], 'fid');
+          let data = odin.dataOf(fileStorage.data.sync[0].fid, fileStorage.data[json.type], 'fid');
           data.id = json.id;
         }
         fileStorage.data.sync.splice(0, 1);

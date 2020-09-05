@@ -1,4 +1,4 @@
-let previewUrl = 'http://localhost:5000/storage-manager.html';
+let previewUrl = 'https://attemp.web.app/storage-manager.html';
 let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 
@@ -39,7 +39,7 @@ const ui = {
       });
       drive.syncToDrive();
       
-      fs.save();
+      fileStorage.save();
       fileList();
       
       $('#btn-rename-folder').classList.toggle('w3-hide', true);
@@ -58,7 +58,7 @@ const ui = {
       fileManager.sync(folder.fid, 'create', 'folders');
       drive.syncToDrive();
       fileManager.list();
-      fs.save();
+      fileStorage.save();
     },
     deleteFolder: function() {
       
@@ -75,7 +75,7 @@ const ui = {
       });
       drive.syncToDrive();
       
-      fs.save();
+      fileStorage.save();
       fileList();
       selectedFile.splice(0, 1);
     },
@@ -108,7 +108,7 @@ const ui = {
       });
       drive.syncToDrive();
       
-      fs.save();
+      fileStorage.save();
       fileList();
       selectedFile.splice(0, 1);
       locked = -1;
@@ -973,7 +973,7 @@ function btnBlogsphereLogout  () {
   
   auth0.logout();
   auth0.auth.reset();
-  fs.reset();
+  fileStorage.reset();
   settings.reset();
   aww.pop("You've been logged out from TMPmachine.");
   

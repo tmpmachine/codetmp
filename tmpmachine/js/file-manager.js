@@ -14,7 +14,7 @@ let breadcrumbs = [{folderId:'-1',title:'My Files'}];
 
 function File(data = {}) {
   
-  let file = fs.new('files');
+  let file = fileStorage.new('files');
   
   let predefinedData = {
     fid: fileStorage.data.counter.files,
@@ -43,7 +43,7 @@ function File(data = {}) {
 
 function Folder(data = {}) {
   
-  let file = fs.new('folders');
+  let file = fileStorage.new('folders');
   
   let predefinedData = {
     fid: fileStorage.data.counter.folders,
