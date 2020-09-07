@@ -47,7 +47,7 @@ self.addEventListener('fetch', function(e) {
     e.respondWith(
       caches.match(e.request).then(function(resp) {
         if (resp) {
-          return new Response(HTMLCache, {headers:{'Content-Type': 'text/html'}});
+          return new Response(HTMLCache, {headers:{'Content-Type': 'text/html;charset=UTF-8'}});
         }
         return fetch(e.request).then(function(r) {
           return r;
