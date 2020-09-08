@@ -152,7 +152,7 @@ function loadExternalFiles(URLs) {
         auth0.config({
           portal: 'portal-8177',
           line: 'TMPmachine',
-          redirect: (location.href.includes('file:')) ? false : true,
+          redirect: (location.href.includes('file:') || location.hostname == 'localhost') ? false : true,
         });
         oblog.connect(auth0);
         loadSnippets();
