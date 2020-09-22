@@ -92,7 +92,6 @@ const ui = {
       if (activeFile && data.fid === activeFile.fid) {
         activeFile = undefined;
         $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
-        fileTab[activeTab].editor.addEventListener('keydown', saveListener);
       }
       
       for (let sync of fileStorage.data.sync) {
@@ -232,36 +231,6 @@ function getPromptInput(message, defaultValue='') {
   return input;
 }
 
-function saveListener(event, bypass = false) {
-  
-  if (!bypass) {
-    
-    let exclude = [16, 17, 18, 20, 27, 91, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 122, 123];
-    if (exclude.indexOf(event.keyCode) >= 0 ||
-    keyboard.Control && event.keyCode === 67 ||
-    keyboard.Alt && event.keyCode === 188 ||
-    keyboard.Alt && event.keyCode === 190 ||
-    keyboard.Control && event.keyCode === 82 ||
-    keyboard.Alt && event.keyCode === 13 ||
-    event.ctrlKey && event.key === 'k' ||
-    event.altKey && event.key === 'd' ||
-    event.altKey && event.key === 'w' ||
-    event.altKey && event.key === 'n' ||
-    event.altKey && event.key === 'm' ||
-    event.altKey && event.key === 'i' ||
-    event.altKey && event.key === 'l' ||
-    event.altKey && event.key === 'j' ||
-    keyboard.Control && event.keyCode === 13) return;
-  }
-  
-  if (fileTab[activeTab].editor.env.editor.isFocused()) {
-    if ($('.icon-rename').length === 0 ) return;
-    $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
-    $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
-    fileTab[activeTab].editor.env.editor.removeEventListener('keydown', saveListener);
-  }
-}
-  
 function blurNavigation() {
   $('#nav-bar').classList.toggle('hoverable');
   setTimeout(() => {
@@ -574,7 +543,6 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
     bindKey: {win:"Ctrl-Shift-Up"},
     exec: function(editor) {
       editor.moveLinesUp();
-      saveListener(null, true);
     }
   });
   editor.commands.addCommand({
@@ -582,7 +550,6 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
     bindKey: {win:"Ctrl-Shift-Down"},
     exec: function(editor) {
       editor.moveLinesDown();
-      saveListener(null, true);
     }
   });
   editor.commands.addCommand({
@@ -601,7 +568,6 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
     bindKey: {win: "Ctrl-Shift-K"},
     exec: function(editor) {
       editor.removeLines();
-      saveListener(null, true);
     }
   });
   
@@ -635,7 +601,6 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
       editor.setFontSize(fontSizeScale[defaultFontSize]);
     }
   });
-  
   editor.setValue(content)
   editor.clearSelection();
   editor.getSession().setUndoManager(new ace.UndoManager())
@@ -1384,6 +1349,11 @@ function autoSync(event) {
 }
 window.addEventListener('online', autoSync);
 
+window.addEventListener('keydown', function(e) {
+  if (e.altKey && fileTab[activeTab].editor.env.editor.isFocused()) {
+    e.preventDefault();
+  }
+ });
 window.addEventListener('copy', function(e) { copyFile(false) });
 window.addEventListener('cut', function(e) { copyFile(true) });
 window.addEventListener('paste', function(e) { pasteFile() });
