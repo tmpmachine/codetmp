@@ -132,7 +132,8 @@ let isPreviewFrameLoaded = false;
       let name = src.replace(/.*?\//g,'');
       let file = odin.dataOf(name, files, 'name');
       if (file === undefined) {
-        body = body.replace(match[0], '<b style="font-size:0.9em;">THOR unexpected: '+src+' not found.</b><br/>');
+        body = body.replace(match[0], '');
+        console.log(src+' not found');
       } else {
         if (!file.loaded) {
           aww.pop('Downloading required file : '+name);
