@@ -360,7 +360,7 @@ function updateUI() {
     'btn-new-folder'        : ui.fm.newFolder,
     'btn-new-file'          : function() { $('#btn-menu-my-files').click(); ui.openNewTab(); },
     'btn-rename-folder'     : ui.fm.renameFolder,
-    // 'btn-delete-file'       : btnDeleteFile,
+    'btn-delete-file'       : function() { ui.fm.deleteFile(activeFile.fid) },
     'btn-download-file'     : function() { fileDownload() },
     'btn-menu-save'         : fileManager.save,
     '.btn-material'         : ui.toggleMenu,
@@ -727,10 +727,6 @@ function closeTab(focus = true, comeback) {
     }
   }
   
-}
-
-function btnDeleteFile() {
-  ui.fm.deleteFile(activeFile.fid);
 }
 
 function btnInfo() {
