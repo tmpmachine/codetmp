@@ -14,5 +14,110 @@
 
   Nothing to show here. Please go to <a href="https://tmpmachine.web.app">TMPmachine</a> and write your code.
   
+  <script> L = console.log </script>
+  <!-- service worker handler -->
+  <script>
+    let isReady = false;
+    let controllerResolver = null;
+
+     if (window.opener !== null) {
+        new Promise(function(resolve) {
+          controllerResolver = resolve;
+        }).then(function() {
+          window.opener.postMessage({ message:'preview-frame-isReady' }, '*');
+        })
+      }
+
+    if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
+      
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        location.href = location.href;
+      });
+      
+      navigator.serviceWorker.register('/sw.js').then(function(sw) {
+        if (!navigator.serviceWorker.controller) {
+          return;
+        }
+        
+        controllerResolver();
+
+        if (sw.waiting) {
+          sw.waiting.postMessage({message: 'skipWaiting'});
+          location.href = location.href;
+          return;
+        }
+    
+        if (sw.installing) {
+          sw.installing.addEventListener('statechange', function() {
+            if (sw.installing.state == 'installed') {
+              sw.waiting.postMessage({message: 'skipWaiting'});
+              location.href = location.href;
+            }
+          })
+          return;
+        }
+        
+        sw.addEventListener('updatefound',function() {
+          sw.installing.addEventListener('statechange', function() {
+            if (this.state == 'installed') {
+              sw.waiting.postMessage({message: 'skipWaiting'});
+              location.href = location.href;
+            }
+          })
+        })
+      }).catch(function() {
+        console.error('Something went wrong.')
+      });
+    }
+  </script>
+  <script>
+
+    (function() {
+      
+      window.addEventListener('message', messageReceiver, false);
+      
+      function messageReceiver(e) {
+      	if (typeof(e.data) == 'undefined')
+      		return;
+
+      	switch (e.data.message) {
+      		case 'check-message-port':
+            navigator.serviceWorker.controller.postMessage({ message: 'check-message-port' });
+          break;
+          case 'init-message-port':
+	          navigator.serviceWorker.controller.postMessage({ message: 'init-message-port' }, [e.ports[0]]);
+      		break;
+      		case 'response-file':
+	          navigator.serviceWorker.controller.postMessage({
+	            message: 'response-file',
+	            mime: e.data.mime,
+	            content: e.data.content,
+	            resolverUID: e.data.resolverUID,
+	          });
+      		break;
+      	}
+      }
+
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (typeof(event.data) == 'undefined')
+          return;
+
+        switch (event.data.message) {
+          case 'port-opened':
+            window.opener.postMessage({ message: 'port-opened' }, '*');
+          break;
+          case 'port-closed':
+            window.opener.postMessage({ message: 'port-closed' }, '*');
+          break;
+          case 'message-port-opened':
+            window.opener.postMessage({ message: 'message-port-opened' }, '*');
+          break;
+        }
+      });
+
+    })();
+
+  </script>
+  
 </body>
 </html>

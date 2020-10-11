@@ -1,38 +1,159 @@
 let uploadBody = '';
 let locked = -1;
+let previewFrameResolver = null;
 let previewWindow = null;
 let PWALoadWindow = null;
+let portResolver = null;
 let PreviewLoadWindow = null;
 let isPWAFrameLoaded = false;
 let isPreviewFrameLoaded = false;
+let isPortOpened = false;
+let previewManager = new PreviewManager();
+let windows = [];
+let SPACache = [];
 
-(function() {
-  
-  function getDirectory(source, parentId, path) {
+function Preview(fid) {
+	return {
+		id: fid,
+		name: 'preview-'+fid,
+	};
+}
+
+function PreviewManager() {
+
+	this.fileResponseHandler = function (event) {
+	  let mimeType = previewManager.getMimeType(event.data.path);
+		previewLoadWindow.postMessage({
+			message: 'response-file', 
+			mime: mimeType,
+			content: previewManager.getContent(decodeURI(event.data.path), mimeType),
+			resolverUID: event.data.resolverUID,
+		},'*');
+  }
+
+	this.getContent = function(src, mimeType) {
+
+      for (let i=0; i<SPACache.length; i++) {
+        if ('/'+SPACache[i].path == src) {
+          return SPACache[i].content; 
+        }
+      }
+
+      let preParent;
+      if (locked >=0) {
+        let file = odin.dataOf(locked, fileStorage.data.files, 'fid');
+        preParent = file.parentId;
+      } else {
+	     preParent = activeFolder;
+      }
+
+      let relativeParent = preParent;
+      path = ['root'];
+
+      if (src == '/untitled.html') {
+      	return plate.cook(fileTab[activeTab].editor.env.editor.getValue());
+      }
+
+      let parentId = previewManager.getDirectory(src, relativeParent, path);
+      let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
+      let name = src.replace(/.*?\//g,'');
+      let file = odin.dataOf(name, files, 'name');
+      let content;
+
+      if (file === undefined) {
+      	content = '<404/>';
+      } else {
+        if (typeof(file.loaded) != 'undefined' && !file.loaded) {
+          aww.pop('Downloading required file : '+name);
+          drive.downloadDependencies(file);
+	      content = '<404/>';
+        } else {
+
+	        let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
+	        if (tabIdx >= 0)
+	          content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
+	        else
+	          content = file.content;
+        }
+      }
+
+      if ($('#chk-render-plate-html').checked && mimeType.includes('text/html')) {
+      	content = plate.cook(content);
+      }
+
+      return content
+  }
+
+
+	this.getMimeType = function(path) {
+  	let ext = path.split('.').reverse().slice(0,1)[0].toLowerCase();
+  	let mimeType = 'text/html';
+  	let charset = ';charset=UTF-8';
+  	switch(ext) {
+		case 'js':
+			mimeType = 'application/javascript';
+			break;
+		case 'css':
+			mimeType = 'text/css';
+			break;
+		case 'json':
+			mimeType = 'application/json';
+			break;
+  	}
+  	return mimeType+charset;
+  }
+
+  this.getFrameName = function() {
+  	let file = activeFile;
+    if (locked < 0 && typeof(file) == 'undefined') {
+  		return 'preview';
+  	}
+
+    if (locked >= 0) {
+      file = odin.dataOf(locked, fileStorage.data.files, 'fid');
+    }
+
+  	for (let frame of windows) {
+  		if (frame.id == file.fid) {
+  			return frame.name;
+  		}
+  	}
+
+  	let preview = new Preview(file.fid);
+  	windows.push(preview);
+
+  	return preview.name;
+  }
+
+  this.getDirectory = function(source, parentId, path) {
     
-    while (source.match('//'))
+    while (source.match('//')) {
       source = source.replace('//','/');
+    }
     
-    let dir = source.split('/');
+    let dir = source.split('/').reverse();
     let folder;
     
     while (dir.length > 1) {
       
-      if (dir[0] === '..' || dir[0] === '.'  || dir[0] === '') {
+  	  let dirName = dir.pop();
+
+
+      if (dirName === '') {
+      	parentId = -1;
+      } else if (dirName === '..' || dirName === '.') {
         
         folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
         if (folder === undefined) {
-          acFold = -2;
           break;
         }
-        dir.splice(0, 1);
         path.pop();
         parentId = folder.parentId;
       } else {
         
         let folders = odin.filterData(parentId, fileStorage.data.folders, 'parentId');
         for (let f of folders) {
-          if (f.name == dir[0] && !f.trashed) {
+          if (f.name == dirName && !f.trashed) {
             folder = f;
             break;
           }
@@ -40,7 +161,6 @@ let isPreviewFrameLoaded = false;
         if (folder) {
           parentId = folder.fid;
           path.push(folder.name);
-          dir.splice(0, 1);
         } else {
           parentId = -2;
           break;
@@ -50,11 +170,45 @@ let isPreviewFrameLoaded = false;
     
     return parentId;
   }
+
+  this.getPath = function() {
+
+    let file;
+
+    if (locked >= 0) {    
+      file = odin.dataOf(locked, fileStorage.data.files, 'fid');
+    } else {
+      if (typeof(activeFile) != 'undefined') {
+        file = activeFile;
+      }
+    }
+
+  	if (typeof(file) == 'undefined') {
+  		return 'untitled.html';
+  	}
+
+  	let path = [file.name];
+  	let parentId = file.parentId;
+  	
+    while (parentId >= 0) {
+  		let folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
+  		path.push(folder.name);
+  		parentId = parseInt(folder.parentId);
+  	}
+    L(path)
+  	return path.reverse().join('/');
+
+  }
+
+  return this;
+}
+
+(function() {
   
   function getMatch(content) {
     return content.match(/<file include=.*?><\/file>|<template include=.*?><\/template>|<script .*?src=.*?><\/script>|<link .*?href=.*?>/);
   }
-  
+
   function replaceLocal(body, preParent = -1, path = ['root']) {
 
     if (body === undefined) {
@@ -127,7 +281,7 @@ let isPreviewFrameLoaded = false;
       }
       
       let absolutePath = JSON.parse(JSON.stringify(path));
-      let parentId = getDirectory(src, relativeParent, path);
+      let parentId = previewManager.getDirectory(src, relativeParent, path);
       let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
       let name = src.replace(/.*?\//g,'');
       let file = odin.dataOf(name, files, 'name');
@@ -175,24 +329,39 @@ let isPreviewFrameLoaded = false;
     xml = xml.replace(new RegExp('<!--_(.|\n)*?-->','g'),'');
     return xml;
   }
-  
-  function previewHTML(isForceDeploy) {
-    
-    let body = replaceLocal().replace(/src-web=/g, 'src=').replace(/href-web=/g, 'href=');
-    body = clearComments(body);
-    
-    if ($('#chk-render-plate-html').checked)
-      body = (typeof(plate) != 'undefined') ? plate.cook(body) : body;
-    
-    appendGitTree('index.html', body);
-    
-    if (isForceDeploy) {
-      uploadBody = body;
-      return;
+
+  function getHTML(body, preParent = -1, path = ['root']) {
+
+    if (body === undefined) {
+      gitTree.length = 0;
+      if (locked === -1 || (activeFile && locked === activeFile.fid)) {
+      
+        body = fileTab[activeTab].editor.env.editor.getValue();
+        
+        preParent = activeFile ? activeFile.parentId : activeFolder;
+        // if (activeFile)
+          // appendGitTree(activeFile.name, plate.cook(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
+      } else {
+      
+        let file = odin.dataOf(locked, fileStorage.data.files, 'fid');
+        
+        let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
+        if (tabIdx >= 0)
+          body = fileTab[tabIdx].editor.env.editor.getValue();
+        else
+          body = file.content;
+        
+        preParent = file.parentId;
+        // appendGitTree(file.name, plate.cook(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
+      }
+      
     }
     
-    if ($('#in-PWA-enabled').checked) {
-      if (!$('#PWAFrame'))
+    return body;
+  }
+
+  function previewPWA(body) {
+  	if (!$('#PWAFrame'))
         $('#limbo-element').append(o.cel('iframe', {id:'PWAFrame',name:'PWAFrame'}));
       
       if (!isPWAFrameLoaded) {
@@ -229,7 +398,6 @@ let isPreviewFrameLoaded = false;
             src192.type = 'image/png';
           if (src192.url.length == 0)
             src192.url = location.origin+'/images/192.png';
-          
           PWALoadWindow.postMessage({type:'install', appData:{
             src128,
             src192,
@@ -240,29 +408,82 @@ let isPreviewFrameLoaded = false;
           clearInterval(waitFirstLoad);
         }
       }, 100)
-    } else {
-      
-      if (!$('#PreviewFrame'))
-        $('#limbo-element').append(o.cel('iframe', {id:'PreviewFrame',name:'PreviewFrame'}));
-      
-      if (!isPreviewFrameLoaded) {
-        if (previewUrl.length > 0) {
-          previewLoadWindow = window.open(previewUrl,'PreviewFrame');
-        } else {
-          previewLoadWindow = window.open('https://attemp.web.app/','PreviewFrame');
-        }
+  }
+
+  function previewWeb(filePath) {
+	  new Promise(function(resolve) {
+	  	if (isPreviewFrameLoaded) 
+	  		resolve();
+	  	else {
+	  		previewFrameResolver = resolve;
+	  	}
+	  })
+	  .then(() => {
+	  	  let messageChannel = new MessageChannel();
+		    messageChannel.port1.onmessage = previewManager.fileResponseHandler;
+
+	      previewLoadWindow.postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
+	      new Promise(function(resolve) {
+      		portResolver = resolve;
+	      }).then(() => {
+		      	window.open(previewUrl+filePath, previewManager.getFrameName());
+	      })
+	  });
+
+	  if (!isPreviewFrameLoaded) {
+	    if (previewUrl.length > 0) {
+	      previewLoadWindow = window.open(previewUrl, 'PreviewFrame');
+	    } else {
+	      previewLoadWindow = window.open('https://attemp.web.app/','PreviewFrame');
+	    }
+	  }
+  }
+  
+  function cacheContent(filePath, isForceDeploy) {
+    let content = replaceLocal().replace(/src-web=/g, 'src=').replace(/href-web=/g, 'href=');
+    if ($('#chk-render-plate-html').checked) {
+      content = (typeof(plate) != 'undefined') ? plate.cook(content) : content;
+    }
+
+    content = clearComments(content);
+
+    if (isForceDeploy) {
+      uploadBody = content;
+      return;
+    }
+
+    let isFound = false;
+    for (let i=0; i<SPACache.length; i++) {
+      if (SPACache[i].path == filePath) {
+        isFound = true;
+        SPACache[i].content = content;
+        break;
       }
-      
-      let waitPreviewLoad = setInterval(() => {
-        if (isPreviewFrameLoaded) {
-          previewLoadWindow.postMessage({type:'install', appData:{
-            url: 'default',
-            name: 'default',
-            html: body,
-          }}, '*');
-          clearInterval(waitPreviewLoad);
-        }
-      }, 100);
+    }
+    if (!isFound) {
+      SPACache.push({
+        path: filePath,
+        content: content,
+      });
+    }
+  }
+
+  function previewHTML(isForceDeploy) {
+    
+    // appendGitTree('index.html', body);
+
+    let isPWA = $('#in-PWA-enabled').checked;
+    let isSPA = $('#in-SPA-mode').checked;
+
+    if (isPWA) {
+      previewPWA();
+      // previewPWA(body);
+    } else {
+      let filePath = previewManager.getPath();
+      if (isSPA) {
+        cacheContent(filePath, isForceDeploy);
+      }
+      previewWeb(filePath);
     }
   }
   
@@ -271,13 +492,25 @@ let isPreviewFrameLoaded = false;
 })();
 
 window.addEventListener('message', function(e) {
-  if (e.data.type) {
-    switch (e.data.type) {
+  if (e.data.message) {
+    switch (e.data.message) {
+    case 'port-opened':
+	    isPortOpened = true;
+	    portResolver();
+    break;
+    case 'port-closed':
+	    isPortOpened = false;
+    	portResolver();
+    break;
+    case 'message-port-opened':
+    	portResolver();
+    break;
     case 'pwa-frame-isReady':
         isPWAFrameLoaded = true;
         break;
     case 'preview-frame-isReady':
         isPreviewFrameLoaded = true;
+        previewFrameResolver();
         break;
     case 'pwa-app-installed':
         aww.pop('PWA ready!');
@@ -294,12 +527,6 @@ window.addEventListener('message', function(e) {
           window.open(e.data.url, 'preview');
         }
         break;
-    }
-  }
-
-  if (e.data.message) {
-    if (e.data.message == 'cached') {
-      window.open(e.data.url, 'preview');
     }
   }
 

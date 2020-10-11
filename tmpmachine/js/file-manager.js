@@ -27,8 +27,9 @@ function File(data = {}) {
   };
   
   for (let key in predefinedData) {
-    if (file.hasOwnProperty(key))
+    if (file.hasOwnProperty(key)) {
       file[key] = predefinedData[key];
+    }
   }
   
   for (let key in data) {

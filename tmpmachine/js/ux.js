@@ -1,4 +1,5 @@
-let previewUrl = 'https://attemp.web.app/storage-manager.html';
+let previewUrl = 'http://127.0.0.1:8887/';
+// let previewUrl = 'http://localhost:5000/';
 let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 
@@ -371,12 +372,16 @@ function updateUI() {
     'btn-blogsphere-login'  : function() { auth0.login() },
     'btn-refresh-sync'      : function() { drive.syncFromDrive() },
   });
-  
+  initPreviewFrame();
   applyKeyboardListener();
   attachMenuLinkListener();
   if (settings.data.editor.enableEmmet) {
     editorManager.initEmmet();
   }
+}
+
+function initPreviewFrame() {
+  $('#limbo-element').append(o.cel('iframe', {id:'PreviewFrame', name:'PreviewFrame'}));
 }
 
 function showFileSetting(section) {

@@ -1,24 +1,44 @@
 L = console.log;
-let HTMLCache = '';
-let cacheVersion = '1.0364';
+let cacheVersion = '1.037';
 let cacheItem = 'attemp-'+cacheVersion;
+let messagePort;
+let resolverQueue = {};
+let uid = 0;
 
 self.addEventListener('message', function(e) {
-  if (e.data && e.data.action == 'skipWaiting') {
-    self.skipWaiting();
-  } else if (e.data && e.data.type == 'store') {
-    HTMLCache = e.data.html;
-    caches.open(cacheItem).then(function(cache) {
-      return cache.addAll(['/']);
-    });
-    
-    e.source.postMessage({message:'cached'});
+  if (typeof(e.data) == 'undefined')
+      return;
+
+  switch (e.data.message) {
+    case 'skipWaiting':
+      self.skipWaiting();
+    break;
+    case 'check-message-port':
+      if (messagePort) {
+        e.source.postMessage({ message: 'port-opened' });
+      } else {
+        e.source.postMessage({ message: 'port-closed' });
+      }
+    break;
+    case 'init-message-port':
+      messagePort = e.ports[0];
+      e.source.postMessage({ message: 'message-port-opened' });
+    break;
+    case 'response-file':
+      let response;
+      if (e.data.content == '<404/>') {
+        response = new Response('Not found', {status: 404, statusText: 'not found'});
+      } else {
+        response = new Response(e.data.content, {headers:{'Content-Type': e.data.mime}});
+      }
+      resolverQueue['R'+e.data.resolverUID](response);
+    break;
   }
 });
 
 self.addEventListener('install', function(event) {
   let urls = [
-    '/storage-manager.html',
+    '/',
   ];
  
   event.waitUntil(Promise.all([
@@ -41,13 +61,32 @@ self.addEventListener('activate', function(e) {
   ]));
 });
 
+function responseBySearch(e, resolve) {
+  if (messagePort) {
+    messagePort.postMessage({ 
+      path: e.request.url.replace(location.origin, ''),
+      resolverUID: uid,  
+    });
+    resolverQueue['R'+uid] = resolve;
+    uid++;
+  } else {
+    resolve(new Response('Not found.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
+  }
+}
+
+function responseByFetch(e, resolve) {
+  fetch(e.request).then(function(r) {
+    resolve(r);
+  });
+}
+
 self.addEventListener('fetch', function(e) {
 
   if (e.request.url == location.origin+'/') {
     e.respondWith(
       caches.match(e.request).then(function(resp) {
         if (resp) {
-          return new Response(HTMLCache, {headers:{'Content-Type': 'text/html;charset=UTF-8'}});
+          return resp;
         }
         return fetch(e.request).then(function(r) {
           return r;
@@ -56,16 +95,29 @@ self.addEventListener('fetch', function(e) {
         });
       })
     );
+
   } else {
+
     e.respondWith(
-      caches.match(e.request).then(function(resp) {
-        if (resp) return resp;
-        return fetch(e.request).then(function(r) {
-          return r;
-        }).catch(function() {
-          console.error('Check connection.');
+
+      new Promise(function request(resolve) {
+
+        caches.match(e.request).then(function(resp) {
+
+          if (resp) resolve(resp);
+
+          if (e.request.url.includes(location.origin)) {
+            responseBySearch(e, resolve);
+          } else {
+            responseByFetch(e, resolve);
+          }
+
         });
+
+      }).then((respomse) => {
+        return respomse;
       })
+
     );
   }
 });
