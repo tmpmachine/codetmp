@@ -1,4 +1,4 @@
-let previewUrl = 'http://attemp.web.app/';
+let previewUrl = 'https://attemp.web.app/';
 let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 
