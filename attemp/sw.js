@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '1.037';
+let cacheVersion = '1.04';
 let cacheItem = 'attemp-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};

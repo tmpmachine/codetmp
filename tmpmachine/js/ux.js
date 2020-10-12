@@ -1,5 +1,4 @@
-let previewUrl = 'http://127.0.0.1:8887/';
-// let previewUrl = 'http://localhost:5000/';
+let previewUrl = 'http://attemp.web.app/';
 let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 
