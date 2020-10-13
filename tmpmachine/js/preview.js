@@ -11,6 +11,7 @@ let isPortOpened = false;
 let previewManager = new PreviewManager();
 let windows = [];
 let SPACache = [];
+let isPreviewSPA = false;
 
 function Preview(fid) {
 	return {
@@ -33,9 +34,11 @@ function PreviewManager() {
 
 	this.getContent = function(src, mimeType) {
 
-      for (let i=0; i<SPACache.length; i++) {
-        if ('/'+SPACache[i].path == src) {
-          return SPACache[i].content; 
+      if (isPreviewSPA) {
+        for (let i=0; i<SPACache.length; i++) {
+          if ('/'+SPACache[i].path == src) {
+            return SPACache[i].content; 
+          }
         }
       }
 
@@ -468,12 +471,21 @@ function PreviewManager() {
     }
   }
 
+  function getSPA() {
+    if (locked > 0) {
+      let file = odin.dataOf(locked, fileStorage.data.files, 'fid');
+      return JSON.parse(file.description)['spa-preview'];
+    }
+    return $('#in-SPA-mode').checked;
+  }
+
   function previewHTML(isForceDeploy) {
     
     // appendGitTree('index.html', body);
 
     let isPWA = $('#in-PWA-enabled').checked;
-    let isSPA = $('#in-SPA-mode').checked;
+    let isSPA = getSPA();
+    isPreviewSPA = isSPA;
 
     if (isPWA) {
       previewPWA();
