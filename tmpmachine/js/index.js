@@ -91,6 +91,7 @@ function loadExternalFiles(URLs) {
         },
         editor: {
           enableEmmet: false,
+          enableAutocomplete: false,
         },
         wrapMode: false,
         autoSync: true,

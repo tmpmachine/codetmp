@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '1.251';
+let cacheVersion = '1.253';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
@@ -7,14 +7,23 @@ self.addEventListener('message', function(e) {
     self.skipWaiting();
   } else if (e.data && e.data.type == 'enableEmmet') {
   	e.waitUntil(Promise.all([
-    caches.open(cacheItem).then(function(cache) {
-      return cache.addAll([
-      	'/ace/emmet-core/emmet.js',
-      	'/ace/ext-emmet.js',
-      ]);
-    }),
-    e.source.postMessage({message:'emmet-cached'}),
-  ])); 
+      caches.open(cacheItem).then(function(cache) {
+        return cache.addAll([
+        	'/ace/emmet-core/emmet.js',
+        	'/ace/ext-emmet.js',
+        ]);
+      }),
+      e.source.postMessage({message:'emmet-cached'}),
+    ])); 
+  } else if (e.data && e.data.type == 'enableAutocomplete') {
+    e.waitUntil(Promise.all([
+      caches.open(cacheItem).then(function(cache) {
+        return cache.addAll([
+          '/ace/ext-language_tools.js',
+        ]);
+      }),
+      e.source.postMessage({message:'emmet-cached'}),
+    ])); 
   }
 });
 

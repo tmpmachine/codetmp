@@ -15,6 +15,19 @@ const editorManager = {
       });
     })
   },
+  initAutocomplete: function() {
+    loadExternalFiles([
+      'ace/ext-language_tools.js',
+    ]).then(() => {
+      require(["ace/ace", "ace/ext/language_tools"], function() {
+        for (let tab of fileTab) {
+          tab.editor.env.editor.setOption('enableBasicAutocompletion', true);
+          tab.editor.env.editor.setOption('enableSnippets', true);
+          tab.editor.env.editor.setOption('enableLiveAutocompletion', true);
+        }
+      });
+    })
+  }
 }
 
 const ui = {
@@ -214,6 +227,20 @@ const ui = {
       });
     }
   },
+
+  toggleAutocomplete: function() {
+    let isEnabled = settings.data.editor.enableAutocomplete;
+    $('#check-autocomplete').checked = isEnabled ? false : true;
+    settings.data.editor.enableBasicAutocompletion = isEnabled ? false : true;
+    settings.data.editor.enableSnippets = isEnabled ? false : true;
+    settings.data.editor.enableLiveAutocompletion = isEnabled ? false : true;
+    settings.save();
+    if (settings.data.editor.enableAutocomplete) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'enableAutocomplete', 
+      });
+    }
+  },
   
   toggleAutoSync: function() {
     settings.data.autoSync = !settings.data.autoSync;
@@ -344,6 +371,7 @@ function updateUI() {
   fileList();
   $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
   $('#check-emmet').checked = settings.data.editor.enableEmmet ? true : false;
+  $('#check-autocomplete').checked = settings.data.editor.enableAutocomplete ? true : false;
   $('#check-auto-sync').checked = settings.data.autoSync ? true : false;
 
   newTab();
@@ -376,6 +404,9 @@ function updateUI() {
   attachMenuLinkListener();
   if (settings.data.editor.enableEmmet) {
     editorManager.initEmmet();
+  }
+  if (settings.data.editor.enableEmmet) {
+    editorManager.initAutocomplete();
   }
 }
 
