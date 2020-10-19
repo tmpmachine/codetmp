@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '1.253';
+let cacheVersion = '1.254';
 let cacheItem = 'tmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
@@ -22,7 +22,7 @@ self.addEventListener('message', function(e) {
           '/ace/ext-language_tools.js',
         ]);
       }),
-      e.source.postMessage({message:'emmet-cached'}),
+      e.source.postMessage({message:'language_tools-cached'}),
     ])); 
   }
 });

@@ -231,9 +231,7 @@ const ui = {
   toggleAutocomplete: function() {
     let isEnabled = settings.data.editor.enableAutocomplete;
     $('#check-autocomplete').checked = isEnabled ? false : true;
-    settings.data.editor.enableBasicAutocompletion = isEnabled ? false : true;
-    settings.data.editor.enableSnippets = isEnabled ? false : true;
-    settings.data.editor.enableLiveAutocompletion = isEnabled ? false : true;
+    settings.data.editor.enableAutocomplete = isEnabled ? false : true;
     settings.save();
     if (settings.data.editor.enableAutocomplete) {
       navigator.serviceWorker.controller.postMessage({
@@ -405,7 +403,7 @@ function updateUI() {
   if (settings.data.editor.enableEmmet) {
     editorManager.initEmmet();
   }
-  if (settings.data.editor.enableEmmet) {
+  if (settings.data.editor.enableAutocomplete) {
     editorManager.initAutocomplete();
   }
 }
@@ -650,6 +648,13 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
    
   if (settings.data.editor.enableEmmet) {
     editor.setOption('enableEmmet', true);
+  }
+  if (settings.data.editor.enableAutocomplete) {
+    editor.setOptions({
+      'enableBasicAutocompletion': true,
+      'enableSnippets': true,
+      'enableLiveAutocompletion': true,
+    });
   }
 
   return editorElement;

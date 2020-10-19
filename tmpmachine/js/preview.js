@@ -548,7 +548,7 @@ navigator.serviceWorker.addEventListener('message', e => {
   if (e.data.message) {
     if (e.data.message == 'emmet-cached') {
       editorManager.initEmmet();
-    } else if (e.data.message == 'emmet-cached') {
+    } else if (e.data.message == 'language_tools-cached') {
       editorManager.initAutocomplete();
     }
   }
