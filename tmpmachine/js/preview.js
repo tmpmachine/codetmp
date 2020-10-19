@@ -479,7 +479,7 @@ function PreviewManager() {
     return $('#in-SPA-mode').checked;
   }
 
-  function previewHTML(isForceDeploy) {
+  function previewHTML(isNoPreview = false) {
     
     // appendGitTree('index.html', body);
 
@@ -493,9 +493,11 @@ function PreviewManager() {
     } else {
       let filePath = previewManager.getPath();
       if (isSPA) {
-        cacheContent(filePath, isForceDeploy);
+        cacheContent(filePath, isNoPreview);
       }
-      previewWeb(filePath);
+      if (!isNoPreview) {
+	    previewWeb(filePath);
+      }
     }
   }
   
