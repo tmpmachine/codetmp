@@ -20,6 +20,8 @@ self.addEventListener('message', function(e) {
       caches.open(cacheItem).then(function(cache) {
         return cache.addAll([
           '/ace/ext-language_tools.js',
+          '/ace/snippets/javascript.js',
+          '/ace/snippets/html.js',
         ]);
       }),
       e.source.postMessage({message:'language_tools-cached'}),
