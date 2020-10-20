@@ -1,6 +1,6 @@
 L = console.log;
-let cacheVersion = '1.04';
-let cacheItem = 'attemp-'+cacheVersion;
+let cacheVersion = '1';
+let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
 let uid = 0;

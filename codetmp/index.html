@@ -2,7 +2,7 @@
 <html>
 <head>
   
-  <title>TMPmachine: Temporary Web App Code Editor</title>
+  <title>Codetmp</title>
   <meta charset='utf-8'/>
   <link rel="manifest" href="manifest.json"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -11,9 +11,9 @@
   <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
   <link rel="shortcut icon" sizes="16x16" type='image/x-icon' href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII=">
   
-  <meta content='PWA (Progressive Web App) code editor for single page web app development' name='Description'/>
-  <meta content='PWA (Progressive Web App) code editor for single page web app development' property='og:description'/>
-  <meta content='TMPmachine: Temporary Web App Code Editor' property='og:title'/>
+  <meta content='Temporary web app online code editor' name='Description'/>
+  <meta content='Temporary web app online code editor' property='og:description'/>
+  <meta content='Codetmp' property='og:title'/>
   <meta content='notranslate' name='google'/>
   <meta content='/images/site.png' property='og:image'/>
   
@@ -228,7 +228,7 @@
         <div class="w3-hide-small" style="height:34px;"></div>
         
   <div class="w3-padding">
-    <h3 style="font-weight:bold;">TMPmachine</h3>
+    <h3 style="font-weight:bold;">Codetmp</h3>
     <p>Static web development sandbox.</p>
     
     ---
@@ -246,7 +246,7 @@
         <u><a href="/TOS.html">Terms of service</a></u>
       </li>
       <li>
-        <u><a href="https://github.com/tmpmachine/tmpmachine">GitHub Page</a></u>
+        <u><a href="https://github.com/tmpmachine/codetmp">GitHub Page</a></u>
       </li>
     </ul>
   </div>
@@ -340,7 +340,7 @@
       <img src="/images/google/1x/btn_google_signin_dark_focus_web.png"/>
     </div>
     
-    <p class="w3-small">By using <b>TMPmachine</b>, you're considered agreed to terms and condition written on articles below :</p>
+    <p class="w3-small">By using <b>Codetmp</b>, you're considered agreed to terms and condition written on articles below :</p>
     <ul>
       <li>
          <u><a target="_blank" href="/TOS.html" style="font-weight:bold;">Terms of Service</a></u>
@@ -425,7 +425,7 @@
                     <a class="w3-padding" href="/TOS.html" target="_blank" style="display:block;">Terms of Service</a>
                   </li>
                   <li class="w3-padding menu-link" data-link='about'>
-                    About TMPmachine
+                    About Codetmp
                   </li>
                 </ul>
               </li>
@@ -755,5 +755,52 @@ arc7db.delete(data.appId,function(){installApp()})})}})})})
     })();
   </script>
   <script src="js/index.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-auth.js"></script>
+  <script>
+    let firebaseConfig = {
+      apiKey: "AIzaSyCLV-e0LmbZGOqWeA6Ua7dyBvIiuKZ8b_8",
+      authDomain: "codetmp.firebaseapp.com",
+      databaseURL: "https://codetmp.firebaseio.com",
+      projectId: "codetmp",
+      storageBucket: "codetmp.appspot.com",
+      messagingSenderId: "502466142434",
+      appId: "1:502466142434:web:20a1813b4d88bc3b167ebb"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    function logout() {
+      firebase.auth().signOut().then(function() {
+        settings.data.token = '';
+        settings.save();
+        authLogout();
+      });
+    }
+
+    firebase.auth().onAuthStateChanged(function(result) {
+      if (result === null) {
+        authLogout();
+      } else {
+        authReady();
+        loadSnippets();
+      }
+    });
+
+    firebase.auth().getRedirectResult().then(function(result) {
+      if (result.credential) {
+        settings.data.token = result.credential.accessToken;
+        settings.save();
+      }
+    });
+
+    function login() {
+      var provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope('https://www.googleapis.com/auth/blogger');
+      provider.addScope('https://www.googleapis.com/auth/userinfo.profile');
+      provider.addScope('https://www.googleapis.com/auth/drive');
+      provider.addScope('https://www.googleapis.com/auth/drive.appdata');
+      firebase.auth().signInWithRedirect(provider);
+    }
+  </script>
 </body>
 </html>

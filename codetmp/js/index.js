@@ -34,7 +34,7 @@ function loadExternalFiles(URLs) {
 (function() {
   
   function loadStorageData() {
-    window.fileStorage = new lsdb('B-THOR-fs', {
+    window.fileStorage = new lsdb('file-storage', {
       root: {
         rootId: '',
         files: [],
@@ -84,8 +84,9 @@ function loadExternalFiles(URLs) {
       },
     });
     
-    window.settings = new lsdb('TmP-settings', {
+    window.settings = new lsdb('settings', {
       root: {
+        token: '',
         drive: {
           startPageToken: ''
         },
@@ -130,7 +131,7 @@ function loadExternalFiles(URLs) {
   
   let URL3 = [
     'require/aww.js',
-    'require/auth0.js',
+    // 'require/auth0.js',
     'require/oblog.js',
     'js/git.js',
     'js/drive.js',
@@ -147,16 +148,7 @@ function loadExternalFiles(URLs) {
       
       loadExternalFiles(URL3).then(() => {
         
-        auth0.onready = authReady;
-        auth0.onlogin = authLogin;
-        auth0.onlogout = authLogout;
-        auth0.config({
-          portal: 'portal-8177',
-          line: 'TMPmachine',
-          redirect: (location.href.includes('file:') || location.hostname == 'localhost') ? false : true,
-        });
-        oblog.connect(auth0);
-        loadSnippets();
+        
       });
     });
   });

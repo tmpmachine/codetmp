@@ -1,6 +1,6 @@
 L = console.log;
-let cacheVersion = '1.255';
-let cacheItem = 'tmp-'+cacheVersion;
+let cacheVersion = '5';
+let cacheItem = 'codetmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
   if (e.data.action == 'skipWaiting') {
@@ -59,7 +59,6 @@ self.addEventListener('install', function(event) {
     '/require/lsdb.js',
     '/require/keyboard.js',
     '/require/odin.js',
-    '/require/auth0.js',
     '/require/oblog.js',
     '/require/aww.js',
 

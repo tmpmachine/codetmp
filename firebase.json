@@ -1,8 +1,8 @@
 {
   "hosting": [
     {
-      "target": "attemp",
-      "public": "attemp",
+      "target": "cpreview",
+      "public": "cpreview",
       "ignore": [
         "firebase.json",
         "**/.*",
@@ -21,8 +21,8 @@
       ]
     },
     {
-      "target": "tmpmachine",
-      "public": "tmpmachine",
+      "target": "codetmp",
+      "public": "codetmp",
       "ignore": [
         "firebase.json",
         "**/.*",

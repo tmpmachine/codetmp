@@ -1,4 +1,4 @@
-let previewUrl = 'https://attemp.web.app/';
+let previewUrl = 'https://cpreview.web.app/';
 let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 
@@ -394,7 +394,7 @@ function updateUI() {
     'btn-menu-info'         : btnInfo,
     '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
     'more-tab'              : function() { ui.switchTab(1) },
-    'btn-blogsphere-login'  : function() { auth0.login() },
+    'btn-blogsphere-login'  : function() { login() },
     'btn-refresh-sync'      : function() { drive.syncFromDrive() },
   });
   initPreviewFrame();
@@ -972,11 +972,10 @@ function btnBlogsphereLogout  () {
   $('#btn-blogsphere-login').style.display = 'block';
   $('#btn-blogsphere-logout').style.display = 'none';
   
-  auth0.logout();
-  auth0.auth.reset();
+  logout();
   fileStorage.reset();
   settings.reset();
-  aww.pop("You've been logged out from TMPmachine.");
+  aww.pop("You've been logged out from Codetmp.");
   
   fileClose();
   activeFolder = -1;
@@ -1428,9 +1427,6 @@ function authReady() {
   o.classList.toggle($('.auth-required'), ['unauthorized'], false);
   $('#txt-login-status').textContent = 'Account';
   $('#login-info').style.visibility = 'hidden';
-}
-
-function authLogin() {
   $('#btn-blogsphere-login').style.display = 'none';
   $('#btn-blogsphere-logout').style.display = 'block';
 }

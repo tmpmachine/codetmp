@@ -24,33 +24,22 @@ function downloadSnippetFile(fid) {
     if (f.loaded) {
       resolve(f);
     } else {
-      
-      new Promise(function(resolveTokenRequest) {
-        if (auth0.state(5))
-          return resolveTokenRequest();
-        else {
-          auth0.requestToken(function() {
-            return resolveTokenRequest();
-          }, true);
+      fetch('https://www.googleapis.com/drive/v3/files/' + f.id + '?alt=media', {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + settings.data.token
         }
-      }).then(function() {
-        fetch('https://www.googleapis.com/drive/v3/files/' + f.id + '?alt=media', {
-          method: 'GET',
-          headers: {
-            'Authorization': 'Bearer ' + auth0.auth.data.token
-          }
-        }).then(function(r) {
-          if (r.ok)
-            return r.text();
-          else
-            throw r;
-        }).then(function(media) {
-          f.content = media;
-          f.loaded = true;
-          fileStorage.save();
-          resolve(f);
-        }).catch(reject);
-      });
+      }).then(function(r) {
+        if (r.ok)
+          return r.text();
+        else
+          throw r;
+      }).then(function(media) {
+        f.content = media;
+        f.loaded = true;
+        fileStorage.save();
+        resolve(f);
+      }).catch(reject);
     }
   });
 }
@@ -82,19 +71,10 @@ function loadEnvironmentSettings(file) {
       resolve(file);
     } else {
       
-      new Promise(function(resolveTokenRequest) {
-        if (auth0.state(5))
-          return resolveTokenRequest();
-        else {
-          auth0.requestToken(function() {
-            return resolveTokenRequest();
-          }, true);
-        }
-      }).then(function() {
         fetch('https://www.googleapis.com/drive/v3/files/'+file.id+'?alt=media', {
           method: 'GET',
           headers: {
-            'Authorization': 'Bearer ' + auth0.auth.data.token
+            'Authorization': 'Bearer ' + settings.data.token
           }
         }).then(function(r) {
           
@@ -108,7 +88,6 @@ function loadEnvironmentSettings(file) {
           fileStorage.save();
           resolve(file);
         }).catch(reject);
-      });
     }
     
   }).then(file => {

@@ -29,7 +29,7 @@ const drive = {
       fetch(drive.apiUrl+'files/'+data.id+'?alt=media', {
         method:'GET',
         headers: {
-          'Authorization':'Bearer '+auth0.auth.data.token
+          'Authorization':'Bearer '+settings.data.token
         }
       }).then(function(r) {
         if (r.ok)
@@ -136,7 +136,7 @@ const drive = {
     fetch('https://www.googleapis.com/drive/v3/changes/startPageToken', {
       method: 'GET',
       headers: {
-        'Authorization':'Bearer '+auth0.auth.data.token
+        'Authorization':'Bearer '+settings.data.token
       }
     }).then(response => {
       return response.json();
@@ -149,7 +149,7 @@ const drive = {
     fetch('https://www.googleapis.com/drive/v3/changes?pageToken='+pageToken+'&fields=nextPageToken,newStartPageToken,changes(file(name,description,id,trashed, parents,mimeType,modifiedTime))', {
       method: 'GET',
       headers: {
-        'Authorization':'Bearer '+auth0.auth.data.token
+        'Authorization':'Bearer '+settings.data.token
       }
     }).then(response => {
       return response.json();
@@ -201,7 +201,7 @@ const drive = {
       fetch(url, {
         method:'GET',
         headers: {
-          'Authorization':'Bearer '+auth0.auth.data.token
+          'Authorization':'Bearer '+settings.data.token
         }
       }).then(function(result) {
         return result.json();
@@ -314,7 +314,7 @@ const drive = {
       method,
       body: form,
       headers: {
-        'Authorization': 'Bearer '+auth0.auth.data.token
+        'Authorization': 'Bearer '+settings.data.token
       }
     };
     
@@ -346,18 +346,6 @@ const drive = {
     $('#syncing').textContent = 'Sync ('+fileStorage.data.sync.length+')';
     $('#txt-sync').textContent = 'Sync ('+fileStorage.data.sync.length+')';
     
-    new Promise(function(resolveTokenRequest) {
-        
-      if (auth0.state(5))
-        return resolveTokenRequest();
-      else {
-        auth0.requestToken(function() {
-          return resolveTokenRequest();
-        }, true);
-      }
-      
-    }).then(function() {
-      
       drive.syncFile(sync).then((json) => {
         if (json.action === 'create' || json.action === 'copy') {
           let data = odin.dataOf(fileStorage.data.sync[0].fid, fileStorage.data[json.type], 'fid');
@@ -369,17 +357,8 @@ const drive = {
         fileStorage.save();
   
       }).catch((error) => {
-  
-        L(error);
-        L(sync);
-        drive.syncToDrive.enabled = false;
-        // $('#action-info').textContent = 'Refreshing authentication...';
-        // auth0.requestToken(() => {
-        //   drive.syncToDrive();
-        // }, true)
-  
+        drive.syncToDrive.enabled = false;  
       });
-    });
   },
   initAppData: function(systemFolderId) {
     fileStorage.data.rootId = systemFolderId;
@@ -392,7 +371,7 @@ const drive = {
     
     fetch(drive.apiUrl+'files?spaces=appDataFolder&fields=files(id)', {
       headers: {
-        'Authorization':'Bearer '+auth0.auth.data.token
+        'Authorization':'Bearer '+settings.data.token
       }
     }).then(function(r) {
       
@@ -468,7 +447,7 @@ const drive = {
         method: 'POST',
         body: form,
         headers: {
-          'Authorization': 'Bearer '+auth0.auth.data.token
+          'Authorization': 'Bearer '+settings.data.token
         }
       }
       fetch(drive.apiUrlUpload+'files?uploadType=multipart&fields=id', options).then((result) => {
@@ -483,7 +462,7 @@ const drive = {
       
       let form = new FormData();
       let metadata = {
-        name: 'TMPmachine',
+        name: 'Codetmp',
         parents: ['root'],
         mimeType: 'application/vnd.google-apps.folder',
       };
@@ -493,7 +472,7 @@ const drive = {
         method: 'POST',
         body: form,
         headers: {
-          'Authorization': 'Bearer '+auth0.auth.data.token
+          'Authorization': 'Bearer '+settings.data.token
         }
       }
       fetch(drive.apiUrlUpload+'files?uploadType=multipart&fields=id', options).then((result) => {
@@ -523,7 +502,7 @@ const drive = {
       
       fetch(drive.apiUrl+'files/'+id+param, {
         headers: {
-          'Authorization': 'Bearer '+auth0.auth.data.token
+          'Authorization': 'Bearer '+settings.data.token
         }
       }).then(function(result) {
   
@@ -548,7 +527,7 @@ const drive = {
       fetch(drive.apiUrl+'files/'+id, {
         method: 'DELETE',
         headers: {
-          Authorization: 'Bearer '+auth0.auth.data.token
+          Authorization: 'Bearer '+settings.data.token
         }
       }).then(function(result) {
   

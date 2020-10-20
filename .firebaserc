@@ -1,19 +1,12 @@
 {
-  "projects": {
-    "tmpmachine": "tmpmachine",
-    "default": "tmpmachine"
-  },
   "targets": {
-    "tmpmachine": {
+    "codetmp": {
       "hosting": {
-        "tmpmachine": [
-          "tmpmachine"
+        "cpreview": [
+          "cpreview"
         ],
-        "attemp2": [
-          "attemp2"
-        ],
-        "attemp": [
-          "attemp"
+        "codetmp": [
+          "codetmp"
         ]
       }
     }
