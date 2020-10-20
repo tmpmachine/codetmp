@@ -1,16 +1,14 @@
-# TMPmachine
-TMPmachine is all about :
-- Quick HTML, CSS, and JS sandboxing
-- Mobile friendly
-- Lightweight
-- Autosync with Google Drive
+# Codetmp
+Codetmp is all about :
+1. Quick HTML, CSS, and JS sandboxing
+2. Autosync with Google Drive / OS-like file management
+3. Lightweight
+4. Mobile friendly
 
-No code checking, no live update, run your code with keyboard combination (Ctrl + Enter). If you just want to test a few lines of code without worrying to save files locally, then TMPmachine is for you. It's not a perfect IDE for web app development but it does the job. 
-
-![TMPmachine on mobile](https://1.bp.blogspot.com/-qHzR_-01sKs/X0DndkG-apI/AAAAAAAANR8/I2kG5Ql1eoEP0P5UaAl7pCOjPQUfWu1fwCLcBGAsYHQ/s440/1.png)
+![Codetmp on mobile](https://1.bp.blogspot.com/-qHzR_-01sKs/X0DndkG-apI/AAAAAAAANR8/I2kG5Ql1eoEP0P5UaAl7pCOjPQUfWu1fwCLcBGAsYHQ/s440/1.png)
 
 ## The Mechanism
-TMPmachine is replacing all of :
+Codetmp is replacing all of :
 - `<script src="*location*"></script>` with `<script> *... code ...* </script>`
 - `<link href="*location*" rel="stylesheet"/>` with `<style> *... style ...* </style>`
 - Divless, nameless close tag HTML with HTML tags.
@@ -19,10 +17,10 @@ TMPmachine is replacing all of :
 All in all, it's just bunch of regex working behind the scene.
 
 ## Official Website
-[http://tmpmachine.web.app](http://tmpmachine.web.app)
+[http://codetmp.web.app](http://codetmp.web.app)
 
 ## Divless, nameless close tag HTML
-The main reason TMPmachine exists is that I personally hate the way HTML tag is written, especially the div tag. Here, you can :
+This feature allows you to write quickly for sandboxing activity (pron to error) :
 1. write HTML tags with minimum amount of brackets
 2. write div tag without a name
 3. nameless close tag, just don't forget the ] to close the tag
@@ -126,24 +124,16 @@ Advanced writing
 
 
 ## Contribute
-You can just grab a clone of this repo and open `tmpmachine/index.html` without local server. You will need `node.js` if you want to actually change the UI (documentation TBA).
-
-### Changing UI
-Update tmpmachine/build/index.html, then execute builder/build.js with node.
-```
-cd builder
-node build
-```
-Check tmpmachine/js/ux.js for everthing  related to UI.
+You can just grab a clone of this repo and open `codetmp/index.html` without local server.
 
 ### Google Drive Sync
-The token is obtained by tmpmachine/require/auth0.js, everything else about synchronization is on tmpmachine/js/drive.js.
+The token is obtained by codetmp/require/auth0.js, everything else about synchronization is on codetmp/js/drive.js.
 
-### Running a File
-tmpmachine/js/renderer.js, can't explain more right now.
+### Preview a File
+codetmp/js/preview.js, can't explain more right now.
 
 ### File and Folder Management
-tmpmachine/js/file-manager.js and tmpmachine/js/ux.js is probably all you care about.
+codetmp/js/file-manager.js and codetmp/js/ux.js is probably all you care about.
 
-### Code Editor shortcut or others
-See initEditor() method on tmpmachine/js/ux.js. Currently I'm using Ace, but the file size is too big and I'm thinking about implement CodeMirror on the first load.
+### Code Editor shortcut or others (Ace editor)
+See initEditor() method on codetmp/js/ux.js. Ace editor by Ajax.org Cloud9 Editor.
