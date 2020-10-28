@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '5.33';
+let cacheVersion = '6';
 let cacheItem = 'codetmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
@@ -45,6 +45,7 @@ self.addEventListener('install', function(event) {
     '/ace/worker-css.js',
     '/ace/worker-javascript.js',
     '/ace/ext-searchbox.js',
+    '/ace/ext-prompt.js',
 
     '/images/128.png',
     '/images/128ap.png',

@@ -634,6 +634,15 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
       editor.setFontSize(fontSizeScale[defaultFontSize]);
     }
   });
+  editor.commands.addCommand({
+    name: "gotoline",
+    bindKey: {win: "Ctrl-G"},
+    exec: function(editor, line) {
+      if (typeof line === "number" && !isNaN(line))
+          editor.gotoLine(line);
+      editor.prompt({ $type: "gotoLine" });
+    },
+  });
   editor.setValue(content)
   editor.clearSelection();
   editor.getSession().setUndoManager(new ace.UndoManager())
