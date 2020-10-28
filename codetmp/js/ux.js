@@ -985,6 +985,22 @@ function btnBlogsphereLogout  () {
   loadBreadCrumbs();
 }
 
+function navScrollUp() {
+  let fileContainerOffsetTop = selectedFile[0].classList.contains('folder-list') ? selectedFile[0].offsetTop : selectedFile[0].parentNode.offsetTop;
+  let scrollTop = (fileContainerOffsetTop - 8 - 64 - $('#nav-bar').offsetHeight);
+  if (scrollTop < $('#file-list').parentNode.scrollTop) {
+    $('#file-list').parentNode.scrollTop = scrollTop;
+  }
+}
+
+function navScrollDown() {
+  let fileContainerOffsetTop = selectedFile[0].classList.contains('folder-list') ? selectedFile[0].offsetTop : selectedFile[0].parentNode.offsetTop;
+  let scrollTop = (fileContainerOffsetTop + selectedFile[0].offsetHeight + 8);
+  let visibleScreenHeight = $('#file-list').parentNode.scrollTop + 64 + $('#nav-bar').offsetHeight + $('#file-list').parentNode.offsetHeight;
+  if (scrollTop > visibleScreenHeight)
+    $('#file-list').parentNode.scrollTop += scrollTop - visibleScreenHeight;
+}
+
 (function() {
   
   function forEachFolder(callback) {
@@ -1114,22 +1130,6 @@ function btnBlogsphereLogout  () {
       $('.folder-list')[0].click();
     else
       $('.file-list-clicker')[0].click();
-  }
-  
-  function navScrollUp() {
-    let fileContainerOffsetTop = selectedFile[0].classList.contains('folder-list') ? selectedFile[0].offsetTop : selectedFile[0].parentNode.offsetTop;
-    let scrollTop = (fileContainerOffsetTop - 8 - 64 - $('#nav-bar').offsetHeight);
-    if (scrollTop < $('#file-list').parentNode.scrollTop) {
-      $('#file-list').parentNode.scrollTop = scrollTop;
-    }
-  }
-  
-  function navScrollDown() {
-    let fileContainerOffsetTop = selectedFile[0].classList.contains('folder-list') ? selectedFile[0].offsetTop : selectedFile[0].parentNode.offsetTop;
-    let scrollTop = (fileContainerOffsetTop + selectedFile[0].offsetHeight + 8);
-    let visibleScreenHeight = $('#file-list').parentNode.scrollTop + 64 + $('#nav-bar').offsetHeight + $('#file-list').parentNode.offsetHeight;
-    if (scrollTop > visibleScreenHeight)
-      $('#file-list').parentNode.scrollTop += scrollTop - visibleScreenHeight;
   }
   
   function navigationHandler() {
@@ -1388,7 +1388,36 @@ window.addEventListener('keydown', function(e) {
   if (e.altKey && fileTab[activeTab].editor.env.editor.isFocused()) {
     e.preventDefault();
   }
- });
+  if (!e.ctrlKey && $('#btn-menu-my-files').classList.contains('active')) {
+    let found = false;
+    for (let el of $('.folder-list')) {
+    if (el.title.toLowerCase().startsWith(e.key)) {
+      found = true;
+      if (selectedFile[0] !== el) {
+        el.click();
+        navScrollUp();
+        navScrollDown();
+      }
+      break;
+    }
+    }
+
+    if (found)
+      return;
+
+    for (let el of $('.file-list-clicker')) {
+    if (el.title.toLowerCase().startsWith(e.key)) {
+      found = true;
+      if (selectedFile[0] !== el) {
+        el.click()
+        navScrollUp();
+        navScrollDown();
+      }
+      break;
+    }
+    }
+  }
+});
 window.addEventListener('copy', function(e) { copyFile(false) });
 window.addEventListener('cut', function(e) { copyFile(true) });
 window.addEventListener('paste', function(e) { pasteFile() });
