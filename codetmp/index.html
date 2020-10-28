@@ -751,29 +751,5 @@ arc7db.delete(data.appId,function(){installApp()})})}})})})
     })();
   </script>
   <script src="js/index.js"></script>
-  <script>
-  	function signOut() {
-	    let auth2 = gapi.auth2.getAuthInstance();
-	    auth2.signOut().then(function() {
-	      console.log('User signed out.');
-        authLogout();
-	    });
-	  }
-
-	 function renderButton() {
-      gapi.signin2.render('g-signin2', {
-        'scope': 'https://www.googleapis.com/auth/blogger https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive',
-        'width': 240,
-        'height': 50,
-        'longtitle': true,
-        'theme': 'dark',
-        'onsuccess': (googleUser) => {
-          auth2.onSignIn(googleUser);
-          authReady();
-        },
-        // 'onfailure': onFailure
-      });
-    }
-  </script>
 </body>
 </html>

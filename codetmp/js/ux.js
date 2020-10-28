@@ -1430,6 +1430,31 @@ function authLogout() {
   $('#login-info').style.visibility = 'visible';  
   $('#txt-login-status').textContent = 'Login';
   o.classList.toggle($('.auth-required'), ['unauthorized'], true);
+  fileStorage.reset();
+  settings.reset();
+}
+
+function signOut() {
+  let auth2 = gapi.auth2.getAuthInstance();
+  authLogout();
+  auth2.signOut().then(function() {
+    console.log('User signed out.');
+  });
+}
+
+function renderButton() {
+  gapi.signin2.render('g-signin2', {
+    'scope': 'https://www.googleapis.com/auth/blogger https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive',
+    'width': 240,
+    'height': 50,
+    'longtitle': true,
+    'theme': 'dark',
+    'onsuccess': (googleUser) => {
+      auth2.onSignIn(googleUser);
+      authReady();
+    },
+    // 'onfailure': onFailure
+  });
 }
 
 function lockRender(self, fid, name) {
