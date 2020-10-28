@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '5';
+let cacheVersion = '5.3';
 let cacheItem = 'codetmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
@@ -56,6 +56,7 @@ self.addEventListener('install', function(event) {
     '/require/anibar.js',
     '/require/plate.js',
     '/require/o.js',
+    '/require/auth2helper.js',
     '/require/lsdb.js',
     '/require/keyboard.js',
     '/require/odin.js',

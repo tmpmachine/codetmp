@@ -131,10 +131,14 @@ function loadExternalFiles(URLs) {
   
   let URL3 = [
     'require/aww.js',
-    // 'require/auth0.js',
     'require/oblog.js',
-    'js/git.js',
+    'require/auth2helper.js',
     'js/drive.js',
+    ];
+
+  let URL4 = [
+    'js/git.js',
+    'https://apis.google.com/js/platform.js?onload=renderButton',
     ];
   
   loadExternalFiles(URL1).then(() => {
@@ -147,7 +151,9 @@ function loadExternalFiles(URLs) {
     loadExternalFiles(URL2).then(() => {
       
       loadExternalFiles(URL3).then(() => {
+        loadExternalFiles(URL4).then(() => {
         
+        });
         
       });
     });

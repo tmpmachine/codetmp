@@ -1414,9 +1414,6 @@ window.onbeforeunload = function(e) {
 }
 
 function authReady() {
-  $('#btn-blogsphere-login').style.display = 'none';
-  $('#btn-blogsphere-logout').style.display = 'block';
-  
   if (fileStorage.data.rootId === '')
     drive.readAppData();
   else {
@@ -1427,16 +1424,10 @@ function authReady() {
   o.classList.toggle($('.auth-required'), ['unauthorized'], false);
   $('#txt-login-status').textContent = 'Account';
   $('#login-info').style.visibility = 'hidden';
-  $('#btn-blogsphere-login').style.display = 'none';
-  $('#btn-blogsphere-logout').style.display = 'block';
 }
 
 function authLogout() {
-  $('#login-info').style.visibility = 'visible';
-  
-  $('#btn-blogsphere-login').style.display = 'block';
-  $('#btn-blogsphere-logout').style.display = 'none';
-  
+  $('#login-info').style.visibility = 'visible';  
   $('#txt-login-status').textContent = 'Login';
   o.classList.toggle($('.auth-required'), ['unauthorized'], true);
 }

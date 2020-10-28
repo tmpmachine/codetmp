@@ -10,7 +10,8 @@
   <link rel="apple-touch-icon" sizes="128x128" href="images/128ap.png">
   <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
   <link rel="shortcut icon" sizes="16x16" type='image/x-icon' href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII=">
-  
+    
+  <meta name="google-signin-client_id" content="502466142434-ql9ra7vpftl8296umidm96t75rji9f0k.apps.googleusercontent.com">
   <meta content='Temporary web app online code editor' name='Description'/>
   <meta content='Temporary web app online code editor' property='og:description'/>
   <meta content='Codetmp' property='og:title'/>
@@ -332,14 +333,9 @@
       (!) Your files are stored locally in browser storage. Login to synchronize with Google Drive.
     </p>
     
-    <button id="btn-blogsphere-login" style="border:0;outline:none;width:191px;height:46px;padding:0;"></button>
-    <button id="btn-blogsphere-logout" class="w3-button w3-blue" style="display:none;">Logout</button>
-    
-    <div style="display:none;">
-      <img src="/images/google/1x/btn_google_signin_dark_pressed_web.png"/>
-      <img src="/images/google/1x/btn_google_signin_dark_focus_web.png"/>
-    </div>
-    
+    <div id="g-signin2"></div>
+    <a href="#" onclick="signOut();">Sign out</a>
+
     <p class="w3-small">By using <b>Codetmp</b>, you're considered agreed to terms and condition written on articles below :</p>
     <ul>
       <li>
@@ -698,7 +694,7 @@ arc7db.delete(data.appId,function(){installApp()})})}})})})
       }
       
       if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
-
+        return
         navigator.serviceWorker.register('/sw.js').then(function(swo) {
           
           if (!navigator.serviceWorker.controller)
@@ -755,51 +751,28 @@ arc7db.delete(data.appId,function(){installApp()})})}})})})
     })();
   </script>
   <script src="js/index.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-auth.js"></script>
   <script>
-    let firebaseConfig = {
-      apiKey: "AIzaSyCLV-e0LmbZGOqWeA6Ua7dyBvIiuKZ8b_8",
-      authDomain: "codetmp.firebaseapp.com",
-      databaseURL: "https://codetmp.firebaseio.com",
-      projectId: "codetmp",
-      storageBucket: "codetmp.appspot.com",
-      messagingSenderId: "502466142434",
-      appId: "1:502466142434:web:20a1813b4d88bc3b167ebb"
-    };
-    firebase.initializeApp(firebaseConfig);
-
-    function logout() {
-      firebase.auth().signOut().then(function() {
-        settings.data.token = '';
-        settings.save();
+  	function signOut() {
+	    let auth2 = gapi.auth2.getAuthInstance();
+	    auth2.signOut().then(function() {
+	      console.log('User signed out.');
         authLogout();
+	    });
+	  }
+
+	 function renderButton() {
+      gapi.signin2.render('g-signin2', {
+        'scope': 'https://www.googleapis.com/auth/blogger https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive',
+        'width': 240,
+        'height': 50,
+        'longtitle': true,
+        'theme': 'dark',
+        'onsuccess': (googleUser) => {
+          auth2.onSignIn(googleUser);
+          authReady();
+        },
+        // 'onfailure': onFailure
       });
-    }
-
-    firebase.auth().onAuthStateChanged(function(result) {
-      if (result === null) {
-        authLogout();
-      } else {
-        authReady();
-        loadSnippets();
-      }
-    });
-
-    firebase.auth().getRedirectResult().then(function(result) {
-      if (result.credential) {
-        settings.data.token = result.credential.accessToken;
-        settings.save();
-      }
-    });
-
-    function login() {
-      var provider = new firebase.auth.GoogleAuthProvider();
-      provider.addScope('https://www.googleapis.com/auth/blogger');
-      provider.addScope('https://www.googleapis.com/auth/userinfo.profile');
-      provider.addScope('https://www.googleapis.com/auth/drive');
-      provider.addScope('https://www.googleapis.com/auth/drive.appdata');
-      firebase.auth().signInWithRedirect(provider);
     }
   </script>
 </body>
