@@ -554,6 +554,7 @@ const drive = (function() {
     readAppData,
     syncToDrive,
     syncFromDrive,
+    downloadDependencies,
   };
 
 })();
