@@ -3,17 +3,21 @@ let snippets = [
   {pos: [-1, 1], title: 'style', snippet: '<style>\n\t\n<\/style>'},
   {pos: [-1, 1], title: 'inline script', snippet: '<script>\n\t\n<\/script>'},
   {pos: [-2, 14], title: 'template', snippet: '<template id="">\n\t\n<\/template>'},
-  {pos: [0, 19], title: 'in template', snippet: '<template include=""><\/template>'},
+  {pos: [0, 19], title: 'include template', snippet: '<template include=""><\/template>'},
   {pos: [0, 13], title: 'external script', snippet: '<script src=""><\/script>'},
   {pos: [0, 12], title: 'link', snippet: '<link href="" rel="stylesheet"/>'},
   {pos: [1, 0], title: 'meta viewport', snippet: '<meta name="viewport" content="width=device-width"/>\n'},
   {pos: [1, 0], title: 'charset', snippet: '<meta charset="utf-8"/>\n'},
-  {pos: [-1, 1], title: 'snippet template', snippet: '<template data-prefix="snippet-name" data-trim="true" data-cursor="1,0">\n\t\n<\/template>'},
-  {pos: [1, 0], title: 'querySelector()', snippet: '<script> $ = function(selector, node=document) { let nodes = node.querySelectorAll(selector); return nodes.length === 1 ? nodes[0] : nodes } </script>'},
+  {pos: [1, 0], title: 'querySelector()', snippet: "<script> $ = function(selector, node=document) { let nodes = node.querySelectorAll(selector); return selector.startsWith('#') ? nodes[0] : nodes } </script>"},
   {pos: [1, 0], title: 'console.log()', snippet: '<script> L = console.log </script>'},
   {title: 'reload snippet', callback: loadSnippets},
 ];
 let customSnippetsCounter = 0;
+let index = 0;
+for (let snippet of snippets) {
+  snippet.index = index;
+  index++;
+}
 
 function downloadSnippetFile(fid) {
   return new Promise(function(resolve, reject) {
@@ -137,57 +141,37 @@ var wgSearch = {
     var data = [];
     var extraMatch = [];
     value = value.replace(/-|,|'/g,'');
-    for (var i=0,title,matchIdx,match=1,xmatch=1,wildChar,offset,creps; i<snippets.length; i++)
-    {
+    for (var i=0,title,matchIdx,match=1,xmatch=1,wildChar,offset,creps; i<snippets.length; i++) {
       if (match > 10) break;
       titleOri = snippets[i].title;
       title = titleOri.replace(/-|,|'/g,'');
       matchIdx = title.toLowerCase().indexOf(value.toLowerCase());
-      if (matchIdx >= 0)
-      {
+      if (matchIdx >= 0) {
         offset = 0;
         wildChar = titleOri.substr(matchIdx,value.length).match(/-|,|'/g);
         if (wildChar !== null)
           offset = wildChar.length;
         title = '<b>'+titleOri.substr(0,matchIdx)+'</b>'+titleOri.substr(matchIdx,value.length+offset)+'<b>'+titleOri.substr(matchIdx+value.length+offset)+'</b>';
         
-        if (matchIdx === 0)
-        {
+        if (matchIdx === 0) {
             data.push({index:snippets[i].index,ori:titleOri.replace(/'/g,'!!!'),title:title});
             match++;
-        }
-        else
-        {
+        } else {
             extraMatch.push({index:snippets[i].index,ori:titleOri.replace(/'/g,'!!!'),title:title});
             xmatch++;
         }
       }
     }
-    if (match < 10)
-    {
-      for (var i=0; i<xmatch-1 && match<10; i++)
-      {
+    if (match < 10) {
+      for (var i=0; i<xmatch-1 && match<10; i++) {
         data.push(extraMatch[i]);
         match++;
       }
     }
     return data;
   },
-  selectHints: function(idx,event) {
+  selectHints: function() {
     var hints = $('.search-hints');
-    if (idx !== null)
-    {
-      for (var i=0; i<hints.length; i++)
-      {
-        if (i == idx)
-          hints[i].classList.toggle('selected',true);
-        else
-          hints[i].classList.toggle('selected',false);
-      }
-      this.find.idx = idx;
-    }
-    else
-    {
       switch(event.keyCode) {
         case 13:
           
@@ -233,31 +217,48 @@ var wgSearch = {
         case 39:
           return;
       }
+  },
+  highlightHints: function() {
+    let idx = this.dataset.index;
+    var hints = $('.search-hints');
+    if (idx !== null) {
+      for (var i=0; i<hints.length; i++) {
+        if (i == idx)
+          hints[i].classList.toggle('selected',true);
+        else
+          hints[i].classList.toggle('selected',false);
+      }
+      wgSearch.find.idx = idx;
     }
   },
   displayResult: function(data) {
     this.find.idx = -1;
-    
-    for (var i=0,d,html=''; i<data.length; i++)
-    {
-      d = Object.assign({},data[i]);
 
-      if (i == data.length-1)
-        html += o.creps('tmp-hints-last',d);
-      else
-        html += o.creps('tmp-hints',d);
+    $('#search-result').innerHTML = '';
+    for (let hint of data) {
+      if (index == data.length-1) {
+        let tmp = $('#tmp-hints-last').content.cloneNode(true);
+        $('.Title', tmp)[0].innerHTML = hint.title;
+        $('.Container', tmp)[0].addEventListener('mouseover', wgSearch.highlightHints);
+        $('.Container', tmp)[0].addEventListener('click', insertTemplate);
+        $('.Container', tmp)[0].dataset.index = hint.index;
+        $('#search-result').appendChild(tmp);
+      } else {
+        let tmp = $('#tmp-hints').content.cloneNode(true);
+        $('.Title', tmp)[0].innerHTML = hint.title;
+        $('.Container', tmp)[0].addEventListener('mouseover', wgSearch.highlightHints);
+        $('.Container', tmp)[0].addEventListener('click', insertTemplate);
+        $('.Container', tmp)[0].dataset.index = hint.index;
+        $('#search-result').appendChild(tmp);
+      }
     }
-    
-    $('#search-result').innerHTML = html;
   },
   find: function(v) {
     clearTimeout(this.wait);
     this.v = v;
     
-    if (this.v.trim().length < 2)
-    {
-      if (this.v.trim().length == 0)
-      {
+    if (this.v.trim().length < 2) {
+      if (this.v.trim().length == 0) {
         somefun($('#btn-somefun'),true)
       }
         
@@ -270,8 +271,7 @@ var wgSearch = {
     
     var data = wgSearch.match(this.v);
     
-    if (this.keywords.indexOf(v) < 0)
-    {
+    if (this.keywords.indexOf(v) < 0) {
       this.displayResult(data);
       this.keywords.push(v)
     }
@@ -296,8 +296,9 @@ function somefun(self, bypass) {
   }
 }
 
-function insertTemplate(index) {
-  let data = odin.dataOf(index, snippets, 'index');
+function insertTemplate() {
+  let index = this.dataset.index;
+  let data = snippets[index];
   if (data.callback) {
     data.callback();
   } else {

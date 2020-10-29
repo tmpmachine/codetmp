@@ -378,7 +378,6 @@ function updateUI() {
   window.environment = anibar('main-editor');
 
   o.listen({
-    'btn-blogsphere-logout' : btnBlogsphereLogout,
     'btn-create-template'   : createBlogTemplate,
     'btn-create-entry'      : createBlogEntry,
     'btn-create-app'        : createBlogApp,
@@ -394,7 +393,6 @@ function updateUI() {
     'btn-menu-info'         : btnInfo,
     '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
     'more-tab'              : function() { ui.switchTab(1) },
-    'btn-blogsphere-login'  : function() { login() },
     'btn-refresh-sync'      : function() { drive.syncFromDrive() },
   });
   initPreviewFrame();

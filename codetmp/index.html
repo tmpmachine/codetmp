@@ -490,7 +490,7 @@
                 </label>
               </div>
               <div class="button-tb" style="overflow:hidden;">
-                <input id="search-input" class="w3-padding-16 w3-round w3-white w3-padding" autocomplete='off' onkeydown='wgSearch.selectHints(null,event)' oninput='wgSearch.find(this.value)' placeholder='Search snippets' type='text' name='q' style="width:100%;border:0;"/>
+                <input id="search-input" class="w3-padding-16 w3-round w3-white w3-padding" autocomplete='off' onkeydown='wgSearch.selectHints()' oninput='wgSearch.find(this.value)' placeholder='Search snippets' type='text' name='q' style="width:100%;border:0;"/>
               </div>
             </div>
           </div>
@@ -504,18 +504,18 @@
   
   <template id="tmp-hints">
     <div class="w3-white">
-      <div onmouseover='wgSearch.selectHints(__index__)'>
-        <div class="search-hints" onclick="insertTemplate(__index__)" style="position:relative;">
-          <div class="w3-padding w3-block">__title__</div>
+      <div class="Container" data-index="">
+        <div class="search-hints" style="position:relative;">
+          <div class="Title w3-padding w3-block"></div>
         </div>
       </div>
     </div>
   </template>
   <template id="tmp-hints-last">
     <div class="w3-white" style="border-radius:0 0 4px 4px;overflow:hidden;">
-      <div onmouseover='wgSearch.selectHints(__index__)'>
-        <div class="search-hints last" onclick="insertTemplate(__index__)" style="position:relative;">
-          <div class="w3-padding w3-block">__title__</div>
+      <div class="Container" data-index="">
+        <div class="search-hints last"style="position:relative;">
+          <div class="Title w3-padding w3-block"></div>
         </div>
       </div>
     </div>
