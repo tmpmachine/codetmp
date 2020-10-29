@@ -29,24 +29,27 @@ const drive = (function() {
   async function downloadDependencies(data) {
     if (!data.loaded && data.id !== '') {
       await auth2.init();
-      fetch(apiUrl+'files/'+data.id+'?alt=media', {
-        method:'GET',
-        headers: {
-          'Authorization':'Bearer '+access_token
-        }
-      }).then(function(r) {
-        if (r.ok)
-          return r.text();
-        else
-          throw r.status;
-      }).then((media) => {
-        aww.pop('Successfully download required file: '+data.name);
-        data.content = media;
-        data.loaded = true;
-        fileStorage.save();
-      }).catch(() => {
-        aww.pop('Could not download required file: '+data.name);
-      });
+      return new Promise(resolve => {
+        fetch(apiUrl+'files/'+data.id+'?alt=media', {
+          method:'GET',
+          headers: {
+            'Authorization':'Bearer '+access_token
+          }
+        }).then(function(r) {
+          if (r.ok)
+            return r.text();
+          else
+            throw r.status;
+        }).then((media) => {
+          aww.pop('Successfully download required file: '+data.name);
+          data.content = media;
+          data.loaded = true;
+          fileStorage.save();
+          resolve(media);
+        }).catch(() => {
+          aww.pop('Could not download required file: '+data.name);
+        });
+      })
     }
   }
 

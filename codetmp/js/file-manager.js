@@ -194,43 +194,21 @@ function FileManager() {
     let f = odin.dataOf(fid, fileStorage.data.files, 'fid');
     activeFile = f;
     
-    Promise.all([
-      
-      (function() {
-        
-        return new Promise(function(resolve, reject) {
+    new Promise(function(resolve, reject) {
           
-          if (f.loaded) {
-            resolve(f);
-          } else {
-            
-            aww.pop('Downloading file...');
-            
-            fetch('https://www.googleapis.com/drive/v3/files/' + f.id + '?alt=media', {
-              method: 'GET',
-              headers: {
-                'Authorization': 'Bearer ' + settings.data.token
-              }
-            }).then(function(r) {
-              
-              if (r.ok)
-                return r.text();
-              else
-                throw r;
-              
-            }).then(function(media) {
-              
-              f.content = media;
-              f.loaded = true;
-              fileStorage.save();
-              resolve(f);
-              
-            }).catch(reject);
-          }
-          
-        });
-      })()
-    ]).then(function(file) {
+	  if (f.loaded) {
+	    resolve(f);
+	  } else {
+	    aww.pop('Downloading file...');
+	    drive.downloadDependencies(f).then(media => {
+	      f.content = media;
+	      f.loaded = true;
+	      fileStorage.save();
+	      resolve(f);
+	    });
+	  }
+	  
+	}).then(function(file) {
       
       if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
         closeTab(false);
@@ -254,10 +232,10 @@ function FileManager() {
       if ($('#btn-menu-my-files').classList.contains('active'))
         $('#btn-menu-my-files').click();
   
-    	if (file[0].description.startsWith('{'))
-        openDevelopmentSettings(JSON.parse(file[0].description));
+    	if (file.description.startsWith('{'))
+        openDevelopmentSettings(JSON.parse(file.description));
       else
-        openDevelopmentSettings(parseDescriptionOld(file[0].description));
+        openDevelopmentSettings(parseDescriptionOld(file.description));
     	
     }).catch(function(error) {
       L(error);
@@ -442,43 +420,20 @@ function openFile(fid) {
   let f = odin.dataOf(fid, fileStorage.data.files, 'fid');
   activeFile = f;
   
-  Promise.all([
-    
-    (function() {
-      
-      return new Promise(function(resolve, reject) {
-        
-        if (f.loaded) {
-          resolve(f)
-        } else {
-          
-          aww.pop('Downloading file...');
-          
-          fetch('https://www.googleapis.com/drive/v3/files/' + f.id + '?alt=media', {
-            method: 'GET',
-            headers: {
-              'Authorization': 'Bearer ' + settings.data.token
-            }
-          }).then(function(r) {
-            
-            if (r.ok)
-              return r.text();
-            else
-              throw r;
-            
-          }).then(function(media) {
-            
-            f.content = media;
-            f.loaded = true;
-            fileStorage.save();
-            resolve(f);
-            
-          }).catch(reject)
-        }
-        
-      });
-    })()
-  ]).then(function(file) {
+  new Promise(function(resolve, reject) {
+  if (f.loaded) {
+    resolve(f);
+  } else {
+    aww.pop('Downloading file...');
+    drive.downloadDependencies(f).then(media => {
+      f.content = media;
+      f.loaded = true;
+      fileStorage.save();
+      resolve(f);
+    });
+  }
+  
+}).then(function(file) {
     
     if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-') {
       closeTab(false);
@@ -503,10 +458,10 @@ function openFile(fid) {
     if ($('#btn-menu-my-files').classList.contains('active'))
       $('#btn-menu-my-files').click();
 
-  	if (file[0].description.startsWith('{'))
-      openDevelopmentSettings(JSON.parse(file[0].description));
+  	if (file.description.startsWith('{'))
+      openDevelopmentSettings(JSON.parse(file.description));
     else
-      openDevelopmentSettings(parseDescriptionOld(file[0].description));
+      openDevelopmentSettings(parseDescriptionOld(file.description));
   	
   }).catch(function(error) {
     
