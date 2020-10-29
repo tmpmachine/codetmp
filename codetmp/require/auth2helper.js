@@ -1,8 +1,9 @@
 (function () {
 
   let access_token = localStorage.getItem('data-token');
-  let first_issued_at = 0;
-  let expires_at = 0;
+  let expires_at = parseInt(localStorage.getItem('data-token-expires'));
+  if (expires_at === NaN)
+  	expires_at = 0
 
   function onSignIn(googleUser) {
     let authData = googleUser.getAuthResponse();
@@ -10,11 +11,11 @@
   }
 
   function storeAuthData(authData) {
-    expires_at = authData.expires_at;
-    first_issued_at = authData.first_issued_at;
     if (typeof(authData.access_token) != 'undefined') {
       access_token = authData.access_token;
+      expires_at = authData.expires_at;
       localStorage.setItem('data-token', access_token);
+      localStorage.setItem('data-token-expires', expires_at);
     }
     // send token to other component from here
     if (typeof(drive) != 'undefined') {
