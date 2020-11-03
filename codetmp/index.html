@@ -334,7 +334,6 @@
     </p>
     
     <div id="g-signin2"></div>
-    <a href="#" onclick="signOut();">Sign out</a>
 
     <p class="w3-small">By using <b>Codetmp</b>, you're considered agreed to terms and condition written on articles below :</p>
     <ul>
@@ -360,23 +359,23 @@
               <li class="w3-left w3-padding" style="position:relative;">
                 File
                 <ul style="left:0;background:#000;top:0;width:340px;padding:0;margin:0;list-style:none;display:none;position:absolute;">
-                  <li class="w3-padding menu-link" data-link='save'>
+                  <li class="w3-padding menu-link" data-callback='save'>
                     Save
                     <span class="w3-tiny w3-opacity w3-right">Ctrl + S</span>
                   </li>
-                  <li class="w3-padding menu-link" data-link='preview'>
+                  <li class="w3-padding menu-link" data-callback='preview'>
                     Preview
                     <span class="w3-tiny w3-opacity w3-right">Ctrl + Enter</span>
                   </li>
-                  <li class="w3-padding menu-link auth-required unauthorized" data-link='deploy'>
+                  <li class="w3-padding menu-link auth-required unauthorized" data-callback='deploy'>
                     Deploy to Blogger
                     <span class="w3-tiny w3-opacity w3-right">Alt + Enter</span>
                   </li>
-                  <li class="w3-padding menu-link auth-required unauthorized" data-link='deploy-single'>
+                  <li class="w3-padding menu-link auth-required unauthorized" data-callback='deploy-single'>
                     Deploy to Blogger (Active tab)
                     <span class="w3-tiny w3-opacity w3-right">Alt + Shift + Enter</span>
                   </li>
-                  <li class="w3-padding menu-link" data-link='download-rendered'>
+                  <li class="w3-padding menu-link" data-callback='download-rendered'>
                     Download File
                   </li>
                 </ul>
@@ -384,15 +383,15 @@
               <li class="w3-left w3-padding" style="position:relative;">
                 Explorer
                 <ul style="display:none;left:0;top:0;background:#000;width:200px;padding:0;margin:0;list-style:none;position:absolute;">
-                  <li class="w3-padding menu-link" data-link='my-files'>
+                  <li class="w3-padding menu-link" data-callback='my-files'>
                     My Files
                     <span class="w3-tiny w3-opacity w3-right">Alt + M</span>
                   </li>
-                  <li class="w3-padding menu-link" data-link='file info'>
+                  <li class="w3-padding menu-link" data-callback='file info'>
                     File Info
                     <span class="w3-tiny w3-opacity w3-right">Alt + I</span>
                   </li>
-                  <li class="w3-padding menu-link" data-link='trash'>
+                  <li class="w3-padding menu-link" data-callback='trash'>
                     Trash
                   </li>
                 </ul>
@@ -400,13 +399,13 @@
               <li class="w3-left w3-padding" style="position:relative;">
                 Editor
                 <ul style="display:none;left:0;top:0;background:#000;width:200px;padding:0;margin:0;list-style:none;position:absolute;">
-                  <li class="w3-padding menu-link" data-link='set-font-size'>
+                  <li class="w3-padding menu-link" data-callback='set-font-size'>
                     Set Font Size
                   </li>
-                  <li class="w3-padding menu-link" data-link='toggle-wrap-mode'>
+                  <li class="w3-padding menu-link" data-callback='toggle-wrap-mode'>
                     Toggle Wrap Mode
                   </li>
-                  <li class="w3-padding menu-link" data-link='toggle-editor-theme'>
+                  <li class="w3-padding menu-link" data-callback='toggle-editor-theme'>
                     Toggle Light Theme
                   </li>
                 </ul>
@@ -420,7 +419,7 @@
                   <li>
                     <a class="w3-padding" href="/TOS.html" target="_blank" style="display:block;">Terms of Service</a>
                   </li>
-                  <li class="w3-padding menu-link" data-link='about'>
+                  <li class="w3-padding menu-link" data-callback='about'>
                     About Codetmp
                   </li>
                 </ul>
@@ -428,8 +427,11 @@
               <li class="w3-left w3-padding" style="position:relative;">
                 My Account
                 <ul style="display:none;top:0;left:0;background:#000;width:200px;padding:0;margin:0;list-style:none;position:absolute;">
-                  <li class="w3-padding menu-link" data-link='settings'>
+                  <li class="w3-padding menu-link" data-callback='settings'>
                     Settings
+                  </li>
+                  <li class="w3-padding menu-link auth-required unauthorized" data-callback='sign-out'>
+                    Sign out
                   </li>
                 </ul>
               </li>

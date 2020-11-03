@@ -508,6 +508,12 @@ function PreviewManager() {
 window.addEventListener('message', function(e) {
   if (e.data.message) {
     switch (e.data.message) {
+	case 'html-snippet':
+      let editor = fileTab[0].editor.env.editor;
+      editor.setValue(e.data.html);
+      editor.clearSelection();
+      editor.moveCursorTo(0,0);
+    break;
     case 'port-opened':
 	    isPortOpened = true;
 	    portResolver();

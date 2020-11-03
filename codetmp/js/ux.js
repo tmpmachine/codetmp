@@ -265,42 +265,42 @@ function blurNavigation() {
 
 function attachMenuLinkListener() {
   
-  for (let link of $('.menu-link')) {
-    
-    switch (link.dataset.link) {
+  for (let menu of $('.menu-link')) {
+    let callback;
+    switch (menu.dataset.callback) {
       case 'save':
       case 'preview':
-        link.onclick = () => {
-          $('#btn-menu-' + link.dataset.link).click();
+        callback = function() {
+          $('#btn-menu-' + menu.dataset.callback).click();
           blurNavigation()
         };
       break;
       case 'deploy':
-        link.onclick = () => {
+        callback = function() {
           renderAndDeployLocked();
           blurNavigation()
         };
       break;
       case 'download-rendered':
-        link.onclick = () => {
+        callback = function() {
           fileDownload();
           blurNavigation()
         };
       break;
       case 'deploy-single':
-        link.onclick = () => {
+        callback = function() {
           renderAndDeploySingle();
           blurNavigation()
         };
       break;
       case 'my-files':
-        link.onclick = () => {
+        callback = function() {
           $('#btn-menu-my-files').click();
           blurNavigation()
         };
       break;
       case 'file info':
-        link.onclick = () => {
+        callback = function() {
           
           setTimeout(function() {
             let isOpened = environment.toggle();
@@ -314,17 +314,17 @@ function attachMenuLinkListener() {
         };
       break;
       case 'trash':
-        link.onclick = () => {
+        callback = function() {
           if (!$('#in-trash').classList.contains('active'))
             $('#btn-menu-trash').click();
           blurNavigation()
         };
       break;
       case 'toggle-wrap-mode':
-        link.onclick = ui.toggleWordWrap;
+        callback = ui.toggleWordWrap;
       break;
       case 'toggle-editor-theme':
-        link.onclick = () => {
+        callback = function() {
           if (editor.env.editor.getTheme().includes('monokai'))
             editor.env.editor.setTheme('ace/theme/github');
           else
@@ -332,27 +332,31 @@ function attachMenuLinkListener() {
         }
       break;
       case 'set-font-size':
-        link.onclick = () => {
+        callback = function() {
           let size = parseInt(window.prompt('Prefered font size', 14));
           if (size)
             editor.env.editor.setFontSize(size);
         }
       break;
       case 'about':
-        link.onclick = () => {
+        callback = function() {
           if (!$('#in-home').classList.contains('active'))
             $('#btn-home').click();
           blurNavigation()
         };
       break;
       case 'settings':
-        link.onclick = () => {
+        callback = function() {
           if (!$('#in-settings').classList.contains('active'))
             $('#btn-menu-settings').click();
           blurNavigation();
         };
       break;
+      case 'sign-out':
+        callback = signOut;
+      break;
     }
+    menu.addEventListener('click', callback);
   }
 }
 
