@@ -144,7 +144,7 @@ const ui = {
     let menu = $('#'+menuId);
     let block = $('#'+menuId+'-block');
     
-    if (target.classList.contains('active') && (menuId === 'in-my-files' || menuId === 'in-trash' || menuId === 'in-settings')) {
+    if (target.classList.contains('active') && (menuId === 'in-my-files' || menuId === 'in-trash')) {
       
       $('#list-trash').innerHTML = '';
       $('#file-list').innerHTML = '';
@@ -192,7 +192,7 @@ const ui = {
   
   switchTab: function(direction = 1) {
   
-    if ($('#in-my-files').classList.contains('active') || $('#in-settings').classList.contains('active') || fileTab.length == 1) return
+    if ($('#in-my-files').classList.contains('active') || fileTab.length == 1) return
     
     let fid;
     
@@ -256,6 +256,21 @@ function getPromptInput(message, defaultValue='') {
   return input;
 }
 
+function toggleModal(name) {
+  for (let modal of $('.window')) {
+    if (modal.dataset.name == name) {
+      modal.classList.toggle('hide');
+      $('.Overlay',modal)[0].classList.toggle('hide');
+      $('#main-editor').classList.toggle('blurred');
+      break;
+    }
+  }
+}
+
+function toggleModalByClick() {
+  toggleModal(this.dataset.target);
+}
+
 function blurNavigation() {
   $('#nav-bar').classList.toggle('hoverable');
   setTimeout(() => {
@@ -264,7 +279,7 @@ function blurNavigation() {
 }
 
 function attachMenuLinkListener() {
-  
+
   for (let menu of $('.menu-link')) {
     let callback;
     switch (menu.dataset.callback) {
@@ -299,20 +314,6 @@ function attachMenuLinkListener() {
           blurNavigation()
         };
       break;
-      case 'file info':
-        callback = function() {
-          
-          setTimeout(function() {
-            let isOpened = environment.toggle();
-            if (isOpened)
-              fileTab[activeTab].editor.env.editor.blur()
-            else
-              fileTab[activeTab].editor.env.editor.focus()
-          }, 1)
-          
-          blurNavigation()
-        };
-      break;
       case 'trash':
         callback = function() {
           if (!$('#in-trash').classList.contains('active'))
@@ -320,15 +321,13 @@ function attachMenuLinkListener() {
           blurNavigation()
         };
       break;
-      case 'toggle-wrap-mode':
-        callback = ui.toggleWordWrap;
-      break;
       case 'toggle-editor-theme':
         callback = function() {
-          if (editor.env.editor.getTheme().includes('monokai'))
-            editor.env.editor.setTheme('ace/theme/github');
+          let editor = fileTab[activeTab].editor.env.editor;
+          if (editor.getTheme().includes('monokai'))
+            editor.setTheme('ace/theme/github');
           else
-            editor.env.editor.setTheme('ace/theme/monokai');
+            editor.setTheme('ace/theme/monokai');
         }
       break;
       case 'set-font-size':
@@ -346,11 +345,9 @@ function attachMenuLinkListener() {
         };
       break;
       case 'settings':
-        callback = function() {
-          if (!$('#in-settings').classList.contains('active'))
-            $('#btn-menu-settings').click();
-          blurNavigation();
-        };
+      case 'file-info':
+      case 'account':
+        callback = toggleModalByClick;
       break;
       case 'sign-out':
         callback = signOut;
@@ -368,7 +365,7 @@ function logWarningMessage() {
 	setTimeout(console.log.bind(console, "Ignore this message if you're well aware of what you're going to do."), 0); 
 }
 
-function updateUI() {
+function initUI() {
   
   fileList();
   $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
@@ -377,9 +374,24 @@ function updateUI() {
   $('#check-auto-sync').checked = settings.data.autoSync ? true : false;
 
   newTab();
+
+  for (let modal of $('.window')) {
+    $('.Overlay',modal)[0].addEventListener('click', toggleModalByClick);
+    $('.Btn-close',modal)[0].addEventListener('click', toggleModalByClick);
+  }
   
+  function attachClickable(selector, actions) {
+    for (let element of document.querySelectorAll(selector))
+      element.addEventListener('click', actions[element.dataset.callback]);
+  }
+  
+  attachClickable('.clickable', {
+    'toggle-file-info': () => toggleModal('file-info'),
+    'toggle-settings': () => toggleModal('settings'),
+    'toggle-account': () => toggleModal('account'),
+  });
+
   window.name = 'parent';
-  window.environment = anibar('main-editor');
 
   o.listen({
     'btn-create-template'   : createBlogTemplate,
@@ -394,11 +406,11 @@ function updateUI() {
     'btn-menu-save'         : fileManager.save,
     '.btn-material'         : ui.toggleMenu,
     'btn-menu-preview'      : function() { previewHTML() },
-    'btn-menu-info'         : btnInfo,
     '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
     'more-tab'              : function() { ui.switchTab(1) },
     'btn-refresh-sync'      : function() { drive.syncFromDrive() },
   });
+  checkAuth();
   initPreviewFrame();
   applyKeyboardListener();
   attachMenuLinkListener();
@@ -427,7 +439,7 @@ function showFileSetting(section) {
 }
 
 function toggleInsertSnippet(persistent) {
-  if ($('#in-my-files').classList.contains('active') || $('#in-settings').classList.contains('active')) return
+  if ($('#in-my-files').classList.contains('active')) return
 
   let el = $('.search-box')[0];
   if (typeof(persistent) == 'undefined')
@@ -778,15 +790,6 @@ function closeTab(focus = true, comeback) {
     }
   }
   
-}
-
-function btnInfo() {
-  
-  let isOpened = environment.toggle();
-  if (isOpened)
-    fileTab[activeTab].editor.env.editor.blur()
-  else
-    fileTab[activeTab].editor.env.editor.focus()
 }
 
 function createBlogTemplate() {
@@ -1278,9 +1281,6 @@ function applyKeyboardListener() {
   function toggleMyFiles() {
     if (!keyboard.Alt) return;
     
-    if ($('.anibar-main-editor-menu')[0].classList.contains('anibar--active'))
-      toggleFileInfo();
-      
     $('#btn-menu-my-files').click()
     if ($('#btn-menu-my-files').classList.contains('active')) {
       fileTab[activeTab].editor.env.editor.blur();
@@ -1297,17 +1297,7 @@ function applyKeyboardListener() {
   }
   
   function toggleTemplate() {
-    $('#btn-menu-template').click();
-  }
-  
-  function toggleFileInfo() {
-    if ($('#btn-menu-my-files').classList.contains('active')) return;
-    
-    let isOpened = environment.toggle();
-    if (isOpened)
-      fileTab[activeTab].editor.env.editor.blur()
-    else
-      fileTab[activeTab].editor.env.editor.focus()
+      $('#btn-menu-template').click();
   }
   
   function openFileDirectory() {
@@ -1367,7 +1357,7 @@ function applyKeyboardListener() {
     'Alt+B': copyUploadBody,
     'Alt+M': toggleMyFiles,
     'Alt+R': toggleWrapMode,
-    'Alt+I': toggleFileInfo,
+    'Alt+I': () => toggleModal('file-info'),
     'Alt+N': ui.openNewTab,
     'Alt+W': closeTab,
     'Alt+O': openFileDirectory,
@@ -1453,6 +1443,15 @@ window.onbeforeunload = function(e) {
     return  'Changes you made may not be saved';
 }
 
+
+function checkAuth() {
+  if (localStorage.getItem('data-token') !== null) {
+    $('#label-account').textContent = 'My Account';
+    $('#login-info').style.display = 'none';
+    o.classList.toggle($('.auth-required'), ['unauthorized'], false);
+  }
+}
+
 function authReady() {
   if (fileStorage.data.rootId === '')
     drive.readAppData();
@@ -1460,17 +1459,15 @@ function authReady() {
     drive.syncFromDrive();
     drive.syncToDrive();
   }
-  
-  o.classList.toggle($('.auth-required'), ['unauthorized'], false);
-  $('#txt-login-status').textContent = 'Account';
-  $('#login-info').style.visibility = 'hidden';
 }
 
 function authLogout() {
-  $('#login-info').style.visibility = 'visible';  
-  $('#txt-login-status').textContent = 'Login';
+  $('#label-account').textContent = 'Sign in';
+  $('#login-info').style.display = 'block';  
   o.classList.toggle($('.auth-required'), ['unauthorized'], true);
   fileStorage.reset();
+  localStorage.removeItem('data-token');
+  localStorage.removeItem('data-token-expires');
   settings.reset();
 }
 
@@ -1493,7 +1490,6 @@ function renderButton() {
       auth2.onSignIn(googleUser);
       authReady();
     },
-    // 'onfailure': onFailure
   });
 }
 

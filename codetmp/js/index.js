@@ -1,4 +1,5 @@
 L = console.log;
+$ = function(selector, node=document) { let nodes = node.querySelectorAll(selector); return selector.startsWith('#') ? nodes[0] : nodes }
 
 const requireExternalFiles = (url) => {  
   return new Promise((resolve, reject) => {
@@ -92,7 +93,7 @@ function loadExternalFiles(URLs) {
         },
         editor: {
           enableEmmet: false,
-          enableAutocomplete: false,
+          enableAutocomplete: true,
         },
         wrapMode: false,
         autoSync: true,
@@ -115,7 +116,6 @@ function loadExternalFiles(URLs) {
   let URL1 = [
     'require/o.js',
     'require/keyboard.js',
-    'require/anibar.js',
     'require/lsdb.js',
     'require/odin.js',
     'js/preview.js',
@@ -145,7 +145,7 @@ function loadExternalFiles(URLs) {
     
     loadStorageData();
     ace.config.set('basePath', 'ace');
-    updateUI();
+    initUI();
     logWarningMessage();
     
     loadExternalFiles(URL2).then(() => {

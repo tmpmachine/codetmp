@@ -53,175 +53,8 @@
 
   
   
-  <div id="main-editor" style="height:100%;">
-    <div class="anibar-main-editor-menu" style="background:none;">
-      <div class="w3-left" style="position:relative;height:100%;width:100%;z-index:2;">
-        <div style="background:#eee;height:100%;width:100%;position:absolute;overflow-y:auto;">
-          <div class="w3-padding">
-            
-    <div style="position:relative;height:100%;">
-      
-      <div id="menu-basic">
-        
-        <div class="w3-hide-medium w3-hide-large w3-button w3-border w3-margin-bottom w3-block" onclick="environment.close()">
-          <div class="w3-small w3-padding-small w3-left" style="font-weight:bold;">Close</div>
-        </div>
-        
-        <div id="btn-open-directory" class="w3-button w3-border w3-margin-bottom w3-block w3-hide">
-          <div class="w3-small w3-padding-small w3-left" style="font-weight:bold;">Open Directory</div>
-        </div>
-        
-        <div id="btn-download-file" class="w3-button w3-border w3-margin-bottom w3-block">
-          <div class="w3-small w3-padding-small w3-left" style="font-weight:bold;">Download</div>
-          <i class="material-icons w3-medium w3-padding-small" style="transform:rotate(90deg);">input</i>
-        </div>
-        
-        <small>Preview mode</small>
-        <div>
-          <input id="in-SPA-mode" class="description" type="checkbox" name="spa-preview"/> <label class="w3-tiny" for="in-SPA-mode">Single Page Application</label>
-        </div>
+  <div id="main-editor">
 
-        <small>Development</small>
-        <div>
-          <button class="file-settings-button" data-section="blogger">+ Blogger</button>
-          <button class="file-settings-button" data-section="pwa">+ PWA</button>
-          <hr/>
-        </div>
-          
-        <div class="hide file-settings" data-section="pwa">
-          <small>PWA Options (experimental)</small>
-          <div>
-            <div>
-              <input id="in-seperate-PWA-process" class="description" type="checkbox" name="pwa-seperate-process"/> <label class="w3-tiny" for="in-seperate-PWA-process">Seperate window process</label>
-            </div>
-            <div>
-              <input id="in-PWA-enabled" class="description" type="checkbox" name="pwa-preview"/> <label class="w3-tiny" for="in-PWA-enabled">Preview as PWA</label>
-            </div>
-            <div class="w3-tiny">(caution: will update installed PWA)</div>
-            <div style="height:5px;"></div>
-            <div class="w3-tiny" style="margin-top:.5em;font-weight:bold;">Required settings :</div>
-            <div class="w3-tiny">App Name</div>
-            <input id="in-PWA-app-name" class="description" name="pwa-name"/>
-            <div class="w3-tiny">URL</div>
-            <input id="in-PWA-app-url" class="description" name="pwa-url" placeholder="my-first-app"/>
-            
-            <div class="w3-tiny" style="margin-top:.5em;font-weight:bold;">Optional settings :</div>
-            
-            <div class="w3-tiny">App icon URL (128x128)</div>
-            <input id="in-PWA-src-128-url" class="description" name="pwa-src-128-url"/>
-            
-            <div class="w3-tiny">type</div>
-            <input id="in-PWA-src-128-type" class="description" name="pwa-src-128-type"/>
-            
-            <div class="w3-tiny">App icon URL (192x192)</div>
-            <input id="in-PWA-src-192-url" class="description" name="pwa-src-192-url"/>
-            
-            <div class="w3-tiny">type</div>
-            <input id="in-PWA-src-192-type" class="description" name="pwa-src-192-type"/>
-          </div>
-        </div>
-        
-        <div class="auth-required unauthorized hide file-settings" data-section="blogger">
-          <div class="w3-tiny">Blog name</div>
-          <input id="in-blog-name" class="description" name="blogName" style="width:100%;"/>
-          <div class="w3-tiny">Blog ID</div>
-          <input id="in-blog-id" class="description" name="blogId" style="width:100%;"/>
-          <div class="w3-tiny">Entry ID</div>
-          <input id="in-eid" class="description" name="entryId" style="width:100%;"/>
-          <div class="w3-tiny">Summary</div>
-          <textarea id="in-summary" class="description" name="summary" style="width:100%;resize:none;height:100px;"></textarea>
-          <div>
-            <input id="chk-bibibi" class="description" type="checkbox" name="isSummaryFix"/> <label for="chk-bibibi">Post summary fix</label>
-          </div>
-          <div>
-            <input id="chk-more-tag" class="description" type="checkbox" name="isBreak"/> <label for="chk-more-tag">Use More tag</label>
-          </div>
-          <div>
-            <input id="chk-in-pre" class="description" type="checkbox" name="isWrap"/> <label for="chk-in-pre">Wrap in &lt;pre&gt;</label>
-          </div>
-          <div>
-            <input id="chk-blogger-app" class="description" type="checkbox" name="isApp"/> <label for="chk-blogger-app">Deploy as Blogger Apps</label>
-          </div>
-          
-          <div class="w3-tiny" style="margin-top:1em;">Render and deploy option</div>
-          <div>
-            <input id="chk-render-plate-html" type="checkbox" checked="checked"/> <label for="chk-render-plate-html">Render Plate-HTML</label>
-          </div>
-          <div>
-            <input id="chk-deploy-minified" type="checkbox"/> <label for="chk-deploy-minified">Render as minified app</label>
-          </div>
-          
-          
-          <button id="btn-create-template">Create Blog Template</button>
-          <button id="btn-create-entry">Create Blog Entry</button>
-          <button id="btn-create-app">Create Blogger App</button>
-          <hr/>
-        </div>
-        
-        <hr/>
-        <button id="btn-delete-file" class="w3-hide-large w3-hide-medium w3-red w3-button w3-border w3-margin-bottom w3-block">Delete</button>
-        
-      </div>
-    </div>
-  
-          </div>
-        </div>
-      </div>
-    </div>
-  
-    <div id="sidebar" class="w3-left w3-hide-large w3-hide-medium w3-animate-left w3-card-4" style="position:relative;height:100%;overflow-x:hidden;overflow-y:auto;">
-      
-    <div style="position:relative;z-index:0;">
-      <div id="btn-home" class="btn-material no-select" menu="in-home">
-        <i class="material-icons i-btn-in">home</i>
-        <label class="l-btn-in">Home</label>
-      </div>
-    </div>
-    <div style="position:relative;z-index:0;">
-      <div id="btn-menu-save" class="btn-material no-select">
-        <i class="material-icons i-btn-in">save</i>
-        <label class="l-btn-in">Save</label>
-      </div>
-    </div>
-    <div style="position:relative;z-index:0;">
-      <div id="btn-menu-preview" class="btn-material no-select">
-        <i class="material-icons i-btn-in">play_arrow</i>
-        <label class="l-btn-in">Preview</label>
-      </div>
-    </div>
-    
-    <div style="position:relative;z-index:0;">
-      <div id="btn-menu-info" class="btn-material no-select w3-animate-left" menu="in-info">
-        <i class="material-icons i-btn-in">info</i>
-        <label class="l-btn-in">File Info</label>
-      </div>
-    </div>
-    <div id="btn-assets" class="w3-hide w3-animate-left" style="position:relative;z-index:0;display:none;">
-      <div class="btn-material no-select" menu="in-assets">
-        <i class="material-icons i-btn-in">web_asset</i>
-        <label class="l-btn-in">Assets</label>
-      </div>
-    </div>
-    <div id="btn-menu-my-files" class="btn-material no-select" menu="in-my-files">
-      <i class="material-icons i-btn-in">folder</i>
-      <label class="l-btn-in">My Files</label>
-    </div>
-    <div id="btn-menu-trash" class="btn-material no-select" menu="in-trash">
-      <i class="material-icons i-btn-in">delete</i>
-      <label class="l-btn-in">Trash</label>
-    </div>
-    <div id="btn-menu-template" class="w3-hide btn-material no-select">
-      <i class="material-icons i-btn-in">extension</i>
-      <label class="l-btn-in">Snippets</label>
-    </div>
-    <div id="btn-menu-settings" class="btn-material no-select" menu="in-settings">
-      <i class="material-icons i-btn-in">settings</i>
-      <label id="txt-login-status" class="l-btn-in">Settings</label>
-    </div>
-    <div id="syncing" class="w3-padding-small w3-center w3-tiny" style="color:#fafafa;"></div>
-  
-      <div class="bg5" style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;"></div>
-    </div>
     <div class="w3-rest scroll1 anibar-main-editor-pusher anibar--blocker" style="height:100%;position:relative;">
       
     <div id="in-home" class="in-window in-content bg1 col1">
@@ -230,11 +63,7 @@
         
   <div class="w3-padding">
     <h3 style="font-weight:bold;">Codetmp</h3>
-    <p>Static web development sandbox.</p>
-    
-    ---
-    
-    <p class="w3-small">Note : Your files are stored locally in browser storage. Login to synchronize with Google Drive (Settings > Sync with Google Drive).</p>
+    <p>Static web development sandbox by <u><a href="http://pacolemon.blogspot.com/">PacoLemon</a></u>.</p>
     
     ---
     
@@ -281,7 +110,7 @@
       </div>
       <div style="overflow:auto;">
         <div>
-          <div class="no-select" style="padding:4px 8px;font-size:10px;opacity:0.6;text-align:right;">Build v1.2, Sep 5</div>
+          <div class="no-select" style="padding:4px 8px;font-size:10px;opacity:0.6;text-align:right;">Build v6.18, Nov 4</div>
           <div id="breadcrumbs" class="no-select w3-small w3-padding"></div>
         </div>
         <div id="file-list" class="w3-padding" style="display:flex;flex-flow:wrap;"></div>
@@ -305,56 +134,13 @@
     </div>
     <div id="in-trash-block" class="in-window in-block"></div>
     
-    
-    <div id="in-settings" class="in-window in-content bg1 col1" style="overflow:hidden;">
-      <div class="w3-hide-small" style="height:34px;"></div>
-      <div class="w3-padding no-select border-bottom-dark">
-        <h5><b>Settings</b></h5>
-      </div>
-      <div style="height:100%;">
-        <div class="w3-padding scroll1" style="height:100%;overflow:auto;">
-          
-    <h6 style="font-weight:bold;">Editor</h6>
-    <p>
-      <input id="check-word-wrap" class="w3-check" type="checkbox" checked oninput="ui.toggleWordWrap()"/> <label for="check-word-wrap">Word Wrap</label>
-    </p>
-    <p>
-      <input id="check-emmet" class="w3-check" type="checkbox" checked oninput="ui.toggleEmmet()"/> <label for="check-emmet">Emmet Support</label>
-    </p>
-
-    <p>
-      <input id="check-autocomplete" class="w3-check" type="checkbox" checked oninput="ui.toggleAutocomplete()"/> <label for="check-autocomplete">Autocompletion</label>
-    </p>
-    <hr/>
-    
-    <h6 style="font-weight:bold;">Sync with Google Drive</h6>
-    <input id="check-auto-sync" class="w3-check" type="checkbox" oninput="ui.toggleAutoSync()" checked/> <label for="check-auto-sync">Automatically sync files and folders</label>
-    <p id="login-info" class="w3-small">
-      (!) Your files are stored locally in browser storage. Login to synchronize with Google Drive.
-    </p>
-    
-    <div id="g-signin2"></div>
-
-    <p class="w3-small">By using <b>Codetmp</b>, you're considered agreed to terms and condition written on articles below :</p>
-    <ul>
-      <li>
-         <u><a target="_blank" href="/TOS.html" style="font-weight:bold;">Terms of Service</a></u>
-      </li>
-      <li>
-         <u><a href="/PP.html" target="_blank" style="font-weight:bold;">Privacy Policy</a></u>
-      </li>
-    </ul>
-  
-        </div>
-      </div>
-    </div>
     <div id="in-settings-block" class="in-window in-block"></div>
   
       
       <div class="in-window" style="overflow:hidden;">
         <div style="position:relative;height:100%;display:grid;grid-template-rows:auto auto 1fr;">
           
-          <div id="nav-bar" class="hoverable no-select w3-small" style="background:#1d1f25;height:34px;position:relative;z-index:888;display:block;width:100%;color:#fafafa;">
+          <div id="nav-bar" class="hoverable no-select w3-small" style="background:#1d1f25;height:34px;position:relative;z-index:888;display:flex;justify-content:space-between;width:100%;color:#fafafa;">
             <ul style="padding:0;margin:0;list-style:none;display:block;">
               <li class="w3-left w3-padding" style="position:relative;">
                 File
@@ -387,7 +173,7 @@
                     My Files
                     <span class="w3-tiny w3-opacity w3-right">Alt + M</span>
                   </li>
-                  <li class="w3-padding menu-link" data-callback='file info'>
+                  <li class="w3-padding menu-link" data-callback='file-info' data-target="file-info">
                     File Info
                     <span class="w3-tiny w3-opacity w3-right">Alt + I</span>
                   </li>
@@ -401,9 +187,6 @@
                 <ul style="display:none;left:0;top:0;background:#000;width:200px;padding:0;margin:0;list-style:none;position:absolute;">
                   <li class="w3-padding menu-link" data-callback='set-font-size'>
                     Set Font Size
-                  </li>
-                  <li class="w3-padding menu-link" data-callback='toggle-wrap-mode'>
-                    Toggle Wrap Mode
                   </li>
                   <li class="w3-padding menu-link" data-callback='toggle-editor-theme'>
                     Toggle Light Theme
@@ -424,23 +207,25 @@
                   </li>
                 </ul>
               </li>
-              <li class="w3-left w3-padding" style="position:relative;">
-                My Account
-                <ul style="display:none;top:0;left:0;background:#000;width:200px;padding:0;margin:0;list-style:none;position:absolute;">
-                  <li class="w3-padding menu-link" data-callback='settings'>
-                    Settings
-                  </li>
-                  <li class="w3-padding menu-link auth-required unauthorized" data-callback='sign-out'>
-                    Sign out
-                  </li>
-                </ul>
-              </li>
               <li class="w3-right w3-padding w3-tiny">
                 <div id="txt-sync"></div>
               </li>
             </ul>
+
+            <ul style="padding:0;margin:0;list-style:none;display:block;">
+              <li class="w3-left w3-padding menu-link" data-callback="settings" data-target="settings">Settings</li>
+              <li class="w3-left" style="position:relative">
+                <div id="label-account" class="w3-padding menu-link" data-callback="account" data-target="account">Sign in</div>
+                <ul style="display:none;top:0;left:0;background:#000;width:200px;padding:0;margin:0;list-style:none;position:absolute;">
+                  <li class="w3-padding menu-link auth-required unauthorized" data-callback="sign-out">
+                    Sign out
+                  </li>
+                </ul>
+              </li>              
+            </ul>
+
           </div>
-          
+    
           <div id="file-title" style="background:#141414;position:relative;">
             <div class="w3-right" style="padding:6px 0;width:1px;overflow:hidden;visibility:hidden;">
               <i class="material-icons">close</i>
@@ -462,6 +247,66 @@
       </div>
       
     </div>
+
+
+    <div id="sidebar" class="w3-left w3-hide-large w3-hide-medium w3-animate-left w3-card-4" style="overflow: auto;">
+    <div style="grid-auto-columns: 70px;grid-auto-flow: column;display: grid;">
+    <div style="position:relative;z-index:0;">
+      <div id="btn-menu-preview" class="btn-material no-select">
+        <i class="material-icons i-btn-in">play_arrow</i>
+        <label class="l-btn-in">Preview</label>
+      </div>
+    </div>
+    <div style="position:relative;z-index:0;">
+      <div id="btn-menu-save" class="btn-material no-select">
+        <i class="material-icons i-btn-in">save</i>
+        <label class="l-btn-in">Save</label>
+      </div>
+    </div>
+    
+    <div style="position:relative;z-index:0;">
+      <div class="btn-material no-select w3-animate-left clickable" data-callback="toggle-file-info">
+        <i class="material-icons i-btn-in">info</i>
+        <label class="l-btn-in">File Info</label>
+      </div>
+    </div>
+    <div id="btn-menu-my-files" class="btn-material no-select" menu="in-my-files">
+      <i class="material-icons i-btn-in">folder</i>
+      <label class="l-btn-in">My Files</label>
+    </div>
+    <div id="btn-assets" class="w3-hide w3-animate-left" style="position:relative;z-index:0;display:none;">
+      <div class="btn-material no-select" menu="in-assets">
+        <i class="material-icons i-btn-in">web_asset</i>
+        <label class="l-btn-in">Assets</label>
+      </div>
+    </div>
+    <div style="position:relative;z-index:0;">
+      <div id="btn-home" class="btn-material no-select" menu="in-home">
+        <i class="material-icons i-btn-in">home</i>
+        <label class="l-btn-in">Home</label>
+      </div>
+    </div>
+    <div id="btn-menu-template" class="w3-hide btn-material no-select">
+      <i class="material-icons i-btn-in">extension</i>
+      <label class="l-btn-in">Snippets</label>
+    </div>
+    <div id="btn-menu-trash" class="btn-material no-select hide" menu="in-trash">
+      <i class="material-icons i-btn-in">delete</i>
+      <label class="l-btn-in">Trash</label>
+    </div>
+    <div class="btn-material no-select clickable" data-callback="toggle-settings">
+      <i class="material-icons i-btn-in">settings</i>
+      <label class="l-btn-in">Settings</label>
+    </div>
+    <div class="btn-material no-select clickable" data-callback="toggle-account">
+      <i class="material-icons i-btn-in">account_circle</i>
+      <label class="l-btn-in">Account</label>
+    </div>
+    <div id="syncing" class="w3-padding-small w3-center w3-tiny hide" style="color:#fafafa;"></div>
+  
+      <div class="bg5" style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:-2;"></div>
+    </div>
+  </div>
   </div>
   
   
@@ -502,8 +347,229 @@
       
     </div>
   
-  
-  
+
+  <style type="text/css">
+  	.window {
+		margin:16px auto;
+		max-width:544px;
+  	}
+  	.window .Wrapper {
+  		display: grid;height: 100%
+  	}
+  	.window .Modal {
+  		display: grid;
+  		grid-template-rows: auto 1fr auto;
+  		margin: 0 16px;position: relative;border-radius: 3px;overflow: hidden
+  	}
+  	.window .Header {
+  		background:#fff;border-bottom:1px solid #e2e2e2;padding:8px 0 8px 16px;    display: flex;
+	    justify-content: space-between;
+	    align-items: center;
+  	}
+  	.window h5 {
+  		text-transform: uppercase;font-size: 14px
+  	}
+  	.window .Content {
+		padding: 16px 16px 32px;
+		overflow: auto;
+  	}
+  	.window .Overlay{
+	    background: #000000aa;
+	    width: 100%;
+	    height: 100%;
+	    position: fixed;
+	    top: 0;
+	    left: 0;
+	}
+	.blurred{
+	  -webkit-filter:blur(1px);
+	  filter:blur(1px);
+	}
+  </style>
+
+	<div class="window hide" data-name="settings">
+		<div class="Wrapper">
+	    	<div class="Overlay hide" data-target="settings"></div>
+	  		<div class="Modal bg8 col3">
+		      <div class="Header no-select">
+		        <h5><b>Settings</b></h5>
+		        <i class="Btn-close material-icons w3-button w3-hover-none" data-target="settings" style="color:#aaa;">close</i>
+		      </div>
+				<div class="Content">
+					 <h6 style="font-weight:bold;">Editor</h6>
+			    <p>
+			      <input id="check-word-wrap" class="w3-check" type="checkbox" checked oninput="ui.toggleWordWrap()"/> <label for="check-word-wrap">Word Wrap</label>
+			    </p>
+			    <p>
+			      <input id="check-emmet" class="w3-check" type="checkbox" checked oninput="ui.toggleEmmet()"/> <label for="check-emmet">Emmet Support</label>
+			    </p>
+			    <p>
+			      <input id="check-autocomplete" class="w3-check" type="checkbox" checked oninput="ui.toggleAutocomplete()"/> <label for="check-autocomplete">Autocompletion</label>
+			    </p>
+			    <hr/>
+
+			    <h6 style="font-weight:bold;">Google Drive Sync</h6>
+			    <input id="check-auto-sync" class="w3-check" type="checkbox" oninput="ui.toggleAutoSync()" checked/> <label for="check-auto-sync">Automatically sync files and folders</label>			    
+		      </div>
+		      <div style="padding: 8px 12px;background: #ffffff;" class="w3-hide-medium w3-hide-large">
+			      <div class=" w3-button w3-border w3-block clickable" data-callback="toggle-settings" style="text-align: center;background: dodgerblue;color:#fff;">
+		          <div class="w3-small w3-padding-small" style="font-weight:bold;">Close</div>
+		        </div>
+		      </div>
+		    </div>
+		</div>
+	</div>
+
+
+	<div class="window hide" data-name="account">
+		<div class="Wrapper">
+	    	<div class="Overlay hide" data-target="account"></div>
+	  		<div class="Modal bg8 col3">
+		      <div class="Header no-select">
+		        <h5><b>My Account</b></h5>
+		        <i class="Btn-close material-icons w3-button w3-hover-none" data-target="account" style="color:#aaa;">close</i>
+		      </div>
+				<div class="Content">
+			    <p id="login-info" class="w3-small">(!) Your files are <b>currently stored locally</b> in browser storage. Sign in to synchronize with Google Drive across devices.</p>
+			    <div id="g-signin2"></div>
+			    <hr/>
+			    <p class="w3-small">By using <b>Codetmp</b>, you're considered agreed to terms and condition written on articles below :</p>
+			    <ul>
+			      <li>
+			         <u><a target="_blank" href="/TOS.html" style="font-weight:bold;">Terms of Service</a></u>
+			      </li>
+			      <li>
+			         <u><a href="/PP.html" target="_blank" style="font-weight:bold;">Privacy Policy</a></u>
+			      </li>
+			    </ul>
+		      </div>
+		      <div style="padding: 8px 12px;background: #ffffff;" class="w3-hide-medium w3-hide-large">
+			      <div class=" w3-button w3-border w3-block clickable" data-callback="toggle-account" style="text-align: center;background: dodgerblue;color:#fff;">
+		           <div class="w3-small w3-padding-small" style="font-weight:bold;">Close</div>
+		        </div>
+		      </div>
+		    </div>
+		</div>
+	</div>
+
+
+	<div class="window hide" data-name="file-info">
+		<div class="Wrapper">
+	    	<div class="Overlay hide" data-target="file-info"></div>
+	  		<div class="Modal bg8 col3">
+		      <div class="Header no-select">
+		        <h5><b>File Info</b></h5>
+		        <i class="Btn-close material-icons w3-button w3-hover-none" data-target="file-info" style="color:#aaa;">close</i>
+		      </div>
+			  <div class="Content">
+		      	          
+			        <div id="btn-open-directory" class="w3-button w3-border w3-margin-bottom w3-block w3-hide">
+			          <div class="w3-small w3-padding-small w3-left" style="font-weight:bold;">Open Directory</div>
+			        </div>
+			        
+			        <div id="btn-download-file" class="w3-button w3-border w3-margin-bottom w3-block">
+			          <div class="w3-small w3-padding-small w3-left" style="font-weight:bold;">Download</div>
+			          <i class="material-icons w3-medium w3-padding-small" style="transform:rotate(90deg);">input</i>
+			        </div>
+			        
+			        <small>Preview mode</small>
+			        <div>
+			          <input id="in-SPA-mode" class="description" type="checkbox" name="spa-preview"/> <label class="w3-tiny" for="in-SPA-mode">Single Page Application</label>
+			        </div>
+
+			        <small>Development</small>
+			        <div>
+			          <button class="file-settings-button" data-section="blogger">+ Blogger</button>
+			          <button class="file-settings-button" data-section="pwa">+ PWA</button>
+			          <hr/>
+			        </div>
+			          
+			        <div class="hide file-settings" data-section="pwa">
+			          <small>PWA Options (experimental)</small>
+			          <div>
+			            <div>
+			              <input id="in-seperate-PWA-process" class="description" type="checkbox" name="pwa-seperate-process"/> <label class="w3-tiny" for="in-seperate-PWA-process">Seperate window process</label>
+			            </div>
+			            <div>
+			              <input id="in-PWA-enabled" class="description" type="checkbox" name="pwa-preview"/> <label class="w3-tiny" for="in-PWA-enabled">Preview as PWA</label>
+			            </div>
+			            <div class="w3-tiny">(caution: will update installed PWA)</div>
+			            <div style="height:5px;"></div>
+			            <div class="w3-tiny" style="margin-top:.5em;font-weight:bold;">Required settings :</div>
+			            <div class="w3-tiny">App Name</div>
+			            <input id="in-PWA-app-name" class="description" name="pwa-name"/>
+			            <div class="w3-tiny">URL</div>
+			            <input id="in-PWA-app-url" class="description" name="pwa-url" placeholder="my-first-app"/>
+			            
+			            <div class="w3-tiny" style="margin-top:.5em;font-weight:bold;">Optional settings :</div>
+			            
+			            <div class="w3-tiny">App icon URL (128x128)</div>
+			            <input id="in-PWA-src-128-url" class="description" name="pwa-src-128-url"/>
+			            
+			            <div class="w3-tiny">type</div>
+			            <input id="in-PWA-src-128-type" class="description" name="pwa-src-128-type"/>
+			            
+			            <div class="w3-tiny">App icon URL (192x192)</div>
+			            <input id="in-PWA-src-192-url" class="description" name="pwa-src-192-url"/>
+			            
+			            <div class="w3-tiny">type</div>
+			            <input id="in-PWA-src-192-type" class="description" name="pwa-src-192-type"/>
+			          </div>
+			        </div>
+			        
+			        <div class="auth-required unauthorized hide file-settings" data-section="blogger">
+			          <div class="w3-tiny">Blog name</div>
+			          <input id="in-blog-name" class="description" name="blogName" style="width:100%;"/>
+			          <div class="w3-tiny">Blog ID</div>
+			          <input id="in-blog-id" class="description" name="blogId" style="width:100%;"/>
+			          <div class="w3-tiny">Entry ID</div>
+			          <input id="in-eid" class="description" name="entryId" style="width:100%;"/>
+			          <div class="w3-tiny">Summary</div>
+			          <textarea id="in-summary" class="description" name="summary" style="width:100%;resize:none;height:100px;"></textarea>
+			          <div>
+			            <input id="chk-bibibi" class="description" type="checkbox" name="isSummaryFix"/> <label for="chk-bibibi">Post summary fix</label>
+			          </div>
+			          <div>
+			            <input id="chk-more-tag" class="description" type="checkbox" name="isBreak"/> <label for="chk-more-tag">Use More tag</label>
+			          </div>
+			          <div>
+			            <input id="chk-in-pre" class="description" type="checkbox" name="isWrap"/> <label for="chk-in-pre">Wrap in &lt;pre&gt;</label>
+			          </div>
+			          <div>
+			            <input id="chk-blogger-app" class="description" type="checkbox" name="isApp"/> <label for="chk-blogger-app">Deploy as Blogger Apps</label>
+			          </div>
+			          
+			          <div class="w3-tiny" style="margin-top:1em;">Render and deploy option</div>
+			          <div>
+			            <input id="chk-render-plate-html" type="checkbox" checked="checked"/> <label for="chk-render-plate-html">Render Plate-HTML</label>
+			          </div>
+			          <div>
+			            <input id="chk-deploy-minified" type="checkbox"/> <label for="chk-deploy-minified">Render as minified app</label>
+			          </div>
+			          
+			          
+			          <button id="btn-create-template">Create Blog Template</button>
+			          <button id="btn-create-entry">Create Blog Entry</button>
+			          <button id="btn-create-app">Create Blogger App</button>
+			          <hr/>
+			        </div>
+			        
+			        <hr/>
+			        <button id="btn-delete-file" class="w3-hide-large w3-hide-medium w3-red w3-button w3-border w3-margin-bottom w3-block">Delete</button>
+			        
+		      </div>
+		      <div style="padding: 8px 12px;background: #ffffff;" class="w3-hide-medium w3-hide-large">
+			      <div class=" w3-button w3-border w3-block clickable" data-callback="toggle-file-info" style="text-align: center;background: dodgerblue;color:#fff;">
+		           <div class="w3-small w3-padding-small" style="font-weight:bold;">Close</div>
+		        </div>
+		      </div>
+		    </div>
+		</div>
+	</div>
+
+  <!-- TEMPLATES -->
+  <!--  -->
+
   <template id="tmp-hints">
     <div class="w3-white">
       <div class="Container" data-index="">
@@ -641,6 +707,7 @@
     </div>
   </div>
   
+
   <!-- required for Blogsphere apps library -->
   <script id="arc7-updater" type="plain/text">
     arc7db.open(function(){let blogId='<blogId>';let appId='<appId>';fetch('https://www.blogger.com/feeds/'+blogId+'/posts/summary/'+appId+'?alt=json&rand='+new Date().getTime()).then(function(result){return result.json()}).then(function(json){let updated=(new Date(json.entry.updated.$t)).getTime();arc7db.get(appId,function(data){if(updated>data.updated){fetch('https://www.blogger.com/feeds/'+blogId+'/posts/default/'+appId+'?alt=json&rand='+new Date().getTime()).then(function(result){return result.json()}).then(function(json){let entry=json.entry.content.$t.split("<a name='more'></a> bbb");let data={appId:json.entry.id.$t.split('post-')[1],title:json.entry.title.$t,updated:(new Date(json.entry.updated.$t)).getTime(),summary:entry.splice(0,1),content:entry.join("<a name='more'></a> bbb").substring(397+5,json.entry.content.$t.length-6).replace(/<br \/>/g,'\n')};function installApp(){arc7db.create(data,function(){arc7db.get(data.appId,function(data){if(data)
@@ -696,9 +763,8 @@ arc7db.delete(data.appId,function(){installApp()})})}})})})
       }
       
       if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
-
+	      // return
         navigator.serviceWorker.register('/sw.js').then(function(swo) {
-          
           if (!navigator.serviceWorker.controller)
             return
       

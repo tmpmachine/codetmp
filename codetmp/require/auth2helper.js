@@ -16,6 +16,7 @@
       expires_at = authData.expires_at;
       localStorage.setItem('data-token', access_token);
       localStorage.setItem('data-token-expires', expires_at);
+      checkAuth();
     }
     // send token to other component from here
     if (typeof(drive) != 'undefined') {
