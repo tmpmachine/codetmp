@@ -261,7 +261,7 @@ function toggleModal(name) {
     if (modal.dataset.name == name) {
       modal.classList.toggle('hide');
       $('.Overlay',modal)[0].classList.toggle('hide');
-      $('#main-editor').classList.toggle('blurred');
+      // $('#main-editor').classList.toggle('blurred');
       break;
     }
   }
