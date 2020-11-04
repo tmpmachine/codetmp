@@ -1,5 +1,5 @@
 /*
-v0.63 - 31 -- switched document query selector and selector all
+v0.631 - 7 Juni 2020 -- removed query selectory
 */
 
 (function () {
@@ -72,19 +72,19 @@ v0.63 - 31 -- switched document query selector and selector all
           el.classList.replace(oldClass,newClass);
       }
     },
-  	cel: function (el, att) {
-  	  el = document.createElement(el);
-  	  if (att) {
-    	  for (let i in att) {
-    	    if (i === 'innerHTML')
-    	      el.innerHTML = att[i];
-    	    else
-      	    el.setAttribute(i, att[i]);
-    	  }
-  	  }
-  	  return el;
-  	},
-  	listen: function (callback, type, node) {
+    cel: function (el, att) {
+      el = document.createElement(el);
+      if (att) {
+        for (let i in att) {
+          if (i === 'innerHTML')
+            el.innerHTML = att[i];
+          else
+            el.setAttribute(i, att[i]);
+        }
+      }
+      return el;
+    },
+    listen: function (callback, type, node) {
       if (type === undefined) type = 'click';
       
       for (let i in callback) {
@@ -104,9 +104,6 @@ v0.63 - 31 -- switched document query selector and selector all
   
   if (window.o === undefined) {
     window.o = o;
-    window.$ = function(selector, node = document) {
-      return (selector.indexOf('#') === 0) ? node.querySelector(selector) : node.querySelectorAll(selector);
-    };
   } else {
     console.error('o.js:', 'Failed to initialize. Duplicate variable exists.');
   }
