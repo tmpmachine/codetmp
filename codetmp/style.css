@@ -229,6 +229,7 @@ html,body{height:100%;}
 #in-blocker{z-index:22;}
 #in-menu{z-index:23;}
 #nav{z-index:25;}
+#nav-bar{z-index:30;}
 .window{z-index:40}
 
 #sidebar .Inner {
