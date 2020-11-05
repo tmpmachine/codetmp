@@ -980,24 +980,6 @@ function openFileConfirm(el) {
     toggleFileHighlight(false);
   }
 }
-      
-function btnBlogsphereLogout  () {
-  
-  $('#btn-blogsphere-login').style.display = 'block';
-  $('#btn-blogsphere-logout').style.display = 'none';
-  
-  logout();
-  fileStorage.reset();
-  settings.reset();
-  aww.pop("You've been logged out from Codetmp.");
-  
-  fileClose();
-  activeFolder = -1;
-  while (breadcrumbs.length > 1)
-    breadcrumbs.splice(1,1);
-    
-  loadBreadCrumbs();
-}
 
 function navScrollUp() {
   let fileContainerOffsetTop = selectedFile[0].classList.contains('folder-list') ? selectedFile[0].offsetTop : selectedFile[0].parentNode.offsetTop;
@@ -1466,9 +1448,14 @@ function authLogout() {
   $('#login-info').style.display = 'block';  
   o.classList.toggle($('.auth-required'), ['unauthorized'], true);
   fileStorage.reset();
+  settings.reset();
   localStorage.removeItem('data-token');
   localStorage.removeItem('data-token-expires');
-  settings.reset();
+  activeFolder = -1;
+  while (breadcrumbs.length > 1)
+    breadcrumbs.splice(1,1);    
+  loadBreadCrumbs();
+  fileManager.list();
 }
 
 function signOut() {
