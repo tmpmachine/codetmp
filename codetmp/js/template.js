@@ -28,22 +28,12 @@ function downloadSnippetFile(fid) {
     if (f.loaded) {
       resolve(f);
     } else {
-      fetch('https://www.googleapis.com/drive/v3/files/' + f.id + '?alt=media', {
-        method: 'GET',
-        headers: {
-          'Authorization': 'Bearer ' + settings.data.token
-        }
-      }).then(function(r) {
-        if (r.ok)
-          return r.text();
-        else
-          throw r;
-      }).then(function(media) {
-        f.content = media;
-        f.loaded = true;
-        fileStorage.save();
-        resolve(f);
-      }).catch(reject);
+	    drive.downloadDependencies(f).then(media => {
+	      f.content = media;
+	      f.loaded = true;
+	      fileStorage.save();
+	      resolve(f);
+	    });
     }
   });
 }
@@ -75,23 +65,12 @@ function loadEnvironmentSettings(file) {
       resolve(file);
     } else {
       
-        fetch('https://www.googleapis.com/drive/v3/files/'+file.id+'?alt=media', {
-          method: 'GET',
-          headers: {
-            'Authorization': 'Bearer ' + settings.data.token
-          }
-        }).then(function(r) {
-          
-          if (r.ok)
-            return r.text();
-          else
-            throw r;
-        }).then(function(media) {
-          file.content = media;
-          file.loaded = true;
-          fileStorage.save();
-          resolve(file);
-        }).catch(reject);
+      	drive.downloadDependencies(file).then(media => {
+	      file.content = media;
+	      file.loaded = true;
+	      fileStorage.save();
+	      resolve(file);
+	    });
     }
     
   }).then(file => {
