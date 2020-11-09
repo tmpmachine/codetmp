@@ -29,7 +29,7 @@ function PreviewManager() {
 			mime: mimeType,
 			content: previewManager.getContent(decodeURI(event.data.path), mimeType),
 			resolverUID: event.data.resolverUID,
-		},'*');
+		}, '*');
   }
 
 	this.getContent = function(src, mimeType) {
@@ -54,7 +54,7 @@ function PreviewManager() {
       path = ['root'];
 
       if (src == '/untitled.html') {
-      	return plate.cook(fileTab[activeTab].editor.env.editor.getValue());
+      	return plate.cook(replaceTemplate(fileTab[activeTab].editor.env.editor.getValue()));
       }
 
       let parentId = previewManager.getDirectory(src, relativeParent, path);
@@ -83,8 +83,8 @@ function PreviewManager() {
       if ($('#chk-render-plate-html').checked && mimeType.includes('text/html')) {
       	content = plate.cook(content);
       }
-
-      return content
+      L(content)
+      return replaceTemplate(content);
   }
 
 
@@ -206,10 +206,60 @@ function PreviewManager() {
   return this;
 }
 
+function getMatchTemplate(content) {
+	return content.match(/<template src=.*?><\/template>/);
+}
+
+function replaceTemplate(body, preParent = -1, path = ['root']) {
+
+let match = getMatchTemplate(body);
+
+while (match !== null) {
+
+  let src = match[0].substring(15, match[0].length-13);
+  let relativeParent = preParent;
+  
+  if (src.startsWith('__')) {
+    relativeParent = -1;
+    src = src.replace(/__\//, '');
+  }
+  
+  let absolutePath = JSON.parse(JSON.stringify(path));
+  let parentId = previewManager.getDirectory(src, relativeParent, path);
+  let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
+  let name = src.replace(/.*?\//g,'');
+  let file = odin.dataOf(name, files, 'name');
+  if (file === undefined) {
+    body = body.replace(match[0], '');
+    console.log(src+' not found');
+  } else {
+    if (!file.loaded) {
+      aww.pop('Downloading required file : '+name);
+      drive.downloadDependencies(file);
+    }
+    
+    let ot = '', ct = '';
+    let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
+    let content;
+    if (tabIdx >= 0)
+      content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
+    else
+      content = file.content;
+    let swap = ot + replaceTemplate(content, parentId, path) + ct;
+    body = body.replace(new RegExp(match[0]), swap);
+  }
+ 
+  path = absolutePath;
+  match = getMatchTemplate(body);
+}
+
+return body;
+}
+
 (function() {
   
   function getMatch(content) {
-    return content.match(/<file include=.*?><\/file>|<template include=.*?><\/template>|<script .*?src=.*?><\/script>|<link .*?href=.*?>/);
+    return content.match(/<template src=.*?><\/template>|<script .*?src=.*?><\/script>|<link .*?href=.*?>/);
   }
 
   function replaceLocal(body, preParent = -1, path = ['root']) {
@@ -262,11 +312,6 @@ function PreviewManager() {
         src = src.substring(6, src.length - 1);
         isScriptOrLink = true;
         tagName = 'style';
-      } else if (match[0].includes('<file')) {
-        start = 15;
-        end = 9;
-        isScriptOrLink = true;
-        isFile = true;
       }
       
       src = (src.length > 0) ? src : match[0].substring(start, match[0].length-end);
@@ -429,7 +474,7 @@ function PreviewManager() {
 	      new Promise(function(resolve) {
       		portResolver = resolve;
 	      }).then(() => {
-		      	window.open(previewUrl+filePath, previewManager.getFrameName());
+	      	window.open(previewUrl+filePath, previewManager.getFrameName());
 	      })
 	  });
 
