@@ -95,6 +95,7 @@ function loadExternalFiles(URLs) {
           enableEmmet: false,
           enableAutocomplete: true,
         },
+        showHomepage: true,
         wrapMode: false,
         autoSync: true,
       }

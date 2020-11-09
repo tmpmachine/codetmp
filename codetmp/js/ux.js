@@ -244,7 +244,13 @@ const ui = {
     settings.data.autoSync = !settings.data.autoSync;
     settings.save();
     $('#check-auto-sync').checked = settings.data.autoSync ? true : false;
-  }
+  },
+
+  toggleHomepage: function() {
+    settings.data.showHomepage = !settings.data.showHomepage;
+    settings.save();
+    $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
+  },
 };
 
 function getPromptInput(message, defaultValue='') {
@@ -339,8 +345,9 @@ function attachMenuLinkListener() {
       break;
       case 'about':
         callback = function() {
-          if (!$('#in-home').classList.contains('active'))
-            $('#btn-home').click();
+          // if (!$('#in-home').classList.contains('active'))
+            // $('#btn-home').click();
+          toggleHomepage();
           blurNavigation()
         };
       break;
@@ -365,13 +372,24 @@ function logWarningMessage() {
 	setTimeout(console.log.bind(console, "Ignore this message if you're well aware of what you're going to do."), 0); 
 }
 
+function toggleHomepage() {
+  $('#sidebar').classList.toggle('HIDE');
+  $('#in-home').classList.toggle('active');
+  $('#main-editor').classList.toggle('editor-mode');
+}
+
 function initUI() {
   
   fileList();
+  $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
   $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
   $('#check-emmet').checked = settings.data.editor.enableEmmet ? true : false;
   $('#check-autocomplete').checked = settings.data.editor.enableAutocomplete ? true : false;
   $('#check-auto-sync').checked = settings.data.autoSync ? true : false;
+
+  if (!$('#check-show-homepage').checked) {
+    toggleHomepage();
+  }
 
   newTab();
 
@@ -386,6 +404,7 @@ function initUI() {
   }
   
   attachClickable('.clickable', {
+    'toggle-homepage': () => toggleHomepage(),
     'toggle-file-info': () => toggleModal('file-info'),
     'toggle-settings': () => toggleModal('settings'),
     'toggle-account': () => toggleModal('account'),
