@@ -3,7 +3,7 @@ let snippets = [
   {pos: [-1, 1], title: 'style', snippet: '<style>\n\t\n<\/style>'},
   {pos: [-1, 1], title: 'inline script', snippet: '<script>\n\t\n<\/script>'},
   {pos: [-2, 14], title: 'template', snippet: '<template id="">\n\t\n<\/template>'},
-  {pos: [0, 19], title: 'include template', snippet: '<template include=""><\/template>'},
+  {pos: [0, 15], title: 'template src', snippet: '<template src=""><\/template>'},
   {pos: [0, 13], title: 'external script', snippet: '<script src=""><\/script>'},
   {pos: [0, 12], title: 'link', snippet: '<link href="" rel="stylesheet"/>'},
   {pos: [1, 0], title: 'meta viewport', snippet: '<meta name="viewport" content="width=device-width"/>\n'},
