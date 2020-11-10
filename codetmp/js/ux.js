@@ -1443,84 +1443,18 @@ function applyKeyboardListener() {
     document.body.removeChild(textarea)
     fileTab[activeTab].editor.env.editor.focus()
   }
-  
-  keyboard.listen({
-    'Backspace': previousFolder,
-    'Escape': keyEscape,
-    'Delete': deleteSelected,
-    'Up': navigationHandler,
-    'Left': navigationHandler,
-    'Down': navigationHandler,
-    'Right': navigationHandler,
-    'Enter': function() {
-      if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
-        if (window.cprompt.isActive)
-          return
-        event.preventDefault();
-        doubleClickOnFile();
-      }
-    },
-  });
-  
-  
-  keyboard.listen({
-    'Alt+Enter': renderAndDeployLocked,
-    'Alt+Shift+Enter': renderAndDeploySingle,
-    'Alt+<': () => ui.switchTab(-1),
-    'Alt+>': () => ui.switchTab(1),
-    'Alt+L': lockFile,
-    'Alt+B': copyUploadBody,
-    'Alt+M': toggleMyFiles,
-    'Alt+R': toggleWrapMode,
-    'Alt+I': () => toggleModal('file-info'),
-    'Alt+N': ui.openNewTab,
-    'Alt+W': closeTab,
-    'Alt+O': openFileDirectory,
-    'Ctrl+S': fileManager.save,
-    'Alt+D': toggleTemplate,
-    'Ctrl+Enter': function() {
-      if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
-        renameFile();
-      } else {
-        previewHTML();
-      }
-    },
-  }, true);
-};
 
-function autoSync(event) {
-  let isOnline = navigator.onLine ? true : false;
-  if (isOnline) {
-    if (fileStorage.data.rootId !== '') {
-      drive.syncFromDrive();
-      drive.syncToDrive();
-    }
-  }
-    
-}
-window.addEventListener('online', autoSync);
-
-window.addEventListener('keydown', function(e) {
-  if (e.altKey && fileTab[activeTab].editor.env.editor.isFocused()) {
-    e.preventDefault();
-  }
-
-  if (!e.ctrlKey && $('#btn-menu-my-files').classList.contains('active')) {
-    if (!('_-.abcdefghijklmnopqrstuvwxyz1234567890'.includes(e.key)))
-      return
-    if (window.cprompt.isActive)
-      return
-
+  function selectFileByName(key) {
     let found = false;
     let matchName = [];
     for (let el of $('.folder-list')) {
-      if (el.title.toLowerCase().startsWith(e.key)) {
+      if (el.title.toLowerCase().startsWith(key)) {
         matchName.push(el);
       }
     }
 
     for (let el of $('.file-list-clicker')) {
-      if (el.title.toLowerCase().startsWith(e.key)) {
+      if (el.title.toLowerCase().startsWith(key)) {
         matchName.push(el);
       }
     }
@@ -1557,7 +1491,83 @@ window.addEventListener('keydown', function(e) {
       }
     }
   }
-});
+
+  window.addEventListener('keydown', function(e) {
+
+    if (window.cprompt.isActive)
+      return
+
+    if (e.altKey && fileTab[activeTab].editor.env.editor.isFocused()) {
+      e.preventDefault();
+    }
+
+    if (!e.ctrlKey && $('#btn-menu-my-files').classList.contains('active')) {
+      if (('_-.abcdefghijklmnopqrstuvwxyz1234567890'.includes(e.key))) {
+        selectFileByName(e.key);
+      } else {
+        switch (event.key) {
+          case 'Backspace': 
+            previousFolder(); 
+            break;
+          case 'Escape': 
+            keyEscape();
+            break;
+          case 'Delete': 
+            deleteSelected(); 
+            break;
+          case 'ArrowLeft': 
+          case 'ArrowDown': 
+          case 'ArrowRight': 
+          case 'ArrowUp': 
+            navigationHandler(event);
+            break;
+          case 'Enter': 
+            if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
+              event.preventDefault();
+              doubleClickOnFile();
+            }
+          break;
+        }
+      }
+    }
+  });
+
+  keyboard.listen({
+    'Alt+Enter': renderAndDeployLocked,
+    'Alt+Shift+Enter': renderAndDeploySingle,
+    'Alt+<': () => ui.switchTab(-1),
+    'Alt+>': () => ui.switchTab(1),
+    'Alt+L': lockFile,
+    'Alt+B': copyUploadBody,
+    'Alt+M': toggleMyFiles,
+    'Alt+R': toggleWrapMode,
+    'Alt+I': () => toggleModal('file-info'),
+    'Alt+N': ui.openNewTab,
+    'Alt+W': closeTab,
+    'Alt+O': openFileDirectory,
+    'Ctrl+S': fileManager.save,
+    'Alt+D': toggleTemplate,
+    'Ctrl+Enter': function() {
+      if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
+        renameFile();
+      } else {
+        previewHTML();
+      }
+    },
+  }, true);
+};
+
+function autoSync(event) {
+  let isOnline = navigator.onLine ? true : false;
+  if (isOnline) {
+    if (fileStorage.data.rootId !== '') {
+      drive.syncFromDrive();
+      drive.syncToDrive();
+    }
+  }
+    
+}
+window.addEventListener('online', autoSync);
 window.addEventListener('copy', function(e) { copyFile(false) });
 window.addEventListener('cut', function(e) { copyFile(true) });
 window.addEventListener('paste', function(e) { pasteFile() });
