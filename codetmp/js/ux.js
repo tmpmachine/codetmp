@@ -1159,11 +1159,13 @@ function navScrollDown() {
     switch (event.keyCode) {
       case 37:
       case 38:
-        if (event.keyCode == 37)
-          left();
-        else
-          up(fileCount);
-        navScrollUp();
+        if (selectedFile.length > 0) {
+          if (event.keyCode == 37)
+            left();
+          else
+            up(fileCount);
+          navScrollUp();
+        }
       break;
       case 39:
       case 40:
@@ -1391,33 +1393,55 @@ window.addEventListener('keydown', function(e) {
   if (e.altKey && fileTab[activeTab].editor.env.editor.isFocused()) {
     e.preventDefault();
   }
-  if (!e.ctrlKey && $('#btn-menu-my-files').classList.contains('active')) {
-    let found = false;
-    for (let el of $('.folder-list')) {
-    if (el.title.toLowerCase().startsWith(e.key)) {
-      found = true;
-      if (selectedFile[0] !== el) {
-        el.click();
-        navScrollUp();
-        navScrollDown();
-      }
-      break;
-    }
-    }
 
-    if (found)
-      return;
+  if (!e.ctrlKey && $('#btn-menu-my-files').classList.contains('active')) {
+    if (!('_-.abcdefghijklmnopqrstuvwxyz1234567890'.includes(e.key)))
+      return
+
+    let found = false;
+    let matchName = [];
+    for (let el of $('.folder-list')) {
+      if (el.title.toLowerCase().startsWith(e.key)) {
+        matchName.push(el);
+      }
+    }
 
     for (let el of $('.file-list-clicker')) {
-    if (el.title.toLowerCase().startsWith(e.key)) {
-      found = true;
-      if (selectedFile[0] !== el) {
-        el.click()
+      if (el.title.toLowerCase().startsWith(e.key)) {
+        matchName.push(el);
+      }
+    }
+
+    if (matchName.length == 0) {
+      if (selectedFile.length > 0) {
+        toggleFileHighlight(false);
+        doubleClick = false;
+        selectedFile.length = 0;
+      }
+    }
+
+    if (typeof(selectedFile[0]) == 'undefined') {
+      if (matchName.length > 0) {
+        matchName[0].click();
         navScrollUp();
         navScrollDown();
       }
-      break;
-    }
+    } else {
+      let selectedIndex = matchName.indexOf(selectedFile[0]);
+      if (selectedIndex < 0) {
+        if (matchName.length > 0) {
+          matchName[0].click();
+          navScrollUp();
+          navScrollDown();
+        }
+      } else {
+        if (matchName.length > 1) {
+          selectedIndex = selectedIndex + 1 == matchName.length ? 0 : selectedIndex + 1;
+          matchName[selectedIndex].click();
+          navScrollUp();
+          navScrollDown();
+        }
+      }
     }
   }
 });
