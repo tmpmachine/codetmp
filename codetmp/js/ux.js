@@ -418,7 +418,7 @@ function toggleHomepage() {
 function initPromptWindow() {
   
   // preferences
-  let modal = $('#mindow');
+  let modal = $('#cprompt-modal');
 
   let content = $('.Modal', modal)[0];
   let overlay = $('.Overlay', modal)[0];
