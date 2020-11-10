@@ -265,8 +265,8 @@ function getPromptInput(message, defaultValue='') {
 function toggleModal(name) {
   for (let modal of $('.window')) {
     if (modal.dataset.name == name) {
-      modal.classList.toggle('hide');
-      $('.Overlay',modal)[0].classList.toggle('hide');
+      modal.classList.toggle('Hide');
+      // $('.Overlay',modal)[0].classList.toggle('hide');
       // $('#main-editor').classList.toggle('blurred');
       break;
     }

@@ -363,8 +363,8 @@
 
   <style type="text/css">
   	.window {
-		margin:16px auto;
-		max-width:544px;
+		  margin:16px auto;
+		  max-width:544px;
   	}
   	.window .Wrapper {
   		display: grid;height: 100%
@@ -398,11 +398,30 @@
 	  -webkit-filter:blur(1px);
 	  filter:blur(1px);
 	}
+
+  .window .Modal {
+    transition: 0.25s;
+    transform: scale(1);
+  }
+  .window.Hide .Modal {
+    transform: scale(0.8);
+  }
+  .window {
+    visibility: visible;
+    opacity: 1;
+    transition: 0.25s;
+  }
+  .window.Hide {
+    visibility: hidden;
+    opacity: 0;
+    z-index: 999;
+  }
+
   </style>
 
-	<div class="window hide" data-name="settings">
+	<div class="window Hide" data-name="settings">
 		<div class="Wrapper">
-	    	<div class="Overlay hide" data-target="settings"></div>
+	    	<div class="Overlay" data-target="settings"></div>
 	  		<div class="Modal bg8 col3">
 		      <div class="Header no-select">
 		        <h5><b>Settings</b></h5>
@@ -434,9 +453,9 @@
 	</div>
 
 
-	<div class="window hide" data-name="account">
+	<div class="window Hide" data-name="account">
 		<div class="Wrapper">
-	    	<div class="Overlay hide" data-target="account"></div>
+	    	<div class="Overlay" data-target="account"></div>
 	  		<div class="Modal bg8 col3">
 		      <div class="Header no-select">
 		        <h5><b>My Account</b></h5>
@@ -466,9 +485,9 @@
 	</div>
 
 
-	<div class="window hide" data-name="file-info">
+	<div class="window Hide" data-name="file-info">
 		<div class="Wrapper">
-	    	<div class="Overlay hide" data-target="file-info"></div>
+	    	<div class="Overlay" data-target="file-info"></div>
 	  		<div class="Modal bg8 col3">
 		      <div class="Header no-select">
 		        <h5><b>File Info</b></h5>

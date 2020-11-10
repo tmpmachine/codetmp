@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '6.24';
+let cacheVersion = '6.25';
 let cacheItem = 'codetmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
