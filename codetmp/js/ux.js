@@ -37,41 +37,47 @@ const ui = {
       
       let folder = odin.dataOf(selectedFile[0].getAttribute('data'), fileStorage.data.folders, 'fid');
       
-      let name = getPromptInput('Folder name', folder.name);
-      if (!name || name === folder.name) return;
-      
-      let modifiedTime = new Date().toISOString();
-      folder.name = name;
-      folder.modifiedTime = modifiedTime;
-      
-      handleSync({
-        fid: folder.fid,
-        action: 'update',
-        metadata: ['name'],
-        type: 'folders'
+      window.cprompt('Folder name', folder.name).then(name => {
+        
+        if (!name || name === folder.name) return;
+        
+        let modifiedTime = new Date().toISOString();
+        folder.name = name;
+        folder.modifiedTime = modifiedTime;
+        
+        handleSync({
+          fid: folder.fid,
+          action: 'update',
+          metadata: ['name'],
+          type: 'folders'
+        });
+        drive.syncToDrive();
+        
+        fileStorage.save();
+        fileList();
+        
+        $('#btn-rename-folder').classList.toggle('w3-hide', true);
+
       });
-      drive.syncToDrive();
-      
-      fileStorage.save();
-      fileList();
-      
-      $('#btn-rename-folder').classList.toggle('w3-hide', true);
     },
     newFolder: function() {
       
-      let name = getPromptInput('Folder name', 'Untitled');
-      if (!name) return;
+      window.cprompt('Folder name', 'Untitled').then(name => {
+        
+        if (!name) return;
       
-      let modifiedTime = new Date().toISOString();
-      let folder = new Folder({
-        name,
-        modifiedTime,
-        parentId: activeFolder,
+        let modifiedTime = new Date().toISOString();
+        let folder = new Folder({
+          name,
+          modifiedTime,
+          parentId: activeFolder,
+        });
+        fileManager.sync(folder.fid, 'create', 'folders');
+        drive.syncToDrive();
+        fileManager.list();
+        fileStorage.save();
+
       });
-      fileManager.sync(folder.fid, 'create', 'folders');
-      drive.syncToDrive();
-      fileManager.list();
-      fileStorage.save();
     },
     deleteFolder: function() {
       
@@ -186,6 +192,7 @@ const ui = {
     block.classList.toggle('active');
     
     if (!menu.classList.contains('active')) {
+      L(123)
       selectedFile = [];
     }
   },
@@ -253,17 +260,8 @@ const ui = {
   },
 };
 
-function getPromptInput(message, defaultValue='') {
-  let input = window.prompt('Rename :', defaultValue);
-  if (input === null)
-    return false;
-  if (input.trim().length === 0)
-    return defaultValue;
-  return input;
-}
-
 function toggleModal(name) {
-  for (let modal of $('.window')) {
+  for (let modal of $('.modal-window')) {
     if (modal.dataset.name == name) {
       modal.classList.toggle('Hide');
       // $('.Overlay',modal)[0].classList.toggle('hide');
@@ -338,15 +336,18 @@ function attachMenuLinkListener() {
       break;
       case 'set-font-size':
         callback = function() {
-          let size = parseInt(window.prompt('Prefered font size', 14));
-          if (size)
-            editor.env.editor.setFontSize(size);
+          window.cprompt('Editor Font Size', 14).then(size => {
+            size = parseInt(size);
+            if (size) {
+              for (let tab of fileTab) {
+                tab.editor.env.editor.setFontSize(size);
+              }
+            }
+          })
         }
       break;
       case 'about':
         callback = function() {
-          // if (!$('#in-home').classList.contains('active'))
-            // $('#btn-home').click();
           toggleHomepage();
           blurNavigation()
         };
@@ -378,8 +379,78 @@ function toggleHomepage() {
   $('#main-editor').classList.toggle('editor-mode');
 }
 
+function initPromptWindow() {
+  
+  // preferences
+  let modal = $('#mindow');
+
+  let content = $('.Modal', modal)[0];
+  let overlay = $('.Overlay', modal)[0];
+  let btnClose = $('.Btn-close', modal)[0];
+  let form = $('.form', modal)[0];
+  let input = $('input', form)[0];
+  let title = $('.Text', modal)[0];
+  let hideClass = 'Hide';
+
+  let _resolve
+  
+  function close() {
+    modal.classList.toggle(hideClass)
+    window.removeEventListener('keydown', blur);
+  }
+  
+  function blur() {
+    if (event.key == 'Escape') {
+      close();
+      _resolve(null)
+      window.cprompt.isActive = false;
+    }
+  }
+  
+  overlay.onclick = function() {
+    close();
+    _resolve(null)
+    window.cprompt.isActive = false;
+  }
+    
+  btnClose.onclick = function() {
+      close();
+      window.cprompt.isActive = false;
+      _resolve(null)
+    }
+
+    form.onsubmit = function() {
+      event.preventDefault();
+      if (event.submitter.name == 'submit')
+        _resolve(input.value)
+    else
+        _resolve(null)
+      window.cprompt.isActive = false;
+      close();
+    }
+
+    window.cprompt = function(promptText = '', defaultValue = '') {
+      window.cprompt.isActive = true;
+    document.activeElement.blur()
+    close();
+    title.textContent = promptText;
+    input.value = defaultValue;
+    setTimeout(() => {
+      input.focus();
+      input.setSelectionRange(0,input.value.length);
+    }, 50);
+    window.addEventListener('keydown', blur);
+    return new Promise(resolve => {
+      _resolve = resolve
+    })
+  }
+
+}
+
 function initUI() {
   
+  initPromptWindow();
+
   fileList();
   $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
   $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
@@ -393,7 +464,7 @@ function initUI() {
 
   newTab();
 
-  for (let modal of $('.window')) {
+  for (let modal of $('.modal-window')) {
     $('.Overlay',modal)[0].addEventListener('click', toggleModalByClick);
     $('.Btn-close',modal)[0].addEventListener('click', toggleModalByClick);
   }
@@ -1150,12 +1221,16 @@ function navScrollDown() {
   
   function navigationHandler() {
     
+    if (window.cprompt.isActive)
+      return
+
     if (!$('#btn-menu-my-files').classList.contains('active')) return;
     event.preventDefault();
     
     let fileContainerWidth = (screen.width < 450) ? 153.2 : 203.2;
     let fileCount = Math.floor( ($('#file-list').offsetWidth - 16 * 2) / fileContainerWidth);
     
+
     switch (event.keyCode) {
       case 37:
       case 38:
@@ -1345,6 +1420,8 @@ function applyKeyboardListener() {
     'Right': navigationHandler,
     'Enter': function() {
       if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
+        if (window.cprompt.isActive)
+          return
         event.preventDefault();
         doubleClickOnFile();
       }
@@ -1396,6 +1473,8 @@ window.addEventListener('keydown', function(e) {
 
   if (!e.ctrlKey && $('#btn-menu-my-files').classList.contains('active')) {
     if (!('_-.abcdefghijklmnopqrstuvwxyz1234567890'.includes(e.key)))
+      return
+    if (window.cprompt.isActive)
       return
 
     let found = false;

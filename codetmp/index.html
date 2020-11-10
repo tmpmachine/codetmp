@@ -50,8 +50,6 @@
   <style id="preload-material">
     .material-icons{max-width:37.5px;overflow:hidden;color:transparent}
   </style>
-
-  
   
   <div id="main-editor">
 
@@ -422,7 +420,35 @@
 
   </style>
 
-	<div class="window Hide" data-name="settings">
+
+	<div id="mindow" class="window Hide" data-name="account" style="display: grid;align-items: center">
+		<div class="Wrapper" style="height: auto">
+	    	<div class="Overlay" data-target="account"></div>
+	  		<div class="Modal bg8 col3">
+		      <div class="Header no-select">
+		        <h5><b class="Text"></b></h5>
+		        <i class="Btn-close material-icons w3-button w3-hover-none" data-target="account" style="color:#aaa;">close</i>
+		      </div>
+				<div class="Content">
+
+					<form class="form">
+						<input type="" name="" class="w3-input">
+						<div class="w3-margin-top w3-right-align">
+						<button class="w3-button w3-blue" type="submit" name="submit">Ok</button>
+						<button class="w3-button w3-border" name="cancel">Cancel</button>
+						</div>
+					</form>
+		      </div>
+		      <div style="padding: 8px 12px;background: #ffffff;" class="w3-hide-medium w3-hide-large">
+			      <div class=" w3-button w3-border w3-block clickable" data-callback="toggle-account" style="text-align: center;background: dodgerblue;color:#fff;">
+		           <div class="w3-small w3-padding-small" style="font-weight:bold;">Close</div>
+		        </div>
+		      </div>
+		    </div>
+		</div>
+	</div>
+
+	<div class="window modal-window Hide" data-name="settings">
 		<div class="Wrapper">
 	    	<div class="Overlay" data-target="settings"></div>
 	  		<div class="Modal bg8 col3">
@@ -456,7 +482,7 @@
 	</div>
 
 
-	<div class="window Hide" data-name="account">
+	<div class="window modal-window Hide" data-name="account">
 		<div class="Wrapper">
 	    	<div class="Overlay" data-target="account"></div>
 	  		<div class="Modal bg8 col3">
@@ -488,7 +514,7 @@
 	</div>
 
 
-	<div class="window Hide" data-name="file-info">
+	<div class="window modal-window Hide" data-name="file-info">
 		<div class="Wrapper">
 	    	<div class="Overlay" data-target="file-info"></div>
 	  		<div class="Modal bg8 col3">

@@ -136,29 +136,33 @@ function FileManager() {
     let modifiedTime = new Date().toISOString();
     if (activeFile === undefined) {
       
-      let name = getPromptInput('File name', $('.file-name')[activeTab].textContent);
-      if (!name) return;
-      
-      let file = new File({
-        name,
+      window.cprompt('File name', $('.file-name')[activeTab].textContent).then(name => {
+    
+        if (!name) return;
+        
+        let file = new File({
+          name,
+        });
+        fileManager.sync(file.fid, 'create', 'files');
+        drive.syncToDrive();
+        fileManager.list();
+        fileStorage.save();
+        
+        let scrollTop = fileTab[activeTab].editor.env.editor.getSession().getScrollTop();
+        let row = fileTab[activeTab].editor.env.editor.getCursorPosition().row;
+        let col = fileTab[activeTab].editor.env.editor.getCursorPosition().column;
+        
+        closeTab(false);
+        newTab(activeTab, {
+          fid: file.fid,
+          name: file.name,
+          fiber: 'close',
+          file: file,
+          editor: initEditor(file.content, scrollTop, row, col),
+        });
+
       });
-      fileManager.sync(file.fid, 'create', 'files');
-      drive.syncToDrive();
-      fileManager.list();
-      fileStorage.save();
-      
-      let scrollTop = fileTab[activeTab].editor.env.editor.getSession().getScrollTop();
-      let row = fileTab[activeTab].editor.env.editor.getCursorPosition().row;
-      let col = fileTab[activeTab].editor.env.editor.getCursorPosition().column;
-      
-      closeTab(false);
-      newTab(activeTab, {
-        fid: file.fid,
-        name: file.name,
-        fiber: 'close',
-        file: file,
-        editor: initEditor(file.content, scrollTop, row, col),
-      });
+
     } else {
       
       activeFile.content = fileTab[activeTab].editor.env.editor.getValue();
@@ -296,34 +300,37 @@ function fileRename(fid) {
   
   let file = odin.dataOf(fid, fileStorage.data.files, 'fid');
   
-  let input = getPromptInput('Rename :', file.name);
-  if (!input) return;
-
-  file.name = input;
-  handleSync({
-    fid,
-    action: 'update',
-    metadata: ['name'],
-    type: 'files'
-  });
-  drive.syncToDrive();
-  
-  fileStorage.save();
-  fileList();
-  
-  if (activeFile) {
-    if (fid === activeFile.fid)
-      setEditorMode(file.name);
+  window.cprompt('Rename', file.name).then(input => {
     
-    let index = 0
-    for (let tab of fileTab) {
-      if (tab.fid == fid) {
-        $('.file-name')[index].textContent = file.name;
-        break;
+    if (!input) return;
+
+    file.name = input;
+    handleSync({
+      fid,
+      action: 'update',
+      metadata: ['name'],
+      type: 'files'
+    });
+    drive.syncToDrive();
+    
+    fileStorage.save();
+    fileList();
+    
+    if (activeFile) {
+      if (fid === activeFile.fid)
+        setEditorMode(file.name);
+      
+      let index = 0
+      for (let tab of fileTab) {
+        if (tab.fid == fid) {
+          $('.file-name')[index].textContent = file.name;
+          break;
+        }
+        index++;
       }
-      index++;
     }
-  }
+
+  });
 }
 
 function fileList() {
