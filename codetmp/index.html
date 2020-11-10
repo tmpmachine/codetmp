@@ -117,7 +117,7 @@
           <div class="w3-small w3-padding-small w3-left">New File</div>
           <i class="material-icons" style="color:#fff;">add</i>
         </div>
-        <div id="btn-rename-folder" class="w3-button w3-right w3-hover-none w3-hover-text-black w3-hide">
+        <div id="btn-rename" class="w3-button w3-right w3-hover-none w3-hover-text-black w3-hide">
           <div class="w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Rename</div>
           <i class="material-icons" style="color:#fff;">edit</i>
         </div>
@@ -671,11 +671,8 @@
   
   <template id="tmp-file-list">
     <div class="file-list files pointer no-select bg7 hover-bg3-light" style="margin:0.1em;padding:0;position:relative;">
-      <div style="position:absolute;z-index:8177;top:0;left:0;">
-        <i id="btn-lock__fid__" class="material-icons __clsLock__ btn-lock w3-button w3-hover-none" onclick='lockRender(this, __fid__, "__name__")' style="color:#aaa;">lock</i>
-      </div>
       <div style="position:absolute;z-index:8177;top:0;right:0;">
-        <i class="material-icons w3-button w3-hover-none" onclick="fileRename(__fid__)" style="color:#aaa;">edit</i>
+        <i id="btn-lock__fid__" class="material-icons __clsLock__ btn-lock w3-button w3-hover-none" onclick='lockRender(this, __fid__, "__name__")' style="color:#aaa;">lock</i>
       </div>
       <div class="file-list-clicker" onclick='openFileConfirm(this)' title='__name__' data-type="file" data='__fid__'>
         <div class="w3-center w3-padding-32">

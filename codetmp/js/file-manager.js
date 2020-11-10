@@ -189,7 +189,7 @@ function FileManager() {
     listFiles();
     loadBreadCrumbs();
     
-    $('#btn-rename-folder').classList.toggle('w3-hide', true);
+    $('#btn-rename').classList.toggle('w3-hide', true);
     selectedFile.splice(0, 1);
   };
   
@@ -296,43 +296,6 @@ function handleSync(sync) {
 }
 
 
-function fileRename(fid) {
-  
-  let file = odin.dataOf(fid, fileStorage.data.files, 'fid');
-  
-  window.cprompt('Rename', file.name).then(input => {
-    
-    if (!input) return;
-
-    file.name = input;
-    handleSync({
-      fid,
-      action: 'update',
-      metadata: ['name'],
-      type: 'files'
-    });
-    drive.syncToDrive();
-    
-    fileStorage.save();
-    fileList();
-    
-    if (activeFile) {
-      if (fid === activeFile.fid)
-        setEditorMode(file.name);
-      
-      let index = 0
-      for (let tab of fileTab) {
-        if (tab.fid == fid) {
-          $('.file-name')[index].textContent = file.name;
-          break;
-        }
-        index++;
-      }
-    }
-
-  });
-}
-
 function fileList() {
   
   var el;
@@ -381,7 +344,7 @@ function fileList() {
   }
   
   loadBreadCrumbs();
-  $('#btn-rename-folder').classList.toggle('w3-hide', true);
+  $('#btn-rename').classList.toggle('w3-hide', true);
   selectedFile.splice(0, 1);
 }
 

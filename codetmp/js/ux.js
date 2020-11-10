@@ -39,6 +39,7 @@ const ui = {
       
       window.cprompt('Folder name', folder.name).then(name => {
         
+        $('#btn-rename').classList.toggle('w3-hide', true);
         if (!name || name === folder.name) return;
         
         let modifiedTime = new Date().toISOString();
@@ -55,8 +56,43 @@ const ui = {
         
         fileStorage.save();
         fileList();
+
+      });
+    },
+    renameFile: function(fid) {
+  
+      let file = odin.dataOf(fid, fileStorage.data.files, 'fid');
+      
+      window.cprompt('Rename', file.name).then(input => {
         
-        $('#btn-rename-folder').classList.toggle('w3-hide', true);
+        $('#btn-rename').classList.toggle('w3-hide', true);
+        if (!input) return;
+
+        file.name = input;
+        handleSync({
+          fid,
+          action: 'update',
+          metadata: ['name'],
+          type: 'files'
+        });
+        drive.syncToDrive();
+        
+        fileStorage.save();
+        fileList();
+        
+        if (activeFile) {
+          if (fid === activeFile.fid)
+            setEditorMode(file.name);
+          
+          let index = 0
+          for (let tab of fileTab) {
+            if (tab.fid == fid) {
+              $('.file-name')[index].textContent = file.name;
+              break;
+            }
+            index++;
+          }
+        }
 
       });
     },
@@ -490,7 +526,7 @@ function initUI() {
     'btn-menu-template'     : function() { toggleInsertSnippet() },
     'btn-new-folder'        : ui.fm.newFolder,
     'btn-new-file'          : function() { $('#btn-menu-my-files').click(); ui.openNewTab(); },
-    'btn-rename-folder'     : ui.fm.renameFolder,
+    'btn-rename'            : renameFile,
     'btn-delete-file'       : function() { ui.fm.deleteFile(activeFile.fid) },
     'btn-download-file'     : function() { fileDownload() },
     'btn-menu-save'         : fileManager.save,
@@ -1023,7 +1059,7 @@ function openFolderConfirm(el) {
   }
   
   if (!doubleClick) {
-    $('#btn-rename-folder').classList.toggle('w3-hide', false);
+    $('#btn-rename').classList.toggle('w3-hide', false);
     
     lastClickEl = el;
     doubleClick = true;
@@ -1032,7 +1068,7 @@ function openFolderConfirm(el) {
       doubleClick = false;
     }, 500);
   } else {
-    $('#btn-rename-folder').classList.toggle('w3-hide', true);
+    $('#btn-rename').classList.toggle('w3-hide', true);
     
     selectedFile.splice(0, 1);
     
@@ -1047,8 +1083,6 @@ function openFileConfirm(el) {
   if (selectedFile.length < 1)
     selectedFile.push(el);
   
-  $('#btn-rename-folder').classList.toggle('w3-hide', true);
-  
   if (lastClickEl !== undefined && lastClickEl != el) {
     selectedFile.splice(0, 1);
     selectedFile.push(el);
@@ -1058,6 +1092,7 @@ function openFileConfirm(el) {
   }
   
   if (!doubleClick) {
+    $('#btn-rename').classList.toggle('w3-hide', false);
     lastClickEl = el;
     doubleClick = true;
     toggleFileHighlight(true);
@@ -1065,6 +1100,7 @@ function openFileConfirm(el) {
       doubleClick = false;
     },500)
   } else {
+    $('#btn-rename').classList.toggle('w3-hide', true);
     selectedFile.splice(0, 1);
     doubleClick = false;
     openFile(el.getAttribute('data'));
@@ -1263,6 +1299,12 @@ function navScrollDown() {
   
 })();
 
+function renameFile() {
+  if (selectedFile[0].dataset.type === 'folder')
+    ui.fm.renameFolder();
+  else
+    ui.fm.renameFile(Number(selectedFile[0].getAttribute('data')));
+}
 
 function renderAndDeploySingle() {
   let tmpLocked = locked;
@@ -1339,13 +1381,6 @@ function applyKeyboardListener() {
     selectedFile[0].click();
     if (selectedFile[0])
       selectedFile[0].click();
-  }
-  
-  function renameFile() {
-    if (selectedFile[0].dataset.type === 'folder')
-      ui.fm.renameFolder();
-    else
-      fileRename(Number(selectedFile[0].getAttribute('data')));
   }
   
   function deleteSelected() {
