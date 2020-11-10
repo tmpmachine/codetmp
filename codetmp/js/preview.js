@@ -64,12 +64,12 @@ function PreviewManager() {
       let content;
 
       if (file === undefined) {
-      	content = '<404/>';
+      	content = '';
       } else {
         if (typeof(file.loaded) != 'undefined' && !file.loaded) {
           aww.pop('Downloading required file : '+name);
           drive.downloadDependencies(file);
-	      content = '<404/>';
+	      content = '';
         } else {
 
 	        let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
@@ -83,8 +83,8 @@ function PreviewManager() {
       if ($('#chk-render-plate-html').checked && mimeType.includes('text/html')) {
       	content = plate.cook(content);
       }
-      L(content)
-      return replaceTemplate(content);
+
+      return replaceTemplate(content, parentId);
   }
 
 
@@ -198,7 +198,6 @@ function PreviewManager() {
   		path.push(folder.name);
   		parentId = parseInt(folder.parentId);
   	}
-    L(path)
   	return path.reverse().join('/');
 
   }
@@ -298,7 +297,7 @@ return body;
       let isScriptOrLink = false;
       let isFile = false;
       let isMinified = false;
-      let start = 19;
+      let start = 15;
       let end = 13;
       let src = '';
       

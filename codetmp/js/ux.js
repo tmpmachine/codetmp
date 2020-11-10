@@ -228,7 +228,6 @@ const ui = {
     block.classList.toggle('active');
     
     if (!menu.classList.contains('active')) {
-      L(123)
       selectedFile = [];
     }
   },
