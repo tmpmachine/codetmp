@@ -526,6 +526,7 @@ function focusTab(fid) {
   $('#editor-wrapper').append(fileTab[idx].editor)
   
   fileTab[idx].editor.env.editor.focus();
+  fileTab[idx].editor.env.editor.session.setUseWrapMode(false);
   fileTab[idx].editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
   activeFile = (String(fid)[0] == '-') ? undefined : fileTab[activeTab].file;
   setEditorMode(fileTab[activeTab].name);
