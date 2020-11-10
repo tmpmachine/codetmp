@@ -567,9 +567,6 @@
 			          <div>
 			            <input id="chk-in-pre" class="description" type="checkbox" name="isWrap"/> <label for="chk-in-pre">Wrap in &lt;pre&gt;</label>
 			          </div>
-			          <div>
-			            <input id="chk-blogger-app" class="description" type="checkbox" name="isApp"/> <label for="chk-blogger-app">Deploy as Blogger Apps</label>
-			          </div>
 			          
 			          <div class="w3-tiny" style="margin-top:1em;">Render and deploy option</div>
 			          <div>
@@ -739,13 +736,6 @@
     </div>
   </div>
   
-
-  <!-- required for Blogsphere apps library -->
-  <script id="arc7-updater" type="plain/text">
-    arc7db.open(function(){let blogId='<blogId>';let appId='<appId>';fetch('https://www.blogger.com/feeds/'+blogId+'/posts/summary/'+appId+'?alt=json&rand='+new Date().getTime()).then(function(result){return result.json()}).then(function(json){let updated=(new Date(json.entry.updated.$t)).getTime();arc7db.get(appId,function(data){if(updated>data.updated){fetch('https://www.blogger.com/feeds/'+blogId+'/posts/default/'+appId+'?alt=json&rand='+new Date().getTime()).then(function(result){return result.json()}).then(function(json){let entry=json.entry.content.$t.split("<a name='more'></a> bbb");let data={appId:json.entry.id.$t.split('post-')[1],title:json.entry.title.$t,updated:(new Date(json.entry.updated.$t)).getTime(),summary:entry.splice(0,1),content:entry.join("<a name='more'></a> bbb").substring(397+5,json.entry.content.$t.length-6).replace(/<br \/>/g,'\n')};function installApp(){arc7db.create(data,function(){arc7db.get(data.appId,function(data){if(data)
-location.href=location.href;else setTimeout(installApp,2000)})})}
-arc7db.delete(data.appId,function(){installApp()})})}})})})
-  </script>
   <!--service worker handler-->
   <script>
     (function() {

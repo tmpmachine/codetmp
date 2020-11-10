@@ -546,10 +546,6 @@ function parseDescriptionOld(txt) {
 
 (function() {
 
-  function getAppScript(blogId, entryId) {
-    return '<script>' + $('#arc7-updater').textContent.replace('<blogId>', blogId).replace('<appId>', entryId) + '</script>';
-  }
-
   function getBlogId(file, blogName) {
     aww.pop('Retrieving blog id ...');
     oblog.config({ blog: blogName});
@@ -577,11 +573,11 @@ function parseDescriptionOld(txt) {
   function deploy() {
     
     let data = (locked >= 0) ? odin.dataOf(locked, fileStorage.data.files, 'fid') : activeFile;
-    let {blogName, blogId, entryId, summary = '', isBreak, isApp, isWrap, isSummaryFix} = data.description.startsWith('{') ? JSON.parse(data.description) : parseDescriptionOld(data.description);
+    let {blogName, blogId, entryId, summary = '', isBreak, isWrap, isSummaryFix} = data.description.startsWith('{') ? JSON.parse(data.description) : parseDescriptionOld(data.description);
 
     if (blogName && entryId) {
       
-      if (isApp && !blogId) {
+      if (!blogId) {
         getBlogId(data, blogName);
         return;
       }
@@ -592,8 +588,6 @@ function parseDescriptionOld(txt) {
       let summaryFix = isSummaryFix ? 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' : '';
       let content = uploadBody;
       
-      if (isApp)
-        content = getAppScript(blogId, entryId) + content;
       if (isWrap)
         content = wrapInPre(content);
 
