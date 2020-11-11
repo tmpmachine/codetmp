@@ -414,60 +414,94 @@ function toggleHomepage() {
   $('#main-editor').classList.toggle('editor-mode');
 }
 
-function initPromptWindow() {
+function initModalWindow() {
   
   // preferences
-  let modal = $('#cprompt-modal');
-
-  let content = $('.Modal', modal)[0];
-  let overlay = $('.Overlay', modal)[0];
-  let btnClose = $('.Btn-close', modal)[0];
-  let form = $('.form', modal)[0];
-  let input = $('input', form)[0];
-  let title = $('.Text', modal)[0];
+  let modal;
+  let content;
+  let overlay;
+  let btnClose;
+  let form;
+  let title;
+  let message;
+  let input;
   let hideClass = 'Hide';
 
-  let _resolve
-  
-  function close() {
-    modal.classList.toggle(hideClass)
-    window.removeEventListener('keydown', blur);
+  let _resolve;
+  let type = 'confirm';
+
+  function initComponent(modal) {
+    content = $('.Modal', modal)[0];
+    overlay = $('.Overlay', modal)[0];
+    btnClose = $('.Btn-close', modal)[0];
+    form = $('.form', modal)[0];
+    title = $('.Title', modal)[0];
+    message = $('.Message', modal)[0];
+    input = $('input', modal)[0]; 
   }
   
+  function closeModal() {
+    modal.classList.toggle(hideClass, true)
+    window.removeEventListener('keydown', blur);
+    window.cprompt.isActive = false;
+    overlay.onclick = null;
+    btnClose.onclick = null;
+    form.onsubmit = () => event.preventDefault();
+  }
+
   function blur() {
     if (event.key == 'Escape') {
-      close();
-      _resolve(null)
-      window.cprompt.isActive = false;
+      closeModal();
+      _resolve(null);
     }
   }
   
-  overlay.onclick = function() {
-    close();
+  function close() {
+    closeModal();
     _resolve(null)
-    window.cprompt.isActive = false;
   }
-    
-  btnClose.onclick = function() {
-      close();
-      window.cprompt.isActive = false;
+
+  function submitForm() {
+    event.preventDefault();
+    if (event.submitter.name == 'submit') {
+      if (type == 'confirm')
+        _resolve(true);
+      else
+        _resolve(input.value);
+    } else {
       _resolve(null)
     }
+    closeModal(); 
+  }
 
-    form.onsubmit = function() {
-      event.preventDefault();
-      if (event.submitter.name == 'submit')
-        _resolve(input.value)
-    else
-        _resolve(null)
-      window.cprompt.isActive = false;
-      close();
-    }
+  window.cconfirm = function(promptText = '') {
+    modal = $('#cconfirm-modal');
+    initComponent(modal);
+    type = 'confirm';
+    modal.classList.toggle(hideClass, false)
+    window.cprompt.isActive = true;
+    overlay.onclick = close;
+    btnClose.onclick = close;
+    form.onsubmit = submitForm;
+    document.activeElement.blur();
+    window.addEventListener('keydown', blur);
+    message.textContent = promptText;
+    return new Promise(resolve => {
+      _resolve = resolve;
+    })
+  }
 
-    window.cprompt = function(promptText = '', defaultValue = '') {
-      window.cprompt.isActive = true;
+  window.cprompt = function(promptText = '', defaultValue = '') {
+    modal = $('#cprompt-modal');
+    initComponent(modal);
+    input = $('input', modal)[0];
+    type = 'prompt';
+    modal.classList.toggle(hideClass, false)
+    window.cprompt.isActive = true;
+    overlay.onclick = close;
+    btnClose.onclick = close;
+    form.onsubmit = submitForm;
     document.activeElement.blur()
-    close();
     title.textContent = promptText;
     input.value = defaultValue;
     setTimeout(() => {
@@ -479,75 +513,11 @@ function initPromptWindow() {
       _resolve = resolve
     })
   }
-
-}
-
-function initConfirmWindow() {
-  
-  // preferences
-  let modal = $('#cconfirm-modal');
-
-  let content = $('.Modal', modal)[0];
-  let overlay = $('.Overlay', modal)[0];
-  let btnClose = $('.Btn-close', modal)[0];
-  let form = $('.form', modal)[0];
-  let message = $('.Message', modal)[0];
-  let hideClass = 'Hide';
-
-  let _resolve
-  
-  function close() {
-    modal.classList.toggle(hideClass)
-    window.removeEventListener('keydown', blur);
-  }
-  
-  function blur() {
-    if (event.key == 'Escape') {
-      close();
-      _resolve(false)
-      window.cprompt.isActive = false;
-    }
-  }
-  
-  overlay.onclick = function() {
-    close();
-    _resolve(false)
-    window.cprompt.isActive = false;
-  }
-    
-  btnClose.onclick = function() {
-      close();
-      window.cprompt.isActive = false;
-      _resolve(false)
-    }
-
-    form.onsubmit = function() {
-      event.preventDefault();
-      if (event.submitter.name == 'submit')
-        _resolve(true)
-    else
-        _resolve(false)
-      window.cprompt.isActive = false;
-      close();
-    }
-
-    window.cconfirm = function(promptText = '') {
-      window.cprompt.isActive = true;
-    document.activeElement.blur()
-    close();
-    message.textContent = promptText;
-    window.addEventListener('keydown', blur);
-    return new Promise(resolve => {
-      _resolve = resolve
-    })
-  }
-
 }
 
 function initUI() {
   
-  initPromptWindow();
-  initConfirmWindow();
+  initModalWindow();
 
   fileList();
   $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
@@ -949,41 +919,34 @@ function getTabWidth() {
   return width;
 }
 
-function closeTab(focus = true, comeback) {
-  
+function confirmCloseTab(focus = true, comeback) {
   if (focus) {
-    
     if ($('.file-tab')[activeTab].firstElementChild.firstElementChild.textContent.trim() != 'close') {
-      
       window.cconfirm('Changes you made will be lost.').then(isOk => {
-
-        if (!isOk) return;
-
-        $('#file-title').removeChild($('.file-tab')[activeTab]);
-        fileTab.splice(activeTab, 1);
-        
-        if (focus) {
-          
-          if (fileTab.length == 0) {
-            newTab()
-            activeFile = undefined;
-          } else {
-            
-            if (comeback === undefined) {
-              
-              if (activeTab == 0)
-                focusTab(fileTab[0].fid);
-              else
-                focusTab(fileTab[activeTab-1].fid);
-            }
-          }
-        }
-
+        if (isOk) closeTab(focus, comeback);
       })
+    } else {
+      closeTab(focus, comeback);
     }
   }
-  
-  
+}
+
+function closeTab(focus, comeback) {
+  $('#file-title').removeChild($('.file-tab')[activeTab]);
+  fileTab.splice(activeTab, 1);
+  if (focus) {
+    if (fileTab.length == 0) {
+      newTab()
+      activeFile = undefined;
+    } else {
+      if (comeback === undefined) {
+        if (activeTab == 0)
+          focusTab(fileTab[0].fid);
+        else
+          focusTab(fileTab[activeTab-1].fid);
+      }
+    }
+  }
 }
 
 function createBlogTemplate() {
@@ -1024,8 +987,6 @@ function createBlogTemplate() {
     }
     
   },'items(id,title)');
-  
-  
 }
 
 function createBlogEntry() {
@@ -1048,8 +1009,6 @@ function createBlogEntry() {
     fileManager.save();
     
   }, 'id')
-  
-  
 }
 
 function createBlogApp() {
@@ -1074,21 +1033,16 @@ function createBlogApp() {
     fileManager.save();
     
   }, 'id,blog(id)')
-  
 }
 
 function getFileColor(fileName) {
   let defaultBg;
-  if (fileName.includes('.blogger'))
-    defaultBg = '#ffa51e';
-  else if (fileName.includes('.css'))
+  if (fileName.includes('.css'))
     defaultBg = '#1e44ff';
   else if (fileName.includes('.js'))
     defaultBg = '#ccad1b';
   else if (fileName.includes('.html'))
     defaultBg = '#fb5c10';
-  else if (fileName.includes('.tmp'))
-    defaultBg = '#4aad4d';
   return defaultBg;
 }
 
@@ -1113,39 +1067,6 @@ function openBread(id) {
   fileList();
 }
 
-function openFolderConfirm(el) {
-  if (selectedFile.length < 1)
-    selectedFile.push(el);
-  
-  if (lastClickEl !== undefined && lastClickEl != el) {
-    selectedFile.splice(0, 1);
-    selectedFile.push(el);
-    
-    toggleFileHighlight(false);
-    doubleClick = false;
-  }
-  
-  if (!doubleClick) {
-    $('#btn-rename').classList.toggle('w3-hide', false);
-    
-    lastClickEl = el;
-    doubleClick = true;
-    toggleFileHighlight(true);
-    setTimeout(function(){
-      doubleClick = false;
-    }, 500);
-  } else {
-    $('#btn-rename').classList.toggle('w3-hide', true);
-    
-    selectedFile.splice(0, 1);
-    
-    doubleClick = false;
-    let folderId = Number(el.getAttribute('data'))
-    openFolder(folderId);
-    toggleFileHighlight(false);
-  }
-}
-
 function openFileConfirm(el) {
   if (selectedFile.length < 1)
     selectedFile.push(el);
@@ -1165,12 +1086,18 @@ function openFileConfirm(el) {
     toggleFileHighlight(true);
     setTimeout(function(){
       doubleClick = false;
-    },500)
+    }, 500);
   } else {
     $('#btn-rename').classList.toggle('w3-hide', true);
+    let type = selectedFile[0].dataset.type;
     selectedFile.splice(0, 1);
     doubleClick = false;
-    openFile(el.getAttribute('data'));
+    if (type == 'file') {
+      openFile(el.getAttribute('data'));
+    } else {
+      let folderId = Number(el.getAttribute('data'))
+      openFolder(folderId);
+    }
     toggleFileHighlight(false);
   }
 }
@@ -1212,30 +1139,23 @@ function navScrollDown() {
   }
   
   function left() {
-    
     if (selectedFile[0].classList.contains('folder-list')) {
-      
       forEachFolder(i => {
         if (i - 1 >= 0)
           $('.folder-list')[i-1].click();
       });
-      
     } else {
-      
       forEachFile(i => {
         if (i - 1 >= 0)
           $('.file-list-clicker')[i-1].click();
         else if ($('.folder-list').length > 0)
           $('.folder-list')[$('.folder-list').length - 1].click();
       });
-      
     }
   }
   
   function right() {
-    
     if (selectedFile[0].classList.contains('folder-list')) {
-      
       forEachFolder(i => {
         if (i + 1 < $('.folder-list').length) {
           $('.folder-list')[i + 1].click();
@@ -1244,30 +1164,23 @@ function navScrollDown() {
             $('.file-list-clicker')[0].click();
         }
       });
-      
     } else {
-      
       forEachFile(i => {
         if (i + 1 < $('.file-list').length)
           $('.file-list-clicker')[i + 1].click();
       });
-      
     }
   }
   
   function up(fileCount) {
-    
     if (selectedFile[0].classList.contains('folder-list')) {
-      
       forEachFolder(i => {
         if (i - fileCount >= 0)
           $('.folder-list')[i - fileCount].click();
         else if (i != 0)
           $('.folder-list')[0].click();
       });
-      
     } else {
-      
       forEachFile(i => {
         if (i - fileCount >= 0) {
           $('.file-list-clicker')[i - fileCount].click();
@@ -1279,16 +1192,12 @@ function navScrollDown() {
   
           $('.folder-list')[index].click();
         }
-      });
-      
+      });      
     }
   }
   
   function down(fileCount) {
-    
-    
     if (selectedFile[0].classList.contains('folder-list')) {
-      
       forEachFolder(i => {
         if (i + fileCount < $('.folder-list').length) {
           $('.folder-list')[i + fileCount].click();
@@ -1302,24 +1211,25 @@ function navScrollDown() {
             $('.file-list-clicker')[index].click();
         }
       });
-      
     } else {
-      
       forEachFile(i => {
         if (i + fileCount < $('.file-list').length)
           $('.file-list-clicker')[i + fileCount].click();
         else if (i != $('.file-list').length - 1)
           $('.file-list-clicker')[$('.file-list').length - 1].click();
       });
-      
     }
   }
   
   function selectFirstFile() {
-    if ($('.folder-list').length > 0)
+    if ($('.folder-list').length > 0) {
       $('.folder-list')[0].click();
-    else
+      return true;
+    } else if ($('.file-list-clicker').length > 0) {
       $('.file-list-clicker')[0].click();
+      return true;
+    }
+    return false;
   }
   
   function navigationHandler() {
@@ -1332,7 +1242,6 @@ function navScrollDown() {
     
     let fileContainerWidth = (screen.width < 450) ? 153.2 : 203.2;
     let fileCount = Math.floor( ($('#file-list').offsetWidth - 16 * 2) / fileContainerWidth);
-    
 
     switch (event.keyCode) {
       case 37:
@@ -1348,8 +1257,9 @@ function navScrollDown() {
       case 39:
       case 40:
         if (selectedFile.length == 0) {
-          selectFirstFile();
-          navScrollUp();
+          if (selectFirstFile()) {
+            navScrollUp();
+          }
         } else {
           if (event.keyCode == 39)
             right();
@@ -1611,7 +1521,7 @@ function applyKeyboardListener() {
     'Alt+R': toggleWrapMode,
     'Alt+I': () => toggleModal('file-info'),
     'Alt+N': ui.openNewTab,
-    'Alt+W': closeTab,
+    'Alt+W': confirmCloseTab,
     'Alt+O': openFileDirectory,
     'Ctrl+S': fileManager.save,
     'Alt+D': toggleTemplate,

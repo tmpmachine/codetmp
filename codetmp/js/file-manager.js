@@ -152,7 +152,7 @@ function FileManager() {
         let row = fileTab[activeTab].editor.env.editor.getCursorPosition().row;
         let col = fileTab[activeTab].editor.env.editor.getCursorPosition().column;
         
-        closeTab(false);
+        confirmCloseTab(false);
         newTab(activeTab, {
           fid: file.fid,
           name: file.name,
@@ -215,7 +215,7 @@ function FileManager() {
 	}).then(function(file) {
       
       if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
-        closeTab(false);
+        confirmCloseTab(false);
   
       
       let idx = odin.idxOf(f.fid, fileTab, 'fid')
@@ -406,7 +406,7 @@ function openFile(fid) {
 }).then(function(file) {
     
     if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-') {
-      closeTab(false);
+      confirmCloseTab(false);
     }
 
     
@@ -452,16 +452,16 @@ function fileClose(fid) {
   if (activeTab == idx) {
     
     activeTab = idx
-    closeTab()
+    confirmCloseTab()
   } else {
     
     let tmp = activeTab;
     activeTab = idx;
     
     if (idx < tmp)
-      closeTab(true, tmp-1)
+      confirmCloseTab(true, tmp-1)
     else
-      closeTab(true, tmp)
+      confirmCloseTab(true, tmp)
   }
   
 }
