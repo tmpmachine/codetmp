@@ -471,3 +471,46 @@ display: grid;
   .window.Hide .Modal{
   	visibility: hidden;;
 	}
+
+.btn-style-1{
+
+    display: inline-flex;
+    color:#fff;
+    border: 0;
+    background: #262730;
+    align-items: center;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding: 0.7em 1.4em;
+    width: 100px;
+    justify-content: center;
+    border-radius: 0.2em;
+    cursor: pointer;
+        border: 1px solid #2a2a2a;
+}
+.btn-style-1:hover{
+background:#262730aa;
+}
+.btn-style-2{
+
+    display: inline-flex;
+    color: #050505;
+    border: 0;
+    background: #f7f7f7;
+    align-items: center;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding: 0.7em 1.4em;
+    cursor: pointer;
+    border-radius: 0.2em;
+    border: 1px solid #d2d0d0;
+    margin-left: 0.4em;
+
+}.btn-style-2:hover{
+background:#f1f1f1;
+}
+.btn-style-1:focus,.btn-style-2:focus{
+	    box-shadow: 0 0 5px 1px #818181;
+	    /*border: 2px solid red;*/
+	    outline-color: #e91e63;
+}

@@ -37,7 +37,7 @@ const ui = {
       
       let folder = odin.dataOf(selectedFile[0].getAttribute('data'), fileStorage.data.folders, 'fid');
       
-      window.cprompt('Folder name', folder.name).then(name => {
+      window.cprompt('Rename', folder.name).then(name => {
         
         $('#btn-rename').classList.toggle('w3-hide', true);
         if (!name || name === folder.name) return;
@@ -426,6 +426,7 @@ function initModalWindow() {
   let hideClass = 'Hide';
 
   let _resolve;
+  let _reject;
   let type = 'confirm';
 
   function initComponent(modal) {
@@ -450,13 +451,19 @@ function initModalWindow() {
       closeModal();
 	if (type == 'prompt')
       _resolve(null);
+    else {
+      _reject();
     }
+    } 
   }
   
   function close() {
     closeModal();
 	if (type == 'prompt')
 	    _resolve(null)
+    else {
+      _reject();
+    }
   }
 
   function submitForm() {
@@ -469,6 +476,9 @@ function initModalWindow() {
     } else {
   		if (type == 'prompt')
 	  		_resolve(null)
+      else {
+        _reject();
+      }
     }
     closeModal(); 
   }
@@ -483,10 +493,14 @@ function initModalWindow() {
     btnClose.onclick = close;
     form.onsubmit = submitForm;
     document.activeElement.blur();
+    setTimeout(() => {
+      $('.Btn-submit', modal)[0].focus();
+    }, 150);
     window.addEventListener('keydown', blur);
     message.textContent = promptText;
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       _resolve = resolve;
+      _reject = reject;
     })
   }
 
@@ -506,7 +520,7 @@ function initModalWindow() {
     setTimeout(() => {
       input.focus();
       input.setSelectionRange(0,input.value.length);
-    }, 50);
+    }, 150);
     window.addEventListener('keydown', blur);
     return new Promise(resolve => {
       _resolve = resolve
@@ -917,8 +931,8 @@ function confirmCloseTab(focus = true, comeback) {
 	if (focus) {
 		if ($('.file-tab')[activeTab].firstElementChild.firstElementChild.textContent.trim() != 'close') {
 	      window.cconfirm('Changes you made will be lost.').then(() => {
-	    	changeFocusTab(focus, comeback);
-	      })
+  	    	changeFocusTab(focus, comeback);
+	      }).catch(() => fileTab[activeTab].editor.env.editor.focus())
 	    } else {
 		    changeFocusTab(focus, comeback);
 	    }	
