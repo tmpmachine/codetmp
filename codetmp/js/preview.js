@@ -109,7 +109,7 @@ function PreviewManager() {
   this.getFrameName = function() {
   	let file = activeFile;
     if (locked < 0 && typeof(file) == 'undefined') {
-  		return 'preview';
+  		return 'prive';
   	}
 
     if (locked >= 0) {

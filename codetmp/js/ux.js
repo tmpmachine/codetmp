@@ -1,4 +1,5 @@
-let previewUrl = 'https://cpreview.web.app/';
+let previewUrl = 'http://localhost:5000/';
+// let previewUrl = 'https://cpreview.web.app/';
 let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 

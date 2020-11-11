@@ -49,8 +49,28 @@
   <template><img src='/images/192.png'/></template>
   <style id="preload-material">
     .material-icons{max-width:37.5px;overflow:hidden;color:transparent}
+
   </style>
-  
+<style type="text/css">
+	 #main-layout{
+    	display: grid;
+    	grid-template-columns: 1fr 5px 5px 1fr;
+    	height: 100%;
+   		grid-column: 1/3;
+    }
+    #gutter {
+   		grid-column: 2/3;
+    }
+   	#main-layout > iframe {
+   		width: 100%;
+   		height: 100%;
+   		border: 0;
+   		background: #fff;
+   		grid-column: 3/5;
+   	}
+</style>
+
+<div id="main-layout">
   <div id="main-editor">
 
     <div class="w3-rest scroll1 anibar-main-editor-pusher anibar--blocker" style="width:calc(100% - 1px);height:100%;position:relative;">
@@ -322,8 +342,11 @@
     </div>
   </div>
   </div>
-  
-  
+  <div id="gutter"></div>
+  <!-- end of main editor -->
+  <iframe id="prive" name="prive"></iframe>
+</div>
+
     <style>
       .search-hints.selected{background:#eee;}
       .search-hints{border-top:1px solid #e8e8e8;}
