@@ -116,56 +116,54 @@ const ui = {
       });
     },
     deleteFolder: function() {
-      
-      if (!window.confirm('Sub files & folders will also be delete. Delete anyway?')) return;
-      
-      let data = odin.dataOf(selectedFile[0].getAttribute('data'), fileStorage.data.folders, 'fid');
-      data.trashed = true;
-      
-      handleSync({
-        fid: data.fid,
-        action: 'update',
-        metadata: ['trashed'],
-        type: 'folders'
-      });
-      drive.syncToDrive();
-      
-      fileStorage.save();
-      fileList();
-      selectedFile.splice(0, 1);
+    	window.cconfirm('Sub files & folders will also be delete. Delete anyway?').then(() => {
+	      let data = odin.dataOf(selectedFile[0].getAttribute('data'), fileStorage.data.folders, 'fid');
+	      data.trashed = true;
+	      
+	      handleSync({
+	        fid: data.fid,
+	        action: 'update',
+	        metadata: ['trashed'],
+	        type: 'folders'
+	      });
+	      drive.syncToDrive();
+	      
+	      fileStorage.save();
+	      fileList();
+	      selectedFile.splice(0, 1);
+    	})
     },
     deleteFile: function(fid) {
-      
-      if (!window.confirm('Delete this file?')) return;
-      
-      if (typeof(fid) === 'undefined')
-        fid = selectedFile[0].getAttribute('data');
-        
-      let data = odin.dataOf(fid, fileStorage.data.files, 'fid');
-      data.trashed = true;
-      
-      if (activeFile && data.fid === activeFile.fid) {
-        activeFile = undefined;
-        $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
-      }
-      
-      for (let sync of fileStorage.data.sync) {
-        if (sync.action === 52 && sync.copyId === fid)
-          sync.action = 12;
-      }
-      
-      handleSync({
-        fid: data.fid,
-        action: 'update',
-        metadata: ['trashed'],
-        type: 'files'
-      });
-      drive.syncToDrive();
-      
-      fileStorage.save();
-      fileList();
-      selectedFile.splice(0, 1);
-      locked = -1;
+      window.cconfirm('Delete this file?').then(() => {
+	      if (typeof(fid) === 'undefined')
+	        fid = selectedFile[0].getAttribute('data');
+	        
+	      let data = odin.dataOf(fid, fileStorage.data.files, 'fid');
+	      data.trashed = true;
+	      
+	      if (activeFile && data.fid === activeFile.fid) {
+	        activeFile = undefined;
+	        $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
+	      }
+	      
+	      for (let sync of fileStorage.data.sync) {
+	        if (sync.action === 52 && sync.copyId === fid)
+	          sync.action = 12;
+	      }
+	      
+	      handleSync({
+	        fid: data.fid,
+	        action: 'update',
+	        metadata: ['trashed'],
+	        type: 'files'
+	      });
+	      drive.syncToDrive();
+	      
+	      fileStorage.save();
+	      fileList();
+	      selectedFile.splice(0, 1);
+	      locked = -1;
+      })
     }
   },
   toggleMenu: function() {
@@ -450,24 +448,27 @@ function initModalWindow() {
   function blur() {
     if (event.key == 'Escape') {
       closeModal();
+	if (type == 'prompt')
       _resolve(null);
     }
   }
   
   function close() {
     closeModal();
-    _resolve(null)
+	if (type == 'prompt')
+	    _resolve(null)
   }
 
   function submitForm() {
     event.preventDefault();
     if (event.submitter.name == 'submit') {
       if (type == 'confirm')
-        _resolve(true);
+        _resolve();
       else
         _resolve(input.value);
     } else {
-      _resolve(null)
+  		if (type == 'prompt')
+	  		_resolve(null)
     }
     closeModal(); 
   }
@@ -913,33 +914,37 @@ function getTabWidth() {
 }
 
 function confirmCloseTab(focus = true, comeback) {
-  if (focus) {
-    if ($('.file-tab')[activeTab].firstElementChild.firstElementChild.textContent.trim() != 'close') {
-      window.cconfirm('Changes you made will be lost.').then(isOk => {
-        if (isOk) closeTab(focus, comeback);
-      })
-    } else {
-      closeTab(focus, comeback);
-    }
-  }
+	if (focus) {
+		if ($('.file-tab')[activeTab].firstElementChild.firstElementChild.textContent.trim() != 'close') {
+	      window.cconfirm('Changes you made will be lost.').then(() => {
+	    	changeFocusTab(focus, comeback);
+	      })
+	    } else {
+		    changeFocusTab(focus, comeback);
+	    }	
+	} else {
+		closeActiveTab()
+	}
 }
 
-function closeTab(focus, comeback) {
-  $('#file-title').removeChild($('.file-tab')[activeTab]);
-  fileTab.splice(activeTab, 1);
-  if (focus) {
-    if (fileTab.length == 0) {
-      newTab()
-      activeFile = undefined;
-    } else {
-      if (comeback === undefined) {
-        if (activeTab == 0)
-          focusTab(fileTab[0].fid);
-        else
-          focusTab(fileTab[activeTab-1].fid);
-      }
-    }
-  }
+function closeActiveTab() {
+	$('#file-title').removeChild($('.file-tab')[activeTab]);
+	fileTab.splice(activeTab, 1);
+}
+
+function changeFocusTab(focus, comeback) {
+	closeActiveTab()
+	if (fileTab.length == 0) {
+	  newTab()
+	  activeFile = undefined;
+	} else {
+	  if (comeback === undefined) {
+	    if (activeTab == 0)
+	      focusTab(fileTab[0].fid);
+	    else
+	      focusTab(fileTab[activeTab-1].fid);
+	  }
+	}
 }
 
 function createBlogTemplate() {
@@ -1503,6 +1508,13 @@ function applyKeyboardListener() {
     }
   });
 
+  let keyboard = new KeyTrapper();
+
+  keyboard.isBlocked = function() {
+  	event.preventDefault();
+  	return window.cprompt.isActive;
+  }
+
   keyboard.listen({
     'Alt+Enter': renderAndDeployLocked,
     'Alt+Shift+Enter': renderAndDeploySingle,
@@ -1525,7 +1537,7 @@ function applyKeyboardListener() {
         previewHTML();
       }
     },
-  }, true);
+  });
 };
 
 function autoSync(event) {

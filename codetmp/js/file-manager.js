@@ -666,10 +666,7 @@ function openFolder(folderId) {
   
 })();
 
-
-
 function fileDownload() {
-  
   let name = activeFile ? activeFile.name : $('.file-name',$('.file-tab')[activeTab])[0].textContent+'.html';
   let chunks = activeFile ? activeFile.content : fileTab[activeTab].editor.env.editor.getValue();
 
