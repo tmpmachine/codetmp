@@ -482,9 +482,72 @@ function initPromptWindow() {
 
 }
 
+function initConfirmWindow() {
+  
+  // preferences
+  let modal = $('#cconfirm-modal');
+
+  let content = $('.Modal', modal)[0];
+  let overlay = $('.Overlay', modal)[0];
+  let btnClose = $('.Btn-close', modal)[0];
+  let form = $('.form', modal)[0];
+  let message = $('.Message', modal)[0];
+  let hideClass = 'Hide';
+
+  let _resolve
+  
+  function close() {
+    modal.classList.toggle(hideClass)
+    window.removeEventListener('keydown', blur);
+  }
+  
+  function blur() {
+    if (event.key == 'Escape') {
+      close();
+      _resolve(false)
+      window.cprompt.isActive = false;
+    }
+  }
+  
+  overlay.onclick = function() {
+    close();
+    _resolve(false)
+    window.cprompt.isActive = false;
+  }
+    
+  btnClose.onclick = function() {
+      close();
+      window.cprompt.isActive = false;
+      _resolve(false)
+    }
+
+    form.onsubmit = function() {
+      event.preventDefault();
+      if (event.submitter.name == 'submit')
+        _resolve(true)
+    else
+        _resolve(false)
+      window.cprompt.isActive = false;
+      close();
+    }
+
+    window.cconfirm = function(promptText = '') {
+      window.cprompt.isActive = true;
+    document.activeElement.blur()
+    close();
+    message.textContent = promptText;
+    window.addEventListener('keydown', blur);
+    return new Promise(resolve => {
+      _resolve = resolve
+    })
+  }
+
+}
+
 function initUI() {
   
   initPromptWindow();
+  initConfirmWindow();
 
   fileList();
   $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
@@ -892,29 +955,34 @@ function closeTab(focus = true, comeback) {
     
     if ($('.file-tab')[activeTab].firstElementChild.firstElementChild.textContent.trim() != 'close') {
       
-      if (!window.confirm('Changes you made may not be saved')) return;
-    }
-  }
-  
-  $('#file-title').removeChild($('.file-tab')[activeTab]);
-  fileTab.splice(activeTab, 1);
-  
-  if (focus) {
-    
-    if (fileTab.length == 0) {
-      newTab()
-      activeFile = undefined;
-    } else {
-      
-      if (comeback === undefined) {
+      window.cconfirm('Changes you made will be lost.').then(isOk => {
+
+        if (!isOk) return;
+
+        $('#file-title').removeChild($('.file-tab')[activeTab]);
+        fileTab.splice(activeTab, 1);
         
-        if (activeTab == 0)
-          focusTab(fileTab[0].fid);
-        else
-          focusTab(fileTab[activeTab-1].fid);
-      }
+        if (focus) {
+          
+          if (fileTab.length == 0) {
+            newTab()
+            activeFile = undefined;
+          } else {
+            
+            if (comeback === undefined) {
+              
+              if (activeTab == 0)
+                focusTab(fileTab[0].fid);
+              else
+                focusTab(fileTab[activeTab-1].fid);
+            }
+          }
+        }
+
+      })
     }
   }
+  
   
 }
 

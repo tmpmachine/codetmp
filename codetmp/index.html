@@ -362,65 +362,6 @@
     </div>
   
 
-  <style type="text/css">
-  	.window {
-		  margin:16px auto;
-		  max-width:544px;
-  	}
-  	.window .Wrapper {
-  		display: grid;height: 100%
-  	}
-  	.window .Modal {
-  		display: grid;
-  		grid-template-rows: auto 1fr auto;
-  		margin: 0 16px;position: relative;border-radius: 3px;overflow: hidden
-  	}
-  	.window .Header {
-  		background:#fff;border-bottom:1px solid #e2e2e2;padding:8px 0 8px 16px;    display: flex;
-	    justify-content: space-between;
-	    align-items: center;
-  	}
-  	.window h5 {
-  		text-transform: uppercase;font-size: 14px
-  	}
-  	.window .Content {
-		padding: 16px 16px 32px;
-		overflow: auto;
-  	}
-  	.window .Overlay{
-	    background: #000000aa;
-	    width: 100%;
-	    height: 100%;
-	    position: fixed;
-	    top: 0;
-	    left: 0;
-	}
-	.blurred{
-	  -webkit-filter:blur(1px);
-	  filter:blur(1px);
-	}
-
-  .window .Modal {
-    transition: 0.25s;
-    transform: scale(1);
-  }
-  .window.Hide .Modal {
-    transform: scale(0.85);
-  }
-  .window {
-    visibility: visible;
-    opacity: 1;
-    transition: 0.25s;
-  }
-  .window.Hide {
-    visibility: hidden;
-    opacity: 0;
-    z-index: 999;
-  }
-
-  </style>
-
-
 	<div id="cprompt-modal" class="window Hide" data-name="account" style="display: grid;align-items: center">
 		<div class="Wrapper" style="height: auto">
 	    	<div class="Overlay" data-target="account"></div>
@@ -433,6 +374,27 @@
 
 					<form class="form">
 						<input type="" name="" class="w3-input">
+						<div class="w3-margin-top w3-right-align">
+						<button class="w3-button w3-blue" type="submit" name="submit">Ok</button>
+						<button class="w3-button w3-border" name="cancel">Cancel</button>
+						</div>
+					</form>
+		      </div>
+		    </div>
+		</div>
+	</div>
+
+	<div id="cconfirm-modal" class="window Hide" data-name="account" style="display: grid;align-items: center">
+		<div class="Wrapper" style="height: auto">
+	    	<div class="Overlay" data-target="account"></div>
+	  		<div class="Modal bg8 col3">
+		      <div class="Header no-select">
+		        <h5><b class="Title">Confirm</b></h5>
+		        <i class="Btn-close material-icons w3-button w3-hover-none" data-target="account" style="color:#aaa;">close</i>
+		      </div>
+				<div class="Content">
+					<form class="form">
+						<p class="Message"></p>
 						<div class="w3-margin-top w3-right-align">
 						<button class="w3-button w3-blue" type="submit" name="submit">Ok</button>
 						<button class="w3-button w3-border" name="cancel">Cancel</button>
