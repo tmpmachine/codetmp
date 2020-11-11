@@ -514,3 +514,7 @@ background:#f1f1f1;
 	    /*border: 2px solid red;*/
 	    outline-color: #e91e63;
 }
+.btn-style-1 .material-icons {
+	color: #4CAF50;font-size: 1.2em;margin-right: 0.3em;font-weight: bold;
+	}.btn-style-2 .material-icons {color: #e91e63;font-size: 1.2em;margin-right: 0.3em;font-weight: bold;
+}
