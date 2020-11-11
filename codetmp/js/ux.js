@@ -444,8 +444,6 @@ function initModalWindow() {
     modal.classList.toggle(hideClass, true)
     window.removeEventListener('keydown', blur);
     window.cprompt.isActive = false;
-    overlay.onclick = null;
-    btnClose.onclick = null;
     form.onsubmit = () => event.preventDefault();
   }
 
@@ -569,7 +567,6 @@ function initUI() {
     'btn-refresh-sync'      : function() { drive.syncFromDrive() },
   });
   checkAuth();
-  initPreviewFrame();
   applyKeyboardListener();
   attachMenuLinkListener();
   if (settings.data.editor.enableEmmet) {
@@ -578,10 +575,6 @@ function initUI() {
   if (settings.data.editor.enableAutocomplete) {
     editorManager.initAutocomplete();
   }
-}
-
-function initPreviewFrame() {
-  $('#limbo-element').append(o.cel('iframe', {id:'PreviewFrame', name:'PreviewFrame'}));
 }
 
 function showFileSetting(section) {
@@ -1543,7 +1536,6 @@ function autoSync(event) {
       drive.syncToDrive();
     }
   }
-    
 }
 window.addEventListener('online', autoSync);
 window.addEventListener('copy', function(e) { copyFile(false) });

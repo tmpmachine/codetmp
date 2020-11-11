@@ -682,9 +682,9 @@ function fileDownload() {
     href: url,
     download: name
   })
-  $('#limbo-element').appendChild(a);
+  $('#limbo').appendChild(a);
   a.click();
-  $('#limbo-element').removeChild(a);
+  $('#limbo').removeChild(a);
 }
 
 

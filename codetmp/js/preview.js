@@ -408,8 +408,6 @@ return body;
   }
 
   function previewPWA(body) {
-  	if (!$('#PWAFrame'))
-        $('#limbo-element').append(o.cel('iframe', {id:'PWAFrame',name:'PWAFrame'}));
       
       if (!isPWAFrameLoaded) {
         aww.pop('Waiting for PWA installer...');
