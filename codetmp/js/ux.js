@@ -1533,6 +1533,7 @@ function applyKeyboardListener() {
   keyboard.listen({
     'Alt+Enter': renderAndDeployLocked,
     'Alt+Shift+Enter': renderAndDeploySingle,
+    'Alt+Shift+N': ui.fm.newFolder,
     'Alt+<': () => ui.switchTab(-1),
     'Alt+>': () => ui.switchTab(1),
     'Alt+L': lockFile,
