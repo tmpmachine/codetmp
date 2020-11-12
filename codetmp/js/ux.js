@@ -373,6 +373,8 @@ function attachMenuLinkListener() {
           $('#main-layout').classList.toggle('inframe-mode');
           $('#main-layout').classList.toggle('normal-mode');
           previewMode = (previewMode == 'normal') ? 'inframe' : 'normal';
+          fileTab[activeTab].editor.env.editor.session.setUseWrapMode(false);
+          fileTab[activeTab].editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
         }
       break;
       case 'set-font-size':
@@ -543,17 +545,23 @@ function initInframeLayout() {
   function mouseHandler(event) {
     if (event.type == 'mousedown') {
       $('#main-layout').classList.add('blocked');
-      oldX = event.x;
+      oldX = event.pageX;
+    } else if (event.type == 'touchstart') {
+      $('#main-layout').classList.add('blocked');
+      oldX = event.changedTouches[0].pageX;
     } else {
       $('#main-layout').classList.remove('blocked');
     }
-    isDragged = (event.type == 'mousedown') ? true : false;
+    isDragged = (event.type == 'mousedown' || event.type == 'touchstart') ? true : false;
   }
   let oldX, delta, updateEditor;
   function mouseMove(event) {
     if (isDragged) {
-      delta = oldX - event.x;
-      oldX = event.x;
+      if (event.type == 'touchmove') {
+        event = event.changedTouches[0];
+      }
+      delta = oldX - event.pageX;
+      oldX = event.pageX;
       width += delta;
       $('#inframe-preview').style.width = width+'px';
       clearTimeout(updateEditor);
@@ -563,9 +571,12 @@ function initInframeLayout() {
       }, 100);
     }
   }
+  $('#gutter').addEventListener('touchstart', mouseHandler);
   $('#gutter').addEventListener('mousedown', mouseHandler);
   window.addEventListener('mouseup', mouseHandler);
+  window.addEventListener('touchend', mouseHandler);
   window.addEventListener('mousemove', mouseMove);
+  window.addEventListener('touchmove', mouseMove);
 }
 
 function initUI() {
