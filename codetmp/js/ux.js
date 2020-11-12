@@ -368,6 +368,13 @@ function attachMenuLinkListener() {
             editor.setTheme('ace/theme/monokai');
         }
       break;
+      case 'toggle-in-frame':
+        callback = function() {
+          $('#main-layout').classList.toggle('inframe-mode');
+          $('#main-layout').classList.toggle('normal-mode');
+          previewMode = (previewMode == 'normal') ? 'inframe' : 'normal';
+        }
+      break;
       case 'set-font-size':
         callback = function() {
           window.cprompt('Editor Font Size', 14).then(size => {
@@ -529,9 +536,37 @@ function initModalWindow() {
   }
 }
 
+function initInframeLayout() {
+  let isDragged = false;
+  let width = 350;
+  $('#inframe-preview').style.width = width+'px';
+  function mouseHandler(event) {
+    if (event.type == 'mousedown') {
+      $('#main-layout').classList.add('blocked');
+      oldX = event.x;
+    } else {
+      $('#main-layout').classList.remove('blocked');
+    }
+    isDragged = (event.type == 'mousedown') ? true : false;
+  }
+  let oldX, delta;
+  function mouseMove(event) {
+    if (isDragged) {
+      delta = oldX - event.x;
+      oldX = event.x;
+      width += delta;
+      $('#inframe-preview').style.width = width+'px';
+    }
+  }
+  $('#gutter').addEventListener('mousedown', mouseHandler);
+  window.addEventListener('mouseup', mouseHandler);
+  window.addEventListener('mousemove', mouseMove);
+}
+
 function initUI() {
   
   initModalWindow();
+  initInframeLayout();
 
   fileList();
   $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;

@@ -12,6 +12,7 @@ let previewManager = new PreviewManager();
 let windows = [];
 let SPACache = [];
 let isPreviewSPA = false;
+let previewMode = 'normal';
 
 function Preview(fid) {
 	return {
@@ -109,7 +110,7 @@ function PreviewManager() {
   this.getFrameName = function() {
   	let file = activeFile;
     if (locked < 0 && typeof(file) == 'undefined') {
-  		return 'prive';
+  		return (previewMode == 'inframe') ? 'inframe-preview' : 'preview';
   	}
 
     if (locked >= 0) {
@@ -118,14 +119,14 @@ function PreviewManager() {
 
   	for (let frame of windows) {
   		if (frame.id == file.fid) {
-  			return frame.name;
+        return (previewMode == 'inframe') ? 'inframe-preview' : frame.name;
   		}
   	}
 
   	let preview = new Preview(file.fid);
   	windows.push(preview);
 
-  	return preview.name;
+    return (previewMode == 'inframe') ? 'inframe-preview' : preview.name;
   }
 
   this.getDirectory = function(source, parentId, path) {
