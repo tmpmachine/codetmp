@@ -549,13 +549,18 @@ function initInframeLayout() {
     }
     isDragged = (event.type == 'mousedown') ? true : false;
   }
-  let oldX, delta;
+  let oldX, delta, updateEditor;
   function mouseMove(event) {
     if (isDragged) {
       delta = oldX - event.x;
       oldX = event.x;
       width += delta;
       $('#inframe-preview').style.width = width+'px';
+      clearTimeout(updateEditor);
+      updateEditor = setTimeout(function() {
+        fileTab[activeTab].editor.env.editor.session.setUseWrapMode(false);
+        fileTab[activeTab].editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
+      }, 100);
     }
   }
   $('#gutter').addEventListener('mousedown', mouseHandler);
