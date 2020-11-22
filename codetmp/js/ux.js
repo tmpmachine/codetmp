@@ -1543,7 +1543,7 @@ function applyKeyboardListener() {
       e.preventDefault();
     }
 
-    if (!e.ctrlKey && $('#btn-menu-my-files').classList.contains('active')) {
+    if (!e.ctrlKey && !e.altKey && $('#btn-menu-my-files').classList.contains('active')) {
       if (('_-.abcdefghijklmnopqrstuvwxyz1234567890'.includes(e.key))) {
         selectFileByName(e.key);
       } else {
