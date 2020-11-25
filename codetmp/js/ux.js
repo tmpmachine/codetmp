@@ -22,30 +22,45 @@ let extension = (function() {
     });
   }
 
-  function load(name) {
+  function getModule(name) {
     let callback;
     let files = [];
 
     switch (name) {
       case 'emmet':
         files = [
-          'ace/ext-emmet.js',
           'ace/emmet-core/emmet.js',
+          'ace/ext-emmet.js',
         ];
         callback = initEmmet;
         break;
       case 'autocomplete':
         files = [
           'ace/ext-language_tools.js',
+          '/ace/snippets/javascript.js',
+          '/ace/snippets/html.js',
         ];
         callback = initAutocomplete;
-      break;
+        break;
     }
     
-    loadExternalFiles(files).then(callback);
+    return { files, callback };
   }
 
-  return { load };
+  function load(name) {
+    let ext = getModule(name);
+    loadExternalFiles(ext.files).then(ext.callback);
+  }
+
+  function download(name) {
+    navigator.serviceWorker.controller.postMessage({
+      name, 
+      type: 'extension',
+      files: getModule(name).files,
+    });
+  }
+
+  return { load, download };
 })();
 
 const ui = {
@@ -280,10 +295,7 @@ const ui = {
     settings.data.editor.enableEmmet = isEnabled ? false : true;
     settings.save();
     if (settings.data.editor.enableEmmet) {
-      navigator.serviceWorker.controller.postMessage({
-        type: 'extension',
-        name: 'emmet', 
-      });
+      extension.download('emmet');
     }
   },
 
@@ -293,10 +305,7 @@ const ui = {
     settings.data.editor.enableAutocomplete = isEnabled ? false : true;
     settings.save();
     if (settings.data.editor.enableAutocomplete) {
-      navigator.serviceWorker.controller.postMessage({
-        type: 'extension',
-        name: 'autocomplete', 
-      });
+      extension.download('autocomplete');
     }
   },
   

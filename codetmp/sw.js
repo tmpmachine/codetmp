@@ -92,27 +92,9 @@ self.addEventListener('fetch', function(e) {
 });
 
 function cacheExtension(e) {
-	let files = [];
-
-    switch (e.data.name) {
-    	case 'emmet':
-    		files = [
-	        	'/ace/emmet-core/emmet.js',
-	        	'/ace/ext-emmet.js',
-	        ];
-	    	break;
-    	case 'autocomplete':
-		    files = [
-	        	'/ace/ext-language_tools.js',
-	        	'/ace/snippets/javascript.js',
-	        	'/ace/snippets/html.js',
-	        ];
-	    	break;
-    }
-
   	e.waitUntil(Promise.all([
       caches.open(cacheItem).then(function(cache) {
-        return cache.addAll(files);
+        return cache.addAll(e.data.files);
       }),
       e.source.postMessage({ 
       	name: e.data.name, 
