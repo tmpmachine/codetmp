@@ -1,31 +1,12 @@
 L = console.log;
-let cacheVersion = '6.275';
+let cacheVersion = '6.2761';
 let cacheItem = 'codetmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
   if (e.data.action == 'skipWaiting') {
     self.skipWaiting();
-  } else if (e.data && e.data.type == 'enableEmmet') {
-  	e.waitUntil(Promise.all([
-      caches.open(cacheItem).then(function(cache) {
-        return cache.addAll([
-        	'/ace/emmet-core/emmet.js',
-        	'/ace/ext-emmet.js',
-        ]);
-      }),
-      e.source.postMessage({message:'emmet-cached'}),
-    ])); 
-  } else if (e.data && e.data.type == 'enableAutocomplete') {
-    e.waitUntil(Promise.all([
-      caches.open(cacheItem).then(function(cache) {
-        return cache.addAll([
-          '/ace/ext-language_tools.js',
-          '/ace/snippets/javascript.js',
-          '/ace/snippets/html.js',
-        ]);
-      }),
-      e.source.postMessage({message:'language_tools-cached'}),
-    ])); 
+  } else if (e.data && e.data.type == 'extension' && e.data.name !== null && e.data.name.length > 0) {
+    cacheExtension(e); 
   }
 });
 
@@ -49,7 +30,7 @@ self.addEventListener('install', function(event) {
 
     '/images/128.png',
     '/images/128ap.png',
-    '/images/192.png',
+    '/images/192.png', 
     '/images/google/1x/btn_google_signin_dark_normal_web.png',
     '/images/google/1x/btn_google_signin_dark_focus_web.png',
     '/images/google/1x/btn_google_signin_dark_pressed_web.png',
@@ -109,3 +90,33 @@ self.addEventListener('fetch', function(e) {
     })
   );
 });
+
+function cacheExtension(e) {
+	let files = [];
+
+    switch (e.data.name) {
+    	case 'emmet':
+    		files = [
+	        	'/ace/emmet-core/emmet.js',
+	        	'/ace/ext-emmet.js',
+	        ];
+	    	break;
+    	case 'autocomplete':
+		    files = [
+	        	'/ace/ext-language_tools.js',
+	        	'/ace/snippets/javascript.js',
+	        	'/ace/snippets/html.js',
+	        ];
+	    	break;
+    }
+
+  	e.waitUntil(Promise.all([
+      caches.open(cacheItem).then(function(cache) {
+        return cache.addAll(files);
+      }),
+      e.source.postMessage({ 
+      	name: e.data.name, 
+      	type: e.data.type,
+      }),
+    ]));
+}

@@ -242,18 +242,14 @@ html,body{height:100%;}
 }
 
 @media (min-width:801px) {
-
-	.homepage-content {
-  grid-template-columns: 1fr 1fr;
-
-}
+	.homepage-content{grid-template-columns: 1fr 1fr}
 }
 @media (min-width:601px) {
 
 	#main-editor.editor-mode{
-        grid-template-columns: auto 1fr;
-        margin-left:1px;
+      grid-template-columns: auto 1fr;
 	}
+  #main-editor.editor-mode > div:first-child{margin-left:1px}
 	#sidebar{
 	    grid-column: 1;
 	    grid-row: 1;
@@ -266,7 +262,6 @@ html,body{height:100%;}
 		}
 	}
 }
-
 
 #sidebar{z-index:1;}
 .in-content{z-index:23;}

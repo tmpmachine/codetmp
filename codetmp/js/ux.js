@@ -1,35 +1,52 @@
-// let previewUrl = 'http://localhost:5000/';
 let previewUrl = 'https://cpreview.web.app/';
 let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 
-const editorManager = {
-  initEmmet: function() {
-    loadExternalFiles([
-      'ace/ext-emmet.js',
-      'ace/emmet-core/emmet.js',
-    ]).then(() => {
-      require(["ace/ace", "ace/ext/emmet"], function() {
-        for (let tab of fileTab) {
-          tab.editor.env.editor.setOption('enableEmmet', true);
-        }
-      });
-    })
-  },
-  initAutocomplete: function() {
-    loadExternalFiles([
-      'ace/ext-language_tools.js',
-    ]).then(() => {
-      require(["ace/ace", "ace/ext/language_tools"], function() {
-        for (let tab of fileTab) {
-          tab.editor.env.editor.setOption('enableBasicAutocompletion', true);
-          tab.editor.env.editor.setOption('enableSnippets', true);
-          tab.editor.env.editor.setOption('enableLiveAutocompletion', true);
-        }
-      });
-    })
+let extension = (function() {
+
+  function initEmmet() {
+    require(["ace/ace", "ace/ext/emmet"], function() {
+      for (let tab of fileTab) {
+        tab.editor.env.editor.setOption('enableEmmet', true);
+      }
+    });
   }
-}
+
+  function initAutocomplete() {
+    require(["ace/ace", "ace/ext/language_tools"], function() {
+      for (let tab of fileTab) {
+        tab.editor.env.editor.setOption('enableBasicAutocompletion', true);
+        tab.editor.env.editor.setOption('enableSnippets', true);
+        tab.editor.env.editor.setOption('enableLiveAutocompletion', true);
+      }
+    });
+  }
+
+  function load(name) {
+    let callback;
+    let files = [];
+
+    switch (name) {
+      case 'emmet':
+        files = [
+          'ace/ext-emmet.js',
+          'ace/emmet-core/emmet.js',
+        ];
+        callback = initEmmet;
+        break;
+      case 'autocomplete':
+        files = [
+          'ace/ext-language_tools.js',
+        ];
+        callback = initAutocomplete;
+      break;
+    }
+    
+    loadExternalFiles(files).then(callback);
+  }
+
+  return { load };
+})();
 
 const ui = {
   
@@ -264,7 +281,8 @@ const ui = {
     settings.save();
     if (settings.data.editor.enableEmmet) {
       navigator.serviceWorker.controller.postMessage({
-        type: 'enableEmmet', 
+        type: 'extension',
+        name: 'emmet', 
       });
     }
   },
@@ -276,7 +294,8 @@ const ui = {
     settings.save();
     if (settings.data.editor.enableAutocomplete) {
       navigator.serviceWorker.controller.postMessage({
-        type: 'enableAutocomplete', 
+        type: 'extension',
+        name: 'autocomplete', 
       });
     }
   },
@@ -319,6 +338,11 @@ function blurNavigation() {
 function attachMenuLinkListener() {
 
   for (let menu of $('.menu-link')) {
+    if (menu.dataset.shortcut) {
+      let shortcut = $('#tmp-keyboard-shortcut').content.cloneNode(true);
+      $('.shortcuts', shortcut)[0].textContent = menu.dataset.shortcut;
+      menu.append(shortcut);
+    }
     let callback;
     switch (menu.dataset.callback) {
       case 'save':
@@ -638,10 +662,10 @@ function initUI() {
   applyKeyboardListener();
   attachMenuLinkListener();
   if (settings.data.editor.enableEmmet) {
-    editorManager.initEmmet();
+    extension.load('emmet');
   }
   if (settings.data.editor.enableAutocomplete) {
-    editorManager.initAutocomplete();
+    extension.load('autocomplete');
   }
 }
 

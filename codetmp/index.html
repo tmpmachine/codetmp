@@ -125,59 +125,28 @@
                 <li class="w3-left w3-padding" style="position:relative;">
                   File
                   <ul style="left:0;background:#000;top:0;width:340px;padding:0;margin:0;list-style:none;display:none;position:absolute;">
-                    <li class="w3-padding menu-link" data-callback='save'>
-                      Save
-                      <span class="w3-tiny w3-opacity w3-right">Ctrl + S</span>
-                    </li>
-                    <li class="w3-padding menu-link" data-callback='preview'>
-                      New Folder
-                      <span class="w3-tiny w3-opacity w3-right">Alt + Shift + N</span>
-                    </li>
-                    <li class="w3-padding menu-link" data-callback='preview'>
-                      Preview
-                      <span class="w3-tiny w3-opacity w3-right">Ctrl + Enter</span>
-                    </li>
-                    <li class="w3-padding menu-link auth-required unauthorized" data-callback='deploy'>
-                      Deploy to Blogger
-                      <span class="w3-tiny w3-opacity w3-right">Alt + Enter</span>
-                    </li>
-                    <li class="w3-padding menu-link auth-required unauthorized" data-callback='deploy-single'>
-                      Deploy to Blogger (Active tab)
-                      <span class="w3-tiny w3-opacity w3-right">Alt + Shift + Enter</span>
-                    </li>
-                    <li class="w3-padding menu-link" data-callback='download-rendered'>
-                      Download File
-                    </li>
+                    <li class="w3-padding menu-link" data-callback='save' data-shortcut="Ctrl + S"> Save </li>
+                    <li class="w3-padding menu-link" data-callback='preview' data-shortcut="Alt + Shift + N"> New Folder </li>
+                    <li class="w3-padding menu-link" data-callback='preview' data-shortcut="Ctrl + Enter"> Preview </li>
+                    <li class="w3-padding menu-link auth-required unauthorized" data-callback='deploy' data-shortcut="Alt + Enter"> Deploy to Blogger </li>
+                    <li class="w3-padding menu-link auth-required unauthorized" data-callback='deploy-single' data-shortcut="Alt + Shift + Enter"> Deploy to Blogger (Active tab) </li>
+                    <li class="w3-padding menu-link" data-callback='download-rendered'> Download File </li>
                   </ul>
                 </li>
                 <li class="w3-left w3-padding" style="position:relative;">
                   Explorer
                   <ul style="display:none;left:0;top:0;background:#000;width:200px;padding:0;margin:0;list-style:none;position:absolute;">
-                    <li class="w3-padding menu-link" data-callback='my-files'>
-                      My Files
-                      <span class="w3-tiny w3-opacity w3-right">Alt + M</span>
-                    </li>
-                    <li class="w3-padding menu-link" data-callback='file-info' data-target="file-info">
-                      File Info
-                      <span class="w3-tiny w3-opacity w3-right">Alt + I</span>
-                    </li>
-                    <li class="w3-padding menu-link" data-callback='trash'>
-                      Trash
-                    </li>
+                    <li class="w3-padding menu-link" data-callback='my-files' data-shortcut="Alt + M"> My Files </li>
+                    <li class="w3-padding menu-link" data-callback='file-info' data-target="file-info" data-shortcut="Alt + I"> File Info </li>
+                    <li class="w3-padding menu-link" data-callback='trash'> Trash </li>
                   </ul>
                 </li>
                 <li class="w3-left w3-padding" style="position:relative;">
                   Editor
                   <ul style="display:none;left:0;top:0;background:#000;width:200px;padding:0;margin:0;list-style:none;position:absolute;">
-                    <li class="w3-padding menu-link" data-callback='set-font-size'>
-                      Set Font Size
-                    </li>
-                    <li class="w3-padding menu-link" data-callback='toggle-editor-theme'>
-                      Toggle Light Theme
-                    </li>
-                    <li class="w3-padding menu-link" data-callback='toggle-in-frame'>
-                      Toggle In-frame Preview
-                    </li>
+                    <li class="w3-padding menu-link" data-callback='set-font-size'> Set Font Size </li>
+                    <li class="w3-padding menu-link" data-callback='toggle-editor-theme'> Toggle Light Theme </li>
+                    <li class="w3-padding menu-link" data-callback='toggle-in-frame'> Toggle In-frame Preview </li>
                   </ul>
                 </li>
                 <li class="w3-left w3-padding" style="position:relative;">
@@ -548,6 +517,9 @@
   </div>
 
   <!-- TEMPLATES -->
+  <template id="tmp-keyboard-shortcut">
+    <span class="shortcuts w3-tiny w3-opacity w3-right"></span>
+  </template>
   <template id="tmp-hints">
     <div class="w3-white">
       <div class="Container" data-index="">

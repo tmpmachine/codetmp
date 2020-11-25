@@ -1,11 +1,14 @@
 const drive = (function() {
 
-  let access_token = '';
   let apiUrl = 'https://www.googleapis.com/drive/v3/';
   let apiUrlUpload = 'https://www.googleapis.com/upload/drive/v3/';
-  
-  function setToken(token) {
-    access_token = token;
+  let appFolderName = 'Codetmp';
+  let httpHeaders = {
+    Authorization: ''
+  };
+
+  function setToken(access_token) {
+    httpHeaders.Authorization = 'Bearer '+access_token;
   }
 
   function getAvailParents() {
@@ -32,9 +35,7 @@ const drive = (function() {
       return new Promise(resolve => {
         fetch(apiUrl+'files/'+data.id+'?alt=media', {
           method:'GET',
-          headers: {
-            'Authorization':'Bearer '+access_token
-          }
+          headers: httpHeaders,
         }).then(function(r) {
           if (r.ok)
             return r.text();
@@ -138,11 +139,9 @@ const drive = (function() {
 
   async function getStartPageToken() {
     await auth2.init();
-    fetch('https://www.googleapis.com/drive/v3/changes/startPageToken', {
+    fetch(apiUrl+'changes/startPageToken', {
       method: 'GET',
-      headers: {
-        'Authorization':'Bearer '+access_token
-      }
+      headers: httpHeaders,
     }).then(response => {
       return response.json();
     }).then(({startPageToken}) => {
@@ -153,11 +152,9 @@ const drive = (function() {
 
   async function listChanges(pageToken = settings.data.drive.startPageToken) {
     await auth2.init();
-    fetch('https://www.googleapis.com/drive/v3/changes?pageToken='+pageToken+'&fields=nextPageToken,newStartPageToken,changes(file(name,description,id,trashed, parents,mimeType,modifiedTime))', {
+    fetch(apiUrl+'changes?pageToken='+pageToken+'&fields=nextPageToken,newStartPageToken,changes(file(name,description,id,trashed, parents,mimeType,modifiedTime))', {
       method: 'GET',
-      headers: {
-        'Authorization':'Bearer '+access_token
-      }
+      headers: httpHeaders,
     }).then(response => {
       return response.json();
     }).then(json => {
@@ -209,9 +206,7 @@ const drive = (function() {
       await auth2.init();
       fetch(url, {
         method:'GET',
-        headers: {
-          'Authorization':'Bearer '+access_token
-        }
+        headers: httpHeaders,
       }).then(function(result) {
         return result.json();
       }).then(function(json) {
@@ -273,10 +268,9 @@ const drive = (function() {
         metaHeader.name = name;
         metaHeader.description = description;
         fetchUrl = apiUrlUpload+'files?uploadType=multipart&fields=id';
-      }
-      else
+      } else {
         fetchUrl = apiUrl+'files/'+id+'/copy?alt=json&fields=id';
-
+      }
       
     } else if (action === 'update') {
       
@@ -303,7 +297,6 @@ const drive = (function() {
           fetchUrl = apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id&addParents='+destination+'&removeParents='+source;
         }
       }
-       
     }
     
     // metadata first!
@@ -320,16 +313,13 @@ const drive = (function() {
     let options = {
       method,
       body: form,
-      headers: {
-        'Authorization': 'Bearer '+access_token
-      }
+      headers: httpHeaders,
     };
     
     if (action === 'copy')
       options.headers['Content-Type'] = 'application/json';
 
     return new Promise((resolve, reject) => {
-      
       fetch(fetchUrl, options).then((result) => {
         if (result.ok)
           return result.json();
@@ -338,9 +328,7 @@ const drive = (function() {
       }).then((json) => {
         resolve({...json, ...{action, type}});
       }).catch(reject);
-      
     });
-
   }
 
   function syncToDrive(sync = fileStorage.data.sync[0]) {
@@ -377,68 +365,37 @@ const drive = (function() {
 
   async function readAppData() {
     
-    L('reading app data...');
-    
     await auth2.init();
     fetch(apiUrl+'files?spaces=appDataFolder&fields=files(id)', {
-      headers: {
-        'Authorization':'Bearer '+access_token
-      }
-    }).then(function(r) {
-      
-      return r.json();
-      
-    }).then(function(json) {
-      
+      headers: httpHeaders,
+    })
+    .then(r => r.json())
+    .then(json => {
       if (json.files.length > 0) {
-        L('app data found. reading app data...');
         getFile(json.files[0].id, 'text', '?alt=media').then(function(media) {
-          
-          L('searching root folder...');
           getFile(JSON.parse(media).id, 'json', '?fields=id,trashed').then(function({ id, trashed }) {
-            
             if (trashed) {
-              L('root folder deleted. deleting app data...');
               deleteFile(json.files[0].id).then(function() {
-                L('re-initialize app data...');
                 readAppData();
               });
             } else {
-              L('root folder found. initializing data...');
               initAppData(id);
             }
-            
           }).catch(function(errorCode) {
-            
             if (errorCode === 404) {
-              L('root folder not found. deleting app data...');
               deleteFile(json.files[0].id).then(function() {
-                L('re-initialize app data...');
                 readAppData();
               });
             }
-            
           });
-          
         });
       } else {
-        
-        L('app data not found. creating system folder...')
         createSystemFolder().then(function(systemFolderJSON) {
-          
-          L('system folder created');
-          L('creating config file...');
           createAppData(systemFolderJSON).then(function() {
-
-            L('config file created. initializing data...');
             initAppData(systemFolderJSON.id);
-
           });
-          
         });
-        
       }
-      
     });
   }
 
@@ -459,9 +416,7 @@ const drive = (function() {
       let options = {
         method: 'POST',
         body: form,
-        headers: {
-          'Authorization': 'Bearer '+access_token
-        }
+        headers: httpHeaders,
       }
       fetch(apiUrlUpload+'files?uploadType=multipart&fields=id', options).then((result) => {
         if (result.ok)
@@ -471,12 +426,10 @@ const drive = (function() {
   }
 
   function createSystemFolder() {
-    
     return new Promise(async function(resolve, reject) {
-      
       let form = new FormData();
       let metadata = {
-        name: 'Codetmp',
+        name: appFolderName,
         parents: ['root'],
         mimeType: 'application/vnd.google-apps.folder',
       };
@@ -486,9 +439,7 @@ const drive = (function() {
       let options = {
         method: 'POST',
         body: form,
-        headers: {
-          'Authorization': 'Bearer '+access_token
-        }
+        headers: httpHeaders,
       }
       fetch(apiUrlUpload+'files?uploadType=multipart&fields=id', options).then((result) => {
         return result.json();
@@ -515,14 +466,10 @@ const drive = (function() {
   }
 
   function getFile(id, type = 'text', param = '') {
-    
     return new Promise(async function(resolve, reject) {
-      
       await auth2.init();
       fetch(apiUrl+'files/'+id+param, {
-        headers: {
-          'Authorization': 'Bearer '+access_token
-        }
+        headers: httpHeaders,
       }).then(function(result) {
         if (result.status === 404)
           reject(404);
@@ -536,13 +483,10 @@ const drive = (function() {
 
   function deleteFile(id) {
     return new Promise(async function(resolve, reject) {
-      
       await auth2.init();
       fetch(apiUrl+'files/'+id, {
         method: 'DELETE',
-        headers: {
-          Authorization: 'Bearer '+access_token
-        }
+        headers: httpHeaders,
       }).then(function(result) {
         if (result.status === 404)
           reject(404);
@@ -559,5 +503,4 @@ const drive = (function() {
     syncFromDrive,
     downloadDependencies,
   };
-
 })();
