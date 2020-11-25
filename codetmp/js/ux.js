@@ -598,6 +598,7 @@ function initUI() {
   newTab();
 
   for (let modal of $('.modal-window')) {
+    modal.classList.toggle('transition-enabled', true);
     $('.Overlay',modal)[0].addEventListener('click', toggleModalByClick);
     $('.Btn-close',modal)[0].addEventListener('click', toggleModalByClick);
   }
