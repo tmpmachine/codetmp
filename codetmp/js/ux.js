@@ -1394,7 +1394,6 @@ function renderAndDeployLocked() {
   deploy();
 }
  
- 
 function applyKeyboardListener() {
   
   function previousFolder() {

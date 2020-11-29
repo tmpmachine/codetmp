@@ -163,6 +163,7 @@ hr{border:0;border-top:1px solid #eee;margin:20px 0}
 html,body{height:100%;}
 
 .hide{display:none}
+.menu-action .Btn:hover .Btn{color:#ffc107!important}
 
 /*global*/
 /*body{background:#111;}*/
