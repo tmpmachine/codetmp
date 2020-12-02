@@ -1,30 +1,29 @@
-/*
-0.081 - 2 dec 19 -- error handler return callback
-*/
+/* 0.081 - 2 dec 19 -- error handler return callback */
+// customized for Codetmp
 
 (function () {
   
+  let httpHeaders = {
+    Authorization: '',
+    'Content-Type': 'application/json',
+  };
+
+  const configData = {
+    blogs: [],
+    blogId: '-',
+    blog: ''
+  };
+
   const oblog = {
     apiURL: 'https://www.googleapis.com/blogger/v3/',
     callback: null,
-    authModule: null,
-    connect: function(auth) {
-      oblog.authModule = auth;
-      
-      const root = {
-        ubid: '',
-        role: '',
-        blogs: [],
-        blogId: '-',
-        blog: ''
-      };
-      
-      oblog.authModule.config(root, true);
+    setToken: function(access_token) {
+      httpHeaders.Authorization = 'Bearer '+access_token;
     },
     config: function(config) {
       
       for (let cf in config)
-        oblog.authModule.auth.data[cf] = config[cf];
+        configData[cf] = config[cf];
       
     },
     state: function() {
@@ -33,13 +32,13 @@
       for (let e of errors) {
         switch (e) {
           case 0:
-            if (oblog.authModule.auth.data.blog === '') {
+            if (configData.blog === '') {
               console.error('oblog configuration ['+e+']: "blog" not specified.');
               warning = true;
             }
           break;
           case 1:
-            if (oblog.authModule.auth.data.uid === '')
+            if (configData.uid === '')
               warning = true;
           break;
         }
@@ -63,14 +62,10 @@
           break;
         }
       },
-      fetch: function(method, path, callback, params, body) {
-        if (oblog.authModule.state(2)) {
-          oblog.crude.errorHandler({code: 401});
-          if (callback)
-            callback(401);
-          return;
-        }
-        
+      fetch: async function(method, path, callback, params, body) {
+
+        await auth2.init();
+
         if (params === '') params = '?fields= ';
   
         if (params) {
@@ -86,40 +81,26 @@
   
         new Promise((resolve) => {
           
-          if (oblog.authModule.state(5)) {
-            if (path.includes('blogs/byurl'))
+          if (path.includes('blogs/byurl'))
+            return resolve();
+          else
+            oblog.getBlogId(() => {
               return resolve();
-            else
-              oblog.getBlogId(() => {
-                return resolve();
-              });
-          } else {
-            oblog.authModule.requestToken(() => {
-              if (path.includes('blogs/byurl'))
-                return resolve();
-              else
-                oblog.getBlogId(() => {
-                  return resolve();
-                });
             });
-          }
           
         }).then(() => {
           
           if ((path.includes('/posts') || path.includes('/pages')) && !path.includes('/blogs'))
-            path = 'blogs/'+oblog.authModule.auth.data.blogId+path;
+            path = 'blogs/'+configData.blogId+path;
             
           if (path == 'blogs/-')
-            path = 'blogs/'+oblog.authModule.auth.data.blogId;
+            path = 'blogs/'+configData.blogId;
           
           let url = oblog.apiURL + path + params;
           
           let options = {
             method: method,
-            headers: {
-              'Authorization': 'Bearer '+oblog.authModule.auth.data.token,
-              'Content-Type': 'application/json'
-            }
+            headers: httpHeaders,
           };
           
           if (body)
@@ -188,7 +169,7 @@
     },
     users: {
       get: function(id, callback, params) { oblog.crude.list('users/'+id,callback,params); },
-      getBlogInfo: function(id, callback, params) { oblog.crude.list('users/'+id+'/blogs/'+oblog.authModule.auth.data.blogId,callback,params); },
+      getBlogInfo: function(id, callback, params) { oblog.crude.list('users/'+id+'/blogs/'+configData.blogId,callback,params); },
     },
     blogs: {
       get: function(id, callback, params) { oblog.crude.list('blogs/'+id, callback, params); },
@@ -197,16 +178,16 @@
         if (uid)
           oblog.crude.list('users/g'+uid+'/blogs/', callback, params);
         else
-          oblog.crude.list('users/g'+oblog.authModule.auth.data.uid+'/blogs/', callback, params);
+          oblog.crude.list('users/g'+configData.uid+'/blogs/', callback, params);
       },
     },
     
     matchBlog: function(callback) {
       let found = false;
       
-      for (let blog of oblog.authModule.auth.data.blogs) {
-        if (blog.name == oblog.authModule.auth.data.blog && blog.id !== undefined) {
-          oblog.authModule.auth.data.blogId = blog.id;
+      for (let blog of configData.blogs) {
+        if (blog.name == configData.blog && blog.id !== undefined) {
+          configData.blogId = blog.id;
           found = true;
           if (callback)
             callback(blog.id);
@@ -219,13 +200,12 @@
     getBlogId: function(callback) {
       let found = oblog.matchBlog(callback);
       
-      if (!found && oblog.authModule.state(5)) {
-        oblog.blogs.getByUrl(oblog.authModule.auth.data.blog, d => {
+      if (!found) {
+        oblog.blogs.getByUrl(configData.blog, d => {
           let found = oblog.matchBlog();
           if (!found) {
-            oblog.authModule.auth.data.blogId = d.id;
-            oblog.authModule.auth.data.blogs.push({id:d.id,name:oblog.authModule.auth.data.blog});
-            oblog.authModule.auth.save();
+            configData.blogId = d.id;
+            configData.blogs.push({id:d.id,name:configData.blog});
             if (callback)
               callback(d.id);
           }

@@ -19,9 +19,8 @@
       checkAuth();
     }
     // send token to other component from here
-    if (typeof(drive) != 'undefined') {
-      drive.setToken(access_token);
-    }
+    if (typeof(drive) != 'undefined') { drive.setToken(access_token) }
+    if (typeof(oblog) != 'undefined') { oblog.setToken(access_token) }
   }
 
   function init() {
