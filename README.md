@@ -60,7 +60,6 @@ Advanced writing
 | --- | --- |
 | div	 |  |
 | video	 | v |
-| a	 | a |
 | audio	 | au |
 | button	 | btn |
 | canvas	 | can |
@@ -124,10 +123,12 @@ Advanced writing
 
 
 ## Contribute
-You can just grab a clone of this repo and open `codetmp/index.html` without local server.
+You can just grab a clone of this repo and open `codetmp/index.html` without local server. You will need a local server and set your own Google Project Id to use Google products API.
 
-### Google Drive Sync
-The token is obtained by codetmp/require/auth0.js, everything else about synchronization is on codetmp/js/drive.js.
+### Google Drive & Blogger API
+See files below :
+1. codetmp/js/drive.js
+2. codetmp/require/oblog.js
 
 ### Preview a File
 codetmp/js/preview.js, can't explain more right now.
