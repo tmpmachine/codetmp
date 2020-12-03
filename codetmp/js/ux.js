@@ -1,6 +1,7 @@
 let previewUrl = 'https://cpreview.web.app/';
 let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
+let pressedKeys = {};
 
 let extension = (function() {
 
@@ -131,6 +132,9 @@ const ui = {
     },
     newFolder: function() {
       
+      if (!$('#in-my-files').classList.contains('active'))
+      	return;
+
       window.cprompt('Folder name', 'Untitled').then(name => {
         
         if (!name) return;
@@ -143,6 +147,7 @@ const ui = {
         });
         fileManager.sync(folder.fid, 'create', 'folders');
         drive.syncToDrive();
+        clearSelection();
         fileManager.list();
         fileStorage.save();
 
@@ -1163,25 +1168,43 @@ function openBread(id) {
   let idx = odin.idxOf(id,breadcrumbs,'folderId');
   breadcrumbs = breadcrumbs.slice(0,idx+1);
   fileList();
+  clearSelection();
 }
 
 function openFileConfirm(el) {
-  if (selectedFile.length < 1)
-    selectedFile.push(el);
-  
-  if (lastClickEl !== undefined && lastClickEl != el) {
-    selectedFile.splice(0, 1);
-    selectedFile.push(el);
-    
-    toggleFileHighlight(false);
-    doubleClick = false;
+
+  let index = selectedFile.indexOf(el);
+  if (pressedKeys.shiftKey) {
+	doubleClick = false;
+    if (index < 0) {
+	    selectedFile.push(el);
+		toggleFileHighlight(el, true);
+    } else {
+    	selectedFile.splice(index, 1);
+		toggleFileHighlight(el, false);
+    }
+    return
+  } else {
+	for (let el of selectedFile)
+		toggleFileHighlight(el, false);
+  			
+  	if (selectedFile.length > 1) {
+  		selectedFile.length = 0;
+  		index = -1;
+  	}
+
+  	if (index < 0) {
+	    selectedFile[0] = el;
+		doubleClick = false;
+		toggleFileHighlight(el, false);
+    } 
   }
   
   if (!doubleClick) {
     $('#btn-rename').classList.toggle('w3-hide', false);
     lastClickEl = el;
     doubleClick = true;
-    toggleFileHighlight(true);
+    toggleFileHighlight(lastClickEl, true);
     setTimeout(function(){
       doubleClick = false;
     }, 500);
@@ -1196,7 +1219,7 @@ function openFileConfirm(el) {
       let folderId = Number(el.getAttribute('data'))
       openFolder(folderId);
     }
-    toggleFileHighlight(false);
+    toggleFileHighlight(lastClickEl, false);
   }
 }
 
@@ -1442,7 +1465,9 @@ function applyKeyboardListener() {
   
   function keyEscape() {
     if (selectedFile.length > 0) {
-      toggleFileHighlight(false);
+      for (let el of selectedFile)
+		toggleFileHighlight(el, false);
+      $('#btn-rename').classList.toggle('w3-hide', true);
       doubleClick = false;
       selectedFile.length = 0;
     } else if ($('#btn-menu-my-files').classList.contains('active')) {
@@ -1536,7 +1561,7 @@ function applyKeyboardListener() {
 
     if (matchName.length == 0) {
       if (selectedFile.length > 0) {
-        toggleFileHighlight(false);
+        toggleFileHighlight(lastClickEl, false);
         doubleClick = false;
         selectedFile.length = 0;
       }
@@ -1567,8 +1592,11 @@ function applyKeyboardListener() {
     }
   }
 
-  window.addEventListener('keydown', function(e) {
+  window.addEventListener('blur', e => { pressedKeys.shiftKey = false; })
+  window.addEventListener('keyup', e => { pressedKeys.shiftKey = e.shiftKey; })
+  window.addEventListener('keydown', e => { pressedKeys.shiftKey = e.shiftKey; })
 
+  window.addEventListener('keydown', function(e) {
     if (window.cprompt.isActive)
       return
 
@@ -1629,6 +1657,7 @@ function applyKeyboardListener() {
     'Alt+W': confirmCloseTab,
     'Alt+O': openFileDirectory,
     'Ctrl+S': fileManager.save,
+    'Ctrl+A': selectAllFiles,
     'Alt+D': toggleTemplate,
     'Ctrl+Enter': function() {
       if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
@@ -1741,9 +1770,23 @@ function lockRender(self, fid, name) {
   }
 }
 
-function toggleFileHighlight(isActive) {
-  if (lastClickEl.dataset.type == 'file')
-    o.classList.toggle(lastClickEl, 'bg3', isActive);
+function toggleFileHighlight(el, isActive) {
+  if (el === undefined) return;
+  if (el.dataset.type == 'file')
+    o.classList.toggle(el, 'bg3', isActive);
   else
-    o.classList.toggle(lastClickEl, ['bg3','bg2'], isActive);
+    o.classList.toggle(el, ['bg3','bg2'], isActive);
+}
+
+function clearSelection() {
+	for (let el of selectedFile)
+		toggleFileHighlight(el, false);
+	selectedFile.length = 0;
+	lastClickEl = null;
+}
+
+function selectAllFiles() {
+	selectedFile = [...$('.folder-list'), ...$('.file-list-clicker')];
+	for (let el of selectedFile)
+		toggleFileHighlight(el, true);
 }

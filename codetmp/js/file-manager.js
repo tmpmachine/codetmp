@@ -691,9 +691,9 @@ function fileDownload() {
   
   function copyFile(cut) {
     
+    clipBoard.length = 0;
     for (let f of selectedFile) {
       if (clipBoard.indexOf(f) < 0) {
-        clipBoard.length = 0;
         clipBoard.push(f);
       }
     }
@@ -787,6 +787,15 @@ function fileDownload() {
     data.parentId = activeFolder;
   }
   
+  function isBreadcrumb(folderId) {
+    for (let path of breadcrumbs.slice(1)) {
+      if (path.folderId == folderId) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function pasteFile() {
     
     if (clipBoard.length === 0) return;
@@ -808,13 +817,15 @@ function fileDownload() {
       } else {
         if (pasteFile.mode === 'copy') {
           let branch = getAllBranch(fid);
-       
           let road = copyBranchFolder(branch.folderIds, modifiedTime);
           copyBranchFile(branch.fileIds, road, modifiedTime);
         } else {
           data = odin.dataOf(fid, fileStorage.data.folders, 'fid');
-          if (data.parentId !== activeFolder)
+          if (isBreadcrumb(fid)) {
+            alert("Cannot move folder within it's own directory.");
+          } else {
             fileMove(data, 'folders');
+          }
         }
       }
       
