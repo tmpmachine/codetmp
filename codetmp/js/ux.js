@@ -1704,10 +1704,10 @@ function applyKeyboardListener() {
   }
 
   keyboard.listen({
-    'Alt+1': cancelFly,
-    'Alt+2': ()=>{globalscale=1;$('#fly').style.transform = `scale(${globalscale})`;flyMode()},
-    'Alt+3': ()=>{globalscale=1.2;$('#fly').style.transform = `scale(${globalscale})`;flyMode()},
-    'Alt+4': ()=>{globalscale=1.45;$('#fly').style.transform = `scale(${globalscale})`;flyMode()},
+    'Alt+Q': cancelFly,
+    'Alt+1': ()=>{globalscale=1;$('#fly').style.transform = `scale(${globalscale})`;flyMode()},
+    'Alt+2': ()=>{globalscale=1.2;$('#fly').style.transform = `scale(${globalscale})`;flyMode()},
+    'Alt+3': ()=>{globalscale=1.45;$('#fly').style.transform = `scale(${globalscale})`;flyMode()},
     'Alt+Enter': renderAndDeployLocked,
     'Alt+Shift+Enter': renderAndDeploySingle,
     'Alt+Shift+N': ui.fm.newFolder,
