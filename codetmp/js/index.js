@@ -111,7 +111,7 @@ function loadExternalFiles(URLs) {
       }, 100);
     })
   ]).then(() => {
-    document.body.removeChild(document.querySelector('#preload-material'));
+    document.querySelector('#preload-material').parentNode.removeChild(document.querySelector('#preload-material'));
   });
   
   let URL1 = [

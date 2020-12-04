@@ -847,11 +847,11 @@ x = fly.offsetWidth/2
 
 		if (typeof(cam) ==  'undefined') {
 		span = document.createElement('span')
-		span.innerHTML = 'cam'
+		span.innerHTML = ''
 		span.setAttribute('id','cam')
 		span.style.position ='fixed'
-		span.style.background ='white'
-		span.style.zIndex = 123;
+		// span.style.background ='white'
+		// span.style.zIndex = 123;
 		document.body.append(span)
 		}
 	   cam.style.display = 'block';
@@ -1704,10 +1704,10 @@ function applyKeyboardListener() {
   }
 
   keyboard.listen({
-    'Alt+Y': ()=>{globalscale=1.5;$('#fly').style.transform = `scale(${globalscale})`;},
-    'Alt+T': ()=>{globalscale=1.2;$('#fly').style.transform = `scale(${globalscale})`;},
-    'Alt+F': flyMode,
-    'Alt+G': cancelFly,
+    'Alt+1': cancelFly,
+    'Alt+2': ()=>{globalscale=1;$('#fly').style.transform = `scale(${globalscale})`;flyMode()},
+    'Alt+3': ()=>{globalscale=1.2;$('#fly').style.transform = `scale(${globalscale})`;flyMode()},
+    'Alt+4': ()=>{globalscale=1.45;$('#fly').style.transform = `scale(${globalscale})`;flyMode()},
     'Alt+Enter': renderAndDeployLocked,
     'Alt+Shift+Enter': renderAndDeploySingle,
     'Alt+Shift+N': ui.fm.newFolder,
