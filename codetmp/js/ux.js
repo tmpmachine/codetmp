@@ -594,6 +594,8 @@ function initInframeLayout() {
   }
   let oldX, delta, updateEditor;
   function mouseMove(event) {
+  	mx = event.screenX
+    my = event.screenY
     if (isDragged) {
       if (event.type == 'touchmove') {
         event = event.changedTouches[0];
@@ -826,11 +828,70 @@ function setEditorMode(fileName = '') {
     editor.session.setMode("ace/mode/html");
 }
 
+		globalscale = 1.2
+		x = 0
+		y=0
+		let req;
+
+function cancelFly() {
+	window.cancelAnimationFrame(req);
+	$('#fly').style.transform = `scale(1)`;
+   document.body.style.transform  = `translate(0,0)`
+   cam.style.display = 'none';
+}
+
+function flyMode() {
+	cancelAnimationFrame(req)
+x = fly.offsetWidth/2
+		y = fly.offsetHeight/2
+
+		if (typeof(cam) ==  'undefined') {
+		span = document.createElement('span')
+		span.innerHTML = 'cam'
+		span.setAttribute('id','cam')
+		span.style.position ='fixed'
+		span.style.background ='white'
+		span.style.zIndex = 123;
+		document.body.append(span)
+		}
+	   cam.style.display = 'block';
+
+	  	$('#fly').style.transform = `scale(${globalscale})`;
+	  	$('#fly').style.transformOrigin = `${screen.width/2}px ${screen.height/2}px`;
+
+		let originx = x
+		let originy = y
+		let xx= mx
+		let yy= my
+
+
+		function snap() {
+		  req = window.requestAnimationFrame(snap)
+		  xx += (mx-xx)*0.2
+		  yy +=(my-yy)*0.2
+		  cam.style.left = xx +'px';
+		  cam.style.top = yy+'px';
+		  document.body.style.transform  = `translate(${originx-xx}px,${originy-yy}px)`
+		}
+
+		snap();
+}
+
 function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   let editorElement = document.createElement('div');
   editorElement.classList.add('editor');
   editorElement.style.opacity = '0'
   let editor = ace.edit(editorElement);
+
+function override(object, prop, replacer) { 
+    var old = object[prop]; object[prop] = replacer(old)  
+}
+override(editor.renderer, "screenToTextCoordinates", function(old) {
+    return function(x, y) {
+        return old.call(this, x,y,globalscale)
+    }
+})
+
   
   editor.setTheme("ace/theme/monokai", () => {
     editorElement.style.opacity = '1';
@@ -1643,6 +1704,10 @@ function applyKeyboardListener() {
   }
 
   keyboard.listen({
+    'Alt+Y': ()=>{globalscale=1.5;$('#fly').style.transform = `scale(${globalscale})`;},
+    'Alt+T': ()=>{globalscale=1.2;$('#fly').style.transform = `scale(${globalscale})`;},
+    'Alt+F': flyMode,
+    'Alt+G': cancelFly,
     'Alt+Enter': renderAndDeployLocked,
     'Alt+Shift+Enter': renderAndDeploySingle,
     'Alt+Shift+N': ui.fm.newFolder,
