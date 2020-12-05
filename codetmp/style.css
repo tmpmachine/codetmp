@@ -572,3 +572,5 @@ background:#f1f1f1;
   #book-scroll-wrap.active{transform:translateY(0%)!important;}
   #book-scroll.active{transform:translateY(-36px);}
   #book-scrool{transition-timing-function: linear;}
+
+  .transform-transition{transition:transform .25s}

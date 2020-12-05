@@ -833,49 +833,87 @@ function setEditorMode(fileName = '') {
 		y=0
 		let req;
 
-function cancelFly() {
-	window.cancelAnimationFrame(req);
+function cancelSnapCam() {
+	cancelAnimationFrame(req)
+	document.body.classList.toggle('transform-transition', true);
 	$('#fly').style.transform = `scale(1)`;
    document.body.style.transform  = `translate(0,0)`
    cam.style.display = 'none';
+	snapMode = false
 }
 
-function flyMode() {
-	cancelAnimationFrame(req)
-x = fly.offsetWidth/2
-		y = fly.offsetHeight/2
+let snapMode = false
 
-		if (typeof(cam) ==  'undefined') {
+function snapCam() {
+	document.body.classList.toggle('transform-transition', true);
+	x = fly.offsetWidth/2
+	y = fly.offsetHeight/2
+
+	if (typeof(cam) ==  'undefined') {
 		span = document.createElement('span')
-		span.innerHTML = ''
 		span.setAttribute('id','cam')
 		span.style.position ='fixed'
-		// span.style.background ='white'
-		// span.style.zIndex = 123;
 		document.body.append(span)
-		}
-	   cam.style.display = 'block';
+	}
+   cam.style.display = 'block';
+
+	   originx = x
+	   originy = y
+	   if (snapMode) {
+
+	   } else {
+		   xx = mx
+		   yy = my
+
+	   }
+
+		snapMode = true
 
 	  	$('#fly').style.transform = `scale(${globalscale})`;
 	  	$('#fly').style.transformOrigin = `${screen.width/2}px ${screen.height/2}px`;
+cam.style.left = xx +'px';
+	  cam.style.top = yy+'px';
+	  
 
-		let originx = x
-		let originy = y
-		let xx= mx
-		let yy= my
-
-
-		function snap() {
-		  req = window.requestAnimationFrame(snap)
-		  xx += (mx-xx)*0.2
-		  yy +=(my-yy)*0.2
-		  cam.style.left = xx +'px';
-		  cam.style.top = yy+'px';
-		  document.body.style.transform  = `translate(${originx-xx}px,${originy-yy}px)`
-		}
-
-		snap();
+		 document.body.style.transform  = `translate(${x-mx}px,${y-my}px)`
+		setTimeout(() => {
+			// snap();
+			document.body.classList.toggle('transform-transition', false);
+		},250)
 }
+let immerseMode = false;
+
+let originx 
+let originy
+let xx
+let yy
+
+
+	function snap() {
+	  req = window.requestAnimationFrame(snap)
+	  xx += (mx-xx)*0.2
+	  yy +=(my-yy)*0.2
+	  cam.style.left = xx +'px';
+	  cam.style.top = yy+'px';
+	  // L(Math.abs(mx-xx))
+	  document.body.style.transform  = `translate(${originx-xx}px,${originy-yy}px)`
+	}
+
+	function toggleImmerseMode() {
+		immerseMode = immerseMode? false: true
+		if (immerseMode) {
+
+			// originx = x
+			// originy = y
+			// xx= mx
+			// yy= my
+			snap();
+		}
+		else
+			window.cancelAnimationFrame(req);
+	}
+
+
 
 function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   let editorElement = document.createElement('div');
@@ -1712,10 +1750,11 @@ function applyKeyboardListener() {
   }
 
   keyboard.listen({
-    'Alt+Q': cancelFly,
-    'Alt+1': ()=>{globalscale=1;$('#fly').style.transform = `scale(${globalscale})`;flyMode()},
-    'Alt+2': ()=>{globalscale=1.2;$('#fly').style.transform = `scale(${globalscale})`;flyMode()},
-    'Alt+3': ()=>{globalscale=1.45;$('#fly').style.transform = `scale(${globalscale})`;flyMode()},
+    'Alt+Q': cancelSnapCam,
+    'Alt+1': ()=>{globalscale=1;$('#fly').style.transform = `scale(${globalscale})`;snapCam()},
+    'Alt+2': ()=>{globalscale=1.2;$('#fly').style.transform = `scale(${globalscale})`;snapCam()},
+    'Alt+3': ()=>{globalscale=1.45;$('#fly').style.transform = `scale(${globalscale})`;snapCam()},
+    'Alt+4': toggleImmerseMode,
     'Alt+Enter': renderAndDeployLocked,
     'Alt+Shift+Enter': renderAndDeploySingle,
     'Alt+Shift+N': ui.fm.newFolder,
