@@ -828,7 +828,7 @@ function setEditorMode(fileName = '') {
     editor.session.setMode("ace/mode/html");
 }
 
-		globalscale = 1.2
+		globalscale = 1
 		x = 0
 		y=0
 		let req;
