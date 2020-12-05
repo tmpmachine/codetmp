@@ -1525,13 +1525,14 @@ function applyKeyboardListener() {
   }
   
   function keyEscape() {
-    if (selectedFile.length > 0) {
-      for (let el of selectedFile)
-		toggleFileHighlight(el, false);
-      $('#btn-rename').classList.toggle('w3-hide', true);
-      doubleClick = false;
-      selectedFile.length = 0;
-    } else if ($('#btn-menu-my-files').classList.contains('active')) {
+    if ($('#btn-menu-my-files').classList.contains('active')) {
+	  if (selectedFile.length > 0) {
+	      for (let el of selectedFile)
+			toggleFileHighlight(el, false);
+	      $('#btn-rename').classList.toggle('w3-hide', true);
+	      doubleClick = false;
+	      selectedFile.length = 0;
+	  }
       $('#btn-menu-my-files').click();
       fileTab[activeTab].editor.env.editor.focus();
     }
@@ -1663,6 +1664,13 @@ function applyKeyboardListener() {
 
     if (e.altKey && fileTab[activeTab].editor.env.editor.isFocused()) {
       e.preventDefault();
+    }
+
+    if (!$('#btn-menu-my-files').classList.contains('active')) {
+    	if (event.key === 'Escape') {
+    		toggleInsertSnippet(false);
+    		fileTab[activeTab].editor.env.editor.focus();
+    	}
     }
 
     if (!e.ctrlKey && !e.altKey && $('#btn-menu-my-files').classList.contains('active')) {
