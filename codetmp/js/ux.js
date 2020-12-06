@@ -1592,6 +1592,7 @@ function applyKeyboardListener() {
   }
   
   function toggleMyFiles() {
+  	if (window.cprompt.isActive) return;
     if (!keyboard.Alt) return;
     
     $('#btn-menu-my-files').click()
@@ -1610,6 +1611,7 @@ function applyKeyboardListener() {
   }
   
   function toggleTemplate() {
+  	event.preventDefault();
       $('#btn-menu-template').click();
   }
   
@@ -1745,7 +1747,6 @@ function applyKeyboardListener() {
   let keyboard = new KeyTrapper();
 
   keyboard.isBlocked = function() {
-  	event.preventDefault();
   	return window.cprompt.isActive;
   }
 
@@ -1898,7 +1899,9 @@ function clearSelection() {
 }
 
 function selectAllFiles() {
-	selectedFile = [...$('.folder-list'), ...$('.file-list-clicker')];
-	for (let el of selectedFile)
-		toggleFileHighlight(el, true);
+	if (!window.cprompt.isActive) {
+		selectedFile = [...$('.folder-list'), ...$('.file-list-clicker')];
+		for (let el of selectedFile)
+			toggleFileHighlight(el, true);
+	}
 }
