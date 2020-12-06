@@ -1793,9 +1793,9 @@ function autoSync(event) {
   }
 }
 window.addEventListener('online', autoSync);
-window.addEventListener('copy', function(e) { copyFile(false) });
-window.addEventListener('cut', function(e) { copyFile(true) });
-window.addEventListener('paste', function(e) { pasteFile() });
+window.addEventListener('copy', function(e) { if ($('#in-my-files').classList.contains('active')) copyFile(false) });
+window.addEventListener('cut', function(e) { if ($('#in-my-files').classList.contains('active')) copyFile(true) });
+window.addEventListener('paste', function(e) { if ($('#in-my-files').classList.contains('active')) pasteFile() });
 
 window.onbeforeunload = function(e) {
   let notSaved = false;
