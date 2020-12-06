@@ -1769,7 +1769,7 @@ function applyKeyboardListener() {
     'Alt+N': ui.openNewTab,
     'Alt+W': confirmCloseTab,
     'Alt+O': openFileDirectory,
-    'Ctrl+S': fileManager.save,
+    'Ctrl+S': () => { event.preventDefault(); fileManager.save() },
     'Ctrl+A': selectAllFiles,
     'Alt+D': toggleTemplate,
     'Ctrl+Enter': function() {
