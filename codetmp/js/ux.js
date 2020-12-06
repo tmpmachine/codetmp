@@ -1600,6 +1600,7 @@ function applyKeyboardListener() {
       fileTab[activeTab].editor.env.editor.blur();
       setTimeout(() => { document.activeElement.blur() }, 1);
     } else {
+      clipBoard.length = 0;
       fileTab[activeTab].editor.env.editor.focus();
     }
   }
