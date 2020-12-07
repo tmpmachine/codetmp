@@ -207,24 +207,24 @@
 
       <div id="sidebar" class="w3-animate-left w3-card-4 HIDE" style="overflow:auto">
         <div class="Inner">
-          <div style="position:relative;z-index:0;">
-            <div id="btn-menu-preview" class="btn-material no-select">
-              <i class="material-icons i-btn-in">play_arrow</i>
-              <label class="l-btn-in">Preview</label>
-            </div>
-          </div>
-          <div style="position:relative;z-index:0;">
-            <div id="btn-menu-save" class="btn-material no-select">
-              <i class="material-icons i-btn-in">save</i>
-              <label class="l-btn-in">Save</label>
-            </div>
-          </div>
           <div id="btn-menu-my-files" class="btn-material no-select" menu="in-my-files">
             <i class="material-icons i-btn-in">folder</i>
             <label class="l-btn-in">My Files</label>
           </div>
-          <div style="position:relative;z-index:0;">
-            <div class="btn-material no-select w3-animate-left clickable" data-callback="toggle-file-info">
+          <div id="btn-menu-preview-wrapper" style="position:relative;z-index:0;">
+            <div id="btn-menu-preview" class="btn-material no-select w3-animate-left">
+              <i class="material-icons i-btn-in">play_arrow</i>
+              <label class="l-btn-in">Preview</label>
+            </div>
+          </div>
+          <div id="btn-menu-save-wrapper" style="position:relative;z-index:0;">
+            <div id="btn-menu-save" class="btn-material w3-animate-left no-select">
+              <i class="material-icons i-btn-in">save</i>
+              <label class="l-btn-in">Save</label>
+            </div>
+          </div>
+          <div id="btn-file-info-wrapper" style="position:relative;z-index:0;">
+            <div id="btn-file-info" class="btn-material no-select w3-animate-left clickable" data-callback="toggle-file-info">
               <i class="material-icons i-btn-in">info</i>
               <label class="l-btn-in">File Info</label>
             </div>
@@ -235,13 +235,7 @@
               <label class="l-btn-in">Assets</label>
             </div>
           </div>
-          <div style="position:relative;z-index:0;">
-            <div id="btn-home" class="btn-material no-select w3-hide-medium w3-hide-large clickable" data-callback="toggle-homepage">
-              <i class="material-icons i-btn-in">home</i>
-              <label class="l-btn-in">Home</label>
-            </div>
-          </div>
-          <div id="btn-menu-template" class="w3-hide btn-material no-select">
+          <div id="btn-menu-template" class="w3-animate-left btn-material no-select">
             <i class="material-icons i-btn-in">extension</i>
             <label class="l-btn-in">Snippets</label>
           </div>
@@ -249,11 +243,17 @@
             <i class="material-icons i-btn-in">delete</i>
             <label class="l-btn-in">Trash</label>
           </div>
-          <div class="btn-material no-select clickable w3-hide-medium w3-hide-large" data-callback="toggle-settings">
+          <div id="btn-menu-settings" class="w3-animate-left btn-material no-select hide clickable w3-hide-medium w3-hide-large" data-callback="toggle-settings">
             <i class="material-icons i-btn-in">settings</i>
             <label class="l-btn-in">Settings</label>
           </div>
-          <div class="btn-material no-select clickable w3-hide-medium w3-hide-large" data-callback="toggle-account">
+          <div id="btn-home-wrapper" class="hide w3-animate-left" style="position:relative;z-index:0;">
+            <div id="btn-home" class="btn-material no-select w3-hide-medium w3-hide-large clickable" data-callback="toggle-homepage">
+              <i class="material-icons i-btn-in">home</i>
+              <label class="l-btn-in">Home</label>
+            </div>
+          </div>
+          <div id="btn-account-wrapper" class="hide w3-animate-left btn-material no-select clickable w3-hide-medium w3-hide-large" data-callback="toggle-account">
             <i class="material-icons i-btn-in">account_circle</i>
             <label class="l-btn-in">Account</label>
           </div>

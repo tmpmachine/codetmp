@@ -96,7 +96,7 @@ function loadExternalFiles(URLs) {
           enableAutocomplete: true,
         },
         showHomepage: true,
-        wrapMode: false,
+        wrapMode: true,
         autoSync: true,
       }
     });

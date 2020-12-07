@@ -226,8 +226,9 @@ const ui = {
       
       $('#list-trash').innerHTML = '';
       $('#file-list').innerHTML = '';
-      if (menuId === 'in-my-files')
+      if (menuId === 'in-my-files') {
         fileList();
+      }
       else if (menuId === 'in-trash')
         trashList();
 
@@ -265,6 +266,25 @@ const ui = {
     
     if (!menu.classList.contains('active')) {
       selectedFile = [];
+    }
+
+    if ($('#in-my-files').classList.contains('active')) {
+		$('#btn-menu-save-wrapper').classList.toggle('hide', true);
+	  	$('#btn-menu-preview-wrapper').classList.toggle('hide', true);
+	  	$('#btn-file-info-wrapper').classList.toggle('hide', true);
+	  	$('#btn-menu-template').classList.toggle('hide', true);
+
+	  	$('#btn-home-wrapper').classList.toggle('hide', false);
+	  	$('#btn-account-wrapper').classList.toggle('hide', false);
+		$('#btn-menu-settings').classList.toggle('hide', false);
+    } else {
+	    $('#btn-menu-save-wrapper').classList.toggle('hide', false);
+	  	$('#btn-menu-preview-wrapper').classList.toggle('hide', false);
+	  	$('#btn-file-info-wrapper').classList.toggle('hide', false);
+	  	$('#btn-menu-template').classList.toggle('hide', false);
+	  	$('#btn-home-wrapper').classList.toggle('hide', true);
+	  	$('#btn-account-wrapper').classList.toggle('hide', true);
+	  	$('#btn-menu-settings').classList.toggle('hide', true);
     }
   },
   
@@ -458,6 +478,8 @@ function toggleHomepage() {
   $('#sidebar').classList.toggle('HIDE');
   $('#in-home').classList.toggle('active');
   $('#main-editor').classList.toggle('editor-mode');
+  if ($('#in-my-files').classList.contains('active'))
+  	$('#btn-menu-my-files').click();
 }
 
 function initModalWindow() {
@@ -1766,16 +1788,24 @@ function applyKeyboardListener() {
     'Alt+B': copyUploadBody,
     'Alt+M': toggleMyFiles,
     'Alt+R': toggleWrapMode,
-    'Alt+I': () => toggleModal('file-info'),
-    'Alt+N': ui.openNewTab,
+    'Alt+I': () => { 
+    	if (!$('#btn-menu-my-files').classList.contains('active'))
+    		toggleModal('file-info') 
+	},
+    'Alt+N': () => { 
+    	if ($('#btn-menu-my-files').classList.contains('active'))
+    		toggleMyFiles();
+		ui.openNewTab();
+    },
     'Alt+W': confirmCloseTab,
     'Alt+O': openFileDirectory,
     'Ctrl+S': () => { event.preventDefault(); fileManager.save() },
     'Ctrl+A': selectAllFiles,
     'Alt+D': toggleTemplate,
     'Ctrl+Enter': function() {
-      if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
-        renameFile();
+      if ($('#btn-menu-my-files').classList.contains('active')) {
+      	if (selectedFile.length > 0) 
+	        renameFile();
       } else {
         previewHTML();
       }

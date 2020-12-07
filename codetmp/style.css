@@ -224,8 +224,9 @@ html,body{height:100%;}
 .window{z-index:40}
 
 #sidebar .Inner {
-	display: grid;
-	grid-auto-flow: column;
+	/*grid-auto-flow: column;*/
+      display: flex;
+    padding-left: 0.45em;
 }
 #sidebar .Inner > div {
 	min-width: 70px;
@@ -255,11 +256,13 @@ html,body{height:100%;}
 	    grid-column: 1;
 	    grid-row: 1;
 	}
-	#sidebar .Inner {grid-auto-flow: row;}
+	#sidebar .Inner {flex-flow: column;}
 	@media (min-height:340px) {
 		#sidebar{
 			    display: grid;
-    align-items: center;
+    /*align-items: center;*/
+        align-items: flex-start;
+    padding-top: .45em;
 		}
 	}
 }
