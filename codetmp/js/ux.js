@@ -437,7 +437,7 @@ function attachMenuLinkListener() {
       break;
       case 'set-font-size':
         callback = function() {
-          window.cprompt('Editor Font Size', 14).then(size => {
+          window.cprompt('Editor Font Size', 16).then(size => {
             size = parseInt(size);
             if (size) {
               for (let tab of fileTab) {
@@ -641,10 +641,54 @@ function initInframeLayout() {
   window.addEventListener('touchmove', mouseMove);
 }
 
+function handleFileEntry(entry) {
+	if (parseInt(fileTab[activeTab].fid) < 0) {
+		fileTab[activeTab].filehandle = entry;
+		entry.getFile().then(r => {
+			r.text().then(r => {
+				newTab(-1, {
+					fid: '-' + (new Date).getTime(),
+					name: entry.name,
+					editor: initEditor(r),
+					content: r,
+					fileHandle: entry,
+				})
+			})
+		})
+	}
+}
+
+async function readDropItem(item) {
+  const entry = await item.getAsFileSystemHandle();
+	if (entry.kind === 'directory') {
+	  // handleDirectoryEntry(entry);
+ 	} else {
+	  handleFileEntry(entry);
+	}
+}
+
+function initReadDropModule() {
+	let elem = $('#editor-wrapper');
+	elem.addEventListener('dragover', (e) => {
+	  e.preventDefault();
+	});
+
+	elem.addEventListener('drop', e => {
+	  e.preventDefault();
+	  for (const item of e.dataTransfer.items) {
+	    if (item.kind === 'file') {
+	      readDropItem(item);
+	    }
+	  }
+	});
+}
+
 function initUI() {
   
   initModalWindow();
   initInframeLayout();
+  if (typeof(window.showOpenFilePicker) !== 'undefined')
+    initReadDropModule();
 
   fileList();
   $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
@@ -959,7 +1003,7 @@ override(editor.renderer, "screenToTextCoordinates", function(old) {
   editor.session.setMode("ace/mode/html");
   editor.session.setUseWrapMode(settings.data.wrapMode);
   editor.session.setTabSize(2);
-  editor.setFontSize(14);
+  editor.setFontSize(16);
   editor.clearSelection();
   editor.focus();
   editor.moveCursorTo(0,0);
@@ -1722,6 +1766,7 @@ function applyKeyboardListener() {
   window.addEventListener('keydown', e => { pressedKeys.shiftKey = e.shiftKey; })
 
   window.addEventListener('keydown', function(e) {
+    return
     if (window.cprompt.isActive)
       return
 

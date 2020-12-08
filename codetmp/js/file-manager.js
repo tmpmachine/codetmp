@@ -72,6 +72,13 @@ function Folder(data = {}) {
 
 function FileManager() {
   
+  async function saveChangesToDisk() {
+      const writable = await fileTab[activeTab].fileHandle.createWritable();
+      await writable.write(fileTab[activeTab].editor.env.editor.getValue());
+      await writable.close();
+      $('.icon-rename')[activeTab].textContent = 'close';
+  }
+
   function listFolders() {
     let folders = odin.filterData(activeFolder, fileStorage.data.folders, 'parentId');
     folders.sort(function(a, b) {
@@ -136,32 +143,37 @@ function FileManager() {
     let modifiedTime = new Date().toISOString();
     if (activeFile === undefined) {
       
-      window.cprompt('File name', $('.file-name')[activeTab].textContent).then(name => {
-    
-        if (!name) return;
-        
-        let file = new File({
-          name,
-        });
-        fileManager.sync(file.fid, 'create', 'files');
-        drive.syncToDrive();
-        fileManager.list();
-        fileStorage.save();
-        
-        let scrollTop = fileTab[activeTab].editor.env.editor.getSession().getScrollTop();
-        let row = fileTab[activeTab].editor.env.editor.getCursorPosition().row;
-        let col = fileTab[activeTab].editor.env.editor.getCursorPosition().column;
-        
-        confirmCloseTab(false);
-        newTab(activeTab, {
-          fid: file.fid,
-          name: file.name,
-          fiber: 'close',
-          file: file,
-          editor: initEditor(file.content, scrollTop, row, col),
-        });
+      if (typeof(fileTab[activeTab].fileHandle) !== 'undefined') {
+        saveChangesToDisk()
+      } else {
+        window.cprompt('File name', $('.file-name')[activeTab].textContent).then(name => {
+      
+          if (!name) return;
+          
+          let file = new File({
+            name,
+          });
+          fileManager.sync(file.fid, 'create', 'files');
+          drive.syncToDrive();
+          fileManager.list();
+          fileStorage.save();
+          
+          let scrollTop = fileTab[activeTab].editor.env.editor.getSession().getScrollTop();
+          let row = fileTab[activeTab].editor.env.editor.getCursorPosition().row;
+          let col = fileTab[activeTab].editor.env.editor.getCursorPosition().column;
+          
+          confirmCloseTab(false);
+          newTab(activeTab, {
+            fid: file.fid,
+            name: file.name,
+            fiber: 'close',
+            file: file,
+            editor: initEditor(file.content, scrollTop, row, col),
+          });
 
-      });
+        });
+      }
+
 
     } else {
       
