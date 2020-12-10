@@ -36,11 +36,12 @@
           return;
         }
         
-        controllerResolver();
+        if (controllerResolver)
+          controllerResolver();
 
         if (sw.waiting) {
           sw.waiting.postMessage({message: 'skipWaiting'});
-          location.href = location.href;
+          L('Preview page updated. You might want to reload the page.');
           return;
         }
     
@@ -48,7 +49,7 @@
           sw.installing.addEventListener('statechange', function() {
             if (sw.installing.state == 'installed') {
               sw.waiting.postMessage({message: 'skipWaiting'});
-              location.href = location.href;
+              L('Preview page updated. You might want to reload the page.');
             }
           })
           return;
@@ -58,7 +59,7 @@
           sw.installing.addEventListener('statechange', function() {
             if (this.state == 'installed') {
               sw.waiting.postMessage({message: 'skipWaiting'});
-              location.href = location.href;
+              L('Preview page updated. You might want to reload the page.');
             }
           })
         })
@@ -86,7 +87,7 @@
       		break;
       		case 'response-file':
 	          navigator.serviceWorker.controller.postMessage({
-	            message: 'response-file',
+	            message: e.data.message,
 	            mime: e.data.mime,
 	            content: e.data.content,
 	            resolverUID: e.data.resolverUID,

@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '1';
+let cacheVersion = '1.1';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
@@ -42,22 +42,22 @@ self.addEventListener('install', function(event) {
   ];
  
   event.waitUntil(Promise.all([
-  	self.skipWaiting(),
     caches.open(cacheItem).then(function(cache) {
       return cache.addAll(urls);
     }),
+  	self.skipWaiting(),
   ]));
 });
 
 self.addEventListener('activate', function(e) {
   e.waitUntil(Promise.all([
-  	self.clients.claim(),
     caches.keys().then(function(c) {
       c.map(function(cname) {
         if (!cname.endsWith(cacheVersion))
           caches.delete(cname);
       });
     }),
+  	self.clients.claim(),
   ]));
 });
 
@@ -96,6 +96,30 @@ self.addEventListener('fetch', function(e) {
       })
     );
 
+  } else if (e.request.url == location.origin+'/codetmp/files') {
+
+    e.respondWith(
+
+      new Promise(function request(resolve) {
+
+        if (messagePort) {
+          messagePort.postMessage({ 
+            path: e.request.url.replace(location.origin, ''),
+            resolverUID: uid,
+            method: 'POST',
+            body: e.request.body,  
+          });
+          resolverQueue['R'+uid] = resolve;
+          uid++;
+        } else {
+          resolve(new Response('Write failed.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
+        }
+
+      }).then((respomse) => {
+        return respomse;
+      })
+
+    );
   } else {
 
     e.respondWith(
