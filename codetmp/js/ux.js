@@ -643,7 +643,6 @@ function initInframeLayout() {
 
 function handleFileEntry(entry) {
 	if (parseInt(fileTab[activeTab].fid) < 0) {
-		fileTab[activeTab].filehandle = entry;
 		entry.getFile().then(r => {
 			r.text().then(r => {
 				newTab(-1, {
@@ -1847,6 +1846,7 @@ function applyKeyboardListener() {
     'Alt+O': openFileDirectory,
     'Ctrl+S': () => { event.preventDefault(); fileManager.save() },
     'Ctrl+A': selectAllFiles,
+    'Ctrl+O': () => { fileManager.openLocal(event) },
     'Alt+D': toggleTemplate,
     'Ctrl+Enter': function() {
       if ($('#btn-menu-my-files').classList.contains('active')) {
