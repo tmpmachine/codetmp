@@ -1339,19 +1339,21 @@ function openBread(id) {
 function openFileConfirm(el) {
 
   let index = selectedFile.indexOf(el);
-  if (pressedKeys.shiftKey) {
-	doubleClick = false;
+  if (pressedKeys.shiftKey || pressedKeys.ctrlKey) {
+	  doubleClick = false;
     if (index < 0) {
 	    selectedFile.push(el);
-		toggleFileHighlight(el, true);
+		  toggleFileHighlight(el, true);
     } else {
     	selectedFile.splice(index, 1);
-		toggleFileHighlight(el, false);
+		  toggleFileHighlight(el, false);
     }
     return
+    
   } else {
-	for (let el of selectedFile)
-		toggleFileHighlight(el, false);
+	  
+	  for (let el of selectedFile)
+		  toggleFileHighlight(el, false);
   			
   	if (selectedFile.length > 1) {
   		selectedFile.length = 0;
@@ -1360,8 +1362,8 @@ function openFileConfirm(el) {
 
   	if (index < 0) {
 	    selectedFile[0] = el;
-		doubleClick = false;
-		toggleFileHighlight(el, false);
+		  doubleClick = false;
+		  toggleFileHighlight(el, false);
     } 
   }
   
@@ -1761,9 +1763,9 @@ function applyKeyboardListener() {
     }
   }
 
-  window.addEventListener('blur', e => { pressedKeys.shiftKey = false; })
-  window.addEventListener('keyup', e => { pressedKeys.shiftKey = e.shiftKey; })
-  window.addEventListener('keydown', e => { pressedKeys.shiftKey = e.shiftKey; })
+  window.addEventListener('blur', e => { pressedKeys.shiftKey = false; pressedKeys.ctrlKey = false; })
+  window.addEventListener('keyup', e => { pressedKeys.shiftKey = e.shiftKey; pressedKeys.ctrlKey = e.ctrlKey; })
+  window.addEventListener('keydown', e => { pressedKeys.shiftKey = e.shiftKey; pressedKeys.ctrlKey = e.ctrlKey; })
 
   window.addEventListener('keydown', function(e) {
     if (window.cprompt.isActive)
