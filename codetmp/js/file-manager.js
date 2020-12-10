@@ -138,6 +138,25 @@ function FileManager() {
     return JSON.stringify(data);
   };
   
+  
+  this.openLocal = async function(event) {
+    if (typeof(window.showOpenFilePicker) !== 'undefined') {
+        event.preventDefault();
+        let [entry] = await window.showOpenFilePicker();
+    		entry.getFile().then(r => {
+    			r.text().then(r => {
+    				newTab(-1, {
+    					fid: '-' + (new Date).getTime(),
+    					name: entry.name,
+    					editor: initEditor(r),
+    					content: r,
+    					fileHandle: entry,
+    				});
+    			});
+    		});
+    }
+  };
+  
   this.save = function() {
     
     let modifiedTime = new Date().toISOString();
