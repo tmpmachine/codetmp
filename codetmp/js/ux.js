@@ -1766,7 +1766,6 @@ function applyKeyboardListener() {
   window.addEventListener('keydown', e => { pressedKeys.shiftKey = e.shiftKey; })
 
   window.addEventListener('keydown', function(e) {
-    return
     if (window.cprompt.isActive)
       return
 
