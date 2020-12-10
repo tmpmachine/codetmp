@@ -899,6 +899,7 @@ function setEditorMode(fileName = '') {
 		let req;
 
 function cancelSnapCam() {
+	globalscale = 1;
 	cancelAnimationFrame(req)
 	document.body.classList.toggle('transform-transition', true);
 	$('#fly').style.transform = `scale(1)`;
