@@ -1,4 +1,4 @@
-let previewUrl = 'http://localhost:5000/';
+let previewUrl = 'http://cpreview.web.app/';
 let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 let pressedKeys = {};
