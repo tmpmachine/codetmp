@@ -1,9 +1,13 @@
 # Codetmp
-Codetmp is all about :
-1. Quick HTML, CSS, and JS sandboxing
-2. Autosync with Google Drive / OS-like file management
-3. Lightweight
-4. Mobile friendly
+Here's a list of what to expect :
+1. Quick HTML, CSS, and JS sandboxing (static web development, no compiler, no server).
+2. Your code on the cloud. Autosync across devices, stored in your Google Drive account. No sign-up yada-yada.
+3. Desktop-like file manager. Inspired by Chrome OS.
+4. Lightweight.
+5. Mobile friendly (and works offline too, of course).
+
+# Reason & Goal
+It's a hobby and small incremental over the year based on my need, not anyone else. I want to create a toolbox for JavaScript developer, a home, you may said. A web based OS for JavaScript developer. Not bounded by any operating system and devices. Got browser and I'm ready to code. It's good enough to know that anyone would use Codetmp for learninf purpose, especially kids with budget devices.
 
 ![Codetmp on mobile](https://1.bp.blogspot.com/-qHzR_-01sKs/X0DndkG-apI/AAAAAAAANR8/I2kG5Ql1eoEP0P5UaAl7pCOjPQUfWu1fwCLcBGAsYHQ/s440/1.png)
 
