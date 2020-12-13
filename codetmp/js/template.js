@@ -278,6 +278,8 @@ function somefun(self, bypass) {
 function insertTemplate() {
   let index = this.dataset.index;
   let data = snippets[index];
+  $('#search-result').innerHTML = '';
+  toggleInsertSnippet();
   if (data.callback) {
     data.callback();
   } else {
@@ -286,6 +288,4 @@ function insertTemplate() {
     fileTab[activeTab].editor.env.editor.moveCursorToPosition({row:fileTab[activeTab].editor.env.editor.getCursorPosition().row+data.pos[0], column: curCol+data.pos[1]});
     fileTab[activeTab].editor.env.editor.focus();
   }
-  $('#search-result').innerHTML = '';
-  toggleInsertSnippet();
 }
