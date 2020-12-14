@@ -1,10 +1,10 @@
 # Codetmp
 Here's a list of what to expect :
-1. Quick HTML, CSS, and JS sandboxing (static web development, no compiler, no server).
-2. Files are stored in Google Drive.
+1. Lightweight.
+2. Files are stored locally or in Google Drive.
 3. Desktop-like file manager. Inspired by Chrome OS.
-4. Lightweight.
-5. Mobile friendly (and works offline too, of course).
+4. Mobile friendly (and works offline too, of course).
+5. Support File System Access API (experimental, use latest Chrome browser).
 
 ![Codetmp on mobile](https://1.bp.blogspot.com/-qHzR_-01sKs/X0DndkG-apI/AAAAAAAANR8/I2kG5Ql1eoEP0P5UaAl7pCOjPQUfWu1fwCLcBGAsYHQ/s440/1.png)
 
