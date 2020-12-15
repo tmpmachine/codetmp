@@ -1,3 +1,4 @@
+let previewUrl = 'https://cpreview.web.app/';
 let uploadBody = '';
 let locked = -1;
 let previewFrameResolver = null;
@@ -22,6 +23,27 @@ function Preview(fid) {
 }
 
 function PreviewManager() {
+
+  new Promise(function(resolve) {
+    if (isPreviewFrameLoaded) 
+      resolve();
+    else {
+      previewFrameResolver = resolve;
+    }
+  })
+  .then(() => {
+      let messageChannel = new MessageChannel();
+      messageChannel.port1.onmessage = previewManager.fileResponseHandler;
+
+      previewLoadWindow.postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
+      new Promise(function(resolve) {
+        portResolver = resolve;
+      })
+  });
+
+  if (!isPreviewFrameLoaded) {
+    previewLoadWindow = window.open(previewUrl, 'PreviewFrame');
+  }
 
 	this.fileResponseHandler = function (event) {
 	  if (event.data.method && event.data.method == 'POST' && event.data.path == '/codetmp/files') {

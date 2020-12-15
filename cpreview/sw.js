@@ -1,6 +1,6 @@
 L = console.log;
 let sourceWindow;
-let cacheVersion = '1.11';
+let cacheVersion = '1.12';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
@@ -73,8 +73,10 @@ function responseBySearch(e, resolve) {
     });
     uid++;
   } else {
-    sourceWindow.postMessage({ message: 'port-missing' });
-    resolve(new Response('Missing connection. Refresh page.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
+    if (sourceWindow) {
+      sourceWindow.postMessage({ message: 'port-missing' });
+    }
+    resolve(new Response('Cannot find requested file/directory. Make sure Codetmp is already open on other tab then refresh this page.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
   }
 }
 
