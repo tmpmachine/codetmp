@@ -1,30 +1,18 @@
 # Codetmp
 Here's a list of what to expect :
-1. Quick HTML, CSS, and JS sandboxing (static web development, no compiler, no server).
-2. Your code on the cloud. Autosync across devices, stored in your Google Drive account. No sign-up yada-yada.
+1. Lightweight.
+2. Files are stored locally or in Google Drive.
 3. Desktop-like file manager. Inspired by Chrome OS.
-4. Lightweight.
-5. Mobile friendly (and works offline too, of course).
-
-# Reason & Goal
-It's a hobby and small incremental over the year based on my need, not anyone else. I want to create a toolbox for JavaScript developer, a home, you may said. A web based OS for JavaScript developer. Not bounded by any operating system and devices. Got browser and I'm ready to code. It's good enough to know that anyone would use Codetmp for learning purpose.
+4. Mobile friendly (and works offline too, of course).
+5. Support File System Access API (experimental, use latest Chrome browser).
 
 ![Codetmp on mobile](https://1.bp.blogspot.com/-qHzR_-01sKs/X0DndkG-apI/AAAAAAAANR8/I2kG5Ql1eoEP0P5UaAl7pCOjPQUfWu1fwCLcBGAsYHQ/s440/1.png)
-
-## The Mechanism
-Codetmp is replacing all of :
-- `<script src="*location*"></script>` with `<script> *... code ...* </script>`
-- `<link href="*location*" rel="stylesheet"/>` with `<style> *... style ...* </style>`
-- Divless, nameless close tag HTML with HTML tags.
-- special HTML template code (TBA)
-
-All in all, it's just bunch of regex working behind the scene.
 
 ## Official Website
 [http://codetmp.web.app](http://codetmp.web.app)
 
-## Divless, nameless close tag HTML
-This feature allows you to write quickly for sandboxing activity (pron to error) :
+## Key Feature (not stable)
+**Divless, nameless close tag HTML** allows you to write quickly for sandboxing activity :
 1. write HTML tags with minimum amount of brackets
 2. write div tag without a name
 3. nameless close tag, just don't forget the ] to close the tag
