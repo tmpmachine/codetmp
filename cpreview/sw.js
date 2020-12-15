@@ -1,5 +1,6 @@
 L = console.log;
-let cacheVersion = '1.1';
+let sourceWindow;
+let cacheVersion = '1.11';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
@@ -14,6 +15,7 @@ self.addEventListener('message', function(e) {
       self.skipWaiting();
     break;
     case 'check-message-port':
+      sourceWindow = e.source;
       if (messagePort) {
         e.source.postMessage({ message: 'port-opened' });
       } else {
@@ -21,6 +23,7 @@ self.addEventListener('message', function(e) {
       }
     break;
     case 'init-message-port':
+      sourceWindow = e.source;
       messagePort = e.ports[0];
       e.source.postMessage({ message: 'message-port-opened' });
     break;
@@ -63,14 +66,15 @@ self.addEventListener('activate', function(e) {
 
 function responseBySearch(e, resolve) {
   if (messagePort) {
+    resolverQueue['R'+uid] = resolve;
     messagePort.postMessage({ 
       path: e.request.url.replace(location.origin, ''),
       resolverUID: uid,  
     });
-    resolverQueue['R'+uid] = resolve;
     uid++;
   } else {
-    resolve(new Response('Not found.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
+    sourceWindow.postMessage({ message: 'port-missing' });
+    resolve(new Response('Missing connection. Refresh page.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
   }
 }
 

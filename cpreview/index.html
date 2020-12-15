@@ -107,6 +107,9 @@
           case 'port-closed':
             window.opener.postMessage({ message: 'port-closed' }, '*');
           break;
+          case 'port-missing':
+            window.opener.postMessage({ message: 'port-missing' }, '*');
+          break;
           case 'message-port-opened':
             window.opener.postMessage({ message: 'message-port-opened' }, '*');
           break;

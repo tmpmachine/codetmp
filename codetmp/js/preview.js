@@ -574,6 +574,18 @@ window.addEventListener('message', function(e) {
 	    isPortOpened = false;
     	portResolver();
     break;
+    case 'port-missing':
+      isPortOpened = false;
+      let messageChannel = new MessageChannel();
+      messageChannel.port1.onmessage = previewManager.fileResponseHandler;
+
+      previewLoadWindow.postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
+      new Promise(function(resolve) {
+        portResolver = resolve;
+      }).then(() => {
+        window.open(previewUrl+filePath, previewManager.getFrameName());
+      })
+    break;
     case 'message-port-opened':
     	portResolver();
     break;
