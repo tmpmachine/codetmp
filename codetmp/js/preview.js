@@ -56,6 +56,9 @@ function PreviewManager() {
               content: event.data.body.content,
               parentId: previewManager.getDirectory(event.data.body.path, parentDir, ['root']),
             });
+            fileManager.sync(file.fid, 'create', 'files');
+            drive.syncToDrive();
+            fileStorage.save();
             fileManager.list();
           }
 
@@ -76,6 +79,15 @@ function PreviewManager() {
 
             if (file !== undefined) {
               file.content = event.data.body.content;
+              file.modifiedTime = new Date().toISOString();
+              handleSync({
+                fid: file.fid,
+                action: 'update',
+                metadata: ['media'],
+                type: 'files'
+              });
+              drive.syncToDrive();
+              fileStorage.save();
             }
           }
 
