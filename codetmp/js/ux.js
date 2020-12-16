@@ -1650,11 +1650,13 @@ function applyKeyboardListener() {
   }
   
   function deleteSelected() {
-    if (selectedFile.length > 0) {
+    if (selectedFile.length === 1) {
       if (selectedFile[0].getAttribute('data-type') === 'folder')
         ui.fm.deleteFolder();
       else if (selectedFile[0].getAttribute('data-type') === 'file')
         ui.fm.deleteFile();
+    } else if (selectedFile.length > 1) {
+    	
     }
   }
   
@@ -1845,6 +1847,7 @@ function applyKeyboardListener() {
     'Alt+W': confirmCloseTab,
     'Alt+O': openFileDirectory,
     'Ctrl+S': () => { event.preventDefault(); fileManager.save() },
+    'Ctrl+D': () => { event.preventDefault(); deleteSelected() },
     'Ctrl+A': selectAllFiles,
     'Ctrl+O': () => { fileManager.openLocal(event) },
     'Alt+D': toggleTemplate,

@@ -46,13 +46,47 @@ function PreviewManager() {
   }
 
 	this.fileResponseHandler = function (event) {
-	  if (event.data.method && event.data.method == 'POST' && event.data.path == '/codetmp/files') {
-      previewLoadWindow.postMessage({
-        message: 'response-file', 
-        mime: 'text/html;charset=UTF-8',
-        content: 'Nothing to write.',
-        resolverUID: event.data.resolverUID,
-      }, '*');
+	  if (event.data.method && event.data.path == '/codetmp/files') {
+      switch (event.data.method) {
+        case 'POST':
+          if (event.data.referrer) {
+            let parentDir = previewManager.getDirectory(event.data.referrer, null, ['root']);
+            let file = new File({
+              name: event.data.body.name,
+              content: event.data.body.content,
+              parentId: previewManager.getDirectory(event.data.body.path, parentDir, ['root']),
+            });
+            fileManager.list();
+          }
+
+          previewLoadWindow.postMessage({
+            message: 'response-file', 
+            mime: 'text/html;charset=UTF-8',
+            content: 'Done.',
+            resolverUID: event.data.resolverUID,
+          }, '*');
+          break;
+        case 'PUT':
+          if (event.data.referrer) {
+            let parentDir = previewManager.getDirectory(event.data.referrer, null, ['root']);
+            let parentId = previewManager.getDirectory(event.data.body.path, parentDir, ['root']);
+            let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
+            let name = event.data.body.path.replace(/.*?\//g,'');
+            let file = odin.dataOf(name, files, 'name');
+
+            if (file !== undefined) {
+              file.content = event.data.body.content;
+            }
+          }
+
+          previewLoadWindow.postMessage({
+            message: 'response-file', 
+            mime: 'text/html;charset=UTF-8',
+            content: 'Done.',
+            resolverUID: event.data.resolverUID,
+          }, '*');
+          break;
+      }
     } else {
       let mimeType = previewManager.getMimeType(event.data.path);
   		previewLoadWindow.postMessage({

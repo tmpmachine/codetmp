@@ -1,6 +1,6 @@
 L = console.log;
 let sourceWindow;
-let cacheVersion = '1.12';
+let cacheVersion = '1.14';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
@@ -109,16 +109,22 @@ self.addEventListener('fetch', function(e) {
       new Promise(function request(resolve) {
 
         if (messagePort) {
-          messagePort.postMessage({ 
-            path: e.request.url.replace(location.origin, ''),
-            resolverUID: uid,
-            method: 'POST',
-            body: e.request.body,  
-          });
-          resolverQueue['R'+uid] = resolve;
-          uid++;
+          e.request.json().then(body => {
+            messagePort.postMessage({ 
+              body,  
+              path: e.request.url.replace(location.origin, ''),
+              referrer: e.request.referrer.replace(location.origin, ''),
+              resolverUID: uid,
+              method: e.request.method,
+            });
+            resolverQueue['R'+uid] = resolve;
+            uid++;
+          })
         } else {
-          resolve(new Response('Write failed.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
+          if (sourceWindow) {
+            sourceWindow.postMessage({ message: 'port-missing' });
+          }
+          resolve(new Response('Request failed. Make sure Codetmp is already open.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
         }
 
       }).then((respomse) => {
