@@ -75,9 +75,16 @@ function PreviewManager() {
             let parentId = previewManager.getDirectory(event.data.body.path, parentDir, ['root']);
             let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
             let name = event.data.body.path.replace(/.*?\//g,'');
-            let file = odin.dataOf(name, files, 'name');
-
-            if (file !== undefined) {
+            let isFileFound = false;
+            let file;
+            for (let i=0; i<files.length; i++) {
+              if (files[i].name == name && !files[i].trashed) {
+                isFileFound = true;
+                file = files[i];
+                break;
+              }
+            }
+            if (isFileFound) {
               file.content = event.data.body.content;
               file.modifiedTime = new Date().toISOString();
               handleSync({
