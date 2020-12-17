@@ -79,9 +79,6 @@
       		return;
 
       	switch (e.data.message) {
-      		case 'check-message-port':
-            navigator.serviceWorker.controller.postMessage({ message: 'check-message-port' });
-          break;
           case 'init-message-port':
 	          navigator.serviceWorker.controller.postMessage({ message: 'init-message-port' }, [e.ports[0]]);
       		break;
@@ -101,12 +98,6 @@
           return;
 
         switch (event.data.message) {
-          case 'port-opened':
-            window.opener.postMessage({ message: 'port-opened' }, '*');
-          break;
-          case 'port-closed':
-            window.opener.postMessage({ message: 'port-closed' }, '*');
-          break;
           case 'port-missing':
             window.opener.postMessage({ message: 'port-missing' }, '*');
           break;

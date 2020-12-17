@@ -1,6 +1,6 @@
 L = console.log;
 let sourceWindow;
-let cacheVersion = '1.14';
+let cacheVersion = '1.142';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
@@ -13,14 +13,6 @@ self.addEventListener('message', function(e) {
   switch (e.data.message) {
     case 'skipWaiting':
       self.skipWaiting();
-    break;
-    case 'check-message-port':
-      sourceWindow = e.source;
-      if (messagePort) {
-        e.source.postMessage({ message: 'port-opened' });
-      } else {
-        e.source.postMessage({ message: 'port-closed' });
-      }
     break;
     case 'init-message-port':
       sourceWindow = e.source;

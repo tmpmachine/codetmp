@@ -647,14 +647,6 @@ window.addEventListener('message', function(e) {
       editor.clearSelection();
       editor.moveCursorTo(0,0);
     break;
-    case 'port-opened':
-	    isPortOpened = true;
-	    portResolver();
-    break;
-    case 'port-closed':
-	    isPortOpened = false;
-    	portResolver();
-    break;
     case 'port-missing':
       isPortOpened = false;
       let messageChannel = new MessageChannel();
