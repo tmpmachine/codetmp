@@ -142,7 +142,7 @@ function PreviewManager() {
       let content = '';
       let file;
       for (let i=0; i<files.length; i++) {
-        if (files[i].name == name) {
+        if (files[i].name == name && !files[i].trashed) {
           isFileFound = true;
           file = files[i];
           break;
