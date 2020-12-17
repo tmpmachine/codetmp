@@ -349,7 +349,7 @@ return body;
 (function() {
   
   function getMatch(content) {
-    return content.match(/<template src=.*?><\/template>|<script .*?src=.*?><\/script>|<link .*?href=.*?>/);
+    return content.match(/<template src=.*?><\/template>|<script .*?src=.*?><\/script>|<link .*?rel=('|")stylesheet('|").*?>/);
   }
 
   function replaceLocal(body, preParent = -1, path = ['root']) {
