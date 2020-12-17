@@ -138,16 +138,22 @@ function PreviewManager() {
       let parentId = previewManager.getDirectory(src, relativeParent, path);
       let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
       let name = src.replace(/.*?\//g,'');
-      let file = odin.dataOf(name, files, 'name');
-      let content;
+      let isFileFound = false;
+      let content = '';
+      let file;
+      for (let i=0; i<files.length; i++) {
+        if (files[i].name == name) {
+          isFileFound = true;
+          file = files[i];
+          break;
+        }
+      }
 
-      if (file === undefined) {
-      	content = '';
-      } else {
+      if (isFileFound) {
         if (typeof(file.loaded) != 'undefined' && !file.loaded) {
           aww.pop('Downloading required file : '+name);
           drive.downloadDependencies(file);
-	      content = '';
+	        content = '';
         } else {
 
 	        let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
