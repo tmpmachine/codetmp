@@ -1,7 +1,7 @@
 let snippets = [
-  {pos: [-3, 1], title: 'HTML', snippet: '<!DOCTYPE html>\n<html>\n<head>\n\n<\/head>\n<body>\n\t\n\t\n\t\n<\/body>\n<\/html>'},
-  {pos: [-1, 1], title: 'style', snippet: '<style>\n\t\n<\/style>'},
-  {pos: [-1, 1], title: 'inline script', snippet: '<script>\n\t\n<\/script>'},
+  {pos: [-3, 2], title: 'HTML', snippet: '<!DOCTYPE html>\n<html>\n<head>\n\n<\/head>\n<body>\n\t\n\t\n\t\n<\/body>\n<\/html>'},
+  {pos: [-1, 2], title: 'style', snippet: '<style>\n\t\n<\/style>'},
+  {pos: [-1, 2], title: 'inline script', snippet: '<script>\n\t\n<\/script>'},
   {pos: [-2, 14], title: 'template', snippet: '<template id="">\n\t\n<\/template>'},
   {pos: [0, 15], title: 'template src', snippet: '<template src=""><\/template>'},
   {pos: [0, 13], title: 'external script', snippet: '<script src=""><\/script>'},
@@ -16,6 +16,8 @@ let customSnippetsCounter = 0;
 let index = 0;
 for (let snippet of snippets) {
   snippet.index = index;
+  if (snippet.snippet)
+  	snippet.snippet = snippet.snippet.replace(/\t/g, '  ');
   index++;
 }
 
