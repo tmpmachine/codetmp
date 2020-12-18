@@ -1,4 +1,4 @@
-let previewUrl = 'https://cpreview.web.app/';
+let previewUrl = 'http://localhost:5000/';
 let uploadBody = '';
 let locked = -1;
 let previewFrameResolver = null;
@@ -651,13 +651,7 @@ window.addEventListener('message', function(e) {
       isPortOpened = false;
       let messageChannel = new MessageChannel();
       messageChannel.port1.onmessage = previewManager.fileResponseHandler;
-
-      previewLoadWindow.postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
-      new Promise(function(resolve) {
-        portResolver = resolve;
-      }).then(() => {
-        window.open(previewUrl+filePath, previewManager.getFrameName());
-      })
+      previewLoadWindow.postMessage({ message: 'reinit-message-port' }, '*', [messageChannel.port2]);
     break;
     case 'message-port-opened':
     	portResolver();

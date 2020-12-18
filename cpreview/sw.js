@@ -1,10 +1,10 @@
 L = console.log;
-let sourceWindow;
-let cacheVersion = '1.142';
+let cacheVersion = '1.1431';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
 let uid = 0;
+let isRelinkingMessagePort = false;
 
 self.addEventListener('message', function(e) {
   if (typeof(e.data) == 'undefined')
@@ -15,9 +15,12 @@ self.addEventListener('message', function(e) {
       self.skipWaiting();
     break;
     case 'init-message-port':
-      sourceWindow = e.source;
       messagePort = e.ports[0];
       e.source.postMessage({ message: 'message-port-opened' });
+    break;
+    case 'reinit-message-port':
+      messagePort = e.ports[0];
+      isRelinkingMessagePort = false;
     break;
     case 'response-file':
       let response;
@@ -56,20 +59,58 @@ self.addEventListener('activate', function(e) {
   ]));
 });
 
+function checkMessagePort() {
+  return new Promise((resolve, reject) => {
+    self.clients.matchAll({
+      includeUncontrolled: true,
+      type: 'window',
+    }).then((clients) => {
+      if (messagePort) {
+        resolve();
+      } else {
+        let hasClient = false;
+        if (clients && clients.length) {
+          for (let client of clients) {
+            if(client.url == location.origin+'/') {
+              hasClient = true;
+              if (!isRelinkingMessagePort) {
+                client.postMessage({ message: 'port-missing' });
+                isRelinkingMessagePort = true;
+              }
+              let timeout = 10000;
+              let waiting = setInterval(() => {
+                timeout -= 10;
+                if (timeout === 0) {
+                  clearInterval(waiting);
+                  reject();
+                }
+                if (messagePort) {
+                  clearInterval(waiting);
+                  resolve();
+                }
+              }, 10)
+              break;
+            }
+          }
+        }
+        if (!hasClient)
+          reject();
+      }
+    });    
+  })
+}
+
 function responseBySearch(e, resolve) {
-  if (messagePort) {
+  checkMessagePort().then(() => {
     resolverQueue['R'+uid] = resolve;
     messagePort.postMessage({ 
       path: e.request.url.replace(location.origin, ''),
       resolverUID: uid,  
     });
     uid++;
-  } else {
-    if (sourceWindow) {
-      sourceWindow.postMessage({ message: 'port-missing' });
-    }
+  }).catch(() => {
     resolve(new Response('Cannot find requested file/directory. Make sure Codetmp is already open on other tab then refresh this page.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
-  }
+  })
 }
 
 function responseByFetch(e, resolve) {
@@ -100,7 +141,7 @@ self.addEventListener('fetch', function(e) {
 
       new Promise(function request(resolve) {
 
-        if (messagePort) {
+        checkMessagePort().then(() => {
           e.request.json().then(body => {
             messagePort.postMessage({ 
               body,  
@@ -112,12 +153,9 @@ self.addEventListener('fetch', function(e) {
             resolverQueue['R'+uid] = resolve;
             uid++;
           })
-        } else {
-          if (sourceWindow) {
-            sourceWindow.postMessage({ message: 'port-missing' });
-          }
+        }).catch(() => {
           resolve(new Response('Request failed. Make sure Codetmp is already open.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
-        }
+        }) 
 
       }).then((respomse) => {
         return respomse;
