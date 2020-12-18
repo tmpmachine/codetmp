@@ -408,7 +408,7 @@ return body;
       let relativeParent = preParent;
       
       if (src.startsWith('https://') || src.startsWith('http://')) {
-        body = body.replace(match[0], match[0].replace('href=','href-web=').replace('src=','src-web='));
+        body = body.replace(match[0], match[0].replace('<link ','<web-link ').replace('<script ','<web-script '));
         match = getMatch(body);
         continue;
       }
@@ -576,7 +576,7 @@ return body;
   }
   
   function cacheContent(filePath, isForceDeploy) {
-    let content = replaceLocal().replace(/src-web=/g, 'src=').replace(/href-web=/g, 'href=');
+    let content = replaceLocal().replace(/<web-script /g, '<script ').replace(/<web-link /g, '<link ');
     if ($('#chk-render-plate-html').checked) {
       content = (typeof(plate) != 'undefined') ? plate.cook(content) : content;
     }
