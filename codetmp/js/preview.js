@@ -297,7 +297,7 @@ function PreviewManager() {
 }
 
 function getMatchTemplate(content) {
-	return content.match(/<template src=.*?><\/template>/);
+	return content.match(/<file src=.*?><\/file>/);
 }
 
 function replaceTemplate(body, preParent = -1, path = ['root']) {
@@ -306,7 +306,7 @@ let match = getMatchTemplate(body);
 
 while (match !== null) {
 
-  let src = match[0].substring(15, match[0].length-13);
+  let src = match[0].substring(11, match[0].length-9);
   let relativeParent = preParent;
   
   if (src.startsWith('__')) {
@@ -349,7 +349,7 @@ return body;
 (function() {
   
   function getMatch(content) {
-    return content.match(/<template src=.*?><\/template>|<script .*?src=.*?><\/script>|<link .*?rel=('|")stylesheet('|").*?>/);
+    return content.match(/<file src=.*?><\/file>|<script .*?src=.*?><\/script>|<link .*?rel=('|")stylesheet('|").*?>/);
   }
 
   function replaceLocal(body, preParent = -1, path = ['root']) {
@@ -388,8 +388,8 @@ return body;
       let isScriptOrLink = false;
       let isFile = false;
       let isMinified = false;
-      let start = 15;
-      let end = 13;
+      let start = 11;
+      let end = 9;
       let src = '';
       
       if (match[0].includes('<script')) {
