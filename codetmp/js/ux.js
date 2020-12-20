@@ -1772,7 +1772,7 @@ function applyKeyboardListener() {
     if (window.cprompt.isActive)
       return
 
-    if (e.altKey && fileTab[activeTab].editor.env.editor.isFocused()) {
+    if (e.altKey && (fileTab[activeTab].editor.env.editor.isFocused() || document.activeElement.id == 'search-input')) {
       e.preventDefault();
     }
 
