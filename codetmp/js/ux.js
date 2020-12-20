@@ -288,11 +288,9 @@ const ui = {
   },
   
   switchTab: function(direction = 1) {
-  
-    if ($('#in-my-files').classList.contains('active') || fileTab.length == 1) return
-    
+    if ($('#in-my-files').classList.contains('active') || fileTab.length == 1) 
+      return
     let fid;
-    
     if (activeTab + direction > 0 && activeTab + direction < fileTab.length)
       fid = fileTab[activeTab + direction].fid
     else
@@ -350,8 +348,6 @@ function toggleModal(name) {
   for (let modal of $('.modal-window')) {
     if (modal.dataset.name == name) {
       modal.classList.toggle('Hide');
-      // $('.Overlay',modal)[0].classList.toggle('hide');
-      // $('#main-editor').classList.toggle('blurred');
       break;
     }
   }
@@ -361,10 +357,10 @@ function toggleModalByClick() {
   toggleModal(this.dataset.target);
 }
 
-function blurNavigation() {
-  $('#nav-bar').classList.toggle('hoverable');
+function hideNavbarSubMenu() {
+  $('#nav-bar').classList.toggle('hoverable', false);
   setTimeout(() => {
-    $('#nav-bar').classList.toggle('hoverable');
+    $('#nav-bar').classList.toggle('hoverable', true);
   }, 250);
 }
 
@@ -382,38 +378,28 @@ function attachMenuLinkListener() {
       case 'preview':
         callback = function() {
           $('#btn-menu-' + menu.dataset.callback).click();
-          blurNavigation()
         };
       break;
       case 'deploy':
-        callback = function() {
-          renderAndDeployLocked();
-          blurNavigation()
-        };
+        callback = renderAndDeployLocked;
       break;
       case 'download-rendered':
         callback = function() {
           fileDownload();
-          blurNavigation()
         };
       break;
       case 'deploy-single':
-        callback = function() {
-          renderAndDeploySingle();
-          blurNavigation()
-        };
+        callback = renderAndDeploySingle;
       break;
       case 'my-files':
         callback = function() {
           $('#btn-menu-my-files').click();
-          blurNavigation()
         };
       break;
       case 'trash':
         callback = function() {
           if (!$('#in-trash').classList.contains('active'))
             $('#btn-menu-trash').click();
-          blurNavigation()
         };
       break;
       case 'toggle-editor-theme':
@@ -449,7 +435,6 @@ function attachMenuLinkListener() {
       case 'about':
         callback = function() {
           toggleHomepage();
-          blurNavigation()
         };
       break;
       case 'settings':
@@ -462,14 +447,14 @@ function attachMenuLinkListener() {
       break;
     }
     menu.addEventListener('click', callback);
+    menu.addEventListener('click', hideNavbarSubMenu);
   }
 }
 
 function logWarningMessage() {
 	let cssRule = "color:rgb(249,162,34);font-size:60px;font-weight:bold";
 	setTimeout(console.log.bind(console, "%cATTENTION", cssRule), 0); 
-	setTimeout(console.log.bind(console, "Someone might be tyring to steal your data by asking you to enter malicious code from here!"), 0); 
-	setTimeout(console.log.bind(console, "If this was not intended, you can close this window by clicking 'x' on the top right corner of this window or by closing current browsing tab."), 0); 
+	setTimeout(console.log.bind(console, "This window is intended for developers and someone might be tyring to steal your data by asking you to enter malicious code from here."), 0); 
 	setTimeout(console.log.bind(console, "Ignore this message if you're well aware of what you're going to do."), 0); 
 }
 
