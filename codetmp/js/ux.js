@@ -1028,10 +1028,14 @@ override(editor.renderer, "screenToTextCoordinates", function(old) {
   editor.commands.addCommand({
     bindKey: {win: "Ctrl-X"},
     exec: function(editor) {
-    	let row = editor.getSelectionRange().start.row
-		editor.selection.setSelectionRange({start:{row,column:0},end:{row,column:Infinity}})
-		document.execCommand('cut');
-      editor.removeLines();
+    	let selection = editor.getSelectionRange();
+    	if (selection.start.row == selection.end.row && selection.start.column == selection.end.column) {
+			let row = selection.start.row
+			editor.selection.setSelectionRange({start:{row,column:0},end:{row:row+1,column:0}})
+			document.execCommand('cut');
+    	} else {
+			document.execCommand('cut');
+    	}
     }
   });
 
