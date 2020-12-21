@@ -111,14 +111,14 @@ function PreviewManager() {
   		previewLoadWindow.postMessage({
   			message: 'response-file', 
   			mime: mimeType,
-  			content: previewManager.getContent(decodeURI(event.data.path), mimeType),
+  			content: previewManager.getContent(event.data.path, mimeType),
   			resolverUID: event.data.resolverUID,
   		}, '*');
     }
   }
 
 	this.getContent = function(src, mimeType) {
-
+		src = decodeURI(src);
       if (isPreviewSPA) {
         for (let i=0; i<SPACache.length; i++) {
           if ('/'+SPACache[i].path == src) {
@@ -220,7 +220,7 @@ function PreviewManager() {
   }
 
   this.getDirectory = function(source, parentId, path) {
-    
+    source = decodeURI(source);
     while (source.match('//')) {
       source = source.replace('//','/');
     }
