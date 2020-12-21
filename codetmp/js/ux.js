@@ -1025,6 +1025,16 @@ override(editor.renderer, "screenToTextCoordinates", function(old) {
     }
   });
   
+  editor.commands.addCommand({
+    bindKey: {win: "Ctrl-X"},
+    exec: function(editor) {
+    	let row = editor.getSelectionRange().start.row
+		editor.selection.setSelectionRange({start:{row,column:0},end:{row,column:Infinity}})
+		document.execCommand('cut');
+      editor.removeLines();
+    }
+  });
+
   let fontSizeScale = [12, 14, 16, 18, 21, 24, 30, 36, 48];
   let defaultFontSize = 1;
   let fontSize = 1;
