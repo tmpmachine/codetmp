@@ -1,4 +1,4 @@
-let previewUrl = 'https://cpreview.web.app/';
+let previewUrl = 'http://localhost:5000/';
 let uploadBody = '';
 let locked = -1;
 let previewFrameResolver = null;
@@ -68,6 +68,42 @@ function PreviewManager() {
             content: 'Done.',
             resolverUID: event.data.resolverUID,
           }, '*');
+          break;
+        case 'PATCH':
+          if (event.data.referrer) {
+            let parentDir = previewManager.getDirectory(event.data.referrer, null, ['root']);
+            let parentId = previewManager.getDirectory(event.data.body.path, parentDir, ['root']);
+            let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
+            let name = event.data.body.path.replace(/.*?\//g,'');
+            let isFileFound = false;
+            let file;
+            for (let i=0; i<files.length; i++) {
+              if (files[i].name == name && !files[i].trashed) {
+                isFileFound = true;
+                file = files[i];
+                break;
+              }
+            }
+            if (isFileFound) {
+              file.loaded = false;
+              drive.downloadDependencies(file).then(() => {
+		          previewLoadWindow.postMessage({
+		            message: 'response-file', 
+		            mime: 'text/html;charset=UTF-8',
+		            content: 'Updated.',
+		            resolverUID: event.data.resolverUID,
+		          }, '*');
+              }).catch(() => {
+	            file.loaded = true;
+				previewLoadWindow.postMessage({
+		            message: 'response-file', 
+		            mime: 'text/html;charset=UTF-8',
+		            content: 'Update failed.',
+		            resolverUID: event.data.resolverUID,
+		          }, '*');
+              })
+            }
+          }
           break;
         case 'PUT':
           if (event.data.referrer) {

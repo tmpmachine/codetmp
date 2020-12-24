@@ -32,7 +32,7 @@ const drive = (function() {
   async function downloadDependencies(data) {
     if (!data.loaded && data.id !== '') {
       await auth2.init();
-      return new Promise(resolve => {
+      return new Promise((resolve, reject) => {
         fetch(apiUrl+'files/'+data.id+'?alt=media', {
           method:'GET',
           headers: httpHeaders,
@@ -49,6 +49,7 @@ const drive = (function() {
           resolve(media);
         }).catch(() => {
           aww.pop('Could not download required file: '+data.name);
+          reject();
         });
       })
     }
