@@ -24,6 +24,20 @@ function Preview(fid) {
 
 function PreviewManager() {
 
+  function removeParam(url) {
+    var oldURL = url;
+    var index = 0;
+    var newURL = oldURL;
+    index = oldURL.indexOf('?');
+    if(index == -1){
+        index = oldURL.indexOf('#');
+    }
+    if(index != -1){
+        newURL = oldURL.substring(0, index);
+    }
+    return newURL;
+  }
+
   new Promise(function(resolve) {
     if (isPreviewFrameLoaded) 
       resolve();
@@ -143,11 +157,12 @@ function PreviewManager() {
           break;
       }
     } else {
-      let mimeType = previewManager.getMimeType(event.data.path);
-  		previewLoadWindow.postMessage({
+      let path = removeParam(event.data.path);
+      let mimeType = previewManager.getMimeType(path);
+      previewLoadWindow.postMessage({
   			message: 'response-file', 
   			mime: mimeType,
-  			content: previewManager.getContent(event.data.path, mimeType),
+  			content: previewManager.getContent(removeParam(path), mimeType),
   			resolverUID: event.data.resolverUID,
   		}, '*');
     }
