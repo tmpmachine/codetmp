@@ -2,7 +2,7 @@ let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 let pressedKeys = {};
 let fontSizeScale = [12, 14, 16, 18, 21, 24, 30, 36, 48];
-let fontSize = 1;
+let fontSize = 2;
 
 let extension = (function() {
 
