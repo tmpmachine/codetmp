@@ -1,6 +1,8 @@
 let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 let pressedKeys = {};
+let fontSizeScale = [12, 14, 16, 18, 21, 24, 30, 36, 48];
+let fontSize = 1;
 
 let extension = (function() {
 
@@ -726,12 +728,40 @@ function initUI() {
   checkAuth();
   applyKeyboardListener();
   attachMenuLinkListener();
+  attachMouseListener();
   if (settings.data.editor.enableEmmet) {
     extension.load('emmet');
   }
   if (settings.data.editor.enableAutocomplete) {
     extension.load('autocomplete');
   }
+}
+
+function attachMouseListener() {
+	window.addEventListener('mousewheel', event => {
+  event.preventDefault();
+  wheel(event.deltaY / 1000 * -1);
+}, {passive:false});
+
+
+
+function wheel(delta) {
+
+  if (pressedKeys.ctrlKey) {
+  
+     if (delta < 0) {
+     	   if (fontSize > 0) {
+     	   	fontSize--;
+		      fileTab[activeTab].editor.env.editor.setFontSize(fontSizeScale[fontSize]);
+		  }
+     } else if (delta > 0) {
+     	 if (fontSize < fontSizeScale.length - 1) {
+     	 	fontSize++;
+			 fileTab[activeTab].editor.env.editor.setFontSize(fontSizeScale[fontSize]);
+     	 }
+     }
+  }
+}
 }
 
 function showFileSetting(section) {
@@ -817,6 +847,7 @@ function focusTab(fid) {
   fileTab[idx].editor.env.editor.focus();
   fileTab[idx].editor.env.editor.session.setUseWrapMode(false);
   fileTab[idx].editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
+  fileTab[idx].editor.env.editor.setFontSize(fontSizeScale[fontSize]);
   activeFile = (String(fid)[0] == '-') ? undefined : fileTab[activeTab].file;
   setEditorMode(fileTab[activeTab].name);
   
@@ -987,7 +1018,7 @@ override(editor.renderer, "screenToTextCoordinates", function(old) {
   editor.session.setMode("ace/mode/html");
   editor.session.setUseWrapMode(settings.data.wrapMode);
   editor.session.setTabSize(2);
-  editor.setFontSize(16);
+  editor.setFontSize(fontSizeScale[fontSize]);
   editor.clearSelection();
   editor.focus();
   editor.moveCursorTo(0,0);
@@ -1039,9 +1070,6 @@ override(editor.renderer, "screenToTextCoordinates", function(old) {
     }
   });
 
-  let fontSizeScale = [12, 14, 16, 18, 21, 24, 30, 36, 48];
-  let defaultFontSize = 1;
-  let fontSize = 1;
   editor.commands.addCommand({
     name: "decrease-font-size",
     bindKey: {win: "Ctrl--"},
@@ -1065,8 +1093,7 @@ override(editor.renderer, "screenToTextCoordinates", function(old) {
     bindKey: {win: "Ctrl-0"},
     exec: function(editor) {
       event.preventDefault();
-      fontSize = defaultFontSize;
-      editor.setFontSize(fontSizeScale[defaultFontSize]);
+      editor.setFontSize(16);
     }
   });
   editor.commands.addCommand({
