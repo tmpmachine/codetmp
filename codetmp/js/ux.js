@@ -1094,6 +1094,7 @@ override(editor.renderer, "screenToTextCoordinates", function(old) {
     exec: function(editor) {
       event.preventDefault();
       editor.setFontSize(16);
+      fontSize = 2;
     }
   });
   editor.commands.addCommand({
