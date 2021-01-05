@@ -3,6 +3,7 @@ let lastOpenTabIndex = 0;
 let pressedKeys = {};
 let fontSizeScale = [12, 14, 16, 18, 21, 24, 30, 36, 48];
 let fontSize = 2;
+let lineLock = -1;
 
 let extension = (function() {
 
@@ -739,25 +740,27 @@ function initUI() {
 
 function attachMouseListener() {
 	window.addEventListener('mousewheel', event => {
-  event.preventDefault();
-  wheel(event.deltaY / 1000 * -1);
+	if (fileTab[activeTab].editor.env.editor.isFocused()) {
+  		event.preventDefault();
+		wheel(event.deltaY / 1000 * -1);
+	}
 }, {passive:false});
 
 
 
 function wheel(delta) {
-
   if (pressedKeys.ctrlKey) {
-  
      if (delta < 0) {
      	   if (fontSize > 0) {
      	   	fontSize--;
-		      fileTab[activeTab].editor.env.editor.setFontSize(fontSizeScale[fontSize]);
+		     fileTab[activeTab].editor.env.editor.setFontSize(fontSizeScale[fontSize]);
+		     fileTab[activeTab].editor.env.editor.scrollToLine(lineLock)
 		  }
      } else if (delta > 0) {
      	 if (fontSize < fontSizeScale.length - 1) {
      	 	fontSize++;
 			 fileTab[activeTab].editor.env.editor.setFontSize(fontSizeScale[fontSize]);
+		     fileTab[activeTab].editor.env.editor.scrollToLine(lineLock)
      	 }
      }
   }
@@ -1791,9 +1794,20 @@ function applyKeyboardListener() {
     }
   }
 
-  window.addEventListener('blur', e => { pressedKeys.shiftKey = false; pressedKeys.ctrlKey = false; })
-  window.addEventListener('keyup', e => { pressedKeys.shiftKey = e.shiftKey; pressedKeys.ctrlKey = e.ctrlKey; })
-  window.addEventListener('keydown', e => { pressedKeys.shiftKey = e.shiftKey; pressedKeys.ctrlKey = e.ctrlKey; })
+  window.addEventListener('blur', e => { 
+  	pressedKeys.shiftKey = false; pressedKeys.ctrlKey = false; 
+  	lineLock = -1;
+  })
+  window.addEventListener('keyup', e => { 
+  	pressedKeys.shiftKey = e.shiftKey; pressedKeys.ctrlKey = e.ctrlKey;
+  	lineLock = -1; 
+  })
+  window.addEventListener('keydown', e => { 
+  	pressedKeys.shiftKey = e.shiftKey; 
+  	pressedKeys.ctrlKey = e.ctrlKey; 
+  	if (lineLock === -1)
+  		lineLock = fileTab[activeTab].editor.env.editor.getFirstVisibleRow();
+  })
 
   window.addEventListener('keydown', function(e) {
     if (window.cprompt.isActive)
