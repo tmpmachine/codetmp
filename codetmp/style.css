@@ -275,9 +275,10 @@ html,body{height:100%;}
 #in-info-block,#in-assets-block{z-index:19;}
 
 .ace_scrollbar::-webkit-scrollbar { width: 5px; }
-.ace_scrollbar::-webkit-scrollbar-track { background: #ddd; }
-.ace_scrollbar::-webkit-scrollbar-thumb { background: #666; }
 .ace_scrollbar { scrollbar-color: dark; }
+.ace_scrollbar::-webkit-scrollbar-thumb { background: #9E9E9E }
+.ace_scrollbar::-webkit-scrollbar-track { background: #292929 }
+
 
 #btn-back-to-editor { transition: transform 300ms; transform: translateX(0%); }
 #btn-back-to-editor.hide { transform: translateX(-100%); }
@@ -340,7 +341,7 @@ display: grid;
 .bg2{background:#292e31}
 .bg3{background:#457086}
 .bg4{background:#1d1f25}
-.bg5{background:#141414}
+.bg5{background:#1a1d21}
 .bg6{background:#272822}
 .bg7{background:#444c50}
 .bg8{background:#f5f5f5}

@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '6.3954';
+let cacheVersion = '6.40';
 let cacheItem = 'codetmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
@@ -15,7 +15,7 @@ self.addEventListener('install', function(event) {
   let urls = [
     '/',
     '/style.css',
-    '/ace/theme-monokai.js',
+    '/ace/theme-codetmp.js',
     '/ace/theme-github.js',
     '/ace/mode-html.js',
     '/ace/mode-json.js',

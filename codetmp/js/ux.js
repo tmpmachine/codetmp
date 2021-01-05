@@ -407,10 +407,10 @@ function attachMenuLinkListener() {
       case 'toggle-editor-theme':
         callback = function() {
           let editor = fileTab[activeTab].editor.env.editor;
-          if (editor.getTheme().includes('monokai'))
+          if (editor.getTheme().includes('codetmp'))
             editor.setTheme('ace/theme/github');
           else
-            editor.setTheme('ace/theme/monokai');
+            editor.setTheme('ace/theme/codetmp');
         }
       break;
       case 'toggle-in-frame':
@@ -835,9 +835,9 @@ function focusTab(fid) {
   let idx = odin.idxOf(String(fid), fileTab, 'fid');
   
   for (let tab of $('.file-tab'))
-    tab.lastElementChild.style.background = '#202020';
+    tab.lastElementChild.style.background = '#1f2027';
   
-  $('.file-tab')[idx].lastElementChild.style.background = '#154358';
+  $('.file-tab')[idx].lastElementChild.style.background = '#FFEB3B';
   
   compressTab(idx);
   activeTab = idx;
@@ -1012,7 +1012,7 @@ override(editor.renderer, "screenToTextCoordinates", function(old) {
 })
 
   
-  editor.setTheme("ace/theme/monokai", () => {
+  editor.setTheme("ace/theme/codetmp", () => {
     editorElement.style.opacity = '1';
   });
   editor.session.setMode("ace/mode/html");
@@ -1135,7 +1135,7 @@ override(editor.renderer, "screenToTextCoordinates", function(old) {
 function newTab(position, data) {
   
   for (let tab of $('.file-tab'))
-    tab.lastElementChild.style.background = '#202020';
+    tab.lastElementChild.style.background = '#1f2027';
   
   let fid, el
   if (data) {
@@ -1643,14 +1643,14 @@ function applyKeyboardListener() {
         $('.file-tab')[activeTab].lastElementChild.style.background = 'orange';
         clearTimeout(lockFile.wait);
         lockFile.wait = setTimeout(() => {
-          $('.file-tab')[activeTab].lastElementChild.style.background = '#154358';
+          $('.file-tab')[activeTab].lastElementChild.style.background = '#FFEB3B';
         }, 200)
       } else {
         aww.pop('File unlocked');
         $('.file-tab')[activeTab].lastElementChild.style.background = 'inherit';
         clearTimeout(lockFile.wait);
         lockFile.wait = setTimeout(() => {
-          $('.file-tab')[activeTab].lastElementChild.style.background = '#154358';
+          $('.file-tab')[activeTab].lastElementChild.style.background = '#FFEB3B';
         }, 200)
       }
     }
