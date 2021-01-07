@@ -278,7 +278,7 @@ const ui = {
 
 	  	$('#btn-home-wrapper').classList.toggle('hide', false);
 	  	$('#btn-account-wrapper').classList.toggle('hide', false);
-		$('#btn-menu-settings').classList.toggle('hide', false);
+		// $('#btn-menu-settings').classList.toggle('hide', true);
 		$('#btn-undo').classList.toggle('hide', true);
 		$('#btn-redo').classList.toggle('hide', true);
     } else {
@@ -288,7 +288,7 @@ const ui = {
 	  	$('#btn-menu-template').classList.toggle('hide', false);
 	  	$('#btn-home-wrapper').classList.toggle('hide', true);
 	  	$('#btn-account-wrapper').classList.toggle('hide', true);
-	  	$('#btn-menu-settings').classList.toggle('hide', true);
+	  	// $('#btn-menu-settings').classList.toggle('hide', true);
 	  	$('#btn-undo').classList.toggle('hide', false);
 		$('#btn-redo').classList.toggle('hide', false);
     }
@@ -735,8 +735,8 @@ function initUI() {
     'btn-menu-save'         : fileManager.save,
     '.btn-material'         : ui.toggleMenu,
     'btn-menu-preview'      : function() { previewHTML() },
-    'btn-undo' : () => fileTab[activeTab].editor.env.editor.undo(),
-    'btn-redo' : () => fileTab[activeTab].editor.env.editor.redo(),
+    'btn-undo' : () => { fileTab[activeTab].editor.env.editor.undo(); fileTab[activeTab].editor.env.editor.focus() },
+    'btn-redo' : () => { fileTab[activeTab].editor.env.editor.redo(); fileTab[activeTab].editor.env.editor.focus() },
     '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
     'more-tab'              : function() { ui.switchTab(1) },
     'btn-refresh-sync'      : function() { drive.syncFromDrive() },

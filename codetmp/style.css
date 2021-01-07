@@ -163,10 +163,6 @@ hr{border:0;border-top:1px solid #eee;margin:20px 0}
 html,body{height:100%;}
 
 .hide{display:none}
-.menu-action .Btn:hover .Btn{color:#ffc107!important}
-
-/*global*/
-/*body{background:#111;}*/
 .no-select {
   -webkit-user-select: none;
   user-select: none;
@@ -178,8 +174,9 @@ html,body{height:100%;}
 
 /*colors*/
 .btn-material{color:#fff;}
-.btn-material:hover{color:#FFEB3B}
-.btn-material.active:hover .i-btn-in,.btn-material.active:hover .l-btn-in{color:#ffc107;}
+@media (hover: hover) {
+  .btn-material:hover{color:#FFEB3B}
+}
 .in-block{background:#000;background:rgba(0,0,0,0.8);}
 
 /*transition*/
