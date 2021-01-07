@@ -8,7 +8,7 @@ let lineLock = -1;
 let extension = (function() {
 
   function initEmmet() {
-    require(["ace/ace", "ace/ext/emmet"], function() {
+    ace.require(["ace/ace", "ace/ext/emmet"], function() {
       for (let tab of fileTab) {
         tab.editor.env.editor.setOption('enableEmmet', true);
       }
@@ -16,7 +16,7 @@ let extension = (function() {
   }
 
   function initAutocomplete() {
-    require(["ace/ace", "ace/ext/language_tools"], function() {
+  	ace.require(["ace/ace", "ace/ext/language_tools"], function() {
       for (let tab of fileTab) {
         tab.editor.env.editor.setOption('enableBasicAutocompletion', true);
         tab.editor.env.editor.setOption('enableSnippets', true);
@@ -40,8 +40,8 @@ let extension = (function() {
       case 'autocomplete':
         files = [
           'ace/ext-language_tools.js',
-          '/ace/snippets/javascript.js',
-          '/ace/snippets/html.js',
+          'ace/snippets/javascript.js',
+          'ace/snippets/html.js',
         ];
         callback = initAutocomplete;
         break;
@@ -603,8 +603,6 @@ function initInframeLayout() {
   }
   let oldX, delta, updateEditor;
   function mouseMove(event) {
-  	mx = event.screenX
-    my = event.screenY
     if (isDragged) {
       if (event.type == 'touchmove') {
         event = event.changedTouches[0];
@@ -911,110 +909,12 @@ function setEditorMode(fileName = '') {
     editor.session.setMode("ace/mode/html");
 }
 
-		globalscale = 1
-		x = 0
-		y=0
-		let req;
-
-function cancelSnapCam() {
-	globalscale = 1;
-	cancelAnimationFrame(req)
-	document.body.classList.toggle('transform-transition', true);
-	$('#fly').style.transform = `scale(1)`;
-   document.body.style.transform  = `translate(0,0)`
-   cam.style.display = 'none';
-	snapMode = false
-}
-
-let snapMode = false
-
-function snapCam() {
-	document.body.classList.toggle('transform-transition', true);
-	x = fly.offsetWidth/2
-	y = fly.offsetHeight/2
-
-	if (typeof(cam) ==  'undefined') {
-		span = document.createElement('span')
-		span.setAttribute('id','cam')
-		span.style.position ='fixed'
-		document.body.append(span)
-	}
-   cam.style.display = 'block';
-
-	   originx = x
-	   originy = y
-	   if (snapMode) {
-
-	   } else {
-		   xx = mx
-		   yy = my
-
-	   }
-
-		snapMode = true
-
-	  	$('#fly').style.transform = `scale(${globalscale})`;
-	  	$('#fly').style.transformOrigin = `${screen.width/2}px ${screen.height/2}px`;
-cam.style.left = xx +'px';
-	  cam.style.top = yy+'px';
-	  
-
-		 document.body.style.transform  = `translate(${x-mx}px,${y-my}px)`
-		setTimeout(() => {
-			// snap();
-			document.body.classList.toggle('transform-transition', false);
-		},250)
-}
-let immerseMode = false;
-
-let originx 
-let originy
-let xx
-let yy
-
-
-	function snap() {
-	  req = window.requestAnimationFrame(snap)
-	  xx += (mx-xx)*0.2
-	  yy +=(my-yy)*0.2
-	  cam.style.left = xx +'px';
-	  cam.style.top = yy+'px';
-	  // L(Math.abs(mx-xx))
-	  document.body.style.transform  = `translate(${originx-xx}px,${originy-yy}px)`
-	}
-
-	function toggleImmerseMode() {
-		immerseMode = immerseMode? false: true
-		if (immerseMode) {
-
-			// originx = x
-			// originy = y
-			// xx= mx
-			// yy= my
-			snap();
-		}
-		else
-			window.cancelAnimationFrame(req);
-	}
-
-
-
 function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   let editorElement = document.createElement('div');
   editorElement.classList.add('editor');
   editorElement.style.opacity = '0'
   let editor = ace.edit(editorElement);
 
-function override(object, prop, replacer) { 
-    var old = object[prop]; object[prop] = replacer(old)  
-}
-override(editor.renderer, "screenToTextCoordinates", function(old) {
-    return function(x, y) {
-        return old.call(this, x,y,globalscale)
-    }
-})
-
-  
   editor.setTheme("ace/theme/codetmp", () => {
     editorElement.style.opacity = '1';
   });
@@ -1862,11 +1762,6 @@ function applyKeyboardListener() {
   }
 
   keyboard.listen({
-    'Alt+Q': cancelSnapCam,
-    'Alt+1': ()=>{globalscale=1;$('#fly').style.transform = `scale(${globalscale})`;snapCam()},
-    'Alt+2': ()=>{globalscale=1.2;$('#fly').style.transform = `scale(${globalscale})`;snapCam()},
-    'Alt+3': ()=>{globalscale=1.45;$('#fly').style.transform = `scale(${globalscale})`;snapCam()},
-    'Alt+4': toggleImmerseMode,
     'Alt+Enter': renderAndDeployLocked,
     'Alt+Shift+Enter': renderAndDeploySingle,
     'Alt+Shift+N': ui.fm.newFolder,
