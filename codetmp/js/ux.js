@@ -377,6 +377,17 @@ function attachMenuLinkListener() {
     }
     let callback;
     switch (menu.dataset.callback) {
+      case 'new-file':
+        callback = function() {
+          if (!$('#btn-menu-my-files').classList.contains('active')) {
+        		// toggleMyFiles();
+    		    ui.openNewTab();
+          }
+        }
+        break;
+      case 'new-folder':
+        callback = ui.fm.newFolder;
+        break;
       case 'save':
       case 'preview':
         callback = function() {
@@ -837,10 +848,12 @@ function focusTab(fid) {
   
   let idx = odin.idxOf(String(fid), fileTab, 'fid');
   
-  for (let tab of $('.file-tab'))
-    tab.lastElementChild.style.background = '#1f2027';
+  for (let tab of $('.file-tab')) {
+    tab.classList.toggle('isActive', false);
+  }
   
-  $('.file-tab')[idx].lastElementChild.style.background = '#FFEB3B';
+  $('.file-tab')[idx].classList.toggle('isActive', true);
+  // $('.file-tab')[idx].lastElementChild.style.background = '#FFEB3B';
   
   compressTab(idx);
   activeTab = idx;
@@ -1137,8 +1150,8 @@ override(editor.renderer, "screenToTextCoordinates", function(old) {
 
 function newTab(position, data) {
   
-  for (let tab of $('.file-tab'))
-    tab.lastElementChild.style.background = '#1f2027';
+  // for (let tab of $('.file-tab'))
+    // tab.lastElementChild.style.background = '#1f2027';
   
   let fid, el
   if (data) {
@@ -1661,15 +1674,16 @@ function applyKeyboardListener() {
   
   function keyEscape() {
     if ($('#btn-menu-my-files').classList.contains('active')) {
-	  if (selectedFile.length > 0) {
-	      for (let el of selectedFile)
-			toggleFileHighlight(el, false);
-	      $('#btn-rename').classList.toggle('w3-hide', true);
-	      doubleClick = false;
-	      selectedFile.length = 0;
-	  }
-      $('#btn-menu-my-files').click();
-      fileTab[activeTab].editor.env.editor.focus();
+   	  if (selectedFile.length > 0) {
+   	      for (let el of selectedFile)
+   			toggleFileHighlight(el, false);
+   	      $('#btn-rename').classList.toggle('w3-hide', true);
+   	      doubleClick = false;
+   	      selectedFile.length = 0;
+   	  } else {
+         $('#btn-menu-my-files').click();
+         fileTab[activeTab].editor.env.editor.focus();
+   	  }
     }
   }
   
@@ -2006,10 +2020,11 @@ function lockRender(self, fid, name) {
 
 function toggleFileHighlight(el, isActive) {
   if (el === undefined) return;
-  if (el.dataset.type == 'file')
-    o.classList.toggle(el, 'bg3', isActive);
+  if (el.dataset.type == 'file') {
+    o.classList.toggle(el.parentNode, 'isSelected', isActive);
+  }
   else
-    o.classList.toggle(el, ['bg3','bg2'], isActive);
+    o.classList.toggle(el, 'isSelected', isActive);
 }
 
 function clearSelection() {

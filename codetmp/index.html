@@ -30,7 +30,7 @@
     <div id="main-editor">
 
       <div class="w3-rest scroll1 anibar-main-editor-pusher anibar--blocker" style="height:100%;position:relative;">
-        <div id="in-home" class="in-window in-content bg1 col1 active">
+        <div id="in-home" class="in-window in-content col1 active" style="background:#181e2a">
           <div style="position:absolute;top:0;left:0;height:100%;overflow:auto;z-index:2;width:100%;">
             <div class="w3-hide-small" style="height:34px;"></div>
             
@@ -59,20 +59,48 @@
 
               <div>
                 <h3 style="font-weight:bold;">Links</h3>
-                <ul>
-                  <li> <u><a href="https://github.com/tmpmachine/codetmp">Codetmp GitHub Page</a></u> </li>
-                  <li> <u><a href="https://github.com/ajaxorg/ace">Ace GitHub Page</a></u> </li>
-                  <li>
-                    <u><a href="PP.html">Privacy Policy</a></u>
-                  </li>
-                  <li> <u><a href="TOS.html">Terms of service</a></u> </li>
+                <style>
+                  .c.links{
+                        list-style: none;
+    /* padding: 0; */
+    margin: 0;
+    line-height: 2.5rem;
+    font-size: 0.8rem;
+    border-left: 2px solid #009688a6;
+                  }
+                  .c.links a{
+                    
+    opacity: 0.8;
+                  }
+                  .c.links a:hover{
+    opacity: 1;
+                  }
+    
+    .folder-list,.file-list{margin:2px}
+    .file-list .Icon{color:#363d49}
+    .folder-list:hover{background:#464a52}
+    .folder-list.isSelected:hover{background:#5189a9}
+    .file-list:hover .Area{background:#464a52}
+    .file-list:hover .Icon{color:#575c66}
+    .folder-list.isSelected{background:#3b647b}
+    .file-list.isSelected .Area{background:#3b647b}
+    .file-list.isSelected .Icon{color:#44728d}
+    .file-list.isSelected:hover .Icon{color:#5189a9}
+    .file-list .btn-lock{display:none}
+    
+                </style>
+                <ul class="c links">
+                  <li><a href="https://github.com/tmpmachine/codetmp">Codetmp GitHub Page</a></li>
+                  <li><a href="https://github.com/ajaxorg/ace">Ace GitHub Page</a></li>
+                  <li><a href="PP.html">Privacy Policy</a></li>
+                  <li><a href="TOS.html">Terms of service</a></li>
                 </ul>
               </div>
             </div>
           </div>
         </div>
         <div id="in-home-block" class="in-window in-block" style="z-index:0;"></div>
-        <div id="in-my-files" class="in-window in-content bg1 col1" style="display:grid;grid-template-rows:auto auto 1fr;">
+        <div id="in-my-files" class="in-window in-content col1" style="display:grid;grid-template-rows:auto auto 1fr;background:#262931">
           <div class="w3-hide-small" style="height:34px;"></div>
           <div class="w3-padding border-bottom-dark menu-action">
             <div class="w3-left">
@@ -97,7 +125,7 @@
           </div>
           <div style="overflow:auto;">
             <div>
-              <div class="no-select" style="padding:4px 8px;font-size:10px;opacity:0.6;text-align:right;">Build v6.40, 5 Jan</div>
+              <div class="no-select" style="padding:4px 8px;font-size:10px;opacity:0.6;text-align:right;">Build v6.40x, 7 Jan</div>
               <div id="breadcrumbs" class="no-select w3-small w3-padding"></div>
             </div>
             <div id="file-list" class="w3-padding" style="display:flex;flex-flow:wrap;"></div>
@@ -128,7 +156,8 @@
                   File
                   <ul style="left:0;background:#000;top:0;width:340px;padding:0;margin:0;list-style:none;display:none;position:absolute;">
                     <li class="w3-padding menu-link" data-callback='save' data-shortcut="Ctrl + S"> Save </li>
-                    <li class="w3-padding menu-link" data-callback='preview' data-shortcut="Alt + Shift + N"> New Folder </li>
+                    <li class="w3-padding menu-link" data-callback='new-file' data-shortcut="Alt + N"> New File </li>
+                    <li class="w3-padding menu-link" data-callback='new-folder' data-shortcut="Alt + Shift + N"> New Folder </li>
                     <li class="w3-padding menu-link" data-callback='preview' data-shortcut="Ctrl + Enter"> Preview </li>
                     <li class="w3-padding menu-link auth-required unauthorized" data-callback='deploy' data-shortcut="Alt + Enter"> Deploy to Blogger </li>
                     <li class="w3-padding menu-link auth-required unauthorized" data-callback='deploy-single' data-shortcut="Alt + Shift + Enter"> Deploy to Blogger (Active tab) </li>
@@ -185,7 +214,7 @@
             </div>
       
             <div id="file-title" style="background:#141414;position:relative;">
-              <div class="w3-right" style="padding:6px 0;width:1px;overflow:hidden;visibility:hidden;">
+              <div class="w3-right" style="padding:6px 0;width:1px;height:1px;overflow:hidden;visibility:hidden;">
                 <i class="material-icons">close</i>
               </div>
               <div id="more-tab" class="w3-left" style="background:#101113;position:relative;z-index:1;display:none;">
@@ -196,11 +225,11 @@
                     </div>
                   </div>
                 </div>
-                <div style="height:0.25rem;background:#202020;"></div>
+                <div style="height:3px;background:#202020;"></div>
               </div>
             </div>
             
-            <div id="editor-wrapper" spellcheck="false" style="position:relative;background:#272822;"></div>
+            <div id="editor-wrapper" spellcheck="false" style="position:relative;background:#21252b;"></div>
           </div>
         </div>
       </div>
@@ -536,7 +565,7 @@
   <template id="tmp-hints-last">
     <div class="w3-white" style="border-radius:0 0 4px 4px;overflow:hidden;">
       <div class="Container" data-index="">
-        <div class="search-hints last"style="position:relative;">
+        <div class="search-hints last" style="position:relative;">
           <div class="Title w3-padding w3-block"></div>
         </div>
       </div>
@@ -549,21 +578,21 @@
     </div>
   </template>
   <template id="tmp-breadcrumb-fake">
-    <div class="w3-padding w3-button w3-grey breadcrumbs" style="background:#ddd!important;">
+    <div class="w3-padding w3-button breadcrumbs isActive">
       __title__
     </div>
   </template>
 
   <template id="tmp-file-list">
-    <div class="file-list files pointer no-select bg7 hover-bg3-light" style="margin:0.1em;padding:0;position:relative;">
+    <div class="file-list bg2 files pointer no-select" style="position:relative">
       <div style="position:absolute;z-index:8177;top:0;right:0;">
         <i id="btn-lock__fid__" class="material-icons __clsLock__ btn-lock w3-button w3-hover-none" onclick='lockRender(this, __fid__, "__name__")' style="color:#aaa;">lock</i>
       </div>
       <div class="file-list-clicker" onclick='openFileConfirm(this)' title='__name__' data-type="file" data='__fid__'>
-        <div class="w3-center w3-padding-32">
-          <i class="material-icons w3-xxlarge" style="color:#777;">insert_drive_file</i>
+        <div class="w3-center w3-padding-32 Area">
+          <i class="material-icons w3-xxlarge Icon">insert_drive_file</i>
         </div>
-        <div class="w3-padding bg2">
+        <div class="w3-padding">
           <div class="w3-col" style="width:24px;">
             <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__defaultBg__!important;">insert_drive_file</i>
           </div>
@@ -595,7 +624,7 @@
   </template>
 
   <template id="tmp-folder-list">
-    <div class="folder-list w3-left w3-left-align pointer no-select folders bg2 hover-bg3-light" onclick='openFileConfirm(this)' title="__name__" data-type="folder" data='__fid__' style="margin:0.1em;padding:0;">
+    <div class="folder-list w3-left w3-left-align pointer no-select folders bg2" onclick='openFileConfirm(this)' title="__name__" data-type="folder" data='__fid__' style="padding:0;">
       <div style="padding:8px 16px;display:grid;grid-template-columns:auto 1fr;">
         <div style="width:24px;">
           <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__defaultBg__!important;">folder</i>
@@ -633,7 +662,7 @@
           <div class="file-tab-name no-select w3-small file-name w3-left" onclick="focusTab('__fid__', true)" data-title="__name__" style="position:absolute;left:0;top:0;width:100%;color:#fff!important;padding:10px 10px 10px 19px;font-weight:bold;">__name__</div>
         </div>
       </div>
-      <div style="height:0.25rem;background:#202020;"></div>
+      <div class="Indicator"></div>
     </div>
   </template>
 
