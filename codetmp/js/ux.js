@@ -279,6 +279,8 @@ const ui = {
 	  	$('#btn-home-wrapper').classList.toggle('hide', false);
 	  	$('#btn-account-wrapper').classList.toggle('hide', false);
 		$('#btn-menu-settings').classList.toggle('hide', false);
+		$('#btn-undo').classList.toggle('hide', true);
+		$('#btn-redo').classList.toggle('hide', true);
     } else {
 	    $('#btn-menu-save-wrapper').classList.toggle('hide', false);
 	  	$('#btn-menu-preview-wrapper').classList.toggle('hide', false);
@@ -287,6 +289,8 @@ const ui = {
 	  	$('#btn-home-wrapper').classList.toggle('hide', true);
 	  	$('#btn-account-wrapper').classList.toggle('hide', true);
 	  	$('#btn-menu-settings').classList.toggle('hide', true);
+	  	$('#btn-undo').classList.toggle('hide', false);
+		$('#btn-redo').classList.toggle('hide', false);
     }
   },
   
@@ -377,6 +381,17 @@ function attachMenuLinkListener() {
     }
     let callback;
     switch (menu.dataset.callback) {
+      case 'new-file':
+        callback = function() {
+          if (!$('#btn-menu-my-files').classList.contains('active')) {
+        		// toggleMyFiles();
+    		    ui.openNewTab();
+          }
+        }
+        break;
+      case 'new-folder':
+        callback = ui.fm.newFolder;
+        break;
       case 'save':
       case 'preview':
         callback = function() {
@@ -720,6 +735,8 @@ function initUI() {
     'btn-menu-save'         : fileManager.save,
     '.btn-material'         : ui.toggleMenu,
     'btn-menu-preview'      : function() { previewHTML() },
+    'btn-undo' : () => fileTab[activeTab].editor.env.editor.undo(),
+    'btn-redo' : () => fileTab[activeTab].editor.env.editor.redo(),
     '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
     'more-tab'              : function() { ui.switchTab(1) },
     'btn-refresh-sync'      : function() { drive.syncFromDrive() },
@@ -835,10 +852,12 @@ function focusTab(fid) {
   
   let idx = odin.idxOf(String(fid), fileTab, 'fid');
   
-  for (let tab of $('.file-tab'))
-    tab.lastElementChild.style.background = '#1f2027';
+  for (let tab of $('.file-tab')) {
+    tab.classList.toggle('isActive', false);
+  }
   
-  $('.file-tab')[idx].lastElementChild.style.background = '#FFEB3B';
+  $('.file-tab')[idx].classList.toggle('isActive', true);
+  // $('.file-tab')[idx].lastElementChild.style.background = '#FFEB3B';
   
   compressTab(idx);
   activeTab = idx;
@@ -1037,8 +1056,8 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
 
 function newTab(position, data) {
   
-  for (let tab of $('.file-tab'))
-    tab.lastElementChild.style.background = '#1f2027';
+  // for (let tab of $('.file-tab'))
+    // tab.lastElementChild.style.background = '#1f2027';
   
   let fid, el
   if (data) {
@@ -1561,15 +1580,16 @@ function applyKeyboardListener() {
   
   function keyEscape() {
     if ($('#btn-menu-my-files').classList.contains('active')) {
-	  if (selectedFile.length > 0) {
-	      for (let el of selectedFile)
-			toggleFileHighlight(el, false);
-	      $('#btn-rename').classList.toggle('w3-hide', true);
-	      doubleClick = false;
-	      selectedFile.length = 0;
-	  }
-      $('#btn-menu-my-files').click();
-      fileTab[activeTab].editor.env.editor.focus();
+   	  if (selectedFile.length > 0) {
+   	      for (let el of selectedFile)
+   			toggleFileHighlight(el, false);
+   	      $('#btn-rename').classList.toggle('w3-hide', true);
+   	      doubleClick = false;
+   	      selectedFile.length = 0;
+   	  } else {
+         $('#btn-menu-my-files').click();
+         fileTab[activeTab].editor.env.editor.focus();
+   	  }
     }
   }
   
@@ -1901,10 +1921,11 @@ function lockRender(self, fid, name) {
 
 function toggleFileHighlight(el, isActive) {
   if (el === undefined) return;
-  if (el.dataset.type == 'file')
-    o.classList.toggle(el, 'bg3', isActive);
+  if (el.dataset.type == 'file') {
+    o.classList.toggle(el.parentNode, 'isSelected', isActive);
+  }
   else
-    o.classList.toggle(el, ['bg3','bg2'], isActive);
+    o.classList.toggle(el, 'isSelected', isActive);
 }
 
 function clearSelection() {

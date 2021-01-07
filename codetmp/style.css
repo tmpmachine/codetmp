@@ -178,7 +178,7 @@ html,body{height:100%;}
 
 /*colors*/
 .btn-material{color:#fff;}
-.btn-material:hover{color:#ffc107!important;}
+.btn-material:hover{color:#FFEB3B}
 .btn-material.active:hover .i-btn-in,.btn-material.active:hover .l-btn-in{color:#ffc107;}
 .in-block{background:#000;background:rgba(0,0,0,0.8);}
 
@@ -186,10 +186,10 @@ html,body{height:100%;}
 .i-btn-in{transition:transform 150ms;font-size:2em!important;}
 .i-btn-in.active {
   transform: scale(0.8);
-  color: #69b5ff;
+  color: #3bff99;
 }
 .l-btn-in.active {
-  color: #69b5ff;
+  color: #3bff99;
 }
 
 .in-content{transform:translateX(-100%);}
@@ -226,7 +226,7 @@ html,body{height:100%;}
 #sidebar .Inner {
 	/*grid-auto-flow: column;*/
       display: flex;
-    padding-left: 0.45em;
+    /*padding-left: 0.45em;*/
 }
 #sidebar .Inner > div {
 	min-width: 70px;
@@ -251,7 +251,7 @@ html,body{height:100%;}
 	#main-editor.editor-mode{
       grid-template-columns: auto 1fr;
 	}
-  #main-editor.editor-mode > div:first-child{margin-left:1px}
+  /*#main-editor.editor-mode > div:first-child{margin-left:1px}*/
 	#sidebar{
 	    grid-column: 1;
 	    grid-row: 1;
@@ -277,7 +277,7 @@ html,body{height:100%;}
 .ace_scrollbar::-webkit-scrollbar { width: 5px; }
 .ace_scrollbar { scrollbar-color: dark; }
 .ace_scrollbar::-webkit-scrollbar-thumb { background: #9E9E9E }
-.ace_scrollbar::-webkit-scrollbar-track { background: #292929 }
+.ace_scrollbar::-webkit-scrollbar-track { }
 
 
 #btn-back-to-editor { transition: transform 300ms; transform: translateX(0%); }
@@ -316,10 +316,8 @@ display: grid;
 .pointer{cursor:pointer}
 
 .file-tab:after {
-  content: attr(data-title)!important;
-  /*display: none!important;*/
-  /*display: 'table';*/
-  position: absolute!important;
+  content: attr(data-title);
+  position: absolute;
   background: #333;
   z-index: 8177;
   color: #ccc;
@@ -332,14 +330,18 @@ display: grid;
 .file-tab:hover:after {
   transform: scale(1);
 }
+.file-tab .Indicator{height:3px}
+.file-tab:hover .Indicator{background:white}
+.file-tab.isActive .Indicator{background:#3bff99}
 
 /*THEME*/
 .col1{color:#ffffff!important}
 .col2{color:#c1d0d0!important}
 .col3{color:#252525}
 .bg1{background:#202529!important}
-.bg2{background:#292e31}
-.bg3{background:#457086}
+.bg2{background:#2d333f}
+/*.bg3{background:#457086}*/
+.bg3{background:#3b647b}
 .bg4{background:#1d1f25}
 .bg5{background:#1a1d21}
 .bg6{background:#272822}
@@ -363,19 +365,24 @@ display: grid;
 .menu-link > span {font-size: 10px}
 #nav-bar .menu-link:hover, #nav-bar ul li li {
   cursor: pointer;
-  background: #3a3a3a;
+  /*background: #3a3a3a;*/
+  background: #16191d;
 }
 #nav-bar.hoverable ul li:hover ul {
   display: inline-block!important;
 }
 #nav-bar ul li ul {
+  box-shadow: 0 1px 3px 0px #00000059;
   margin-top: 34px!important;
 }
 #nav-bar ul li:hover {
-  background: #333!important;
+  /*background: #333!important;*/
+  /*background: #3b647b!important;*/
+  background: #464a52!important;
 }
 #nav-bar ul li ul li:hover {
-  background: #555!important;
+  /*background: #3b647b!important;*/
+  background: #464a52!important;
 }
 
 .loading {
@@ -578,3 +585,30 @@ background:#f1f1f1;
   #book-scrool{transition-timing-function: linear;}
 
   .transform-transition{transition:transform .25s}
+  
+  .breadcrumbs{border-bottom:3px solid transparent}
+  .breadcrumbs:hover{background:none!important;color:white!important;border-color:white}
+  .breadcrumbs.isActive{border-color:#3bff99}
+
+
+.c.links {
+  list-style: none;
+  margin: 0;
+  line-height: 2.5rem;
+  font-size: 0.8rem;
+  border-left: 2px solid #009688a6;
+}
+.c.links a{opacity: 0.8}
+.c.links a:hover{opacity: 1}
+
+.folder-list,.file-list{margin:2px}
+.file-list .Icon{color:#3f4755}
+.folder-list:hover{background:#464a52}
+.folder-list.isSelected:hover{background:#5189a9}
+.file-list:hover .Area{background:#464a52}
+.file-list:hover .Icon{color:#575c66}
+.folder-list.isSelected{background:#3b647b}
+.file-list.isSelected .Area{background:#3b647b}
+.file-list.isSelected .Icon{color:#44728d}
+.file-list.isSelected:hover .Icon{color:#5189a9}
+.file-list .btn-lock{display:none}
