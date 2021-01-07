@@ -586,6 +586,29 @@ background:#f1f1f1;
 
   .transform-transition{transition:transform .25s}
   
-  .breadcrumbs{border-bottom:2px solid transparent}
-  .breadcrumbs:hover{background:none!important;color:white!important;border-bottom:2px solid white}
+  .breadcrumbs{border-bottom:3px solid transparent}
+  .breadcrumbs:hover{background:none!important;color:white!important;border-color:white}
   .breadcrumbs.isActive{border-color:#3bff99}
+
+
+.c.links {
+  list-style: none;
+  margin: 0;
+  line-height: 2.5rem;
+  font-size: 0.8rem;
+  border-left: 2px solid #009688a6;
+}
+.c.links a{opacity: 0.8}
+.c.links a:hover{opacity: 1}
+
+.folder-list,.file-list{margin:2px}
+.file-list .Icon{color:#3f4755}
+.folder-list:hover{background:#464a52}
+.folder-list.isSelected:hover{background:#5189a9}
+.file-list:hover .Area{background:#464a52}
+.file-list:hover .Icon{color:#575c66}
+.folder-list.isSelected{background:#3b647b}
+.file-list.isSelected .Area{background:#3b647b}
+.file-list.isSelected .Icon{color:#44728d}
+.file-list.isSelected:hover .Icon{color:#5189a9}
+.file-list .btn-lock{display:none}

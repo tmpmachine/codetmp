@@ -279,6 +279,8 @@ const ui = {
 	  	$('#btn-home-wrapper').classList.toggle('hide', false);
 	  	$('#btn-account-wrapper').classList.toggle('hide', false);
 		$('#btn-menu-settings').classList.toggle('hide', false);
+		$('#btn-undo').classList.toggle('hide', true);
+		$('#btn-redo').classList.toggle('hide', true);
     } else {
 	    $('#btn-menu-save-wrapper').classList.toggle('hide', false);
 	  	$('#btn-menu-preview-wrapper').classList.toggle('hide', false);
@@ -287,6 +289,8 @@ const ui = {
 	  	$('#btn-home-wrapper').classList.toggle('hide', true);
 	  	$('#btn-account-wrapper').classList.toggle('hide', true);
 	  	$('#btn-menu-settings').classList.toggle('hide', true);
+	  	$('#btn-undo').classList.toggle('hide', false);
+		$('#btn-redo').classList.toggle('hide', false);
     }
   },
   
@@ -733,6 +737,8 @@ function initUI() {
     'btn-menu-save'         : fileManager.save,
     '.btn-material'         : ui.toggleMenu,
     'btn-menu-preview'      : function() { previewHTML() },
+    'btn-undo' : () => fileTab[activeTab].editor.env.editor.undo(),
+    'btn-redo' : () => fileTab[activeTab].editor.env.editor.redo(),
     '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
     'more-tab'              : function() { ui.switchTab(1) },
     'btn-refresh-sync'      : function() { drive.syncFromDrive() },
