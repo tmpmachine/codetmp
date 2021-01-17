@@ -13,8 +13,8 @@ Codetmp helps you develop JavaScript applications in the browser.
 ## Official Website
 [http://codetmp.web.app](http://codetmp.web.app)
 
-## Key Feature (not stable)
-**Divless, nameless close tag HTML** allows you to write quickly for sandboxing activity :
+## Divless-HTML
+**Divless, nameless close tag HTML** allows you to write HTML tag quickly for sandboxing activity :
 1. write HTML tags with minimum amount of brackets
 2. write div tag without a name
 3. nameless close tag, just don't forget the ] to close the tag
