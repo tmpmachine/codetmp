@@ -190,7 +190,9 @@ function PreviewManager() {
       path = ['root'];
 
       if (src == '/untitled.html') {
-      	return plate.cook(replaceTemplate(fileTab[activeTab].editor.env.editor.getValue()));
+        let ok = divless.replace(replaceTemplate(fileTab[activeTab].editor.env.editor.getValue()))
+        L(ok)
+      	return ok;
       }
 
       let parentId = previewManager.getDirectory(src, relativeParent, path);
@@ -223,7 +225,7 @@ function PreviewManager() {
       }
 
       if ($('#chk-render-plate-html').checked && mimeType.includes('text/html')) {
-      	content = plate.cook(content);
+      	content = divless.replace(content);
       }
 
       return replaceTemplate(content, parentId);
@@ -413,7 +415,7 @@ return body;
         
         preParent = activeFile ? activeFile.parentId : activeFolder;
         // if (activeFile)
-          // appendGitTree(activeFile.name, plate.cook(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
+          // appendGitTree(activeFile.name, divless.replace(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
       } else {
       
         let file = odin.dataOf(locked, fileStorage.data.files, 'fid');
@@ -425,7 +427,7 @@ return body;
           body = file.content;
         
         preParent = file.parentId;
-        // appendGitTree(file.name, plate.cook(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
+        // appendGitTree(file.name, divless.replace(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
       }
       
     }
@@ -529,7 +531,7 @@ return body;
         
         preParent = activeFile ? activeFile.parentId : activeFolder;
         // if (activeFile)
-          // appendGitTree(activeFile.name, plate.cook(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
+          // appendGitTree(activeFile.name, divless.replace(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
       } else {
       
         let file = odin.dataOf(locked, fileStorage.data.files, 'fid');
@@ -541,7 +543,7 @@ return body;
           body = file.content;
         
         preParent = file.parentId;
-        // appendGitTree(file.name, plate.cook(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
+        // appendGitTree(file.name, divless.replace(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
       }
       
     }
@@ -629,7 +631,7 @@ return body;
   function cacheContent(filePath, isForceDeploy) {
     let content = replaceLocal().replace(/<web-script /g, '<script ').replace(/<web-link /g, '<link ');
     if ($('#chk-render-plate-html').checked) {
-      content = (typeof(plate) != 'undefined') ? plate.cook(content) : content;
+      content = (typeof(divless) != 'undefined') ? divless.replace(content) : content;
     }
 
     content = clearComments(content);

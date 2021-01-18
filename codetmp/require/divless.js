@@ -1,28 +1,6 @@
-/* v1.36 - 15 June 2020 */
+/* v1.36x - 17 Jan 2021 */
 
 (function () {
-  
-  function clearPlate(meat) {
-      
-    let regex = new RegExp('<template id=("|\')plate-.*?("|\')>(.|\n)*?<\/template>');
-    let match = meat.match(regex);
-    if (match) {
-      let open = match[0].match(/<template/g).length;
-      let close = match[0].match(/<\/template/g).length;
-      regex = '<template id=("|\')plate-.*?("|\')>(.|\n)*?<\/template>';
-      while (close < open)
-      {
-        regex += '(.|\n)*?<\/template>';
-        match = meat.match(new RegExp(regex));
-        open = match[0].match(/<template/g).length;
-        close = match[0].match(/<\/template/g).length;
-      }
-      
-      meat = clearPlate(meat.replace(match[0], ''));
-    }
-    
-    return meat;
-  }
   
   function generateAttributes(attributes) {
     const atts = [];
@@ -52,30 +30,6 @@
       return atts.join(' ');
   }
     
-  function getDish(id, fullContent) {
-    if (document.getElementById('plate-'+id)) {
-      return document.getElementById('plate-'+id).innerHTML;
-    } else {
-      var regex = new RegExp('<template id=("|\')plate-'+id+'("|\')>(.|\n)*?<\/template>');
-      var match = fullContent.match(regex);
-      if (match) {
-        var open = match[0].match(/<template/g).length;
-        var close = match[0].match(/<\/template/g).length;
-        regex = '<template id=("|\')plate-'+id+'("|\')>(.|\n)*?<\/template>';
-        while (close < open) {
-          regex += '(.|\n)*?<\/template>';
-          match = fullContent.match(new RegExp(regex));
-          open = match[0].match(/<template/g).length;
-          close = match[0].match(/<\/template/g).length;
-        }
-        
-        return match[0].substring(22+id.length,match[0].length-11);
-      } else {
-        return '';
-      }
-    }
-  }
-  
   let htmlShorthand = [
     [' '  ,'div'      ,true ,''],
     ['v'  ,'video'    ,true ,''],
@@ -194,11 +148,10 @@
     };
     
     const skips = [
-      {open:'<'+'?php', close:'?>', destroyTag: false},
-      {open:'<'+'code>', close:'<'+'/code'+'>', destroyTag: false},
-      {open:'<'+'style>', close:'<'+'/style'+'>', destroyTag: false},
-      {open:'<'+'script', close:'<'+'/script'+'>', destroyTag: false},
-      {open:'<'+'!--', close:'--'+'>', destroyTag: true, callback: getDish, record: true}
+      {open:'<'+'?php', close:'?>'},
+      {open:'<'+'code>', close:'<'+'/code'+'>'},
+      {open:'<'+'style>', close:'<'+'/style'+'>'},
+      {open:'<'+'script', close:'<'+'/script'+'>'},
     ];
     
     for (const tag of htmlShorthand)
@@ -211,7 +164,7 @@
       });
     }
       
-    plate.tag.forEach(function(t) {
+    divless.tag.forEach(function(t) {
 
       settings.tag.forEach(function(s) {
         
@@ -246,9 +199,6 @@
     var innerLock = '';
   
     var waitSkip = '';
-    var waitRecord = false;
-    var waitDestroy = false;
-    var waitCallback;
     const newMatch = [];
     var charBypass = '';
     var mode = '';
@@ -357,17 +307,12 @@
               if (search.length == pointer+1) {
                 mode = 'skip';
                 waitSkip = skip.close;
-                waitRecord = skip.record;
-                waitCallback = skip.callback;
-                waitDestroy = skip.destroyTag;
 
                 done = true;
                 pointer = 0;
                 
-                if (!skip.destroyTag) {
                   for (const xs of stack)
                     ht.push(xs);
-                }
                   
                 stack.length = 0;
                 break;
@@ -381,32 +326,14 @@
             if (waitSkip.length == pointer+1) {
               mode = '';
 
-              var content = stack.splice(0,stack.length-waitSkip.length);
-              if (waitCallback) {
-                content = content.join('');
-                if (content.startsWith('plate-')) {
-                  content = waitCallback(content.substring(6),meat);
-                  content = plate.cook(content);
-                } else {
-                  content = '<!--'+plate.cook(content)+'-->';
-                }
-                for (const c of content)
-                  ht.push(c);
-              }
-              
               done = true;
               pointer = 0;
               
-              if (!waitDestroy) {
                 for (const xs of stack)
                   ht.push(xs);
-              }
               
                 
               waitSkip = '';
-              waitCallback = null;
-              waitRecord = false;
-              waitDestroy = false;
               stack.length = 0;
             }
           }
@@ -421,12 +348,8 @@
           else
             pointer = 0;
           
-          if (!waitRecord) {
             for (const xs of stack)
               ht.push(xs)
-          }
-          
-          if (!waitRecord)
             stack.length = 0;
         }
       } else {
@@ -463,6 +386,7 @@
             break;
           case ']':
           case '\n':
+          case '\r':
 
             stopRender(char);
             
@@ -645,9 +569,9 @@
   }
   
   
-  const plate = {
+  const divless = {
     tag: [],
-    cook: function(meat, callback) {
+    replace: function(meat, callback) {
       const attributes = {
         class: [],
         attribute: [],
@@ -672,12 +596,12 @@
       if (callback)
         callback();
       
-      return clearPlate(meat);
+      return meat;
     },
   }
   
-  if (window.plate === undefined)
-    window.plate = plate;
+  if (window.divless === undefined)
+    window.divless = divless;
   else
-    console.error('plate.js:', 'Failed to initialize. Duplicate variable exists.');
+    console.error('divless.js:', 'Failed to initialize. Duplicate variable exists.');
 })();

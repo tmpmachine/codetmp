@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '6.4013';
+let cacheVersion = '6.41';
 let cacheItem = 'codetmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
@@ -35,7 +35,7 @@ self.addEventListener('install', function(event) {
     '/images/google/1x/btn_google_signin_dark_focus_web.png',
     '/images/google/1x/btn_google_signin_dark_pressed_web.png',
 
-    '/require/plate.js',
+    '/require/divless.js',
     '/require/o.js',
     '/require/auth2helper.js',
     '/require/lsdb.js',

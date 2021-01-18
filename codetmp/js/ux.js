@@ -66,146 +66,151 @@ let extension = (function() {
   return { load, download };
 })();
 
+
 const ui = {
-  
-  fm: {
-    renameFolder: function() {
-      
-      let folder = odin.dataOf(selectedFile[0].getAttribute('data'), fileStorage.data.folders, 'fid');
-      
-      window.cprompt('Rename', folder.name).then(name => {
-        
-        $('#btn-rename').classList.toggle('w3-hide', true);
-        if (!name || name === folder.name) return;
-        
-        let modifiedTime = new Date().toISOString();
-        folder.name = name;
-        folder.modifiedTime = modifiedTime;
-        
-        handleSync({
-          fid: folder.fid,
-          action: 'update',
-          metadata: ['name'],
-          type: 'folders'
-        });
-        drive.syncToDrive();
-        
-        fileStorage.save();
-        fileList();
 
-      });
-    },
-    renameFile: function(fid) {
-  
-      let file = odin.dataOf(fid, fileStorage.data.files, 'fid');
-      
-      window.cprompt('Rename', file.name).then(input => {
-        
-        $('#btn-rename').classList.toggle('w3-hide', true);
-        if (!input) return;
+	fileManager: (function() {
 
-        file.name = input;
-        handleSync({
-          fid,
-          action: 'update',
-          metadata: ['name'],
-          type: 'files'
-        });
-        drive.syncToDrive();
-        
-        fileStorage.save();
-        fileList();
-        
-        if (activeFile) {
-          if (fid === activeFile.fid)
-            setEditorMode(file.name);
-          
-          let index = 0
-          for (let tab of fileTab) {
-            if (tab.fid == fid) {
-              $('.file-name')[index].textContent = file.name;
-              break;
-            }
-            index++;
-          }
-        }
+		function commit(data) {
+			fileManager.sync(data);
+			drive.syncToDrive();
+	        fileStorage.save();
+	        fileManager.list();
+		}
+		function getSelected(el) {
+			return {
+				title: el.getAttribute('title'),
+				id: Number(el.getAttribute('data')),
+			};
+		}
 
-      });
-    },
-    newFolder: function() {
-      
-      if (!$('#in-my-files').classList.contains('active'))
-      	return;
-
-      window.cprompt('Folder name', 'Untitled').then(name => {
-        
-        if (!name) return;
-      
-        let modifiedTime = new Date().toISOString();
-        let folder = new Folder({
-          name,
-          modifiedTime,
-          parentId: activeFolder,
-        });
-        fileManager.sync(folder.fid, 'create', 'folders');
-        drive.syncToDrive();
-        clearSelection();
-        fileManager.list();
-        fileStorage.save();
-
-      });
-    },
-    deleteFolder: function() {
-    	window.cconfirm('Sub files & folders will also be delete. Delete anyway?').then(() => {
-	      let data = odin.dataOf(selectedFile[0].getAttribute('data'), fileStorage.data.folders, 'fid');
-	      data.trashed = true;
-	      
-	      handleSync({
-	        fid: data.fid,
-	        action: 'update',
-	        metadata: ['trashed'],
-	        type: 'folders'
-	      });
-	      drive.syncToDrive();
-	      
-	      fileStorage.save();
-	      fileList();
-	      selectedFile.splice(0, 1);
-    	})
-    },
-    deleteFile: function(fid) {
-      window.cconfirm('Delete this file?').then(() => {
-	      if (typeof(fid) === 'undefined')
-	        fid = selectedFile[0].getAttribute('data');
+		function renameFolder() {
+			let selection = getSelected(selectedFile[0]);
+	      	window.cprompt('Rename', selection.title).then(name => {
+	        	$('#btn-rename').classList.toggle('w3-hide', true);
+	        	if (!name || name === selection.title) 
+	        		return;
 	        
-	      let data = odin.dataOf(fid, fileStorage.data.files, 'fid');
-	      data.trashed = true;
-	      
-	      if (activeFile && data.fid === activeFile.fid) {
-	        activeFile = undefined;
-	        $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
-	      }
-	      
-	      for (let sync of fileStorage.data.sync) {
-	        if (sync.action === 52 && sync.copyId === fid)
-	          sync.action = 12;
-	      }
-	      
-	      handleSync({
-	        fid: data.fid,
-	        action: 'update',
-	        metadata: ['trashed'],
-	        type: 'files'
-	      });
-	      drive.syncToDrive();
-	      
-	      fileStorage.save();
-	      fileList();
-	      selectedFile.splice(0, 1);
-	      locked = -1;
-      })
-    }
-  },
+		        let modifiedTime = new Date().toISOString();
+			    let folder = odin.dataOf(selection.id, fileStorage.data.folders, 'fid');
+		        folder.name = name;
+		        folder.modifiedTime = modifiedTime;
+	        
+		        commit({
+		          fid: folder.fid,
+		          action: 'update',
+		          metadata: ['name'],
+		          type: 'folders'
+		        });
+	      	});
+	    }
+	    function renameFile() {
+	    	let selection = getSelected(selectedFile[0]);
+	    	let fid = selection.id;
+	      	window.cprompt('Rename', selection.title).then(input => {
+	        	$('#btn-rename').classList.toggle('w3-hide', true);
+	        	if (!input) 
+	        		return;
+
+		      	let file = odin.dataOf(fid, fileStorage.data.files, 'fid');
+		        file.name = input;
+		        
+		        commit({
+		          fid: fid,
+		          action: 'update',
+		          metadata: ['name'],
+		          type: 'files'
+		        });
+
+		        if (activeFile) {
+		          if (fid === activeFile.fid)
+		            setEditorMode(file.name);
+		          
+		          let index = 0
+		          for (let tab of fileTab) {
+		            if (tab.fid == fid) {
+		              $('.file-name')[index].textContent = file.name;
+		              break;
+		            }
+		            index++;
+		          }
+		        }
+	      	});
+	    }
+	    function newFolder() {
+	      	if (!$('#in-my-files').classList.contains('active'))
+	      		return;
+	      	window.cprompt('Folder name', 'Untitled').then(name => {
+		        if (!name) 
+		        	return;
+		        let modifiedTime = new Date().toISOString();
+		        let folder = new Folder({
+		          	name,
+		          	modifiedTime,
+		          	parentId: activeFolder,
+		        });
+		        commit({
+		        	fid: folder.fid,
+		        	action: 'create',
+		        	type: 'folders',
+	        	});
+	        	clearSelection();
+	      	});
+	    }
+	    function deleteFolder() {
+	    	let selection = getSelected(selectedFile[0]);
+	    	window.cconfirm('Sub files & folders will also be delete. Delete anyway?').then(() => {
+		      	let data = odin.dataOf(selection.id, fileStorage.data.folders, 'fid');
+		      	data.trashed = true;
+	        	commit({
+		        	fid: data.fid,
+		        	action: 'update',
+		        	metadata: ['trashed'],
+		        	type: 'folders'
+		      	});
+		      	clearSelection();
+	    	})
+	    }
+	    function deleteFile() {
+	    	let selection = getSelected(selectedFile[0]);
+	    	let fid = selection.id;
+	      	window.cconfirm('Delete this file?').then(() => {
+		      	let data = odin.dataOf(fid, fileStorage.data.files, 'fid');
+		      	data.trashed = true;
+		      
+		      	if (activeFile && data.fid === activeFile.fid) {
+		        	activeFile = undefined;
+		        	$('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
+		      	}
+		      
+		      	for (let sync of fileStorage.data.sync) {
+		        	if (sync.action === 52 && sync.copyId === fid) {
+		          	sync.action = 12;
+		        	}
+		      	}
+		      
+		      	locked = -1;
+		      
+			    commit({
+			        fid: data.fid,
+			        action: 'update',
+			        metadata: ['trashed'],
+			        type: 'files'
+			    });
+			    clearSelection();
+	      	})
+	    }
+
+	    return {
+			renameFolder,
+			renameFile,
+			newFolder,
+			deleteFolder,
+			deleteFile,
+		};
+
+	})(),
+
   toggleMenu: function() {
     
     let targetId = this.getAttribute('target');
@@ -229,7 +234,7 @@ const ui = {
       $('#list-trash').innerHTML = '';
       $('#file-list').innerHTML = '';
       if (menuId === 'in-my-files') {
-        fileList();
+        fileManager.list();
       }
       else if (menuId === 'in-trash')
         trashList();
@@ -349,6 +354,7 @@ const ui = {
     settings.save();
     $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
   },
+
 };
 
 function toggleModal(name) {
@@ -390,7 +396,7 @@ function attachMenuLinkListener() {
         }
         break;
       case 'new-folder':
-        callback = ui.fm.newFolder;
+        callback = ui.fileManager.newFolder;
         break;
       case 'save':
       case 'preview':
@@ -510,6 +516,14 @@ function initModalWindow() {
     message = $('.Message', modal)[0];
     input = $('input', modal)[0]; 
   }
+
+  function getResolver() {
+  	window.addEventListener('keydown', blur);
+  	return new Promise((resolve, reject) => {
+      _resolve = resolve;
+      _reject = reject;
+    });
+  }
   
   function closeModal() {
     modal.classList.toggle(hideClass, true)
@@ -568,12 +582,8 @@ function initModalWindow() {
     setTimeout(() => {
       $('.Btn-submit', modal)[0].focus();
     }, 150);
-    window.addEventListener('keydown', blur);
     message.textContent = promptText;
-    return new Promise((resolve, reject) => {
-      _resolve = resolve;
-      _reject = reject;
-    })
+    return getResolver();
   }
 
   window.cprompt = function(promptText = '', defaultValue = '') {
@@ -593,10 +603,7 @@ function initModalWindow() {
       input.focus();
       input.setSelectionRange(0,input.value.length);
     }, 150);
-    window.addEventListener('keydown', blur);
-    return new Promise(resolve => {
-      _resolve = resolve
-    })
+    return getResolver();
   }
 }
 
@@ -689,7 +696,7 @@ function initUI() {
   if (typeof(window.showOpenFilePicker) !== 'undefined')
     initReadDropModule();
 
-  fileList();
+  fileManager.list();
   $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
   $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
   $('#check-emmet').checked = settings.data.editor.enableEmmet ? true : false;
@@ -727,10 +734,10 @@ function initUI() {
     'btn-create-entry'      : createBlogEntry,
     'btn-create-app'        : createBlogApp,
     'btn-menu-template'     : function() { toggleInsertSnippet() },
-    'btn-new-folder'        : ui.fm.newFolder,
+    'btn-new-folder'        : ui.fileManager.newFolder,
     'btn-new-file'          : function() { $('#btn-menu-my-files').click(); ui.openNewTab(); },
     'btn-rename'            : renameFile,
-    'btn-delete-file'       : function() { ui.fm.deleteFile(activeFile.fid) },
+    // 'btn-delete-file'       : function() { ui.fileManager.deleteFile(activeFile.fid) },
     'btn-download-file'     : function() { fileDownload() },
     'btn-menu-save'         : fileManager.save,
     '.btn-material'         : ui.toggleMenu,
@@ -1280,7 +1287,7 @@ function openBread(id) {
   activeFolder = id;
   let idx = odin.idxOf(id,breadcrumbs,'folderId');
   breadcrumbs = breadcrumbs.slice(0,idx+1);
-  fileList();
+  fileManager.list();
   clearSelection();
 }
 
@@ -1514,9 +1521,9 @@ function navScrollDown() {
 
 function renameFile() {
   if (selectedFile[0].dataset.type === 'folder')
-    ui.fm.renameFolder();
+    ui.fileManager.renameFolder();
   else
-    ui.fm.renameFile(Number(selectedFile[0].getAttribute('data')));
+    ui.fileManager.renameFile();
 }
 
 function renderAndDeploySingle() {
@@ -1602,9 +1609,9 @@ function applyKeyboardListener() {
   function deleteSelected() {
     if (selectedFile.length === 1) {
       if (selectedFile[0].getAttribute('data-type') === 'folder')
-        ui.fm.deleteFolder();
+        ui.fileManager.deleteFolder();
       else if (selectedFile[0].getAttribute('data-type') === 'file')
-        ui.fm.deleteFile();
+        ui.fileManager.deleteFile();
     } else if (selectedFile.length > 1) {
     	
     }
@@ -1784,21 +1791,26 @@ function applyKeyboardListener() {
   keyboard.listen({
     'Alt+Enter': renderAndDeployLocked,
     'Alt+Shift+Enter': renderAndDeploySingle,
-    'Alt+Shift+N': ui.fm.newFolder,
+    'Alt+Shift+N': ui.fileManager.newFolder,
     'Alt+<': () => ui.switchTab(-1),
     'Alt+>': () => ui.switchTab(1),
     'Alt+L': lockFile,
     'Alt+B': copyUploadBody,
-    'Alt+M': toggleMyFiles,
+    'Alt+M': () => {
+    	if (!$('#in-home').classList.contains('active'))
+	    	toggleMyFiles();
+    },
     'Alt+R': toggleWrapMode,
     'Alt+I': () => { 
-    	if (!$('#btn-menu-my-files').classList.contains('active'))
+    	if (!$('#in-home').classList.contains('active') && !$('#btn-menu-my-files').classList.contains('active'))
     		toggleModal('file-info') 
 	},
     'Alt+N': () => { 
-    	if ($('#btn-menu-my-files').classList.contains('active'))
-    		toggleMyFiles();
-		ui.openNewTab();
+    	if (!$('#in-home').classList.contains('active')) {
+	    	if ($('#btn-menu-my-files').classList.contains('active'))
+	    		toggleMyFiles();
+			ui.openNewTab();
+    	}
     },
     'Alt+W': confirmCloseTab,
     'Alt+O': openFileDirectory,
@@ -1828,9 +1840,23 @@ function autoSync(event) {
   }
 }
 window.addEventListener('online', autoSync);
-window.addEventListener('copy', function(e) { if ($('#in-my-files').classList.contains('active')) copyFile(false) });
-window.addEventListener('cut', function(e) { if ($('#in-my-files').classList.contains('active')) copyFile(true) });
-window.addEventListener('paste', function(e) { if ($('#in-my-files').classList.contains('active')) pasteFile() });
+
+function isOpenFileManager() {
+	return $('#in-my-files').classList.contains('active');
+}
+
+window.addEventListener('copy', function(e) { 
+	if (isOpenFileManager && !window.cprompt.isActive) 
+		copyFile(false);
+});
+window.addEventListener('cut', function(e) { 
+	if (isOpenFileManager && !window.cprompt.isActive) 
+		copyFile(true);
+});
+window.addEventListener('paste', function(e) { 
+	if (isOpenFileManager && !window.cprompt.isActive)
+		pasteFile();
+});
 
 window.onbeforeunload = function(e) {
   let notSaved = false;

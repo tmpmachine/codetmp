@@ -119,12 +119,8 @@ function FileManager() {
     }
   }
   
-  this.sync = function(fid, action, type) {
-    handleSync({
-      fid,
-      action,
-      type,
-    });
+  this.sync = function(data) {
+    handleSync(data);
   };
   
   this.getDescription = function() {
@@ -326,58 +322,6 @@ function handleSync(sync) {
   }
 }
 
-
-function fileList() {
-  
-  var el;
-  $('#file-list').innerHTML = '';
-  
-  let folders = odin.filterData(activeFolder, fileStorage.data.folders, 'parentId');
-  
-  folders.sort(function(a, b) {
-    return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
-  });
-
-  for (let f of folders) {
-    if (f.trashed) continue;
-    
-    el = o.cel('div',{innerHTML:o.creps('tmp-folder-list',f)});
-    $('#file-list').appendChild(el);
-  }
-  
-  $('#file-list').appendChild(o.cel('div', {style:'flex:0 0 100%;height:16px;'}));
-  
-  let files = odin.filterData(activeFolder, fileStorage.data.files, 'parentId');
-  
-  files.sort(function(a, b) {
-    return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
-  });
-  
-  for (let {fid, name, trashed} of files) {
-    if (trashed) continue;
-    
-    let clsLock = '';
-    let defaultBg = '#777';
-    
-    defaultBg = getFileColor(name);
-      
-    if (fid === locked)
-      clsLock = 'w3-text-purple';
-    
-    el = o.cel('div',{ innerHTML: o.creps('tmp-file-list', {
-      fid,
-      name,
-      defaultBg,
-      clsLock
-    }) });
-    
-    $('#file-list').appendChild(el);
-  }
-  
-  loadBreadCrumbs();
-  $('#btn-rename').classList.toggle('w3-hide', true);
-  selectedFile.splice(0, 1);
-}
 
 function getFileAtPath(path, parentId = -1) {
     
@@ -642,7 +586,7 @@ function openFolder(folderId) {
     breadcrumbs.push({folderId:activeFolder, title: title})
   }
   
-  fileList();
+  fileManager.list();
 }
 
 
@@ -866,7 +810,7 @@ function fileDownload() {
     
     drive.syncToDrive();
     fileStorage.save();
-    fileList();
+    fileManager.list();
     
     copyParentFolderId = -2;
   }
