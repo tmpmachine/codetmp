@@ -190,9 +190,7 @@ function PreviewManager() {
       path = ['root'];
 
       if (src == '/untitled.html') {
-        let ok = divless.replace(replaceTemplate(fileTab[activeTab].editor.env.editor.getValue()))
-        L(ok)
-      	return ok;
+      	return divless.replace(replaceTemplate(fileTab[activeTab].editor.env.editor.getValue()));
       }
 
       let parentId = previewManager.getDirectory(src, relativeParent, path);

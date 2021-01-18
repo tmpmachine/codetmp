@@ -1,4 +1,4 @@
-/* v1.36x - 17 Jan 2021 */
+/* v1.39 - 17 Jan 2021 */
 
 (function () {
   
@@ -30,106 +30,83 @@
       return atts.join(' ');
   }
     
-  let htmlShorthand = [
+  let HTMLShortname = [
     [' '  ,'div'      ,true ,''],
     ['v'  ,'video'    ,true ,''],
-    ['a'  ,'a'        ,true ,''],
     ['au' ,'audio'    ,true ,''],
-    ['pre','pre'      ,true ,''],
-    ['p'  ,'p'        ,true ,''],
     ['btn','button'   ,true ,''],
     ['can','canvas'   ,true ,''],
-    ['img','img'      ,false,''],
     ['in' ,'input'    ,false,''],
-    ['i'  ,'i'        ,true ,''],
-    ['b'  ,'b'        ,true ,''],
     ['s'  ,'span'     ,true ,''],
     ['l'  ,'label'    ,true ,''],
     ['t'  ,'textarea' ,true ,''],
-    ['hr' ,'hr'       ,false,''],
-    ['br' ,'br'       ,false,''],
-    
-    ['h1' ,'h1'       ,true ,''],
-    ['h2' ,'h2'       ,true ,''],
-    ['h3' ,'h3'       ,true ,''],
-    ['h4' ,'h4'       ,true ,''],
-    ['h5' ,'h5'       ,true ,''],
-    ['h6' ,'h6'       ,true ,''],
     
     ['sel','select'   ,true ,''],
     ['opt','option'   ,true ,''],
     ['M'  ,'i'        ,true ,'material-icons'],
-    ['ul' ,'ul'       ,true ,''],
-    ['li' ,'li'       ,true ,''],
-    ['tab','table'    ,true ,''],
-    ['tr' ,'tr'       ,true ,''],
-    ['th' ,'th'       ,true ,''],
-    ['td' ,'td'       ,true ,''],
-    ['f'  ,'form'     ,true ,''],
-    ['cen','center'   ,true ,'']
   ];
-  let cssShorthand = [
-    ['p:','padding:'],
-    ['pl:','padding-left:'],
-    ['pt:','padding-top:'],
-    ['pr:','padding-right:'],
-    ['pb:','padding-bottom:'],
+  let CSSShortname = {
+    'p:': 'padding:',
+    'pl:': 'padding-left:',
+    'pt:': 'padding-top:',
+    'pr:': 'padding-right:',
+    'pb:': 'padding-bottom:',
     
-    ['m:','margin:'],
-    ['ml:','margin-left:'],
-    ['mt:','margin-top:'],
-    ['mr:','margin-right:'],
-    ['mb:','margin-bottom:'],
+    'm:': 'margin:',
+    'ml:': 'margin-left:',
+    'mt:': 'margin-top:',
+    'mr:': 'margin-right:',
+    'mb:': 'margin-bottom:',
     
-    ['td:','text-decoration:'],
-    ['tt:','text-transform:'],
-    ['ff:','font-family:'],
-    ['fs:','font-size:'],
-    ['ft:','font-style:'],
-    ['fw:','font-weight:'],
+    'td:': 'text-decoration:',
+    'tt:': 'text-transform:',
+    'ff:': 'font-family:',
+    'fs:': 'font-size:',
+    'ft:': 'font-style:',
+    'fw:': 'font-weight:',
     
-    ['ta:','text-align:'],
-    ['ws:','white-space:'],
+    'ta:': 'text-align:',
+    'ws:': 'white-space:',
     
-    ['f:','float:'],
-    ['ov:','overflow:'],
+    'f:': 'float:',
+    'ov:': 'overflow:',
     
-    ['mw:','min-width:'],
-    ['mh:','min-height:'],
-    ['Mw:','max-width:'],
-    ['Mh:','max-height:'],
-    ['w:','width:'],
-    ['h:','height:'],
+    'mw:': 'min-width:',
+    'mh:': 'min-height:',
+    'Mw:': 'max-width:',
+    'Mh:': 'max-height:',
+    'w:': 'width:',
+    'h:': 'height:',
     
-    ['d:','display:'],
-    ['vis:','visibility:'],
-    ['op:','opacity:'],
+    'd:': 'display:',
+    'vis:': 'visibility:',
+    'op:': 'opacity:',
     
-    ['rows:','grid-template-rows:'],
-    ['cols:','grid-template-columns:'],
-    ['gap:','grid-gap:'],
-    ['col-start:','grid-column-start:'],
-    ['col-end:','grid-column-end:'],
-    ['row-start:','grid-row-start:'],
-    ['row-end:','grid-row-end:'],
-    ['col:','color:'],
-    ['bg:','background:'],
+    'rows:': 'grid-template-rows:',
+    'cols:': 'grid-template-columns:',
+    'col-start:': 'grid-column-start:',
+    'row-start:': 'grid-row-start:',
+    'col-end:': 'grid-column-end:',
+    'row-end:': 'grid-row-end:',
+    'gap:': 'grid-gap:',
     
-    ['rad:','border-radius:'],
+    'col:': 'color:',
+    'bg:': 'background:',
     
-    ['bor:','border:'],
+    'rad:': 'border-radius:',
+    'bor:': 'border:',
     
-    ['pos:','position:'],
-    ['z:','z-index:'],
-    ['t:','top:'],
-    ['l:','left:'],
-    ['r:','right:'],
-    ['b:','bottom:'],
+    'pos:': 'position:',
+    'z:': 'z-index:',
+    't:': 'top:',
+    'l:': 'left:',
+    'r:': 'right:',
+    'b:': 'bottom:',
     
-    ['lh:','line-height:'],
-  ];
+    'lh:': 'line-height:',
+  };
   
-  function grill(meat, attributes) {
+  function replaceShortName(meat, attributes) {
     
     const lt = String.fromCharCode(60);
     const gt = String.fromCharCode(62);
@@ -148,14 +125,12 @@
     };
     
     const skips = [
-      {open:'<'+'?php', close:'?>'},
-      {open:'<'+'code>', close:'<'+'/code'+'>'},
-      {open:'<'+'style>', close:'<'+'/style'+'>'},
-      {open:'<'+'script', close:'<'+'/script'+'>'},
+      {open:'<code>', close:'</code>'},
+      {open:'<style>', close:'</style>'},
+      {open:'<script', close:'</script>'},
     ];
     
-    for (const tag of htmlShorthand)
-    {
+    for (const tag of HTMLShortname) {
       settings.tag.push({
         short: tag[0],
         tag: tag[1],
@@ -438,8 +413,8 @@
                           scanType = 'attribute';
                       }
                       
-                      for (const xs of cssShorthand.keys())
-                        shortHandCheck.push(xs);
+                      for (let key in CSSShortname)
+                        shortHandCheck.push(key);
                       break;
                     }
                   }
@@ -515,7 +490,7 @@
                 if (scanType == 'attribute') {
                   var match = false;
                   for (var i = 0; i < shortHandCheck.length; i++) {
-                    if (cssShorthand[shortHandCheck[i]][0][shortHandPointer] == char)
+                    if (shortHandCheck[i][shortHandPointer] == char)
                       match = true;
                     else {
                       shortHandCheck.splice(i,1);
@@ -531,8 +506,8 @@
                       const end = shortHandPointer;
                       shortHandStack.splice(start,end);
                       
-                      for (const xs of cssShorthand[shortHandCheck[0]][1].split(''))
-                        shortHandStack.push(xs);
+                      for (const char of CSSShortname[shortHandCheck[0]].split(''))
+                        shortHandStack.push(char);
                     }
                   } else {
                     if (char == '!') {
@@ -544,7 +519,7 @@
                       }
                       
                       shortHandPointer = 0;
-                      for (const key of cssShorthand.keys())
+                      for (let key in CSSShortname)
                         shortHandCheck.push(key);
                     }
                     
@@ -571,7 +546,7 @@
   
   const divless = {
     tag: [],
-    replace: function(meat, callback) {
+    replace: function(HTML) {
       const attributes = {
         class: [],
         attribute: [],
@@ -580,23 +555,9 @@
         innerHTML: []
       };
       
-      var farm = false;
-      if (meat === undefined || meat === null) {
-        if (!document.body) return meat;
-        meat = document.body.innerHTML;
-      }
-      else
-        farm = true;
-    
-      meat = grill(meat, attributes);
+      HTML = replaceShortName(HTML, attributes);
       
-      if (!farm)
-        document.body.innerHTML = meat;
-      
-      if (callback)
-        callback();
-      
-      return meat;
+      return HTML;
     },
   }
   
