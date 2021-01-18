@@ -180,7 +180,7 @@ const drive = (function() {
       
       if (syncFromDrive.refresh) {
         syncFromDrive.refresh = false;
-        fileList();
+        fileManager.list();
       }
       
       settings.data.drive.startPageToken = json.newStartPageToken;
@@ -241,7 +241,7 @@ const drive = (function() {
         
         if (syncFromDrive.refresh) {
           syncFromDrive.refresh = false;
-          fileList();
+          fileManager.list();
         }
       });
     } else {
