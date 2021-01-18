@@ -168,7 +168,11 @@ function FileManager() {
           let file = new File({
             name,
           });
-          fileManager.sync(file.fid, 'create', 'files');
+          fileManager.sync({
+            fid: file.fid, 
+            action: 'create', 
+            type: 'files',
+          });
           drive.syncToDrive();
           fileManager.list();
           fileStorage.save();
@@ -689,7 +693,11 @@ function fileDownload() {
       loaded,
       parentId: activeFolder,
     }, action, false, false);
-    fileManager.sync(file.fid, action, 'files');
+    fileManager.sync({
+      fid: file.fid, 
+      action, 
+      type: 'files',
+    });
   }
   
   function copyBranchFile(fileIds, road, modifiedTime) {
@@ -711,7 +719,11 @@ function fileDownload() {
         loaded,
         parentId: road[idx][1],
       }, action, false, false);
-      fileManager.sync(file.fid, action, 'files');
+      fileManager.sync({
+        fid: file.fid, 
+        action, 
+        type: 'files',
+      });
     }
     fileIds.splice(0, 1);
     copyBranchFile(fileIds, road, modifiedTime);
@@ -740,7 +752,11 @@ function fileDownload() {
         modifiedTime,
         parentId: (idx < 0) ? activeFolder : road[idx][1],
       })
-      fileManager.sync(folder.fid, 'create', 'folders');
+      fileManager.sync({
+        fid: folder.fid, 
+        action: 'create', 
+        type: 'folders',
+      });
     }
     
     folderIds.splice(0, 1);
