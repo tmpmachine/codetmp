@@ -5,7 +5,7 @@ Codetmp helps you develop JavaScript applications in the browser.
 1. Lightweight.
 2. Mobile friendly.
 3. Files synced with Google Drive.
-4. Quick prototyping with divless-HTML.
+4. Quick prototyping with [divless-HTML](#divless-html).
 5. Editing local system files (require browser that support File System Access API)
 
 ![Codetmp on mobile](https://1.bp.blogspot.com/-qHzR_-01sKs/X0DndkG-apI/AAAAAAAANR8/I2kG5Ql1eoEP0P5UaAl7pCOjPQUfWu1fwCLcBGAsYHQ/s440/1.png)
