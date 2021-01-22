@@ -14,20 +14,7 @@ Codetmp helps you develop JavaScript applications in the browser.
 [http://codetmp.web.app](http://codetmp.web.app)
 
 ## Divless-HTML
-**Divless, nameless close tag HTML** allows you to write HTML tag quickly for sandboxing activity :
-1. write HTML tags with minimum amount of brackets
-2. write div tag without a name
-3. nameless close tag, just don't forget the ] to close the tag
-4. write ID with @ prefix
-5. write class with . (dot) prefix
-6. write inline styles within {} e.g. {background:red;padding:8px 16px}
-7. write other attributes as usual
-8. write element textContent with "" or ''
-
-You can write 5 and 6 at random order and they will appear as one style/class attribue from left to right occurrences.
-
-### FAST!
-It's colorless and difficult to track unclosed tag, but you will soon realize the speed you've gain from typing this type of HTML tag. At the time I update this readme, I've written for more than 2 years of divless HTML tag and it's awesome!
+**Divless, nameless close tag HTML** allows you to write HTML tag quickly for sandboxing activity.
 
 <img src="https://1.bp.blogspot.com/-lj3s6crbuNA/XtNeSUSPT4I/AAAAAAAAMR8/Ky9au6E2NQoys7mKxBkngrpnv0wTDVdQACK4BGAsYHg/s820/Screenshot%2B2020-05-31%2Bat%2B2.34.38%2BPM.png">
 
