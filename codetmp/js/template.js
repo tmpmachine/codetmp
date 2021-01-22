@@ -272,7 +272,7 @@ var wgSearch = {
     if ($('#btn-somefun').textContent == 'search')
       somefun($('#btn-somefun'))
     
-    var data = wgSearch.match(this.v);
+    var data = wgSearch.match(this.v.toLowerCase());
     
     if (this.keywords.indexOf(v) < 0) {
       this.displayResult(data);
