@@ -111,35 +111,64 @@ function loadSnippets() {
     snippets[i].index = i;
 }
 
+// https://github.com/bevacqua/fuzzysearch
+function fuzzysearch (needle, haystack) {
+  var tlen = haystack.length;
+  var qlen = needle.length;
+  var matchIndexes = [];
+  if (qlen > tlen) {
+    return {isMatch: false};
+  }
+  if (qlen === tlen) {
+    return {isMatch: true, matchIndexes};
+  }
+  var i = 0;
+  var j = 0;
+  outer: for (; i < qlen; i++) {
+    var nch = needle.charCodeAt(i);
+    while (j < tlen) {
+      if (haystack.charCodeAt(j++) === nch) {
+        matchIndexes.push(j-1)
+        continue outer;
+      }
+    }
+    return {isMatch: false};
+  }
+  return {isMatch: true, matchIndexes};
+}
+
 var wgSearchRes;
 var wgSearch = {
   hints: [],
   pageId: '',
   keywords: [],
   match: function(value) {
+    this.find.idx = -1;
+
     if (value.trim().length < 2) return [];
-  
     var data = [];
     var extraMatch = [];
-    value = value.replace(/-|,|'/g,'');
     for (var i=0,title,matchIdx,match=1,xmatch=1,wildChar,offset,creps; i<snippets.length; i++) {
       if (match > 10) break;
       titleOri = snippets[i].title;
-      title = titleOri.replace(/-|,|'/g,'');
-      matchIdx = title.toLowerCase().indexOf(value.toLowerCase());
-      if (matchIdx >= 0) {
-        offset = 0;
-        wildChar = titleOri.substr(matchIdx,value.length).match(/-|,|'/g);
-        if (wildChar !== null)
-          offset = wildChar.length;
-        title = '<b>'+titleOri.substr(0,matchIdx)+'</b>'+titleOri.substr(matchIdx,value.length+offset)+'<b>'+titleOri.substr(matchIdx+value.length+offset)+'</b>';
-        
-        if (matchIdx === 0) {
-            data.push({index:snippets[i].index,ori:titleOri.replace(/'/g,'!!!'),title:title});
-            match++;
-        } else {
-            extraMatch.push({index:snippets[i].index,ori:titleOri.replace(/'/g,'!!!'),title:title});
+      let search = fuzzysearch(value,titleOri.toLowerCase());
+      if (search.isMatch) {
+        if (search.matchIndexes.length === 0) {
+          if (value == titleOri.toLowerCase()) {
+            data.push({index:snippets[i].index,title:'<b>'+titleOri+'</b>'});
+            match++  
+          } else {
+          extraMatch.push({index:snippets[i].index,title:titleOri});
             xmatch++;
+
+          }
+        } else {
+          titleOri = titleOri.split('');
+          for (let index of search.matchIndexes) {
+            titleOri[index] = '<b>'+titleOri[index]+'</b>';
+          }
+          data.push({index:snippets[i].index,title:titleOri.join('')});
+          match++
         }
       }
     }
@@ -152,70 +181,60 @@ var wgSearch = {
     return data;
   },
   selectHints: function() {
-    var hints = $('.search-hints');
-      switch(event.keyCode) {
-        case 13:
-          
-          if (this.find.idx > -1) {
-            event.preventDefault();
-            hints[this.find.idx].click();
-          } else {
-            handleCommand();
-          }
-        break;
-        case 38:
+    let hints = $('.search-hints');
+    if (hints.length === 0)
+        return
+
+    switch(event.keyCode) {
+      case 13:
+        if (this.find.idx > -1) {
           event.preventDefault();
-          this.find.idx--;
-          if (this.find.idx == -2)
-          {
-            this.find.idx = hints.length-1;
+          hints[this.find.idx].click();
+        } else {
+          handleCommand();
+        }
+      break;
+      case 38:
+        event.preventDefault();
+        this.find.idx--;
+        if (this.find.idx == -2) {
+          this.find.idx = hints.length-1;
+          hints[this.find.idx].classList.toggle('selected');
+        } else {
+          hints[this.find.idx+1].classList.toggle('selected');
+          if (this.find.idx > -1 && this.find.idx < hints.length)
             hints[this.find.idx].classList.toggle('selected');
-          }
-          else
-          {
-            hints[this.find.idx+1].classList.toggle('selected');
-            if (this.find.idx > -1 && this.find.idx < hints.length)
-            hints[this.find.idx].classList.toggle('selected');
-          }
-          return;
-        break;
-        case 40:
-          this.find.idx++;
-          if (this.find.idx == hints.length)
-          {
-            this.find.idx = -1;
-            hints[hints.length-1].classList.toggle('selected');
-          }
-          else
-          {
-            hints[this.find.idx].classList.toggle('selected');
-            if (this.find.idx > 0 && this.find.idx < hints.length)
+        }
+        return;
+      break;
+      case 40:
+        this.find.idx++;
+        if (this.find.idx == hints.length) {
+          this.find.idx = -1;
+          hints[hints.length-1].classList.toggle('selected');
+        } else {
+          hints[this.find.idx].classList.toggle('selected');
+          if (this.find.idx > 0 && this.find.idx < hints.length)
             hints[this.find.idx-1].classList.toggle('selected');
-          }
-          return;
-        break;
-        case 37:
-        case 39:
-          return;
-      }
-  },
-  highlightHints: function() {
-    let idx = this.dataset.index;
-    var hints = $('.search-hints');
-    if (idx !== null) {
-      for (var i=0; i<hints.length; i++) {
-        if (i == idx)
-          hints[i].classList.toggle('selected',true);
-        else
-          hints[i].classList.toggle('selected',false);
-      }
-      wgSearch.find.idx = idx;
+        }
+        return;
+      break;
     }
   },
+  highlightHints: function() {
+    let idx = Number(this.dataset.searchIndex);
+    var hints = $('.search-hints');
+    for (var i=0; i<hints.length; i++) {
+      if (i == idx)
+        hints[i].classList.toggle('selected',true);
+      else
+        hints[i].classList.toggle('selected',false);
+    }
+    wgSearch.find.idx = idx;
+  },
   displayResult: function(data) {
-    this.find.idx = -1;
-
     $('#search-result').innerHTML = '';
+    let i = 0;
     for (let hint of data) {
       if (index == data.length-1) {
         let tmp = $('#tmp-hints-last').content.cloneNode(true);
@@ -223,6 +242,7 @@ var wgSearch = {
         $('.Container', tmp)[0].addEventListener('mouseover', wgSearch.highlightHints);
         $('.Container', tmp)[0].addEventListener('click', insertTemplate);
         $('.Container', tmp)[0].dataset.index = hint.index;
+        $('.Container', tmp)[0].dataset.searchIndex = i;
         $('#search-result').appendChild(tmp);
       } else {
         let tmp = $('#tmp-hints').content.cloneNode(true);
@@ -230,8 +250,10 @@ var wgSearch = {
         $('.Container', tmp)[0].addEventListener('mouseover', wgSearch.highlightHints);
         $('.Container', tmp)[0].addEventListener('click', insertTemplate);
         $('.Container', tmp)[0].dataset.index = hint.index;
+        $('.Container', tmp)[0].dataset.searchIndex = i;
         $('#search-result').appendChild(tmp);
       }
+      i++;
     }
   },
   find: function(v) {
