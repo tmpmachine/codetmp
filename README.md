@@ -2,7 +2,7 @@
 Codetmp helps you develop JavaScript applications in the browser.
 
 ## Official Website
-[http://codetmp.web.app](http://codetmp.web.app)
+[https://codetmp.web.app](https://codetmp.web.app)
 
 ## Key Features
 1. Lightweight.
