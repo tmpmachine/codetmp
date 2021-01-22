@@ -1,6 +1,9 @@
 # Codetmp
 Codetmp helps you develop JavaScript applications in the browser.
 
+## Official Website
+[http://codetmp.web.app](http://codetmp.web.app)
+
 ## Key Features
 1. Lightweight.
 2. Mobile friendly.
@@ -9,9 +12,6 @@ Codetmp helps you develop JavaScript applications in the browser.
 5. Editing local system files (require browser that support File System Access API)
 
 ![Codetmp on mobile](https://1.bp.blogspot.com/-qHzR_-01sKs/X0DndkG-apI/AAAAAAAANR8/I2kG5Ql1eoEP0P5UaAl7pCOjPQUfWu1fwCLcBGAsYHQ/s440/1.png)
-
-## Official Website
-[http://codetmp.web.app](http://codetmp.web.app)
 
 ## Divless-HTML
 **Divless, nameless close tag HTML** allows you to write HTML tag quickly for sandboxing activity.
