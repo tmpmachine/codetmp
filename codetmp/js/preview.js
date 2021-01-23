@@ -100,7 +100,7 @@ function PreviewManager() {
             }
             if (isFileFound) {
               file.loaded = false;
-              drive.downloadDependencies(file).then(() => {
+              fileManager.downloadDependencies(file).then(() => {
 		          previewLoadWindow.postMessage({
 		            message: 'response-file', 
 		            mime: 'text/html;charset=UTF-8',
@@ -210,7 +210,7 @@ function PreviewManager() {
       if (isFileFound) {
         if (typeof(file.loaded) != 'undefined' && !file.loaded) {
           aww.pop('Downloading required file : '+name);
-          drive.downloadDependencies(file);
+          fileManager.downloadDependencies(file);
 	        content = '';
         } else {
 
@@ -376,7 +376,7 @@ while (match !== null) {
   } else {
     if (!file.loaded) {
       aww.pop('Downloading required file : '+name);
-      drive.downloadDependencies(file);
+      fileManager.downloadDependencies(file);
     }
     
     let ot = '', ct = '';
@@ -480,7 +480,7 @@ return body;
       } else {
         if (!file.loaded) {
           aww.pop('Downloading required file : '+name);
-          drive.downloadDependencies(file);
+          fileManager.downloadDependencies(file);
         }
         
         let ot = '', ct = '';

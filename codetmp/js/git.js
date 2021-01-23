@@ -10,6 +10,7 @@ const git = (function() {
   let sha2;
   let sha3;
   let gitTree = [];
+  let listChanges;
 
   function asText(response) {
     return response.text();
@@ -52,6 +53,11 @@ const git = (function() {
       else if (file.type == 'dir')
         registerDir(repo, file, parentId);
     }
+
+    window.clearTimeout(listChanges);
+    listChanges = window.setTimeout(function() {
+      fileManager.list();
+    }, 300);
   };
     
   const clonePath = function(repo, path = '', parentId) {
@@ -59,17 +65,46 @@ const git = (function() {
     .then(asJSON)
     .then(function(r){
       readingData(repo, r, parentId);
+    })
+    .catch(showConnectionErrorMsg);
+  };
+
+  function showConnectionErrorMsg(error) {
+    ui.alert({
+      text: 'Request failed. Check your internet connection.', 
+      timeout: 5000,
     });
+    L(error);
+  }
+
+  const initClonePath = function(repo, parentId) {
+    fetch('https://api.github.com/repos/'+repo.username+'/'+repo.name+'/contents/')
+    .then(asJSON)
+    .then(function(r) {
+      if (r.message == 'Not Found') {
+        ui.alert({
+          text: 'Repository not found. Check repository web URL.', 
+          timeout: 5000,
+        });
+      } else {
+        let folder = new Folder({
+          parentId: activeFolder,
+          name: repo.name,
+        });
+        readingData(repo, r, folder.fid);
+      }
+    })
+    .catch(showConnectionErrorMsg);
   };
 
   const clone = function(url) {
     let segments = url.replace('https://github.com/','').split('/');
-      let repo = {
-        name: segments[1].replace('.git',''),
-        username: segments[0],
-      };
-      clonePath(repo, '', activeFolder);
+    let repo = {
+      username: segments[0],
+      name: segments[1].replace('.git',''),
     };
+    initClonePath(repo, activeFolder);
+  };
     
     
   function listFile() {

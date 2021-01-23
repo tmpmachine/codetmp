@@ -355,6 +355,26 @@ const ui = {
     $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
   },
 
+  cloneRepo: function() {
+    window.cprompt('Repository web URL', 'https://github.com/username/repository').then(url => {
+      if (!url) 
+        return;
+      ui.alert({text:'Cloning repository...'});
+      git.clone(url);
+    });
+  },
+
+  confirmClearData: function() {
+    window.cconfirm('This will delete all Codetmp saved files & folders on current browser. Continue?', false).then(() => {
+      fileStorage.reset();
+      location.reload();
+    });
+  },
+
+  alert: function({text, isPersistent = false, timeout}) {
+    aww.pop(text, isPersistent, timeout);
+  }
+
 };
 
 function toggleModal(name) {
@@ -569,7 +589,7 @@ function initModalWindow() {
     closeModal(); 
   }
 
-  window.cconfirm = function(promptText = '') {
+  window.cconfirm = function(promptText = '', isFocusSubmit = true) {
     modal = $('#cconfirm-modal');
     initComponent(modal);
     type = 'confirm';
@@ -580,7 +600,10 @@ function initModalWindow() {
     form.onsubmit = submitForm;
     document.activeElement.blur();
     setTimeout(() => {
-      $('.Btn-submit', modal)[0].focus();
+      if (isFocusSubmit)
+        $('.Btn-submit', modal)[0].focus();
+      else
+        $('.Btn-cancel', modal)[0].focus();
     }, 150);
     message.textContent = promptText;
     return getResolver();
@@ -721,6 +744,8 @@ function initUI() {
   }
   
   attachClickable('.clickable', {
+    'clear-data': ui.confirmClearData,
+    'clone-repo': ui.cloneRepo,
     'toggle-homepage': () => toggleHomepage(),
     'toggle-file-info': () => toggleModal('file-info'),
     'toggle-settings': () => toggleModal('settings'),

@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '6.415';
+let cacheVersion = '6.5';
 let cacheItem = 'codetmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
@@ -34,6 +34,7 @@ self.addEventListener('install', function(event) {
     '/images/google/1x/btn_google_signin_dark_normal_web.png',
     '/images/google/1x/btn_google_signin_dark_focus_web.png',
     '/images/google/1x/btn_google_signin_dark_pressed_web.png',
+    '/assets/GitHub_Logo.png', 
 
     '/require/divless.js',
     '/require/o.js',
@@ -53,7 +54,6 @@ self.addEventListener('install', function(event) {
     '/index.js',
     
     '/ace/ace.js',
-    '/fonts/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2',
   ];
  
   event.waitUntil(Promise.all([

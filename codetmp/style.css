@@ -1,11 +1,5 @@
-@font-face {
-      font-family: 'Material Icons';
-      font-style: normal;
-      font-weight: 400;
-      src: url('fonts/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2') format('woff2');
-    }
     .material-icons {
-      font-family: 'Material Icons';
+      font-family: 'Material Icons Round';
       font-weight: normal;
       font-style: normal;
       font-size: 24px;
@@ -219,6 +213,7 @@ html,body{height:100%;}
 #nav{z-index:25;}
 #nav-bar{z-index:30;}
 .window{z-index:40}
+#cconfirm-modal{z-index:41}
 
 #sidebar .Inner {
 	/*grid-auto-flow: column;*/
@@ -609,3 +604,48 @@ background:#f1f1f1;
 .file-list.isSelected .Icon{color:#44728d}
 .file-list.isSelected:hover .Icon{color:#5189a9}
 .file-list .btn-lock{display:none}
+
+
+#option-menu:active .uid-A{display: block}
+#option-menu:focus .uid-A{display: block}
+#option-menu .uid-A{display: none}
+
+.uid-A::before,.uid-A::after{
+  content:'';
+  display:'inline-block';
+  position:absolute;
+  border:7px solid transparent;
+  right:21px;
+}
+.uid-A::before{
+    border-bottom:7px solid #848484;
+    top:-14px;
+}
+.uid-A::after{
+    border-bottom:7px solid white;
+    top:-13px;
+}
+.uid-A > div {
+  box-shadow: 0px 1px 2px 2px #1d1d1dd1;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.uid-A .Btn {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  text-align: left;
+  grid-gap:6px;
+}
+
+.uid-A .Btn:hover {
+  background: #e6e6e6;
+}
+.uid-A {
+  position: absolute;
+  top: 50px;
+  background: white;
+  color: black;
+  right: 0;
+  width: 210px;
+  z-index: 1;
+}

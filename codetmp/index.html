@@ -18,6 +18,8 @@
   <link rel="apple-touch-icon" sizes="128x128" href="images/128ap.png">
   <link rel="shortcut icon" sizes="16x16" type='image/x-icon' href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII=">
   <link rel="stylesheet" href="style.css"/>
+  <!-- https://material.io/resources/icons/?style=round -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet">
 
 </head>
 <body class="bg5">
@@ -74,18 +76,36 @@
             <div class="w3-left">
               <h5 class="no-select" style="font-weight:bold;">My Files</h5>
             </div>
+            <a href="javascript:void(0)" class="w3-right" style="position: relative;" id="option-menu">
+              <div class="Btn w3-button w3-right w3-hover-none">
+                <span class="Btn w3-hide-small w3-small w3-padding-small w3-left"></span>
+                <i class="Btn material-icons" style="color:#fff;">more_vert</i>
+              </div>
+              <div class="uid-A">
+                <div>
+                  <div id="btn-new-folder" class="Btn w3-block w3-padding">
+                    <i class="material-icons">create_new_folder</i>
+                    <span class="w3-small w3-padding-small">New Folder</span>
+                  </div>
+                  <div id="btn-new-file" class="Btn w3-block w3-padding">
+                    <i class="material-icons">add</i>
+                    <div class="w3-small w3-padding-small">New File</div>
+                  </div>
+                  <div class="Btn w3-block w3-padding clickable" data-callback="clone-repo">
+                    <div style="display: flex;justify-content: center;align-items: center;">
+                      <i class="material-icons" style="visibility:hidden">http</i>
+                      <img class="material-icons" style="position: absolute;font-size: 1.3em;" src="assets/GitHub_Logo.png" width="36">
+                    </div>
+                    <div class="w3-small w3-padding-small">Clone Git Repository</div>
+                  </div>
+                </div>
+              </div>
+            </a>
             <div id="btn-refresh-sync" class="Btn Btn auth-required unauthorized w3-button w3-right w3-hover-none">
               <div class="Btn w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Refresh</div>
               <i class="Btn material-icons" style="color:#fff;">refresh</i>
             </div>
-            <div id="btn-new-folder" class="Btn w3-button w3-right w3-hover-none">
-              <span class="Btn w3-hide-small w3-small w3-padding-small w3-left">New Folder</span>
-              <i class="Btn material-icons" style="color:#fff;">create_new_folder</i>
-            </div>
-            <div id="btn-new-file" class="Btn w3-button w3-right w3-hover-none">
-              <div class="Btn w3-small w3-padding-small w3-left">New File</div>
-              <i class="Btn material-icons" style="color:#fff;">add</i>
-            </div>
+            
             <div id="btn-rename" class="Btn w3-button w3-right w3-hover-none w3-hide">
               <div class="Btn w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Rename</div>
               <i class="Btn material-icons" style="color:#fff;">edit</i>
@@ -93,7 +113,7 @@
           </div>
           <div style="overflow:auto;">
             <div>
-              <div class="no-select" style="padding:4px 8px;font-size:10px;opacity:0.6;text-align:right;">Build v6.40x, 7 Jan</div>
+              <div class="no-select" style="padding:4px 8px;font-size:10px;opacity:0.6;text-align:right;">Build v6.5, 23 Jan</div>
               <div id="breadcrumbs" class="no-select w3-small w3-padding"></div>
             </div>
             <div id="file-list" class="w3-padding" style="display:flex;flex-flow:wrap;"></div>
@@ -369,7 +389,13 @@
 
   		    <h6 style="font-weight:bold;">Google Drive Sync</h6>
   		    <input id="check-auto-sync" class="w3-check" type="checkbox" oninput="ui.toggleAutoSync()" checked/> <label for="check-auto-sync">Automatically sync files and folders</label>			    
-  	      </div>
+          <hr/>
+
+          <h6 style="font-weight:bold;">File Storage</h6>
+          <p>Delete locally saved files & folders (doesn't affect synced files & folders).</p>
+          <button class="btn-style-1 clickable" style="width:auto" data-callback="clear-data">Clear data</button>
+  	      
+          </div>
   	      <div style="padding: 8px 12px;background: #ffffff;" class="w3-hide-medium w3-hide-large">
   		      <div class=" w3-button w3-border w3-block clickable" data-callback="toggle-settings" style="text-align: center;background: dodgerblue;color:#fff;">
   	          <div class="w3-small w3-padding-small" style="font-weight:bold;">Close</div>
