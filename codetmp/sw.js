@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '6.502';
+let cacheVersion = '6.503';
 let cacheItem = 'codetmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
@@ -35,6 +35,8 @@ self.addEventListener('install', function(event) {
     '/images/google/1x/btn_google_signin_dark_focus_web.png',
     '/images/google/1x/btn_google_signin_dark_pressed_web.png',
     '/assets/GitHub_Logo.png', 
+    'https://fonts.googleapis.com/css2?family=Material+Icons+Round', 
+    'https://fonts.gstatic.com/s/materialiconsround/v37/LDItaoyNOAY6Uewc665JcIzCKsKc_M9flwmP.woff2', 
 
     '/require/divless.js',
     '/require/o.js',
