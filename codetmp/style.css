@@ -606,6 +606,7 @@ background:#f1f1f1;
 .file-list .btn-lock{display:none}
 
 
+#option-menu{position: relative}
 #option-menu:active .uid-A{display: block}
 #option-menu:focus .uid-A{display: block}
 #option-menu .uid-A{display: none}
