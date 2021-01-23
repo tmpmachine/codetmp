@@ -74,6 +74,8 @@ function loadExternalFiles(URLs) {
         name: '',
         content: '',
         description: '',
+        origin: 'drive',
+        downloadUrl: '',
         trashed: false,
       },
       sync: {

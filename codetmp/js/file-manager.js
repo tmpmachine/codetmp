@@ -118,6 +118,18 @@ function FileManager() {
       $('#file-list').appendChild(el);
     }
   }
+
+  this.downloadDependencies = function(file) {
+    return new Promise(resolve => {
+
+      if (file.origin == 'drive') {
+        fileManager.downloadDependencies(f).then(resolve);
+      } else if (file.origin == 'git') {
+        git.downloadFile(file.downloadUrl).then(resolve);
+      }
+
+    });
+  }
   
   this.sync = function(data) {
     handleSync(data);
@@ -235,7 +247,7 @@ function FileManager() {
 	    resolve(f);
 	  } else {
 	    aww.pop('Downloading file...');
-	    drive.downloadDependencies(f).then(media => {
+	    fileManager.downloadDependencies(f).then(media => {
 	      f.content = media;
 	      f.loaded = true;
 	      fileStorage.save();
@@ -374,7 +386,7 @@ function openFile(fid) {
     resolve(f);
   } else {
     aww.pop('Downloading file...');
-    drive.downloadDependencies(f).then(media => {
+    fileManager.downloadDependencies(f).then(media => {
       f.content = media;
       f.loaded = true;
       fileStorage.save();
