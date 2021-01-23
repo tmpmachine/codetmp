@@ -101,20 +101,20 @@ function PreviewManager() {
             if (isFileFound) {
               file.loaded = false;
               fileManager.downloadDependencies(file).then(() => {
-		          previewLoadWindow.postMessage({
-		            message: 'response-file', 
-		            mime: 'text/html;charset=UTF-8',
-		            content: 'Updated.',
-		            resolverUID: event.data.resolverUID,
-		          }, '*');
+  		          previewLoadWindow.postMessage({
+  		            message: 'response-file', 
+  		            mime: 'text/html;charset=UTF-8',
+  		            content: 'Updated.',
+  		            resolverUID: event.data.resolverUID,
+  		          }, '*');
               }).catch(() => {
-	            file.loaded = true;
-				previewLoadWindow.postMessage({
-		            message: 'response-file', 
-		            mime: 'text/html;charset=UTF-8',
-		            content: 'Update failed.',
-		            resolverUID: event.data.resolverUID,
-		          }, '*');
+  	            file.loaded = true;
+  				      previewLoadWindow.postMessage({
+  		            message: 'response-file', 
+  		            mime: 'text/html;charset=UTF-8',
+  		            content: 'Update failed.',
+  		            resolverUID: event.data.resolverUID,
+  		          }, '*');
               })
             }
           }

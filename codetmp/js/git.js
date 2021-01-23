@@ -28,22 +28,32 @@ const git = (function() {
     });
   };
     
-  const registerFile = function(file, parentId) {
-    new File({
+  const registerFile = function(_file, parentId) {
+    let file = new File({
       parentId,
       loaded: false,
-      name: file.name,
+      name: _file.name,
       origin: 'git',
-      downloadUrl: file.download_url,
+      downloadUrl: _file.download_url,
+    });
+    fileManager.sync({
+      fid: file.fid, 
+      action: 'create', 
+      type: 'files',
     });
   };
     
-  const registerDir = function(repo, file, parentId) {
-    let _file = new Folder({
+  const registerDir = function(repo, _file, parentId) {
+    let file = new Folder({
       parentId,
-      name: file.name,
+      name: _file.name,
     });
-    clonePath(repo, file.path, _file.fid);
+    fileManager.sync({
+      fid: file.fid, 
+      action: 'create', 
+      type: 'folders',
+    });
+    clonePath(repo, _file.path, file.fid);
   };
     
   const readingData = function(repo, files, parentId) {
@@ -57,6 +67,7 @@ const git = (function() {
     window.clearTimeout(listChanges);
     listChanges = window.setTimeout(function() {
       fileManager.list();
+      drive.syncToDrive();
     }, 300);
   };
     
@@ -90,6 +101,11 @@ const git = (function() {
         let folder = new Folder({
           parentId: activeFolder,
           name: repo.name,
+        });
+        fileManager.sync({
+          fid: folder.fid, 
+          action: 'create', 
+          type: 'folders',
         });
         readingData(repo, r, folder.fid);
       }

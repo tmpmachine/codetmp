@@ -123,9 +123,24 @@ function FileManager() {
     return new Promise(resolve => {
 
       if (file.origin == 'drive') {
-        fileManager.downloadDependencies(f).then(resolve);
+        drive.downloadDependencies(file).then(resolve);
       } else if (file.origin == 'git') {
-        git.downloadFile(file.downloadUrl).then(resolve);
+        git.downloadFile(file.downloadUrl).then(content => {
+          file.content = content;
+          file.loaded = true;
+          file.origin = 'drive';
+          file.downloadUrl = '';
+
+          handleSync({
+            fid: file.fid,
+            action: 'update',
+            metadata: ['media', 'description'],
+            type: 'files'
+          });
+          drive.syncToDrive();
+          fileStorage.save();
+          resolve()
+        });
       }
 
     });
@@ -142,7 +157,6 @@ function FileManager() {
       (desc.type == 'checkbox' && !desc.checked)) continue;
       data[desc.getAttribute('name')] = (desc.type == 'checkbox') ? desc.checked : desc.value;
     }
-    
     return JSON.stringify(data);
   };
   
@@ -247,10 +261,7 @@ function FileManager() {
 	    resolve(f);
 	  } else {
 	    aww.pop('Downloading file...');
-	    fileManager.downloadDependencies(f).then(media => {
-	      f.content = media;
-	      f.loaded = true;
-	      fileStorage.save();
+	    fileManager.downloadDependencies(f).then(() => {
 	      resolve(f);
 	    });
 	  }
@@ -386,10 +397,7 @@ function openFile(fid) {
     resolve(f);
   } else {
     aww.pop('Downloading file...');
-    fileManager.downloadDependencies(f).then(media => {
-      f.content = media;
-      f.loaded = true;
-      fileStorage.save();
+    fileManager.downloadDependencies(f).then(() => {
       resolve(f);
     });
   }
