@@ -406,7 +406,7 @@ return body;
   function replaceLocal(body, preParent = -1, path = ['root']) {
 
     if (body === undefined) {
-      gitTree.length = 0;
+      // gitTree.length = 0;
       if (locked === -1 || (activeFile && locked === activeFile.fid)) {
       
         body = fileTab[activeTab].editor.env.editor.getValue();
