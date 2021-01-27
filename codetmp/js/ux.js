@@ -4,6 +4,7 @@ let pressedKeys = {};
 let fontSizeScale = [12, 14, 16, 18, 21, 24, 30, 36, 48];
 let fontSize = 2;
 let lineLock = -1;
+let pasteLine = false;
 
 let extension = (function() {
 
@@ -1004,22 +1005,44 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   });
   editor.commands.addCommand({
     name: "removeline",
-    bindKey: {win: "Ctrl-Shift-K"},
     exec: function(editor) {
       editor.removeLines();
     }
   });
   
   editor.commands.addCommand({
+    name: "custom-copy",
+    bindKey: {win: "Ctrl-C"},
+    exec: function(editor) {
+    	let selection = editor.getSelectionRange();
+    	if (selection.start.row == selection.end.row && selection.start.column == selection.end.column) {
+  			let row = selection.start.row
+  			let col = selection.start.column
+  			editor.selection.setSelectionRange({start:{row,column:0},end:{row:row+1,column:0}})
+  			document.execCommand('copy');
+  			editor.clearSelection();
+  			editor.moveCursorTo(row, col);
+  			pasteLine = true;
+    	} else {
+			  document.execCommand('copy');
+  			pasteLine = false;
+    	}
+    }
+  });
+  
+  editor.commands.addCommand({
+    name: "custom-cut",
     bindKey: {win: "Ctrl-X"},
     exec: function(editor) {
     	let selection = editor.getSelectionRange();
     	if (selection.start.row == selection.end.row && selection.start.column == selection.end.column) {
-			let row = selection.start.row
-			editor.selection.setSelectionRange({start:{row,column:0},end:{row:row+1,column:0}})
-			document.execCommand('cut');
+  			let row = selection.start.row
+  			editor.selection.setSelectionRange({start:{row,column:0},end:{row:row+1,column:0}})
+  			document.execCommand('cut');
+  			pasteLine = true;
     	} else {
-			document.execCommand('cut');
+			  document.execCommand('cut');
+  			pasteLine = false;
     	}
     }
   });
@@ -1745,10 +1768,25 @@ function applyKeyboardListener() {
       }
     }
   }
+  
+  function handlePasteLine() {
+    if (pasteLine) {
+      let editor = fileTab[activeTab].editor.env.editor;
+      let selection = editor.getSelectionRange();
+			let row = selection.start.row
+			let col = selection.start.column
+      editor.clearSelection();
+      editor.moveCursorTo(row, 0);
+      setTimeout(function() {
+        editor.moveCursorTo(row+1, col);
+      }, 1);
+    }
+  }
 
   window.addEventListener('blur', e => { 
   	pressedKeys.shiftKey = false; pressedKeys.ctrlKey = false; 
   	lineLock = -1;
+  	pasteLine = false;
   })
   window.addEventListener('keyup', e => { 
   	pressedKeys.shiftKey = e.shiftKey; pressedKeys.ctrlKey = e.ctrlKey;
@@ -1842,6 +1880,7 @@ function applyKeyboardListener() {
     'Ctrl+S': () => { event.preventDefault(); fileManager.save() },
     'Ctrl+D': () => { event.preventDefault(); deleteSelected() },
     'Ctrl+A': selectAllFiles,
+    'Ctrl+V': handlePasteLine,
     'Ctrl+O': () => { fileManager.openLocal(event) },
     'Alt+D': toggleTemplate,
     'Ctrl+Enter': function() {
