@@ -1005,6 +1005,7 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   });
   editor.commands.addCommand({
     name: "removeline",
+    bindKey: {win: "Ctrl-Shift-K"},
     exec: function(editor) {
       editor.removeLines();
     }
