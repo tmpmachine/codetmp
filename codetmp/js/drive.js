@@ -314,7 +314,7 @@ const drive = (function() {
     let options = {
       method,
       body: form,
-      headers: httpHeaders,
+      headers: Object.assign({}, httpHeaders),
     };
     
     if (action === 'copy')
