@@ -246,7 +246,7 @@ function FileManager() {
     listFiles();
     loadBreadCrumbs();
     
-    $('#btn-rename').classList.toggle('w3-hide', true);
+    ui.hideFileActionButton();
     selectedFile.splice(0, 1);
   };
   
@@ -689,7 +689,6 @@ function fileDownload() {
   let copyParentFolderId = -2;
   
   function copyFile(cut) {
-    
     clipBoard.length = 0;
     for (let f of selectedFile) {
       if (clipBoard.indexOf(f) < 0) {
@@ -810,7 +809,7 @@ function fileDownload() {
   function pasteFile() {
     
     if (clipBoard.length === 0) return;
-    
+
     while (clipBoard.length > 0) {
       let data;
       let fid = clipBoard[0].getAttribute('data');

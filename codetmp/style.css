@@ -650,3 +650,5 @@ background:#f1f1f1;
   width: 210px;
   z-index: 1;
 }
+
+.btn-file-action:hover{color:#3bff99!important;}

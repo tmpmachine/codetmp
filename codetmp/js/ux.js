@@ -6,6 +6,72 @@ let fontSize = 2;
 let lineLock = -1;
 let pasteLine = false;
 
+const stateManager = (function() {
+
+	let states = [];
+
+	function getState(stateNumber) {
+		let state = '';
+		switch (stateNumber) {
+			case 0: state = 'modal-window'; break;
+			case 1: state = 'file-manager'; break;
+		}
+		return state;
+	}
+
+	function pushState(_states) {
+		for (let state of _states) {
+			state = getState(state)
+			let index = states.indexOf(state);
+			if (index < 0)
+				states.push(state);	
+		}
+	}
+
+	function popState(_states) {
+		for (let state of _states) {
+			state = getState(state)
+			let index = states.indexOf(state);
+			if (index >= 0)
+				states.splice(index,1);
+		}
+	}
+
+	function hasState(_states, isOnlyState = false) {
+		if (isOnlyState && (_states.length != states.length))
+			return false;
+
+		for (let state of _states) {
+			state = getState(state);
+			let index = states.indexOf(state);
+			if (index < 0)
+				return false;
+		}
+		return true;
+	}
+
+	function isState(stateId) {
+		let result = false;
+		switch (stateId) {
+			case 0:
+				result = hasState([1], true);
+			break;
+			case 1:
+				result = hasState([0]);
+			break;
+		}
+		return result;
+	}
+
+	return {
+		pushState,
+		popState,
+		isState,
+	};
+
+})();
+
+
 let extension = (function() {
 
   function initEmmet() {
@@ -70,6 +136,11 @@ let extension = (function() {
 
 const ui = {
 
+	hideFileActionButton: function() {
+		$('#btn-rename').classList.toggle('w3-hide', true);
+    	$('#btn-delete').classList.toggle('w3-hide', true);
+	},
+
 	fileManager: (function() {
 
 		function commit(data) {
@@ -88,7 +159,8 @@ const ui = {
 		function renameFolder() {
 			let selection = getSelected(selectedFile[0]);
 	      	window.cprompt('Rename', selection.title).then(name => {
-	        	$('#btn-rename').classList.toggle('w3-hide', true);
+	        	// $('#btn-rename').classList.toggle('w3-hide', true);
+	        	// $('#btn-delete').classList.toggle('w3-hide', true);
 	        	if (!name || name === selection.title) 
 	        		return;
 	        
@@ -109,7 +181,8 @@ const ui = {
 	    	let selection = getSelected(selectedFile[0]);
 	    	let fid = selection.id;
 	      	window.cprompt('Rename', selection.title).then(input => {
-	        	$('#btn-rename').classList.toggle('w3-hide', true);
+	        	// $('#btn-rename').classList.toggle('w3-hide', true);
+	        	// $('#btn-delete').classList.toggle('w3-hide', true);
 	        	if (!input) 
 	        		return;
 
@@ -160,7 +233,7 @@ const ui = {
 	    }
 	    function deleteFolder() {
 	    	let selection = getSelected(selectedFile[0]);
-	    	window.cconfirm('Sub files & folders will also be delete. Delete anyway?').then(() => {
+	    	window.cconfirm('Move selected folder to trash?').then(() => {
 		      	let data = odin.dataOf(selection.id, fileStorage.data.folders, 'fid');
 		      	data.trashed = true;
 	        	commit({
@@ -175,7 +248,7 @@ const ui = {
 	    function deleteFile() {
 	    	let selection = getSelected(selectedFile[0]);
 	    	let fid = selection.id;
-	      	window.cconfirm('Delete this file?').then(() => {
+	      	window.cconfirm('Move selected file to trash?').then(() => {
 		      	let data = odin.dataOf(fid, fileStorage.data.files, 'fid');
 		      	data.trashed = true;
 		      
@@ -202,12 +275,22 @@ const ui = {
 	      	})
 	    }
 
+	    function deleteSelected() {
+		    if (selectedFile.length === 1) {
+		      if (selectedFile[0].getAttribute('data-type') === 'folder')
+		        deleteFolder();
+		      else if (selectedFile[0].getAttribute('data-type') === 'file')
+		        deleteFile();
+		    } else if (selectedFile.length > 1) {
+		    	
+		    }
+		  }
+
 	    return {
 			renameFolder,
 			renameFile,
 			newFolder,
-			deleteFolder,
-			deleteFile,
+			deleteSelected,
 		};
 
 	})(),
@@ -287,6 +370,7 @@ const ui = {
 		// $('#btn-menu-settings').classList.toggle('hide', true);
 		$('#btn-undo').classList.toggle('hide', true);
 		$('#btn-redo').classList.toggle('hide', true);
+		stateManager.pushState([1]);
     } else {
 	    $('#btn-menu-save-wrapper').classList.toggle('hide', false);
 	  	$('#btn-menu-preview-wrapper').classList.toggle('hide', false);
@@ -297,6 +381,7 @@ const ui = {
 	  	// $('#btn-menu-settings').classList.toggle('hide', true);
 	  	$('#btn-undo').classList.toggle('hide', false);
 		$('#btn-redo').classList.toggle('hide', false);
+		stateManager.popState([1]);
     }
   },
   
@@ -381,7 +466,12 @@ const ui = {
 function toggleModal(name) {
   for (let modal of $('.modal-window')) {
     if (modal.dataset.name == name) {
-      modal.classList.toggle('Hide');
+      let isHide = modal.classList.toggle('Hide');
+      if (isHide) {
+      	stateManager.popState([0]);
+      } else {
+      	stateManager.pushState([0]);
+      }
       break;
     }
   }
@@ -549,7 +639,7 @@ function initModalWindow() {
   function closeModal() {
     modal.classList.toggle(hideClass, true)
     window.removeEventListener('keydown', blur);
-    window.cprompt.isActive = false;
+    stateManager.popState([0]);
     form.onsubmit = () => event.preventDefault();
   }
 
@@ -595,7 +685,7 @@ function initModalWindow() {
     initComponent(modal);
     type = 'confirm';
     modal.classList.toggle(hideClass, false)
-    window.cprompt.isActive = true;
+    stateManager.pushState([0]);
     overlay.onclick = close;
     btnClose.onclick = close;
     form.onsubmit = submitForm;
@@ -616,7 +706,7 @@ function initModalWindow() {
     input = $('input', modal)[0];
     type = 'prompt';
     modal.classList.toggle(hideClass, false)
-    window.cprompt.isActive = true;
+    stateManager.pushState([0]);
     overlay.onclick = close;
     btnClose.onclick = close;
     form.onsubmit = submitForm;
@@ -763,7 +853,7 @@ function initUI() {
     'btn-new-folder'        : ui.fileManager.newFolder,
     'btn-new-file'          : function() { $('#btn-menu-my-files').click(); ui.openNewTab(); },
     'btn-rename'            : renameFile,
-    // 'btn-delete-file'       : function() { ui.fileManager.deleteFile(activeFile.fid) },
+    'btn-delete'            : ui.fileManager.deleteSelected,
     'btn-download-file'     : function() { fileDownload() },
     'btn-menu-save'         : fileManager.save,
     '.btn-material'         : ui.toggleMenu,
@@ -1373,6 +1463,7 @@ function openFileConfirm(el) {
   
   if (!doubleClick) {
     $('#btn-rename').classList.toggle('w3-hide', false);
+    $('#btn-delete').classList.toggle('w3-hide', false);
     lastClickEl = el;
     doubleClick = true;
     toggleFileHighlight(lastClickEl, true);
@@ -1381,6 +1472,7 @@ function openFileConfirm(el) {
     }, 500);
   } else {
     $('#btn-rename').classList.toggle('w3-hide', true);
+    $('#btn-delete').classList.toggle('w3-hide', true);
     let type = selectedFile[0].dataset.type;
     selectedFile.splice(0, 1);
     doubleClick = false;
@@ -1526,7 +1618,7 @@ function navScrollDown() {
   
   function navigationHandler() {
     
-    if (window.cprompt.isActive)
+    if (stateManager.isState(1))
       return
 
     if (!$('#btn-menu-my-files').classList.contains('active')) return;
@@ -1640,6 +1732,7 @@ function applyKeyboardListener() {
    	      for (let el of selectedFile)
    			toggleFileHighlight(el, false);
    	      $('#btn-rename').classList.toggle('w3-hide', true);
+   	      $('#btn-delete').classList.toggle('w3-hide', true);
    	      doubleClick = false;
    	      selectedFile.length = 0;
    	  } else {
@@ -1655,27 +1748,18 @@ function applyKeyboardListener() {
       selectedFile[0].click();
   }
   
-  function deleteSelected() {
-    if (selectedFile.length === 1) {
-      if (selectedFile[0].getAttribute('data-type') === 'folder')
-        ui.fileManager.deleteFolder();
-      else if (selectedFile[0].getAttribute('data-type') === 'file')
-        ui.fileManager.deleteFile();
-    } else if (selectedFile.length > 1) {
-    	
-    }
-  }
-  
   function toggleMyFiles() {
-  	if (window.cprompt.isActive) return;
+  	if (stateManager.isState(1)) return;
     if (!keyboard.Alt) return;
     
     $('#btn-menu-my-files').click()
     if ($('#btn-menu-my-files').classList.contains('active')) {
       fileTab[activeTab].editor.env.editor.blur();
+      stateManager.pushState([1]);
       setTimeout(() => { document.activeElement.blur() }, 1);
     } else {
       clipBoard.length = 0;
+      stateManager.popState([1]);
       fileTab[activeTab].editor.env.editor.focus();
     }
   }
@@ -1801,7 +1885,7 @@ function applyKeyboardListener() {
   })
 
   window.addEventListener('keydown', function(e) {
-    if (window.cprompt.isActive)
+    if (stateManager.isState(1))
       return
 
     if (e.altKey && (fileTab[activeTab].editor.env.editor.isFocused() || document.activeElement.id == 'search-input')) {
@@ -1827,7 +1911,7 @@ function applyKeyboardListener() {
             keyEscape();
             break;
           case 'Delete': 
-            deleteSelected(); 
+            ui.fileManager.deleteSelected(); 
             break;
           case 'ArrowLeft': 
           case 'ArrowDown': 
@@ -1849,7 +1933,7 @@ function applyKeyboardListener() {
   let keyboard = new KeyTrapper();
 
   keyboard.isBlocked = function() {
-  	return window.cprompt.isActive;
+  	return stateManager.isState(1);
   }
 
   keyboard.listen({
@@ -1879,7 +1963,7 @@ function applyKeyboardListener() {
     'Alt+W': confirmCloseTab,
     'Alt+O': openFileDirectory,
     'Ctrl+S': () => { event.preventDefault(); fileManager.save() },
-    'Ctrl+D': () => { event.preventDefault(); deleteSelected() },
+    'Ctrl+D': () => { event.preventDefault(); ui.fileManager.deleteSelected() },
     'Ctrl+A': selectAllFiles,
     'Ctrl+V': handlePasteLine,
     'Ctrl+O': () => { fileManager.openLocal(event) },
@@ -1911,15 +1995,15 @@ function isOpenFileManager() {
 }
 
 window.addEventListener('copy', function(e) { 
-	if (isOpenFileManager && !window.cprompt.isActive) 
+	if (stateManager.isState(0)) 
 		copyFile(false);
 });
 window.addEventListener('cut', function(e) { 
-	if (isOpenFileManager && !window.cprompt.isActive) 
+	if (stateManager.isState(0)) 
 		copyFile(true);
 });
 window.addEventListener('paste', function(e) { 
-	if (isOpenFileManager && !window.cprompt.isActive)
+	if (stateManager.isState(0))
 		pasteFile();
 });
 
@@ -2027,7 +2111,7 @@ function clearSelection() {
 }
 
 function selectAllFiles() {
-	if (!window.cprompt.isActive) {
+	if (stateManager.isState(0)) {
 		selectedFile = [...$('.folder-list'), ...$('.file-list-clicker')];
 		for (let el of selectedFile)
 			toggleFileHighlight(el, true);
