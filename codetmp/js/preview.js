@@ -222,11 +222,13 @@ function PreviewManager() {
         }
       }
 
+      content = replaceTemplate(content, parentId)
+
       if ($('#chk-render-plate-html').checked && mimeType.includes('text/html')) {
       	content = divless.replace(content);
       }
 
-      return replaceTemplate(content, parentId);
+      return content;
   }
 
 
