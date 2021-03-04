@@ -73,10 +73,12 @@ function loadExternalFiles(URLs) {
         id: '',
         name: '',
         content: '',
+        type: '',
         origin: 'drive',
         downloadUrl: '',
         description: '',
         trashed: false,
+        fileRef: null,
       },
       sync: {
         action: '',

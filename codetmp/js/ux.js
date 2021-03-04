@@ -803,12 +803,59 @@ function initReadDropModule() {
 	});
 }
 
+function initFileDropModule() {
+	let elem = $('#in-my-files');
+	elem.addEventListener('dragover', (e) => {
+	  e.preventDefault();
+	});
+
+	elem.addEventListener('drop', e => {
+	  e.preventDefault();
+	  for (const item of e.dataTransfer.items) {
+	    if (item.kind === 'file') {
+	      readDropItem(item);
+	    }
+	  }
+	});
+
+
+	async function readDropItem(item) {
+	  const entry = await item.getAsFileSystemHandle();
+		if (entry.kind === 'directory') {
+		  // handleDirectoryEntry(entry);
+	 	} else {
+		  handleFileEntry(entry);
+		}
+	}
+
+	function handleFileEntry(entry) {
+	if (parseInt(fileTab[activeTab].fid) < 0) {
+		entry.getFile().then(r => {
+ 			let file = new File({
+            name: r.name,
+            fileRef: r,
+            type: r.type
+          });
+          fileManager.sync({
+            fid: file.fid, 
+            action: 'create', 
+            type: 'files',
+          });
+          fileStorage.save();
+          fileManager.list();
+		})
+	}
+}
+
+}
+
 function initUI() {
   
   initModalWindow();
   initInframeLayout();
   if (typeof(window.showOpenFilePicker) !== 'undefined')
     initReadDropModule();
+  initFileDropModule();
 
   fileManager.list();
   $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
@@ -1477,7 +1524,7 @@ function openFileConfirm(el) {
     selectedFile.splice(0, 1);
     doubleClick = false;
     if (type == 'file') {
-      openFile(el.getAttribute('data'));
+      fileManager.open(el.getAttribute('data'));
     } else {
       let folderId = Number(el.getAttribute('data'))
       openFolder(folderId);

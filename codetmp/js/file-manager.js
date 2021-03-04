@@ -249,6 +249,20 @@ function FileManager() {
     ui.hideFileActionButton();
     selectedFile.splice(0, 1);
   };
+
+  function getFileContent(file) {
+    return new Promise(resolve => {
+      if (file.content.length == 0 && file.fileRef !== null) {
+        file.fileRef.text().then(content => {
+          resolve(content);
+        })
+      } else {
+        resolve(file.content);
+      }
+
+    })
+    return content;
+  }
   
   this.open = function(fid) {
     
@@ -275,17 +289,20 @@ function FileManager() {
       let idx = odin.idxOf(f.fid, fileTab, 'fid')
       if (idx < 0) {
         
-        newTab(fileTab.length, {
-          fid: f.fid,
-          content: f.content,
-          name: f.name,
-          fiber: 'close',
-          file: f,
-          editor: initEditor(),
+        getFileContent(f).then(content => {
+          newTab(fileTab.length, {
+            fid: f.fid,
+            name: f.name,
+            fiber: 'close',
+            file: f,
+            editor: initEditor(content),
+          });
         });
-      } else
+
+      } else {
+        // fileTab[activeTab].content = fileTab[activeTab].editor.env.editor.getValue();
         focusTab(f.fid, false);
-      
+      }
       
       if ($('#btn-menu-my-files').classList.contains('active'))
         $('#btn-menu-my-files').click();
@@ -387,57 +404,6 @@ function getFileAtPath(path, parentId = -1) {
   return found;
 }
 
-function openFile(fid) {
-  
-  let f = odin.dataOf(fid, fileStorage.data.files, 'fid');
-  activeFile = f;
-  
-  new Promise(function(resolve, reject) {
-  if (f.loaded) {
-    resolve(f);
-  } else {
-    aww.pop('Downloading file...');
-    fileManager.downloadDependencies(f).then(() => {
-      resolve(f);
-    });
-  }
-  
-}).then(function(file) {
-    
-    if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-') {
-      confirmCloseTab(false);
-    }
-
-    
-    let idx = odin.idxOf(f.fid, fileTab, 'fid')
-    
-    if (idx < 0) {
-      newTab(fileTab.length, {
-        fid: f.fid,
-        editor: initEditor(f.content),
-        name: f.name,
-        fiber: 'close',
-        file: f,
-      });
-    } else {
-      fileTab[activeTab].content = fileTab[activeTab].editor.env.editor.getValue();
-      focusTab(f.fid, false);
-    }
-    
-    if ($('#btn-menu-my-files').classList.contains('active'))
-      $('#btn-menu-my-files').click();
-
-  	if (file.description.startsWith('{'))
-      openDevelopmentSettings(JSON.parse(file.description));
-    else
-      openDevelopmentSettings(parseDescriptionOld(file.description));
-  	
-  }).catch(function(error) {
-    
-    L(error);
-    aww.pop('Could not download file');
-  })
-}
 
 function fileClose(fid) {
   
