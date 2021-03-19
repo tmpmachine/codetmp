@@ -14,6 +14,9 @@ let windows = [];
 let SPACache = [];
 let isPreviewSPA = false;
 let previewMode = 'normal';
+const PREVIEWCONFIG = {
+  isReplaceLinkedFile: false,
+}
 
 function Preview(fid) {
 	return {
@@ -59,6 +62,66 @@ function PreviewManager() {
     previewLoadWindow = window.open(previewUrl, 'PreviewFrame');
   }
 
+  function responseAsMedia(event, path, mimeType) {
+  	let file = getFileAtPath(path).file;
+
+    if (file === null) {
+      previewLoadWindow.postMessage({
+        message: 'response-file', 
+        mime: '',
+        content: '<404/>',
+        resolverUID: event.data.resolverUID,
+      }, '*');
+    } else {
+
+      if (file.fileRef.name === undefined) {
+        let src = '';
+        if (file !== null) {
+        	if (file.origin == 'git') {
+        		src = file.downloadUrl;
+        	} else {
+              let link =  file.thumbnailLink.split('=');
+              link.pop(); // remove Google image resizing parameter
+              src = link.join('=');
+        	}
+        }
+        fetch(src).then(function(response) {
+          return response.blob()
+        }).then(function(blob) {
+          previewLoadWindow.postMessage({
+            message: 'response-file', 
+            mime: mimeType,
+            content: blob,
+            resolverUID: event.data.resolverUID,
+          }, '*');          
+        }).catch(() => {
+          previewLoadWindow.postMessage({
+            message: 'response-file', 
+            mime: mimeType,
+            content: new Blob(),
+            resolverUID: event.data.resolverUID,
+          }, '*');
+        });
+      } else {
+        previewLoadWindow.postMessage({
+          message: 'response-file', 
+          mime: helper.getMimeType(file.name),
+          content: file.fileRef,
+          resolverUID: event.data.resolverUID,
+        }, '*');
+      }
+    }
+  }
+
+  function responseAsText(event, path, mimeType) {
+  	previewLoadWindow.postMessage({
+  		message: 'response-file', 
+  		mime: mimeType,
+  		content: previewManager.getContent(path, mimeType),
+  		resolverUID: event.data.resolverUID,
+  	}, '*');
+  }
+
 	this.fileResponseHandler = function (event) {
 	  if (event.data.method && event.data.path == '/codetmp/files') {
       switch (event.data.method) {
@@ -87,7 +150,7 @@ function PreviewManager() {
           if (event.data.referrer) {
             let parentDir = previewManager.getDirectory(event.data.referrer, null, ['root']);
             let parentId = previewManager.getDirectory(event.data.body.path, parentDir, ['root']);
-            let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
+            let files = fileManager.listFiles(parentId);
             let name = event.data.body.path.replace(/.*?\//g,'');
             let isFileFound = false;
             let file;
@@ -100,7 +163,7 @@ function PreviewManager() {
             }
             if (isFileFound) {
               file.loaded = false;
-              fileManager.downloadDependencies(file).then(() => {
+              fileManager.downloadMedia(file).then(() => {
   		          previewLoadWindow.postMessage({
   		            message: 'response-file', 
   		            mime: 'text/html;charset=UTF-8',
@@ -123,7 +186,7 @@ function PreviewManager() {
           if (event.data.referrer) {
             let parentDir = previewManager.getDirectory(event.data.referrer, null, ['root']);
             let parentId = previewManager.getDirectory(event.data.body.path, parentDir, ['root']);
-            let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
+            let files = fileManager.listFiles(parentId);
             let name = event.data.body.path.replace(/.*?\//g,'');
             let isFileFound = false;
             let file;
@@ -157,19 +220,41 @@ function PreviewManager() {
           break;
       }
     } else {
-      let path = removeParam(event.data.path);
-      let mimeType = previewManager.getMimeType(path);
-      previewLoadWindow.postMessage({
-  			message: 'response-file', 
-  			mime: mimeType,
-  			content: previewManager.getContent(removeParam(path), mimeType),
-  			resolverUID: event.data.resolverUID,
-  		}, '*');
+      let path = decodeURI(removeParam(event.data.path));
+      let mimeType = helper.getMimeType(path);
+      if (mimeType.match(/^(text|application\/json)/) !== null) {
+        responseAsText(event, path, mimeType);
+      } else {
+        responseAsMedia(event, path, mimeType);
+      }
     }
   }
 
+  function getFileAtPath(src) {
+    let preParent;
+    if (locked >=0) {
+      let file = odin.dataOf(locked, fileStorage.data.files, 'fid');
+      preParent = file.parentId;
+    } else {
+     preParent = activeFolder;
+    }
+    let relativeParent = preParent;
+    let path = ['root'];
+    let parentId = previewManager.getDirectory(src, relativeParent, path);
+    let files = fileManager.listFiles(parentId);
+    let name = src.replace(/.*?\//g,'');
+    let isFileFound = false;
+    let file = null;
+    for (let i=0; i<files.length; i++) {
+      if (files[i].name.toLowerCase() == name.toLowerCase() && !files[i].trashed) {
+        file = files[i];
+        break;
+      }
+    }
+    return { file, parentId };
+  }
+
 	this.getContent = function(src, mimeType) {
-		src = decodeURI(src);
       if (isPreviewSPA) {
         for (let i=0; i<SPACache.length; i++) {
           if ('/'+SPACache[i].path == src) {
@@ -178,77 +263,43 @@ function PreviewManager() {
         }
       }
 
-      let preParent;
-      if (locked >=0) {
-        let file = odin.dataOf(locked, fileStorage.data.files, 'fid');
-        preParent = file.parentId;
-      } else {
-	     preParent = activeFolder;
-      }
-
-      let relativeParent = preParent;
-      path = ['root'];
-
       if (src == '/untitled.html') {
-      	return divless.replace(replaceTemplate(fileTab[activeTab].editor.env.editor.getValue()));
+      	let content = replaceTemplate(fileTab[activeTab].editor.env.editor.getValue());
+        if (settings.data.editor.divlessHTMLEnabled)
+          return divless.replace(content);
+        return content;
       }
 
-      let parentId = previewManager.getDirectory(src, relativeParent, path);
-      let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
-      let name = src.replace(/.*?\//g,'');
-      let isFileFound = false;
-      let content = '';
-      let file;
-      for (let i=0; i<files.length; i++) {
-        if (files[i].name == name && !files[i].trashed) {
-          isFileFound = true;
-          file = files[i];
-          break;
-        }
-      }
+      let content = '<404/>';
+      let filePath = getFileAtPath(src);
+      let file = filePath.file;
+      let parentId = filePath.parentId;
 
-      if (isFileFound) {
-        if (typeof(file.loaded) != 'undefined' && !file.loaded) {
-          aww.pop('Downloading required file : '+name);
-          fileManager.downloadDependencies(file);
-	        content = '';
-        } else {
+      if (file !== null) {
+	      if (file.fileRef.name !== undefined) {
+	        return file.fileRef;
+	      } else if (typeof(file.loaded) != 'undefined' && !file.loaded) {
+	        aww.pop('Downloading required file : '+file.name);
+	        fileManager.downloadMedia(file);
+		        content = '';
+	      } else {
 
-	        let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
-	        if (tabIdx >= 0)
-	          content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
-	        else
-	          content = file.content;
-        }
-      }
-
-      content = replaceTemplate(content, parentId)
-
-      if ($('#chk-render-plate-html').checked && mimeType.includes('text/html')) {
-      	content = divless.replace(content);
+		        let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
+		        if (tabIdx >= 0)
+		          content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
+		        else
+		          content = file.content;
+	      }
+	      content = replaceTemplate(content, parentId)
+	      if ($('#chk-render-plate-html').checked && mimeType.match(/text\/html|text\/xml/)) {
+	      	if (settings.data.editor.divlessHTMLEnabled)
+            content = divless.replace(content);
+	      }
       }
 
       return content;
   }
 
-
-	this.getMimeType = function(path) {
-  	let ext = path.split('.').reverse().slice(0,1)[0].toLowerCase();
-  	let mimeType = 'text/html';
-  	let charset = ';charset=UTF-8';
-  	switch(ext) {
-		case 'js':
-			mimeType = 'application/javascript';
-			break;
-		case 'css':
-			mimeType = 'text/css';
-			break;
-		case 'json':
-			mimeType = 'application/json';
-			break;
-  	}
-  	return mimeType+charset;
-  }
 
   this.getFrameName = function() {
   	let file = activeFile;
@@ -285,7 +336,6 @@ function PreviewManager() {
       
   	  let dirName = dir.pop();
 
-
       if (dirName === '') {
       	parentId = -1;
       } else if (dirName === '..' || dirName === '.') {
@@ -298,9 +348,9 @@ function PreviewManager() {
         parentId = folder.parentId;
       } else {
         
-        let folders = odin.filterData(parentId, fileStorage.data.folders, 'parentId');
+        let folders = fileManager.listFolders(parentId);
         for (let f of folders) {
-          if (f.name == dirName && !f.trashed) {
+          if (f.name.toLowerCase() == dirName.toLowerCase() && !f.trashed) {
             folder = f;
             break;
           }
@@ -353,12 +403,11 @@ function getMatchTemplate(content) {
 	return content.match(/<file src=.*?><\/file>/);
 }
 
-function replaceTemplate(body, preParent = -1, path = ['root']) {
+function getMatchLinkedFile(content) {
+  return content.match(/<script .*?src=.*?><\/script>|<link .*?rel=('|")stylesheet('|").*?>/);
+}
 
-let match = getMatchTemplate(body);
-
-while (match !== null) {
-
+function replaceFile(match, body, preParent, path) {
   let src = match[0].substring(11, match[0].length-9);
   let relativeParent = preParent;
   
@@ -367,45 +416,126 @@ while (match !== null) {
     src = src.replace(/__\//, '');
   }
   
-  let absolutePath = JSON.parse(JSON.stringify(path));
   let parentId = previewManager.getDirectory(src, relativeParent, path);
-  let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
+  let files = fileManager.listFiles(parentId);
   let name = src.replace(/.*?\//g,'');
   let file = odin.dataOf(name, files, 'name');
   if (file === undefined) {
     body = body.replace(match[0], '');
-    console.log(src+' not found');
+    aww.pop('Required file not found : '+src);
   } else {
+
+    let content = '';
     if (!file.loaded) {
-      aww.pop('Downloading required file : '+name);
-      fileManager.downloadDependencies(file);
+      fileManager.downloadMedia(file);
+    } else {
+      let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
+      if (tabIdx >= 0)
+        content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
+      else
+        content = file.content;
     }
-    
-    let ot = '', ct = '';
-    let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
-    let content;
-    if (tabIdx >= 0)
-      content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
-    else
-      content = file.content;
-    let swap = ot + replaceTemplate(content, parentId, path) + ct;
+  
+    let swap = replaceTemplate(content, parentId, path);
     body = body.replace(new RegExp(match[0]), swap);
   }
- 
-  path = absolutePath;
-  match = getMatchTemplate(body);
+  return body;
 }
 
-return body;
+function replaceLinkedFile(match, body, preParent, path) {
+
+  let tagName;
+  let isScriptOrLink = false;
+  let start = 11;
+  let end = 9;
+  let src = '';
+  
+  if (match[0].includes('<script')) {
+    src = match[0].match(/src=['|"].*?['|"]/)[0];
+    src = src.substring(5, src.length - 1);
+    isScriptOrLink = true;
+    tagName = 'script';
+  } else if (match[0].includes('<link')) {
+    src = match[0].match(/href=['|"].*?['|"]/)[0];
+    src = src.substring(6, src.length - 1);
+    isScriptOrLink = true;
+    tagName = 'style';
+  }
+  
+  src = (src.length > 0) ? src : match[0].substring(start, match[0].length-end);
+  let relativeParent = preParent;
+  
+  if (src.startsWith('https://') || src.startsWith('http://')) {
+ 
+    body = body.replace(match[0], match[0].replace('<link ','<web-link ').replace('<script ','<web-script '));
+    match = getMatch(body);
+ 
+  } else {
+
+    if (src.startsWith('__')) {
+      relativeParent = -1;
+      src = src.replace(/__\//, '');
+    }
+    
+    let parentId = previewManager.getDirectory(src, relativeParent, path);
+    let files = fileManager.listFiles(parentId);
+    let name = src.replace(/.*?\//g,'');
+    let file = odin.dataOf(name, files, 'name');
+    if (file === undefined) {
+      body = body.replace(match[0], '');
+      console.log(src+' not found');
+    } else {
+      let content = '';
+      let ot = '', ct = '';
+      if (tagName) {
+        ot = '<'+tagName+'>\n';
+        ct = '\n</'+tagName+'>';
+      }
+
+      if (file.loaded) {
+        let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
+        if (tabIdx >= 0)
+          content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
+        else
+          content = file.content;
+      } else {
+        fileManager.downloadMedia(file);
+      }
+      // if ($('#chk-deploy-minified').checked && isMinified)
+      //   content = content.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '').replace(/\n|\t+/g,'');
+    
+      let swap = ot + content + ct;
+      body = body.replace(new RegExp(match[0]), swap);
+    }
+  }
+  
+  return body;
+}
+
+function replaceTemplate(body, preParent = -1, path = ['root']) {
+  if (PREVIEWCONFIG.isReplaceLinkedFile) {
+    let match = getMatchLinkedFile(body);
+    while (match !== null) {
+      let searchPath = JSON.parse(JSON.stringify(path));
+      body = replaceLinkedFile(match, body, preParent, searchPath);
+      match = getMatchLinkedFile(body);
+    }
+  }
+
+  let match = getMatchTemplate(body);
+  while (match !== null) {
+    let searchPath = JSON.parse(JSON.stringify(path));
+    body = replaceFile(match, body, preParent, searchPath);
+    match = getMatchTemplate(body);
+  }
+  return body;
 }
 
 (function() {
   
-  function getMatch(content) {
-    return content.match(/<file src=.*?><\/file>|<script .*?src=.*?><\/script>|<link .*?rel=('|")stylesheet('|").*?>/);
-  }
+  
 
-  function replaceLocal(body, preParent = -1, path = ['root']) {
+  function getSingleFileContent(body, preParent = -1, path = ['root']) {
 
     if (body === undefined) {
       // gitTree.length = 0;
@@ -432,86 +562,7 @@ return body;
       
     }
     
-  
-    let match = getMatch(body);
-    
-    while (match !== null) {
-
-      let tagName;
-      let isScriptOrLink = false;
-      let isFile = false;
-      let isMinified = false;
-      let start = 11;
-      let end = 9;
-      let src = '';
-      
-      if (match[0].includes('<script')) {
-        src = match[0].match(/src=['|"].*?['|"]/)[0];
-        src = src.substring(5, src.length - 1);
-        isScriptOrLink = true;
-        tagName = 'script';
-      } else if (match[0].includes('<link')) {
-        src = match[0].match(/href=['|"].*?['|"]/)[0];
-        src = src.substring(6, src.length - 1);
-        isScriptOrLink = true;
-        tagName = 'style';
-      }
-      
-      src = (src.length > 0) ? src : match[0].substring(start, match[0].length-end);
-      let relativeParent = preParent;
-      
-      if (src.startsWith('https://') || src.startsWith('http://')) {
-        body = body.replace(match[0], match[0].replace('<link ','<web-link ').replace('<script ','<web-script '));
-        match = getMatch(body);
-        continue;
-      }
-      
-      if (src.startsWith('__')) {
-        relativeParent = -1;
-        src = src.replace(/__\//, '');
-      }
-      
-      let absolutePath = JSON.parse(JSON.stringify(path));
-      let parentId = previewManager.getDirectory(src, relativeParent, path);
-      let files = odin.filterData(parentId, fileStorage.data.files, 'parentId');
-      let name = src.replace(/.*?\//g,'');
-      let file = odin.dataOf(name, files, 'name');
-      if (file === undefined) {
-        body = body.replace(match[0], '');
-        console.log(src+' not found');
-      } else {
-        if (!file.loaded) {
-          aww.pop('Downloading required file : '+name);
-          fileManager.downloadDependencies(file);
-        }
-        
-        let ot = '', ct = '';
-        if (tagName) {
-          ot = '<'+tagName+'>\n';
-          ct = '\n</'+tagName+'>';
-        }
-        
-        
-        let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
-        let content;
-        if (tabIdx >= 0)
-          content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
-        else
-          content = file.content;
-        // appendGitTree((path.join('/') + '/').replace('root/','') + file.name, content);
-        
-        if ($('#chk-deploy-minified').checked && isMinified)
-          content = content.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '').replace(/\n|\t+/g,'');
-        else if (isFile)
-          content = content.replace(/</g,'&lt;').replace(/\[/g,'&lsqb;').replace(/]/g,'&rsqb;');
-      
-        let swap = ot + replaceLocal(content, parentId, path) + ct;
-        body = body.replace(new RegExp(match[0]), swap);
-      }
-     
-      path = absolutePath;
-      match = getMatch(body);
-    }
+    body = replaceTemplate(body, preParent, path);
     
     return body;
   }
@@ -629,9 +680,14 @@ return body;
   }
   
   function cacheContent(filePath, isForceDeploy) {
-    let content = replaceLocal().replace(/<web-script /g, '<script ').replace(/<web-link /g, '<link ');
+    let content = getSingleFileContent().replace(/<web-script /g, '<script ').replace(/<web-link /g, '<link ');
     if ($('#chk-render-plate-html').checked) {
-      content = (typeof(divless) != 'undefined') ? divless.replace(content) : content;
+    	if (typeof(divless) != 'undefined') {
+			if (helper.getMimeType(filePath).match(/^text\/html|text\/xml/)) {
+				if (settings.data.editor.divlessHTMLEnabled)
+          content = divless.replace(content);
+			}
+    	}
     }
 
     content = clearComments(content);
@@ -679,15 +735,23 @@ return body;
     } else {
       let filePath = previewManager.getPath();
       if (isSPA) {
+        PREVIEWCONFIG.isReplaceLinkedFile = true;
         cacheContent(filePath, isNoPreview);
+      } else {
+        PREVIEWCONFIG.isReplaceLinkedFile = false;
       }
       if (!isNoPreview) {
-	    previewWeb(filePath);
+	     previewWeb(filePath);
       }
     }
   }
+
+  function previewMedia(path) {
+     previewWeb(path);
+  }
   
   window.previewHTML = previewHTML;
+  window.previewMedia = previewMedia;
   
 })();
 

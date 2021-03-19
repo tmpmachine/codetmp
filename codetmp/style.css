@@ -468,7 +468,6 @@ display: grid;
 	}
 
 .btn-style-1{
-
     display: inline-flex;
     color:#fff;
     border: 0;
@@ -487,7 +486,6 @@ display: grid;
 background:#262730aa;
 }
 .btn-style-2{
-
     display: inline-flex;
     color: #050505;
     border: 0;
@@ -500,7 +498,6 @@ background:#262730aa;
     border-radius: 0.2em;
     border: 1px solid #d2d0d0;
     margin-left: 0.4em;
-
 }.btn-style-2:hover{
 background:#f1f1f1;
 }
@@ -604,7 +601,16 @@ background:#f1f1f1;
 .file-list.isSelected .Icon{color:#44728d}
 .file-list.isSelected:hover .Icon{color:#5189a9}
 .file-list .btn-lock{display:none}
-
+.file-list .Label{    
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 4px;
+  font-size: 0.7rem;
+  padding: 0 4px;
+  border-radius: 0px;
+  color: #969292;
+}
 
 #option-menu{position: relative}
 #option-menu:active .uid-A{display: block}
@@ -652,3 +658,12 @@ background:#f1f1f1;
 }
 
 .btn-file-action:hover{color:#3bff99!important;}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track{background:#484646}
+::-webkit-scrollbar-thumb{background:#949494}
+.modal-window ::-webkit-scrollbar-track{background:#cccccc}
+.modal-window ::-webkit-scrollbar-thumb{background:#949292}

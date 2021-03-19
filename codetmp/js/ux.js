@@ -6,6 +6,8 @@ let fontSize = 2;
 let lineLock = -1;
 let pasteLine = false;
 
+window.name = 'parent';
+
 const stateManager = (function() {
 
 	let states = [];
@@ -63,83 +65,64 @@ const stateManager = (function() {
 		return result;
 	}
 
+  function getStates() {
+    return states;
+  }
+
 	return {
 		pushState,
 		popState,
 		isState,
+    getStates,
 	};
 
 })();
 
 
-let extension = (function() {
-
-  function initEmmet() {
-    ace.require(["ace/ace", "ace/ext/emmet"], function() {
-      for (let tab of fileTab) {
-        tab.editor.env.editor.setOption('enableEmmet', true);
-      }
-    });
-  }
-
-  function initAutocomplete() {
-  	ace.require(["ace/ace", "ace/ext/language_tools"], function() {
-      for (let tab of fileTab) {
-        tab.editor.env.editor.setOption('enableBasicAutocompletion', true);
-        tab.editor.env.editor.setOption('enableSnippets', true);
-        tab.editor.env.editor.setOption('enableLiveAutocompletion', true);
-      }
-    });
-  }
-
-  function getModule(name) {
-    let callback;
-    let files = [];
-
-    switch (name) {
-      case 'emmet':
-        files = [
-          'ace/emmet-core/emmet.js',
-          'ace/ext-emmet.js',
-        ];
-        callback = initEmmet;
-        break;
-      case 'autocomplete':
-        files = [
-          'ace/ext-language_tools.js',
-          'ace/snippets/javascript.js',
-          'ace/snippets/html.js',
-        ];
-        callback = initAutocomplete;
-        break;
-    }
-    
-    return { files, callback };
-  }
-
-  function load(name) {
-    let ext = getModule(name);
-    loadExternalFiles(ext.files).then(ext.callback);
-  }
-
-  function download(name) {
-    navigator.serviceWorker.controller.postMessage({
-      name, 
-      type: 'extension',
-      files: getModule(name).files,
-    });
-  }
-
-  return { load, download };
-})();
-
-
 const ui = {
 
-	hideFileActionButton: function() {
-		$('#btn-rename').classList.toggle('w3-hide', true);
-    	$('#btn-delete').classList.toggle('w3-hide', true);
+  enableJSZip: function() {
+    $('.clickable[data-callback="file-download"]')[0].classList.toggle('hide', false);
+  },
+
+  toggleMyFiles: function() {
+    if (stateManager.isState(1)) return;
+    
+    $('#btn-menu-my-files').click()
+    if ($('#btn-menu-my-files').classList.contains('active')) {
+      fileTab[activeTab].editor.env.editor.blur();
+      stateManager.pushState([1]);
+      setTimeout(() => { document.activeElement.blur() }, 1);
+    } else {
+      clipBoard.length = 0;
+      stateManager.popState([1]);
+      fileTab[activeTab].editor.env.editor.focus();
+    }
+  },
+
+	setFileActionButton: function(isShown) {
+    o.classList.toggle($('.btn-file-action'), 'w3-hide', true);
+    if (selectedFile.length > 0) {
+      for (let btn of $('.btn-file-action')) {
+        if (btn.dataset.callback == 'file-rename') {
+          if (selectedFile.length === 1)
+            btn.classList.toggle('w3-hide', false);
+        } else {
+          btn.classList.toggle('w3-hide', false);
+        }
+      }
+    }
 	},
+
+  setGitToken: function() {
+    toggleModal('settings');
+    modal.prompt('Personal access token').then(token => {
+      if (token !== null) {
+        git.setToken(token);
+        aww.pop('Personal access token has been set.');
+      }
+    });
+  },
 
 	fileManager: (function() {
 
@@ -156,18 +139,15 @@ const ui = {
 			};
 		}
 
-		function renameFolder() {
+    function renameFolder() {
 			let selection = getSelected(selectedFile[0]);
-	      	window.cprompt('Rename', selection.title).then(name => {
-	        	// $('#btn-rename').classList.toggle('w3-hide', true);
-	        	// $('#btn-delete').classList.toggle('w3-hide', true);
+	      	modal.prompt('Rename', selection.title, '', helper.getFileNameLength(selection.title)).then(name => {
 	        	if (!name || name === selection.title) 
 	        		return;
 	        
-		        let modifiedTime = new Date().toISOString();
-			    let folder = odin.dataOf(selection.id, fileStorage.data.folders, 'fid');
+			      let folder = fileManager.get({fid: selection.id, type: 'folders'});
 		        folder.name = name;
-		        folder.modifiedTime = modifiedTime;
+		        folder.modifiedTime = new Date().toISOString();
 	        
 		        commit({
 		          fid: folder.fid,
@@ -180,15 +160,12 @@ const ui = {
 	    function renameFile() {
 	    	let selection = getSelected(selectedFile[0]);
 	    	let fid = selection.id;
-	      	window.cprompt('Rename', selection.title).then(input => {
-	        	// $('#btn-rename').classList.toggle('w3-hide', true);
-	        	// $('#btn-delete').classList.toggle('w3-hide', true);
-	        	if (!input) 
+	      	modal.prompt('Rename', selection.title, '', helper.getFileNameLength(selection.title)).then(name => {
+	        	if (!name || name == selection.title) 
 	        		return;
 
-		      	let file = odin.dataOf(fid, fileStorage.data.files, 'fid');
-		        file.name = input;
-		        
+		      	let file = fileManager.get({fid, type:'files'});
+		        file.name = name;
 		        commit({
 		          fid: fid,
 		          action: 'update',
@@ -214,13 +191,14 @@ const ui = {
 	    function newFolder() {
 	      	if (!$('#in-my-files').classList.contains('active'))
 	      		return;
-	      	window.cprompt('Folder name', 'Untitled').then(name => {
+	      	
+          modal.prompt('Folder name', 'New Folder').then(name => {
 		        if (!name) 
 		        	return;
-		        let modifiedTime = new Date().toISOString();
+
 		        let folder = new Folder({
 		          	name,
-		          	modifiedTime,
+		          	modifiedTime: new Date().toISOString(),
 		          	parentId: activeFolder,
 		        });
 		        commit({
@@ -231,10 +209,16 @@ const ui = {
 	        	clearSelection();
 	      	});
 	    }
-	    function deleteFolder() {
-	    	let selection = getSelected(selectedFile[0]);
-	    	window.cconfirm('Move selected folder to trash?').then(() => {
-		      	let data = odin.dataOf(selection.id, fileStorage.data.folders, 'fid');
+      function confirmDeletion(message) {
+        return new Promise(resolve => {
+          modal.confirm(message).then(() => {
+            resolve();
+          })
+        })
+      }
+	    function deleteFolder(selectedFile) {
+	    	let selection = getSelected(selectedFile);
+		      	let data = fileManager.get({fid: selection.id, type: 'folders'});
 		      	data.trashed = true;
 	        	commit({
 		        	fid: data.fid,
@@ -242,14 +226,11 @@ const ui = {
 		        	metadata: ['trashed'],
 		        	type: 'folders'
 		      	});
-		      	clearSelection();
-	    	})
 	    }
-	    function deleteFile() {
-	    	let selection = getSelected(selectedFile[0]);
+	    function deleteFile(selectedFile) {
+	    	let selection = getSelected(selectedFile);
 	    	let fid = selection.id;
-	      	window.cconfirm('Move selected file to trash?').then(() => {
-		      	let data = odin.dataOf(fid, fileStorage.data.files, 'fid');
+		      	let data = fileManager.get({fid, type: 'files'});
 		      	data.trashed = true;
 		      
 		      	if (activeFile && data.fid === activeFile.fid) {
@@ -271,26 +252,74 @@ const ui = {
 			        metadata: ['trashed'],
 			        type: 'files'
 			    });
-			    clearSelection();
-	      	})
 	    }
 
 	    function deleteSelected() {
 		    if (selectedFile.length === 1) {
-		      if (selectedFile[0].getAttribute('data-type') === 'folder')
-		        deleteFolder();
-		      else if (selectedFile[0].getAttribute('data-type') === 'file')
-		        deleteFile();
+          confirmDeletion('Move selected item to trash?').then(() => {
+  		      if (selectedFile[0].getAttribute('data-type') === 'folder')
+  		        deleteFolder(selectedFile[0]);
+  		      else if (selectedFile[0].getAttribute('data-type') === 'file')
+  		        deleteFile(selectedFile[0]);
+            clearSelection();
+          })
+
 		    } else if (selectedFile.length > 1) {
-		    	
+          confirmDeletion('Move selected items to trash?').then(() => {
+            while (selectedFile.length > 0) {
+              let selection = selectedFile[0];
+              if (selection.getAttribute('data-type') === 'folder')
+                deleteFolder(selection);
+              else if (selection.getAttribute('data-type') === 'file')
+                deleteFile(selection);  
+            }
+            clearSelection();
+		    	});
 		    }
 		  }
 
-	    return {
+    function downloadSelected() {
+      if (selectedFile.length === 0)
+        return;
+
+      if (JSZip === undefined) {
+        aww.pop('JSZip component is not yet loaded. Try again later.');
+        return
+      }
+
+      let zip = new JSZip();
+      let zipName = getSelected(selectedFile[0]).title+'.zip';
+      fileManager.createBundle(selectedFile, zip).then(() => {
+        zip.generateAsync({type:"blob"})
+        .then(function(content) {
+          blob = new Blob([content], {type: 'application/zip'});
+          a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = zipName;
+          $('#limbo').appendChild(a);
+          a.click();
+          $('#limbo').removeChild(a);
+        });
+      })
+    }
+
+    function getDescription() {
+      let data = {};
+      for (let desc of $('.description')) {
+        if ((['text','hidden','textarea'].includes(desc.type) && desc.value.length === 0) ||
+        (desc.type == 'checkbox' && !desc.checked)) continue;
+        data[desc.getAttribute('name')] = (desc.type == 'checkbox') ? desc.checked : desc.value;
+      }
+      return data;
+    };
+
+    return {
 			renameFolder,
 			renameFile,
 			newFolder,
 			deleteSelected,
+      downloadSelected,
+      getDescription,
 		};
 
 	})(),
@@ -400,39 +429,16 @@ const ui = {
     newTab();
   },
   
-  toggleWordWrap: function() {
-    let editor = fileTab[activeTab].editor;
-    let isWrap = editor.env.editor.session.getUseWrapMode();
-    editor.env.editor.session.setUseWrapMode(isWrap ? false : true);
-    settings.data.wrapMode = editor.env.editor.session.getUseWrapMode();
-    settings.save();
-    $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
-  },
-
-  toggleEmmet: function() {
-    let isEnabled = settings.data.editor.enableEmmet;
-    $('#check-emmet').checked = isEnabled ? false : true;
-    settings.data.editor.enableEmmet = isEnabled ? false : true;
-    settings.save();
-    if (settings.data.editor.enableEmmet) {
-      extension.download('emmet');
-    }
-  },
-
-  toggleAutocomplete: function() {
-    let isEnabled = settings.data.editor.enableAutocomplete;
-    $('#check-autocomplete').checked = isEnabled ? false : true;
-    settings.data.editor.enableAutocomplete = isEnabled ? false : true;
-    settings.save();
-    if (settings.data.editor.enableAutocomplete) {
-      extension.download('autocomplete');
-    }
-  },
-  
   toggleAutoSync: function() {
     settings.data.autoSync = !settings.data.autoSync;
     settings.save();
     $('#check-auto-sync').checked = settings.data.autoSync ? true : false;
+  },
+
+  toggleSaveToken: function() {
+    settings.data.saveGitToken = !settings.data.saveGitToken;
+    settings.save();
+    $('#check-save-token').checked = settings.data.saveGitToken ? true : false;
   },
 
   toggleHomepage: function() {
@@ -442,7 +448,9 @@ const ui = {
   },
 
   cloneRepo: function() {
-    window.cprompt('Repository web URL', 'https://github.com/username/repository').then(url => {
+    let message = $('#msg-git-rate-limit').content.cloneNode(true).firstElementChild;
+    $('.Rate', message)[0].textContent = git.rateLimit;
+    modal.prompt('Repository web URL', 'https://github.com/username/repository', message.innerHTML).then(url => {
       if (!url) 
         return;
       ui.alert({text:'Cloning repository...'});
@@ -451,7 +459,7 @@ const ui = {
   },
 
   confirmClearData: function() {
-    window.cconfirm('This will delete all Codetmp saved files & folders on current browser. Continue?', false).then(() => {
+    modal.confirm('This will delete all Codetmp saved files & folders on current browser. Continue?', false).then(() => {
       fileStorage.reset();
       location.reload();
     });
@@ -488,101 +496,116 @@ function hideNavbarSubMenu() {
   }, 250);
 }
 
-function attachMenuLinkListener() {
+function initNavMenus() {
+
+  let callbacks = {
+    'new-file': newFile,
+    'new-file-on-disk': newDiskFile,
+    'new-folder': ui.fileManager.newFolder,
+    'save': fileManager.save,
+    'preview': () => previewHTML(),
+    'deploy': renderAndDeployLocked,
+    'deploy-single': renderAndDeploySingle,
+    'my-files': myFiles,
+    'trash': trash,
+    'toggle-editor-theme': toggleTheme,
+    'toggle-in-frame': toggleInFrame,
+    'set-font-size': setFontSize,
+    'about': toggleHomepage,
+    'account': toggleModalByClick,
+    'settings': toggleModalByClick,
+    'file-info': toggleModalByClick,
+    'sign-out': signOut,
+  };
 
   for (let menu of $('.menu-link')) {
+    
     if (menu.dataset.shortcut) {
       let shortcut = $('#tmp-keyboard-shortcut').content.cloneNode(true);
       $('.shortcuts', shortcut)[0].textContent = menu.dataset.shortcut;
       menu.append(shortcut);
     }
-    let callback;
-    switch (menu.dataset.callback) {
-      case 'new-file':
-        callback = function() {
-          if (!$('#btn-menu-my-files').classList.contains('active')) {
-        		// toggleMyFiles();
-    		    ui.openNewTab();
-          }
-        }
-        break;
-      case 'new-folder':
-        callback = ui.fileManager.newFolder;
-        break;
-      case 'save':
-      case 'preview':
-        callback = function() {
-          $('#btn-menu-' + menu.dataset.callback).click();
-        };
-      break;
-      case 'deploy':
-        callback = renderAndDeployLocked;
-      break;
-      case 'download-rendered':
-        callback = function() {
-          fileDownload();
-        };
-      break;
-      case 'deploy-single':
-        callback = renderAndDeploySingle;
-      break;
-      case 'my-files':
-        callback = function() {
-          $('#btn-menu-my-files').click();
-        };
-      break;
-      case 'trash':
-        callback = function() {
-          if (!$('#in-trash').classList.contains('active'))
-            $('#btn-menu-trash').click();
-        };
-      break;
-      case 'toggle-editor-theme':
-        callback = function() {
-          let editor = fileTab[activeTab].editor.env.editor;
-          if (editor.getTheme().includes('codetmp'))
-            editor.setTheme('ace/theme/github');
-          else
-            editor.setTheme('ace/theme/codetmp');
-        }
-      break;
-      case 'toggle-in-frame':
-        callback = function() {
-          $('#main-layout').classList.toggle('inframe-mode');
-          $('#main-layout').classList.toggle('normal-mode');
-          previewMode = (previewMode == 'normal') ? 'inframe' : 'normal';
-          fileTab[activeTab].editor.env.editor.session.setUseWrapMode(false);
-          fileTab[activeTab].editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
-        }
-      break;
-      case 'set-font-size':
-        callback = function() {
-          window.cprompt('Editor Font Size', 16).then(size => {
-            size = parseInt(size);
-            if (size) {
-              for (let tab of fileTab) {
-                tab.editor.env.editor.setFontSize(size);
-              }
-            }
-          })
-        }
-      break;
-      case 'about':
-        callback = function() {
-          toggleHomepage();
-        };
-      break;
-      case 'settings':
-      case 'file-info':
-      case 'account':
-        callback = toggleModalByClick;
-      break;
-      case 'sign-out':
-        callback = signOut;
-      break;
+
+    let key = menu.dataset.callback;
+    let isSupported = checkBrowserSupport(key);
+    if (isSupported) {
+      menu.classList.toggle('hide', false);
+      menu.addEventListener('click', callbacks[key]);
+      menu.addEventListener('click', hideNavbarSubMenu);
     }
-    menu.addEventListener('click', callback);
-    menu.addEventListener('click', hideNavbarSubMenu);
+  }
+
+  function checkBrowserSupport(key) {
+    let status = true;
+    switch (key) {
+      case 'new-file-on-disk': status = isSupport.showSaveFilePicker; break;
+    }
+    return status;
+  }
+
+  function newFile() {
+    if (!$('#btn-menu-my-files').classList.contains('active')) {
+      ui.openNewTab();
+    }
+  }
+
+  function newDiskFile() {
+    if (!$('#btn-menu-my-files').classList.contains('active')) {
+      window.showSaveFilePicker({
+        types: [
+          {
+            description: 'HTML (.html)',
+            accept: {
+              'text/javascript': ['.html'],
+            },
+          },
+        ],
+      }).then(fileHandle => {
+        let tabData = {
+          fileHandle,
+          content: '',
+          fid: '-' + (new Date).getTime(),
+          name: fileHandle.name,
+          editor: initEditor(),
+        };
+        newTab(-1, tabData);
+      });
+    }
+  }
+
+  function myFiles() {
+    $('#btn-menu-my-files').click();
+  }
+
+  function trash() {
+    if (!$('#in-trash').classList.contains('active'))
+      $('#btn-menu-trash').click();
+  }
+
+  function toggleTheme() {
+    let editor = fileTab[activeTab].editor.env.editor;
+    if (editor.getTheme().includes('codetmp'))
+      editor.setTheme('ace/theme/github');
+    else
+      editor.setTheme('ace/theme/codetmp');
+  }
+
+  function toggleInFrame() {
+    $('#main-layout').classList.toggle('inframe-mode');
+    $('#main-layout').classList.toggle('normal-mode');
+    previewMode = (previewMode == 'normal') ? 'inframe' : 'normal';
+    fileTab[activeTab].editor.env.editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
+  }
+
+  function setFontSize() {
+    modal.prompt('Editor Font Size', 16).then(size => {
+      size = parseInt(size);
+      if (size) {
+        for (let tab of fileTab) {
+          tab.editor.env.editor.setFontSize(size);
+        }
+      }
+    });
   }
 }
 
@@ -599,126 +622,6 @@ function toggleHomepage() {
   $('#main-editor').classList.toggle('editor-mode');
   if ($('#in-my-files').classList.contains('active'))
   	$('#btn-menu-my-files').click();
-}
-
-function initModalWindow() {
-  
-  // preferences
-  let modal;
-  let content;
-  let overlay;
-  let btnClose;
-  let form;
-  let title;
-  let message;
-  let input;
-  let hideClass = 'Hide';
-
-  let _resolve;
-  let _reject;
-  let type = 'confirm';
-
-  function initComponent(modal) {
-    content = $('.Modal', modal)[0];
-    overlay = $('.Overlay', modal)[0];
-    btnClose = $('.Btn-close', modal)[0];
-    form = $('.form', modal)[0];
-    title = $('.Title', modal)[0];
-    message = $('.Message', modal)[0];
-    input = $('input', modal)[0]; 
-  }
-
-  function getResolver() {
-  	window.addEventListener('keydown', blur);
-  	return new Promise((resolve, reject) => {
-      _resolve = resolve;
-      _reject = reject;
-    });
-  }
-  
-  function closeModal() {
-    modal.classList.toggle(hideClass, true)
-    window.removeEventListener('keydown', blur);
-    stateManager.popState([0]);
-    form.onsubmit = () => event.preventDefault();
-  }
-
-  function blur() {
-    if (event.key == 'Escape') {
-      closeModal();
-	if (type == 'prompt')
-      _resolve(null);
-    else {
-      _reject();
-    }
-    } 
-  }
-  
-  function close() {
-    closeModal();
-	if (type == 'prompt')
-	    _resolve(null)
-    else {
-      _reject();
-    }
-  }
-
-  function submitForm() {
-    event.preventDefault();
-    if (event.submitter.name == 'submit') {
-      if (type == 'confirm')
-        _resolve();
-      else
-        _resolve(input.value);
-    } else {
-  		if (type == 'prompt')
-	  		_resolve(null)
-      else {
-        _reject();
-      }
-    }
-    closeModal(); 
-  }
-
-  window.cconfirm = function(promptText = '', isFocusSubmit = true) {
-    modal = $('#cconfirm-modal');
-    initComponent(modal);
-    type = 'confirm';
-    modal.classList.toggle(hideClass, false)
-    stateManager.pushState([0]);
-    overlay.onclick = close;
-    btnClose.onclick = close;
-    form.onsubmit = submitForm;
-    document.activeElement.blur();
-    setTimeout(() => {
-      if (isFocusSubmit)
-        $('.Btn-submit', modal)[0].focus();
-      else
-        $('.Btn-cancel', modal)[0].focus();
-    }, 150);
-    message.textContent = promptText;
-    return getResolver();
-  }
-
-  window.cprompt = function(promptText = '', defaultValue = '') {
-    modal = $('#cprompt-modal');
-    initComponent(modal);
-    input = $('input', modal)[0];
-    type = 'prompt';
-    modal.classList.toggle(hideClass, false)
-    stateManager.pushState([0]);
-    overlay.onclick = close;
-    btnClose.onclick = close;
-    form.onsubmit = submitForm;
-    document.activeElement.blur()
-    title.textContent = promptText;
-    input.value = defaultValue;
-    setTimeout(() => {
-      input.focus();
-      input.setSelectionRange(0,input.value.length);
-    }, 150);
-    return getResolver();
-  }
 }
 
 function initInframeLayout() {
@@ -749,8 +652,7 @@ function initInframeLayout() {
       $('#inframe-preview').style.width = width+'px';
       clearTimeout(updateEditor);
       updateEditor = setTimeout(function() {
-        fileTab[activeTab].editor.env.editor.session.setUseWrapMode(false);
-        fileTab[activeTab].editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
+        fileTab[activeTab].editor.env.editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
       }, 100);
     }
   }
@@ -762,112 +664,11 @@ function initInframeLayout() {
   window.addEventListener('touchmove', mouseMove);
 }
 
-function handleFileEntry(entry) {
-	if (parseInt(fileTab[activeTab].fid) < 0) {
-		entry.getFile().then(r => {
-			r.text().then(r => {
-				newTab(-1, {
-					fid: '-' + (new Date).getTime(),
-					name: entry.name,
-					editor: initEditor(r),
-					content: r,
-					fileHandle: entry,
-				})
-			})
-		})
-	}
-}
-
-async function readDropItem(item) {
-  const entry = await item.getAsFileSystemHandle();
-	if (entry.kind === 'directory') {
-	  // handleDirectoryEntry(entry);
- 	} else {
-	  handleFileEntry(entry);
-	}
-}
-
-function initReadDropModule() {
-	let elem = $('#editor-wrapper');
-	elem.addEventListener('dragover', (e) => {
-	  e.preventDefault();
-	});
-
-	elem.addEventListener('drop', e => {
-	  e.preventDefault();
-	  for (const item of e.dataTransfer.items) {
-	    if (item.kind === 'file') {
-	      readDropItem(item);
-	    }
-	  }
-	});
-}
-
-function initFileDropModule() {
-	let elem = $('#in-my-files');
-	elem.addEventListener('dragover', (e) => {
-	  e.preventDefault();
-	});
-
-	elem.addEventListener('drop', e => {
-	  e.preventDefault();
-	  for (const item of e.dataTransfer.items) {
-	    if (item.kind === 'file') {
-	      readDropItem(item);
-	    }
-	  }
-	});
-
-
-	async function readDropItem(item) {
-	  const entry = await item.getAsFileSystemHandle();
-		if (entry.kind === 'directory') {
-		  // handleDirectoryEntry(entry);
-	 	} else {
-		  handleFileEntry(entry);
-		}
-	}
-
-	function handleFileEntry(entry) {
-	if (parseInt(fileTab[activeTab].fid) < 0) {
-		entry.getFile().then(r => {
- 			let file = new File({
-            name: r.name,
-            fileRef: r,
-            type: r.type
-          });
-          fileManager.sync({
-            fid: file.fid, 
-            action: 'create', 
-            type: 'files',
-          });
-          fileStorage.save();
-          fileManager.list();
-		})
-	}
-}
-
-}
-
 function initUI() {
   
-  initModalWindow();
   initInframeLayout();
-  if (typeof(window.showOpenFilePicker) !== 'undefined')
-    initReadDropModule();
-  initFileDropModule();
-
   fileManager.list();
-  $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
-  $('#check-word-wrap').checked = settings.data.wrapMode ? true : false;
-  $('#check-emmet').checked = settings.data.editor.enableEmmet ? true : false;
-  $('#check-autocomplete').checked = settings.data.editor.enableAutocomplete ? true : false;
-  $('#check-auto-sync').checked = settings.data.autoSync ? true : false;
-
-  if (!$('#check-show-homepage').checked) {
-    toggleHomepage();
-  }
-
+  preferences.loadSettings();
   newTab();
 
   for (let modal of $('.modal-window')) {
@@ -882,15 +683,17 @@ function initUI() {
   }
   
   attachClickable('.clickable', {
+    'file-rename': renameFile,
+    'file-delete': ui.fileManager.deleteSelected,
+    'file-download': ui.fileManager.downloadSelected,
     'clear-data': ui.confirmClearData,
+    'set-git-token': ui.setGitToken,
     'clone-repo': ui.cloneRepo,
     'toggle-homepage': () => toggleHomepage(),
     'toggle-file-info': () => toggleModal('file-info'),
     'toggle-settings': () => toggleModal('settings'),
     'toggle-account': () => toggleModal('account'),
   });
-
-  window.name = 'parent';
 
   o.listen({
     'btn-create-template'   : createBlogTemplate,
@@ -899,9 +702,6 @@ function initUI() {
     'btn-menu-template'     : function() { toggleInsertSnippet() },
     'btn-new-folder'        : ui.fileManager.newFolder,
     'btn-new-file'          : function() { $('#btn-menu-my-files').click(); ui.openNewTab(); },
-    'btn-rename'            : renameFile,
-    'btn-delete'            : ui.fileManager.deleteSelected,
-    'btn-download-file'     : function() { fileDownload() },
     'btn-menu-save'         : fileManager.save,
     '.btn-material'         : ui.toggleMenu,
     'btn-menu-preview'      : function() { previewHTML() },
@@ -913,14 +713,8 @@ function initUI() {
   });
   checkAuth();
   applyKeyboardListener();
-  attachMenuLinkListener();
+  initNavMenus();
   attachMouseListener();
-  if (settings.data.editor.enableEmmet) {
-    extension.load('emmet');
-  }
-  if (settings.data.editor.enableAutocomplete) {
-    extension.load('autocomplete');
-  }
 }
 
 function attachMouseListener() {
@@ -985,7 +779,6 @@ function toggleInsertSnippet(persistent) {
   }
 }
 
-
 function compressTab(idx) {
   for (let tab of $('.file-tab'))
     tab.style.display = 'inline-block';
@@ -1035,19 +828,13 @@ function focusTab(fid) {
   $('#editor-wrapper').append(fileTab[idx].editor)
   
   fileTab[idx].editor.env.editor.focus();
-  fileTab[idx].editor.env.editor.session.setUseWrapMode(false);
-  fileTab[idx].editor.env.editor.session.setUseWrapMode(settings.data.wrapMode);
+  fileTab[idx].editor.env.editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
   fileTab[idx].editor.env.editor.setFontSize(fontSizeScale[fontSize]);
   activeFile = (String(fid)[0] == '-') ? undefined : fileTab[activeTab].file;
   setEditorMode(fileTab[activeTab].name);
   
-  let fileSettings = {};
-  if (activeFile) {
-    fileSettings = activeFile.description.startsWith('{') ? JSON.parse(activeFile.description) : parseDescriptionOld(activeFile.description);
-  }
-  
+  let fileSettings = activeFile ? activeFile.description : {};
   openDevelopmentSettings(fileSettings);
-  
 }
 
 function fixOldSettings(key, desc, settings) {
@@ -1063,6 +850,8 @@ function fixOldSettings(key, desc, settings) {
 }
 
 function openDevelopmentSettings(settings) {
+ 
+  settings = helper.parseDescription(settings)
 	for (let desc of $('.description')) {
 	  let key = desc.getAttribute('name');
     if (['text','textarea','hidden'].includes(desc.type))
@@ -1108,7 +897,7 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
     editorElement.style.opacity = '1';
   });
   editor.session.setMode("ace/mode/html");
-  editor.session.setUseWrapMode(settings.data.wrapMode);
+  editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
   editor.session.setTabSize(2);
   editor.setFontSize(fontSizeScale[fontSize]);
   editor.clearSelection();
@@ -1233,10 +1022,10 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
     $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
   })
    
-  if (settings.data.editor.enableEmmet) {
+  if (settings.data.editor.emmetEnabled) {
     editor.setOption('enableEmmet', true);
   }
-  if (settings.data.editor.enableAutocomplete) {
+  if (settings.data.editor.autoCompleteEnabled) {
     editor.setOptions({
       'enableBasicAutocompletion': true,
       'enableSnippets': true,
@@ -1249,10 +1038,7 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
 
 function newTab(position, data) {
   
-  // for (let tab of $('.file-tab'))
-    // tab.lastElementChild.style.background = '#1f2027';
-  
-  let fid, el
+  let fid, el;
   if (data) {
     fid = data.fid
     el = o.cel('div', {
@@ -1261,34 +1047,16 @@ function newTab(position, data) {
         name: data.name,
         fiber: 'close'
       })
-    })
+    });
+    if (data.fileHandle === undefined)
+      data.fileHandle = null;
   } else {
     fid = '-' + (new Date).getTime();
-    let fileName = 'Untitled';
-    let lastIndex = 0;
-    let foundUnsaved = false;
-    
-    for (let i=0; i<$('.file-tab').length; i++) {
-      if (typeof(fileTab[i].fid) == 'string') {
-        foundUnsaved = true;
-        let tabName = $('.file-name',$('.file-tab')[i])[0].textContent;
-        if (tabName.split(' ').length > 1) {
-          let index = Number(tabName.split(' ')[1]);
-          lastIndex = Math.max(lastIndex, index);
-        }
-      }
-    }
-    
-    if (foundUnsaved && lastIndex == 0)
-      fileName += ' 1';
-    else if (foundUnsaved && lastIndex > 0)
-      fileName += ' '+(lastIndex+1);
-    
     el = o.cel('div', {
       innerHTML: o.creps('tmp-file-tab', {
         fid,
-        name: fileName,
-        fiber: 'close'
+        name: 'untitled.html',
+        fiber: 'close',
       })
     })
   }
@@ -1311,6 +1079,7 @@ function newTab(position, data) {
       editor: initEditor(),
       fid,
       fiber: 'close',
+      fileHandle: null,
     });
   }
   
@@ -1327,7 +1096,7 @@ function getTabWidth() {
 function confirmCloseTab(focus = true, comeback) {
 	if (focus) {
 		if ($('.file-tab')[activeTab].firstElementChild.firstElementChild.textContent.trim() != 'close') {
-	      window.cconfirm('Changes you made will be lost.').then(() => {
+	      modal.confirm('Changes you made will be lost.').then(() => {
   	    	changeFocusTab(focus, comeback);
 	      }).catch(() => fileTab[activeTab].editor.env.editor.focus())
 	    } else {
@@ -1489,6 +1258,7 @@ function openFileConfirm(el) {
     	selectedFile.splice(index, 1);
 		  toggleFileHighlight(el, false);
     }
+    ui.setFileActionButton();
     return
     
   } else {
@@ -1509,8 +1279,6 @@ function openFileConfirm(el) {
   }
   
   if (!doubleClick) {
-    $('#btn-rename').classList.toggle('w3-hide', false);
-    $('#btn-delete').classList.toggle('w3-hide', false);
     lastClickEl = el;
     doubleClick = true;
     toggleFileHighlight(lastClickEl, true);
@@ -1518,19 +1286,18 @@ function openFileConfirm(el) {
       doubleClick = false;
     }, 500);
   } else {
-    $('#btn-rename').classList.toggle('w3-hide', true);
-    $('#btn-delete').classList.toggle('w3-hide', true);
     let type = selectedFile[0].dataset.type;
     selectedFile.splice(0, 1);
     doubleClick = false;
     if (type == 'file') {
-      fileManager.open(el.getAttribute('data'));
+      fileManager.open(el.getAttribute('data'))
     } else {
       let folderId = Number(el.getAttribute('data'))
       openFolder(folderId);
     }
     toggleFileHighlight(lastClickEl, false);
   }
+  ui.setFileActionButton();
 }
 
 function navScrollUp() {
@@ -1776,15 +1543,16 @@ function applyKeyboardListener() {
   function keyEscape() {
     if ($('#btn-menu-my-files').classList.contains('active')) {
    	  if (selectedFile.length > 0) {
-   	      for (let el of selectedFile)
-   			toggleFileHighlight(el, false);
-   	      $('#btn-rename').classList.toggle('w3-hide', true);
-   	      $('#btn-delete').classList.toggle('w3-hide', true);
-   	      doubleClick = false;
-   	      selectedFile.length = 0;
+   	    for (let el of selectedFile)
+   			  toggleFileHighlight(el, false);
+   	    doubleClick = false;
+   	    selectedFile.length = 0;
+        ui.setFileActionButton();
    	  } else {
-         $('#btn-menu-my-files').click();
-         fileTab[activeTab].editor.env.editor.focus();
+         if (!fileReaderModule.isDragging) {
+	         $('#btn-menu-my-files').click();
+	         fileTab[activeTab].editor.env.editor.focus();
+         }
    	  }
     }
   }
@@ -1793,22 +1561,6 @@ function applyKeyboardListener() {
     selectedFile[0].click();
     if (selectedFile[0])
       selectedFile[0].click();
-  }
-  
-  function toggleMyFiles() {
-  	if (stateManager.isState(1)) return;
-    if (!keyboard.Alt) return;
-    
-    $('#btn-menu-my-files').click()
-    if ($('#btn-menu-my-files').classList.contains('active')) {
-      fileTab[activeTab].editor.env.editor.blur();
-      stateManager.pushState([1]);
-      setTimeout(() => { document.activeElement.blur() }, 1);
-    } else {
-      clipBoard.length = 0;
-      stateManager.popState([1]);
-      fileTab[activeTab].editor.env.editor.focus();
-    }
   }
   
   function toggleWrapMode() {
@@ -1828,7 +1580,7 @@ function applyKeyboardListener() {
     let stack = [];
     let parentId = activeFile.parentId;
     while (parentId != -1) {
-      folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid')
+      folder = fileManager.get({fid: parentId, type: 'folders'});
       breadcrumbs.splice(1, 0, {folderId:folder.fid, title: folder.name})
       parentId = folder.parentId
     }
@@ -1977,6 +1729,11 @@ function applyKeyboardListener() {
     }
   });
 
+  function toggleFileInfo() {
+    if (!stateManager.isState(0))
+      toggleModal('file-info');
+  }
+
   let keyboard = new KeyTrapper();
 
   keyboard.isBlocked = function() {
@@ -1993,17 +1750,14 @@ function applyKeyboardListener() {
     'Alt+B': copyUploadBody,
     'Alt+M': () => {
     	if (!$('#in-home').classList.contains('active'))
-	    	toggleMyFiles();
+	    	ui.toggleMyFiles();
     },
     'Alt+R': toggleWrapMode,
-    'Alt+I': () => { 
-    	if (!$('#in-home').classList.contains('active') && !$('#btn-menu-my-files').classList.contains('active'))
-    		toggleModal('file-info') 
-	},
+    'Alt+I': toggleFileInfo,
     'Alt+N': () => { 
     	if (!$('#in-home').classList.contains('active')) {
 	    	if ($('#btn-menu-my-files').classList.contains('active'))
-	    		toggleMyFiles();
+	    		ui.toggleMyFiles();
 			ui.openNewTab();
     	}
     },
@@ -2155,12 +1909,15 @@ function clearSelection() {
 		toggleFileHighlight(el, false);
 	selectedFile.length = 0;
 	lastClickEl = null;
+  ui.setFileActionButton();
 }
 
 function selectAllFiles() {
 	if (stateManager.isState(0)) {
+    event.preventDefault();
 		selectedFile = [...$('.folder-list'), ...$('.file-list-clicker')];
 		for (let el of selectedFile)
 			toggleFileHighlight(el, true);
+    ui.setFileActionButton();
 	}
 }

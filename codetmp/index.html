@@ -12,7 +12,7 @@
   <meta content='Temporary web app online code editor' property='og:description'/>
   <meta content='Codetmp' property='og:title'/>
   <meta content='notranslate' name='google'/>
-  <meta content='/images/site.png' property='og:image'/>
+  <meta content='/images/192.png' property='og:image'/>
 
   <link rel="manifest" href="manifest.json"/>
   <link rel="apple-touch-icon" sizes="128x128" href="images/128ap.png">
@@ -91,7 +91,7 @@
                     <i class="material-icons">add</i>
                     <div class="w3-small w3-padding-small">New File</div>
                   </div>
-                  <div class="Btn w3-block w3-padding clickable w3-hide" data-callback="clone-repo">
+                  <div class="Btn w3-block w3-padding clickable" data-callback="clone-repo">
                     <div style="display: flex;justify-content: center;align-items: center;">
                       <i class="material-icons" style="visibility:hidden">http</i>
                       <img class="material-icons" style="position: absolute;font-size: 1.3em;" src="assets/GitHub_Logo.png" width="36">
@@ -101,26 +101,31 @@
                 </div>
               </div>
             </a>
-            <div id="btn-refresh-sync" class="Btn btn-file-action Btn auth-required unauthorized w3-button w3-right w3-hover-none">
+            <div id="btn-refresh-sync" class="Btn Btn auth-required unauthorized w3-button w3-right w3-hover-none">
               <div class="Btn w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Refresh</div>
               <i class="Btn material-icons" style="color:#fff;">refresh</i>
             </div>
             
-            <div id="btn-rename" class="Btn btn-file-action w3-button w3-right w3-hover-none w3-hide">
+            <div data-callback="file-rename" class="clickable Btn btn-file-action w3-button w3-right w3-hover-none w3-hide">
               <div class="Btn w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Rename</div>
               <i class="Btn material-icons" style="color:#fff;">edit</i>
             </div>
-            <div id="btn-delete" class="Btn btn-file-action w3-button w3-right w3-hover-none w3-hide">
+            <div data-callback="file-delete" class="clickable Btn btn-file-action w3-button w3-right w3-hover-none w3-hide">
               <div class="Btn w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Delete</div>
               <i class="Btn material-icons" style="color:#fff;">delete</i>
             </div>
+            <div data-callback="file-download" class="clickable Btn btn-file-action w3-button w3-right w3-hover-none w3-hide">
+              <div class="Btn w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Download</div>
+              <i class="Btn material-icons" style="color:#fff;">get_app</i>
+            </div>
           </div>
-          <div style="overflow:auto;">
+          <div id="in-my-files-drop-zone" style="overflow:auto;position:relative">
             <div>
-              <div class="no-select" style="padding:4px 8px;font-size:10px;opacity:0.6;text-align:right;">Build v6.61, 5 Feb</div>
+              <div class="no-select" style="padding:4px 8px;font-size:10px;opacity:0.6;text-align:right;">Build v7.0, 19 March</div>
               <div id="breadcrumbs" class="no-select w3-small w3-padding"></div>
             </div>
             <div id="file-list" class="w3-padding" style="display:flex;flex-flow:wrap;"></div>
+            <div data-target="explorer" data-message="1" class="drop-zone w3-hide"></div>
           </div>
         </div>
         <div id="in-my-files-block" class="in-window in-block"></div>
@@ -149,11 +154,11 @@
                   <ul style="left:0;background:#000;top:0;width:340px;padding:0;margin:0;list-style:none;display:none;position:absolute;">
                     <li class="w3-padding menu-link" data-callback='save' data-shortcut="Ctrl + S"> Save </li>
                     <li class="w3-padding menu-link" data-callback='new-file' data-shortcut="Alt + N"> New File </li>
+                    <li class="w3-padding menu-link hide" data-callback='new-file-on-disk' data-shortcut="Alt + Shift + N">New File on Disk</li>
                     <li class="w3-padding menu-link" data-callback='new-folder' data-shortcut="Alt + Shift + N"> New Folder </li>
                     <li class="w3-padding menu-link" data-callback='preview' data-shortcut="Ctrl + Enter"> Preview </li>
                     <li class="w3-padding menu-link auth-required unauthorized" data-callback='deploy' data-shortcut="Alt + Enter"> Deploy to Blogger </li>
                     <li class="w3-padding menu-link auth-required unauthorized" data-callback='deploy-single' data-shortcut="Alt + Shift + Enter"> Deploy to Blogger (Active tab) </li>
-                    <li class="w3-padding menu-link" data-callback='download-rendered'> Download File </li>
                   </ul>
                 </li>
                 <li class="w3-left w3-padding" style="position:relative;">
@@ -221,7 +226,11 @@
               </div>
             </div>
             
-            <div id="editor-wrapper" spellcheck="false" style="position:relative;background:#21252b;"></div>
+            <div style="position: relative;">
+              <div id="editor-wrapper" spellcheck="false" style="position:relative;height:100%;background:#21252b;"></div>
+              <div data-target="editor" data-message="1" class="drop-zone w3-hide"></div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -339,8 +348,9 @@
   			<div class="Content">
 
   				<form class="form">
-  					<input type="" name="" class="w3-input">
-  					<div class="w3-margin-top w3-right-align">
+  					<input type="" name="" class="w3-input" spellcheck="false">
+            <small class="Notes"></small>
+  					<div class="w3-margin-top w3-right-align no-select">
   						<button class="Btn-submit btn-style-1" type="submit" name="submit" ><i class="material-icons">check</i>Ok</button>
   			            <button name="cancel" class="Btn-cancel btn-style-2"><i class="material-icons">close</i>Cancel</button>
   					</div>
@@ -360,7 +370,7 @@
   			<div class="Content">
   				<form class="form">
   					<p class="Message"></p>
-  					<div class="w3-margin-top w3-right-align">
+  					<div class="w3-margin-top w3-right-align no-select">
   		              <button class="Btn-submit btn-style-1" type="submit" name="submit" ><i class="material-icons">check</i>Ok</button>
   		              <button name="cancel" class="Btn-cancel btn-style-2"><i class="material-icons">close</i>Cancel</button>
   					</div>
@@ -379,15 +389,18 @@
   	        <i class="Btn-close material-icons w3-button w3-hover-none" data-target="settings" style="color:#aaa;">close</i>
   	      </div>
   			<div class="Content">
-  				 <h6 style="font-weight:bold;">Editor</h6>
+  				<h6 style="font-weight:bold;">Editor</h6>
   		    <p>
-  		      <input id="check-word-wrap" class="w3-check" type="checkbox" checked oninput="ui.toggleWordWrap()"/> <label for="check-word-wrap">Word Wrap</label>
+            <label><input data-name="divlessHTMLEnabled" class="w3-check input-settings" type="checkbox"/> Replace Divless-HTML tag</label>
+          </p>
+          <p>
+  		      <label><input data-name="wordWrapEnabled" class="w3-check input-settings" type="checkbox"/> Word Wrap</label>
   		    </p>
   		    <p>
-  		      <input id="check-emmet" class="w3-check" type="checkbox" checked oninput="ui.toggleEmmet()"/> <label for="check-emmet">Emmet Support</label>
+  		      <label><input data-name="emmetEnabled" class="w3-check input-settings" type="checkbox"/> Emmet Support</label>
   		    </p>
   		    <p>
-  		      <input id="check-autocomplete" class="w3-check" type="checkbox" checked oninput="ui.toggleAutocomplete()"/> <label for="check-autocomplete">Autocompletion</label>
+  		      <label><input data-name="autoCompleteEnabled" class="w3-check input-settings" type="checkbox"/> Autocompletion</label>
   		    </p>
   		    <hr/>
 
@@ -396,9 +409,17 @@
           <hr/>
 
           <h6 style="font-weight:bold;">File Storage</h6>
-          <p>Delete locally saved files & folders (doesn't affect synced files & folders).</p>
+          <p>Delete locally saved files & folders (doesn't affect your files on Google Drive).</p>
           <button class="btn-style-1 clickable" style="width:auto" data-callback="clear-data">Clear data</button>
   	      
+          <hr/>
+          <h6 style="font-weight:bold;">GitHub Token</h6>
+          <p>Set personal access token to get higher rate limit. Valid until this application is closed.</p>
+          <input id="check-save-token" class="w3-check" type="checkbox" oninput="ui.toggleSaveToken()"/> <label for="check-save-token">Store token in browser storage</label>
+          <br>
+          <br>
+          <button class="btn-style-1 clickable" style="width:auto" data-callback="set-git-token">Set token</button>
+
           </div>
   	      <div style="padding: 8px 12px;background: #ffffff;" class="w3-hide-medium w3-hide-large">
   		      <div class=" w3-button w3-border w3-block clickable" data-callback="toggle-settings" style="text-align: center;background: dodgerblue;color:#fff;">
@@ -451,23 +472,25 @@
   		        <div id="btn-open-directory" class="w3-button w3-border w3-margin-bottom w3-block w3-hide">
   		          <div class="w3-small w3-padding-small w3-left" style="font-weight:bold;">Open Directory</div>
   		        </div>
-  		        
+  		        <!-- 
   		        <div id="btn-download-file" class="w3-button w3-border w3-margin-bottom w3-block">
   		          <div class="w3-small w3-padding-small w3-left" style="font-weight:bold;">Download</div>
   		          <i class="material-icons w3-medium w3-padding-small" style="transform:rotate(90deg);">input</i>
   		        </div>
-  		        
+  		         -->
   		        <small>Preview mode</small>
   		        <div>
   		          <input id="in-SPA-mode" class="description" type="checkbox" name="spa-preview"/> <label class="w3-tiny" for="in-SPA-mode">Single Page Application</label>
   		        </div>
 
-  		        <small>Development</small>
-  		        <div>
-  		          <button class="file-settings-button" data-section="blogger">+ Blogger</button>
-  		          <button class="file-settings-button" data-section="pwa">+ PWA</button>
-  		          <hr/>
-  		        </div>
+              <div class="auth-required unauthorized">
+    		        <small>Development</small>
+    		        <div>
+    		          <button class="file-settings-button auth-required unauthorized" data-section="blogger">+ Blogger</button>
+    		          <button class="file-settings-button w3-hide" data-section="pwa">+ PWA</button>
+    		          <hr/>
+    		        </div>
+              </div>
   		          
   		        <div class="hide file-settings" data-section="pwa">
   		          <small>PWA Options (experimental)</small>
@@ -554,7 +577,34 @@
   </div>
 
   </div>
+  
+  <style>
+  .drop-zone {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #4285f4;
+    z-index: 999;
+    color: white;
+    align-items: center;
+    justify-content: center;
+    display: grid;
+    text-align: center;
+    animation:opac 0.25s;
+  }
+  .drop-zone * {
+    pointer-events: none;
 
+  }
+  .drop-zone .material-icons {font-size:5em}
+  .drop-zone b {background: #333333;
+    padding: 2px 6px;
+    color: white;
+    border-radius: 5px;}
+</style>
+  
   <!-- TEMPLATES -->
   <template id="tmp-keyboard-shortcut">
     <span class="shortcuts w3-tiny w3-opacity w3-right"></span>
@@ -597,6 +647,7 @@
       <div class="file-list-clicker" onclick='openFileConfirm(this)' title='__name__' data-type="file" data='__fid__'>
         <div class="w3-center w3-padding-32 Area">
           <i class="material-icons w3-xxlarge Icon">insert_drive_file</i>
+          <span class="Label"></span>
         </div>
         <div class="w3-padding">
           <div class="w3-col" style="width:24px;">
@@ -671,6 +722,30 @@
       <div class="Indicator"></div>
     </div>
   </template>
+
+  <template id="msg-git-rate-limit">
+    <div>Rate limit remaining : <b><span class="Rate">${git.rateLimit}</span></b>. <a href="https://github.com/tmpmachine/codetmp/wiki/GitHub-Rate-Limit" target="_blank">(What is this? <span class="material-icons" style="font-size:14px">open_in_new</span>)</a></div>
+  </template>
+
+  <template id="msg-drop-zone-no-edit">
+    <div>
+      <i class="material-icons">upload</i><br>
+      <p>Drop to open files on editor.</p>
+    </div>
+  </template>
+  <template id="msg-drop-zone">
+    <div>
+      <i class="material-icons">upload</i><br>
+      <p>Hold <b>Ctrl</b> key to enable local editing of dropped files.</p>
+    </div>
+  </template>
+  <template id="msg-drop-edit-mode">
+    <div>
+      <i class="material-icons">edit</i><br>
+      <p>Drop to edit files locally.</p>
+    </div>
+  </template>
+
 
   <!--service worker handler-->
   <script>

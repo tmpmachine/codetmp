@@ -28,10 +28,15 @@
       if (expires_at - new Date().getTime() > 0) {
         resolve()
       } else {
-        gapi.auth2.getAuthInstance().currentUser.get().reloadAuthResponse().then(authData => {
-          storeAuthData(authData);
-          resolve();
-        });
+        let authInstance = gapi.auth2.getAuthInstance();
+        if (authInstance !== null) {
+          authInstance.currentUser.get().reloadAuthResponse().then(authData => {
+            storeAuthData(authData);
+            resolve();
+          });
+        } else {
+          reject();
+        }
       }
     });
   }

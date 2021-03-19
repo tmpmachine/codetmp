@@ -1,5 +1,5 @@
 /*
-0.091 : 6 sep 19 -- encapsulation
+0.1 : 13 March 2021 -- prevent deletetion of dynamic object props
 */
 
 (function () {
@@ -38,10 +38,14 @@
           }
         } else {
           if (!(data[i] === null || data[i] === undefined) && typeof(data[i]) === 'object' && !Array.isArray(data[i])) {
-            if (firstDive)
-              this.deepCheck(data[i], this.root.root[i], false);
-            else
-              this.deepCheck(data[i], root[i], firstDive);
+            if (firstDive) {
+              if (Object.keys(this.root.root[i]).length > 0) {
+                this.deepCheck(data[i], this.root.root[i], false);
+              }
+            } else {
+              if (Object.keys(root[i]).length > 0)
+                this.deepCheck(data[i], root[i], firstDive);
+            }
           }
         }
       }

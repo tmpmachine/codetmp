@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '6.612';
+let cacheVersion = '7.0';
 let cacheItem = 'codetmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
@@ -46,7 +46,14 @@ self.addEventListener('install', function(event) {
     '/require/odin.js',
     '/require/oblog.js',
     '/require/aww.js',
+    '/require/jszip.min.js',
 
+    '/js/api.js',
+    '/js/extension.js',
+    '/js/preferences.js',
+    '/js/modal.js',
+    '/js/helper.js',
+    '/js/file-reader.js',
     '/js/git.js',
     '/js/template.js',
     '/js/preview.js',

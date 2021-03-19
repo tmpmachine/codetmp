@@ -3,7 +3,7 @@ const git = (function() {
   let activeSha;
   let branch = '';
   let repoName = '';
-  let token = '';
+  let token = settings.data.gitToken;
   let username = '';
   let email = '';
   let sha1;
@@ -11,12 +11,26 @@ const git = (function() {
   let sha3;
   let gitTree = [];
   let listChanges;
+  let rateLimit = 'checking ...';
+
+  function requestRateLImit() {
+	  fetch('https://api.github.com/rate_limit', getHeader())
+	  .then(asJSON)
+	  .then(json => {
+	  	rateLimit = json.rate.remaining;
+	  });
+  }
 
   function asText(response) {
     return response.text();
   }
 
   function asJSON(response) {
+  	let headers = response.headers;
+  	let rateLimitRemaining = headers.get('x-ratelimit-remaining');
+  	if (rateLimitRemaining) {
+  		rateLimit = parseInt(rateLimitRemaining)
+  	}
     return response.json();
   }
 
@@ -33,9 +47,9 @@ const git = (function() {
       parentId,
       loaded: false,
       name: _file.name,
-      origin: 'git',
-      downloadUrl: _file.download_url,
+      content: helper.generateRemoteDataContent('git', _file.download_url),
     });
+
     fileManager.sync({
       fid: file.fid, 
       action: 'create', 
@@ -67,12 +81,36 @@ const git = (function() {
     window.clearTimeout(listChanges);
     listChanges = window.setTimeout(function() {
       fileManager.list();
+      fileStorage.save();
       drive.syncToDrive();
     }, 300);
   };
-    
+
+  function setToken(_token) {
+  	token = _token;
+    settings.data.gitToken = '';
+    if (settings.data.saveGitToken) {
+      settings.data.gitToken = token;
+    }
+    settings.save();
+  	requestRateLImit();
+  }
+  
+  function getHeader() {
+  	if (token == '') {
+  		return {}
+  	} else {
+	  	return {
+	      method:'GET',
+	      headers:{
+	        'Authorization':'token '+token
+	      },
+	    }
+  	}
+  }
+
   const clonePath = function(repo, path = '', parentId) {
-    fetch('https://api.github.com/repos/'+repo.username+'/'+repo.name+'/contents/'+path)
+    fetch('https://api.github.com/repos/'+repo.username+'/'+repo.name+'/contents/'+path, getHeader())
     .then(asJSON)
     .then(function(r){
       readingData(repo, r, parentId);
@@ -89,7 +127,7 @@ const git = (function() {
   }
 
   const initClonePath = function(repo, parentId) {
-    fetch('https://api.github.com/repos/'+repo.username+'/'+repo.name+'/contents/')
+    fetch('https://api.github.com/repos/'+repo.username+'/'+repo.name+'/contents/', getHeader())
     .then(asJSON)
     .then(function(r) {
       if (r.message == 'Not Found') {
@@ -296,9 +334,18 @@ const git = (function() {
     })
   }
 
-  return {
+  requestRateLImit();
+
+  let self = {
     clone,
     downloadFile,
-  }
+    setToken,
+  };
+
+  Object.defineProperty(self, 'rateLimit', {
+  	get: () => rateLimit,
+  });
+
+  return self;
 
 })();

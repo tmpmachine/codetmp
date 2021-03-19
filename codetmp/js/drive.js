@@ -31,24 +31,27 @@ const drive = (function() {
 
   async function downloadDependencies(data) {
     if (!data.loaded && data.id !== '') {
-      await auth2.init();
       return new Promise((resolve, reject) => {
-        fetch(apiUrl+'files/'+data.id+'?alt=media', {
-          method:'GET',
-          headers: httpHeaders,
-        }).then(function(r) {
-          if (r.ok)
-            return r.text();
-          else
-            throw r.status;
-        }).then((media) => {
-          aww.pop('Successfully download required file: '+data.name);
-          data.content = media;
-          data.loaded = true;
-          fileStorage.save();
-          resolve(media);
+
+        auth2.init().then(() => {
+
+          fetch(apiUrl+'files/'+data.id+'?alt=media', {
+            method:'GET',
+            headers: httpHeaders,
+          }).then(function(r) {
+            if (r.ok)
+              return r.text();
+            else
+              throw r.status;
+          }).then((media) => {
+            resolve(media);
+          }).catch(() => {
+            aww.pop('Could not download required file: '+data.name);
+            reject();
+          });
+
         }).catch(() => {
-          aww.pop('Could not download required file: '+data.name);
+          aww.pop('Authentication failed. Could not download required file: '+data.name);
           reject();
         });
       })
@@ -60,7 +63,7 @@ const drive = (function() {
     if (folders.length === 0) return newBranch;
     
     let {id, name, modifiedTime, trashed, parents} = folders[0];
-    let f = odin.dataOf(id, fileStorage.data.folders, 'id');
+    let f = fileManager.get({id, type: 'folders'});
 
     if (parents) {
       
@@ -97,8 +100,9 @@ const drive = (function() {
     
     if (files.length === 0) return;
     
-    let {id, name, description = '', modifiedTime, trashed, parents} = files[0];
-    let f = odin.dataOf(id, fileStorage.data.files, 'id');
+    let {id, name, description = '', modifiedTime, trashed, parents, thumbnailLink} = files[0];
+    let f = fileManager.get({id, type: 'files'});
+    let mimeType = helper.getMimeType(name);
 
     if (parents) {
       
@@ -107,19 +111,21 @@ const drive = (function() {
         f.name = name;
         f.trashed = trashed;
         f.parentId = parentFolderId;
+        if (mimeType.includes('image/') || mimeType.includes('video/'))
+          f.thumbnailLink = thumbnailLink;
   
         if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100) {
           
           f.modifiedTime = modifiedTime;
           f.content = '';
           f.loaded = false;
-          f.description = description;
+          f.description = JSON.parse(description);
           
           downloadDependencies(f);
         }
       } else {
         if (parentFolderId > -2) {
-          let file = new File({
+          let data = {
             id,
             name,
             modifiedTime,
@@ -127,7 +133,10 @@ const drive = (function() {
             loaded: false,
             description,
             parentId: parentFolderId,
-          });
+          };
+          if (mimeType.includes('image/') || mimeType.includes('video/'))
+            data.thumbnailLink = thumbnailLink;
+          new File(data);
         }
       }
       if (parentFolderId == activeFolder)
@@ -153,7 +162,7 @@ const drive = (function() {
 
   async function listChanges(pageToken = settings.data.drive.startPageToken) {
     await auth2.init();
-    fetch(apiUrl+'changes?pageToken='+pageToken+'&fields=nextPageToken,newStartPageToken,changes(file(name,description,id,trashed, parents,mimeType,modifiedTime))', {
+    fetch(apiUrl+'changes?pageToken='+pageToken+'&fields=nextPageToken,newStartPageToken,changes(file(name,description,id,trashed,parents,mimeType,modifiedTime,thumbnailLink))', {
       method: 'GET',
       headers: httpHeaders,
     }).then(response => {
@@ -200,7 +209,7 @@ const drive = (function() {
       }
       
       let queryParents = '('+parents.join(' in parents or ')+' in parents)';
-      let url = apiUrl+'files?q=('+escape(queryParents)+')&fields=nextPageToken,files(name, description, id, trashed, parents, mimeType, modifiedTime)';
+      let url = apiUrl+'files?q=('+escape(queryParents)+')&fields=nextPageToken,files(name, description, id, trashed, parents, mimeType, modifiedTime, thumbnailLink)';
       if (typeof(nextPageToken) !== 'undefined')
         url = url+'&pageToken='+nextPageToken;
       
@@ -230,7 +239,7 @@ const drive = (function() {
         else {
           
           for (let parentId of parents) {
-            let folder = odin.dataOf(parentId.substring(1, parentId.length-1), fileStorage.data.folders, 'id');
+            let folder = fileManager.get({id: parentId.substring(1, parentId.length-1), type: 'folders'});
             if (folder)
               folder.isSync = true;
           }
@@ -257,27 +266,27 @@ const drive = (function() {
     let form = new FormData();
     
     if (action === 'create' || action === 'copy') {
-      ({ id, name, description, trashed, modifiedTime, parentId, content } = odin.dataOf(fid, fileStorage.data[type], 'fid'));
+      ({ id, name, description, trashed, modifiedTime, parentId, content, fileRef } = fileManager.get({fid, type}));
       method = 'POST';
       metaHeader = {
         modifiedTime,
         parents: [getParents(parentId).id],
-        mimeType: (type === 'folders') ? 'application/vnd.google-apps.folder' : 'text/plain',
+        mimeType: (type === 'folders') ? 'application/vnd.google-apps.folder' : helper.getMimeType(name),
       };
       
       if (action === 'create') {
         metaHeader.name = name;
-        metaHeader.description = description;
-        fetchUrl = apiUrlUpload+'files?uploadType=multipart&fields=id';
+        metaHeader.description = helper.parseDescription(description);
+        fetchUrl = apiUrlUpload+'files?uploadType=multipart&fields=id,thumbnailLink';
       } else {
-        fetchUrl = apiUrl+'files/'+id+'/copy?alt=json&fields=id';
+        fetchUrl = apiUrl+'files/'+id+'/copy?alt=json&fields=id,thumbnailLink';
       }
       
     } else if (action === 'update') {
       
-      ({ id, name, description, trashed, modifiedTime, parentId, content } = odin.dataOf(fid, fileStorage.data[type], 'fid'));
+      ({ id, name, description, trashed, modifiedTime, parentId, content, fileRef } = fileManager.get({fid, type}));
 
-      fetchUrl = apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id';
+      fetchUrl = apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id,thumbnailLink';
       method = 'PATCH';
       
       metaHeader = {
@@ -288,26 +297,29 @@ const drive = (function() {
         if (meta === 'name')
           metaHeader.name = name;
         else if (meta === 'description')
-          metaHeader.description = description;
+          metaHeader.description = JSON.stringify(description);
         else if (meta === 'trashed')
           metaHeader.trashed = trashed;
         else if (meta === 'parents') {
           source = getParents(source).id;
           let destination = getParents(parentId).id;
         
-          fetchUrl = apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id&addParents='+destination+'&removeParents='+source;
+          fetchUrl = apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id,thumbnailLink&addParents='+destination+'&removeParents='+source;
         }
       }
     }
-    
-    // metadata first!
-    if (action === 'copy')
+
+    if (action === 'copy') {
       form = JSON.stringify(metaHeader);
-    else
-    {
+    } else {
       form.append('metadata', new Blob([JSON.stringify(metaHeader)], { type: 'application/json' }));
-      if (action === 'create' || metadata.includes('media') && type === 'files')
-        form.append('file', new Blob([content], { type: 'text/plain' }));
+      if ((action === 'create' || metadata.includes('media')) && type === 'files') {
+        if (fileRef.name === undefined) {
+          form.append('file', new Blob([content], { type: 'text/plain' }));
+        } else {
+          form.append('file', fileRef);
+        }
+      }
     }
 
     await auth2.init();
@@ -332,6 +344,12 @@ const drive = (function() {
     });
   }
 
+  function setPersistent(file, json, sync) {
+    file.isTemp = false;
+    if (!helper.isMediaTypeText(file.name) && sync.type == 'file')
+      file.thumbnailLink = json.thumbnailLink;
+  }
+
   function syncToDrive(sync = fileStorage.data.sync[0]) {
     
     $('#syncing').textContent = '';
@@ -345,8 +363,10 @@ const drive = (function() {
     
       syncFile(sync).then((json) => {
         if (json.action === 'create' || json.action === 'copy') {
-          let data = odin.dataOf(fileStorage.data.sync[0].fid, fileStorage.data[json.type], 'fid');
-          data.id = json.id;
+          let file = fileManager.get({fid: fileStorage.data.sync[0].fid, type: json.type});
+          file.id = json.id;
+          if (sync.isTemp)
+            setPersistent(file, json, sync);
         }
         fileStorage.data.sync.splice(0, 1);
         syncToDrive.enabled = false;
@@ -452,14 +472,14 @@ const drive = (function() {
     if (parentId === -1)
       return { id: fileStorage.data.rootId} ;
       
-    return odin.dataOf(parentId, fileStorage.data.folders, 'fid');
+    return fileManager.get({fid: parentId, type: 'folders'});
   }
 
   function getParentId(id) {
     if (id === fileStorage.data.rootId)
       return -1;
       
-    let data = odin.dataOf(id, fileStorage.data.folders, 'id');
+    let data = fileManager.get({id, type:'folders'});;
     if (data)
       return data.fid;
     else

@@ -35,6 +35,7 @@ function loadExternalFiles(URLs) {
 (function() {
   
   function loadStorageData() {
+
     window.fileStorage = new lsdb('file-storage', {
       root: {
         rootId: '',
@@ -61,24 +62,24 @@ function loadExternalFiles(URLs) {
         description: '',
         modifiedTime: '',
         trashed: false,
-        isSync: false
+        isSync: false,
+        isTemp: false,
       },
       files: {
         fid: 0,
         parentId: -1,
         modifiedTime: '',
         isLock: false,
+        isTemp: false,
         loaded: false,
         
+        thumbnailLink: '',
         id: '',
         name: '',
         content: '',
-        type: '',
-        origin: 'drive',
-        downloadUrl: '',
-        description: '',
+        description: {},
         trashed: false,
-        fileRef: null,
+        fileRef: {},
       },
       sync: {
         action: '',
@@ -86,26 +87,29 @@ function loadExternalFiles(URLs) {
         source: -1,
         metadata: [],
         type: '',
+        isTemp: false,
       },
     });
     
     window.settings = new lsdb('settings', {
       root: {
-        token: '',
+        gitToken: '',
         drive: {
           startPageToken: ''
         },
         editor: {
-          enableEmmet: false,
-          enableAutocomplete: true,
+          emmetEnabled: false,
+          autoCompleteEnabled: true,
+          divlessHTMLEnabled: true,
+          wordWrapEnabled: true,
         },
         showHomepage: true,
-        wrapMode: true,
         autoSync: true,
+        saveGitToken: false,
       }
     });
   }
-  
+
   Promise.all([
     new Promise(resolve => {
       let interval = setInterval(() => {
@@ -118,50 +122,76 @@ function loadExternalFiles(URLs) {
     document.querySelector('#preload-material').parentNode.removeChild(document.querySelector('#preload-material'));
   });
   
-  let URL1 = [
-    'require/o.js',
-    'require/keyboard.js',
-    'require/lsdb.js',
-    'require/odin.js',
-    'js/preview.js',
-    'js/file-manager.js',
-    'js/ux.js',
-    'ace/ace.js',
-    ];
-  
-  let URL2 = [
-    'js/template.js',
-    'require/divless.js',
-    ];
-  
-  let URL3 = [
-    'require/aww.js',
-    'require/oblog.js',
-    'require/auth2helper.js',
-    'js/drive.js',
-    ];
+  let components = [
+    {
+      urls: [
+        'js/api.js',
+        'js/helper.js',
+        'js/extension.js',
+        'js/preferences.js',
+        'js/modal.js',
+      ],
+    },
+    {
+      urls: [
+        'require/o.js',
+        'require/keyboard.js',
+        'require/lsdb.js',
+        'require/odin.js',
+        'js/preview.js',
+        'js/file-manager.js',
+        'js/ux.js',
+        'ace/ace.js',
+      ],
+      callback: function() {
+        loadStorageData();
+        logWarningMessage();
+        ace.config.set('basePath', 'ace');
+        initUI();
+      },
+    },
+    {
+      urls: [
+        'js/file-reader.js',
+        'js/template.js',
+        'require/divless.js',
+      ],
+      callback: function() {
+        fileReaderModule.init();
+      },
+    },
+    {
+      urls: [
+        'require/aww.js',
+        'require/oblog.js',
+        'require/auth2helper.js',
+        'js/drive.js',
+      ],
+    },
+    {
+      urls: [
+        'js/git.js',
+        'https://apis.google.com/js/platform.js?onload=renderButton',
+      ],
+    },
+    {
+      urls: [
+        'require/jszip.min.js',
+      ],
+      callback: function() {
+      	isSupport.check('JSZip');
+      },
+    },
+  ];
 
-  let URL4 = [
-    'js/git.js',
-    'https://apis.google.com/js/platform.js?onload=renderButton',
-    ];
-  
-  loadExternalFiles(URL1).then(() => {
-    
-    loadStorageData();
-    ace.config.set('basePath', 'ace');
-    initUI();
-    logWarningMessage();
-    
-    loadExternalFiles(URL2).then(() => {
-      
-      loadExternalFiles(URL3).then(() => {
-        loadExternalFiles(URL4).then(() => {
-        
-        });
-        
-      });
-    });
-  });
-  
+  function loadComponents() {
+    if (index >= 0 && components[index].callback)
+      components[index].callback();
+    index++;
+    if (index < components.length)
+      loadExternalFiles(components[index].urls).then(loadComponents);
+  }
+
+  let index = -1;
+  loadComponents();
 })();
