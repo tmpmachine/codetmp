@@ -77,9 +77,9 @@ function PreviewManager() {
       if (file.fileRef.name === undefined) {
         let src = '';
         if (file !== null) {
-        	if (file.origin == 'git') {
-        		src = file.downloadUrl;
-        	} else {
+        	if (helper.isHasSource(file.content)) {
+	    		src = helper.getRemoteDataContent(file.content).downloadUrl;
+	      	} else {
               let link =  file.thumbnailLink.split('=');
               link.pop(); // remove Google image resizing parameter
               src = link.join('=');
