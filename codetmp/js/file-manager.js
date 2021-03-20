@@ -420,7 +420,11 @@ function FileManager() {
             if (f.fileRef.name !== undefined) {
               zip.file(f.name, f.fileRef, {binary: true});
             } else {
-              zip.file(f.name, f.content);
+            	if (helper.isMediaTypeHTML(f.name) && settings.data.editor.divlessHTMLEnabled) {
+	            	zip.file(f.name, divless.replace(f.content));
+	          	} else {
+	            	zip.file(f.name, f.content);
+	          	}
             }
           }
         }

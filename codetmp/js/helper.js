@@ -132,6 +132,10 @@ const helper = (function () {
     return getMimeType(name).match(/^(text|application\/json)/);
   }
 
+  function isMediaTypeHTML(name) {
+    return getMimeType(name).match(/(text\/html|text\/xml)/);
+  }
+
   return {
     getFileNameLength,
     parseDescription,
@@ -140,6 +144,7 @@ const helper = (function () {
     isHasSource,
     getMimeType,
     isMediaTypeText,
+    isMediaTypeHTML,
   };
 
 })();
