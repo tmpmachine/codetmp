@@ -43,9 +43,9 @@ const drive = (function() {
               return r.text();
             else
               throw r.status;
-          }).then((media) => {
-            resolve(media);
-          }).catch(() => {
+          })
+          .then(resolve)
+          .catch(() => {
             aww.pop('Could not download required file: '+data.name);
             reject();
           });
@@ -100,7 +100,7 @@ const drive = (function() {
     
     if (files.length === 0) return;
     
-    let {id, name, description = '', modifiedTime, trashed, parents, thumbnailLink} = files[0];
+    let {id, name, description = '', modifiedTime, trashed, parents} = files[0];
     let f = fileManager.get({id, type: 'files'});
     let mimeType = helper.getMimeType(name);
 
@@ -111,8 +111,6 @@ const drive = (function() {
         f.name = name;
         f.trashed = trashed;
         f.parentId = parentFolderId;
-        if (mimeType.includes('image/') || mimeType.includes('video/'))
-          f.thumbnailLink = thumbnailLink;
   
         if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100) {
           
@@ -134,8 +132,6 @@ const drive = (function() {
             description,
             parentId: parentFolderId,
           };
-          if (mimeType.includes('image/') || mimeType.includes('video/'))
-            data.thumbnailLink = thumbnailLink;
           new File(data);
         }
       }
@@ -162,7 +158,7 @@ const drive = (function() {
 
   async function listChanges(pageToken = settings.data.drive.startPageToken) {
     await auth2.init();
-    fetch(apiUrl+'changes?pageToken='+pageToken+'&fields=nextPageToken,newStartPageToken,changes(file(name,description,id,trashed,parents,mimeType,modifiedTime,thumbnailLink))', {
+    fetch(apiUrl+'changes?pageToken='+pageToken+'&fields=nextPageToken,newStartPageToken,changes(file(name,description,id,trashed,parents,mimeType,modifiedTime))', {
       method: 'GET',
       headers: httpHeaders,
     }).then(response => {
@@ -209,7 +205,7 @@ const drive = (function() {
       }
       
       let queryParents = '('+parents.join(' in parents or ')+' in parents)';
-      let url = apiUrl+'files?q=('+escape(queryParents)+')&fields=nextPageToken,files(name, description, id, trashed, parents, mimeType, modifiedTime, thumbnailLink)';
+      let url = apiUrl+'files?q=('+escape(queryParents)+')&fields=nextPageToken,files(name, description, id, trashed, parents, mimeType, modifiedTime)';
       if (typeof(nextPageToken) !== 'undefined')
         url = url+'&pageToken='+nextPageToken;
       
@@ -277,16 +273,16 @@ const drive = (function() {
       if (action === 'create') {
         metaHeader.name = name;
         metaHeader.description = helper.parseDescription(description);
-        fetchUrl = apiUrlUpload+'files?uploadType=multipart&fields=id,thumbnailLink';
+        fetchUrl = apiUrlUpload+'files?uploadType=multipart&fields=id';
       } else {
-        fetchUrl = apiUrl+'files/'+id+'/copy?alt=json&fields=id,thumbnailLink';
+        fetchUrl = apiUrl+'files/'+id+'/copy?alt=json&fields=id';
       }
       
     } else if (action === 'update') {
       
       ({ id, name, description, trashed, modifiedTime, parentId, content, fileRef } = fileManager.get({fid, type}));
 
-      fetchUrl = apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id,thumbnailLink';
+      fetchUrl = apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id';
       method = 'PATCH';
       
       metaHeader = {
@@ -304,7 +300,7 @@ const drive = (function() {
           source = getParents(source).id;
           let destination = getParents(parentId).id;
         
-          fetchUrl = apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id,thumbnailLink&addParents='+destination+'&removeParents='+source;
+          fetchUrl = apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id&addParents='+destination+'&removeParents='+source;
         }
       }
     }
@@ -315,7 +311,13 @@ const drive = (function() {
       form.append('metadata', new Blob([JSON.stringify(metaHeader)], { type: 'application/json' }));
       if ((action === 'create' || metadata.includes('media')) && type === 'files') {
         if (fileRef.name === undefined) {
-          form.append('file', new Blob([content], { type: 'text/plain' }));
+    		if (helper.isHasSource(content)) {
+	        	let source = helper.getRemoteDataContent(content);
+	        	let fileData = await git.downloadFileData(source.downloadUrl);
+          		form.append('file', fileData);
+	      	} else {
+          		form.append('file', new Blob([content], { type: helper.getMimeType(name) }));
+	      	}
         } else {
           form.append('file', fileRef);
         }
@@ -344,21 +346,13 @@ const drive = (function() {
     });
   }
 
-  function setPersistent(file, json, sync) {
-    file.isTemp = false;
-    if (!helper.isMediaTypeText(file.name) && sync.type == 'file')
-      file.thumbnailLink = json.thumbnailLink;
-  }
-
   function syncToDrive(sync = fileStorage.data.sync[0]) {
     
-    $('#syncing').textContent = '';
     $('#txt-sync').textContent = '';
     if (!fileStorage.data.rootId || !settings.data.autoSync) return;
     if (sync === undefined || syncToDrive.enabled) return;
     
     syncToDrive.enabled = true;
-    $('#syncing').textContent = 'Sync ('+fileStorage.data.sync.length+')';
     $('#txt-sync').textContent = 'Sync ('+fileStorage.data.sync.length+')';
     
       syncFile(sync).then((json) => {
@@ -366,7 +360,7 @@ const drive = (function() {
           let file = fileManager.get({fid: fileStorage.data.sync[0].fid, type: json.type});
           file.id = json.id;
           if (sync.isTemp)
-            setPersistent(file, json, sync);
+          	file.isTemp = false;
         }
         fileStorage.data.sync.splice(0, 1);
         syncToDrive.enabled = false;
@@ -469,7 +463,7 @@ const drive = (function() {
   }
 
   function getParents(parentId) {
-    if (parentId === -1)
+    if (parseInt(parentId) === -1)
       return { id: fileStorage.data.rootId} ;
       
     return fileManager.get({fid: parentId, type: 'folders'});
@@ -517,11 +511,21 @@ const drive = (function() {
     });
   }
 
+  function getWebContentLink(id) {
+  	return new Promise(resolve => {
+	  	getFile(id, 'json', '?fields=webContentLink').then(json => {
+	  		resolve(json.webContentLink);
+	  	});
+  	})
+  }
+
   return {
+    apiUrl,
     setToken,
     readAppData,
     syncToDrive,
     syncFromDrive,
+    getWebContentLink,
     downloadDependencies,
   };
 })();

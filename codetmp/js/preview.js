@@ -3,10 +3,8 @@ let uploadBody = '';
 let locked = -1;
 let previewFrameResolver = null;
 let previewWindow = null;
-let PWALoadWindow = null;
 let portResolver = null;
 let PreviewLoadWindow = null;
-let isPWAFrameLoaded = false;
 let isPreviewFrameLoaded = false;
 let isPortOpened = false;
 let previewManager = new PreviewManager();
@@ -18,14 +16,9 @@ const PREVIEWCONFIG = {
   isReplaceLinkedFile: false,
 }
 
-function Preview(fid) {
-	return {
-		id: fid,
-		name: 'preview-'+fid,
-	};
-}
-
 function PreviewManager() {
+
+  let driveAccessToken = '';
 
   function removeParam(url) {
     var oldURL = url;
@@ -58,13 +51,12 @@ function PreviewManager() {
       })
   });
 
-  if (!isPreviewFrameLoaded) {
+  if (!isPreviewFrameLoaded)
     previewLoadWindow = window.open(previewUrl, 'PreviewFrame');
-  }
 
-  function responseAsMedia(event, path, mimeType) {
+  async function responseAsMedia(event, path, mimeType) {
+
   	let file = getFileAtPath(path).file;
-
     if (file === null) {
       previewLoadWindow.postMessage({
         message: 'response-file', 
@@ -75,33 +67,36 @@ function PreviewManager() {
     } else {
 
       if (file.fileRef.name === undefined) {
-        let src = '';
-        if (file !== null) {
-        	if (helper.isHasSource(file.content)) {
-	    		src = helper.getRemoteDataContent(file.content).downloadUrl;
+
+        if (helper.isMediaTypeMultimedia(mimeType)) {
+          let data = {
+            contentLink: drive.apiUrl+'files/'+file.id+'?alt=media',
+            source: 'drive',
+          };
+        	
+          if (helper.isHasSource(file.content)) {
+  	    		data.contentLink = helper.getRemoteDataContent(file.content).downloadUrl;
+            data.source = 'git';
 	      	} else {
-              let link =  file.thumbnailLink.split('=');
-              link.pop(); // remove Google image resizing parameter
-              src = link.join('=');
-        	}
-        }
-        fetch(src).then(function(response) {
-          return response.blob()
-        }).then(function(blob) {
+            await auth2.init();
+            data.accessToken = driveAccessToken;
+          }
+
           previewLoadWindow.postMessage({
-            message: 'response-file', 
+            message: 'response-file-multimedia', 
             mime: mimeType,
-            content: blob,
-            resolverUID: event.data.resolverUID,
-          }, '*');          
-        }).catch(() => {
-          previewLoadWindow.postMessage({
-            message: 'response-file', 
-            mime: mimeType,
-            content: new Blob(),
+            content: data,
             resolverUID: event.data.resolverUID,
           }, '*');
-        });
+        } else {
+          previewLoadWindow.postMessage({
+            message: 'response-file', 
+            mime: mimeType,
+            content: new Blob([file.content]),
+            resolverUID: event.data.resolverUID,
+          }, '*');         
+        }
+
       } else {
         previewLoadWindow.postMessage({
           message: 'response-file', 
@@ -222,7 +217,7 @@ function PreviewManager() {
     } else {
       let path = decodeURI(removeParam(event.data.path));
       let mimeType = helper.getMimeType(path);
-      if (mimeType.match(/^(text|application\/json)/) !== null) {
+      if (helper.isMediaTypeText(path)) {
         responseAsText(event, path, mimeType);
       } else {
         responseAsMedia(event, path, mimeType);
@@ -300,27 +295,14 @@ function PreviewManager() {
       return content;
   }
 
-
   this.getFrameName = function() {
-  	let file = activeFile;
-    if (locked < 0 && typeof(file) == 'undefined') {
-  		return (previewMode == 'inframe') ? 'inframe-preview' : 'preview';
-  	}
-
-    if (locked >= 0) {
+    let file = activeFile;
+    let name = (previewMode == 'inframe') ? 'inframe-preview' : 'preview';
+    if (locked >= 0)
       file = odin.dataOf(locked, fileStorage.data.files, 'fid');
-    }
-
-  	for (let frame of windows) {
-  		if (frame.id == file.fid) {
-        return (previewMode == 'inframe') ? 'inframe-preview' : frame.name;
-  		}
-  	}
-
-  	let preview = new Preview(file.fid);
-  	windows.push(preview);
-
-    return (previewMode == 'inframe') ? 'inframe-preview' : preview.name;
+    if (file !== undefined)
+      name = 'preview-'+file.fid;
+    return name;
   }
 
   this.getDirectory = function(source, parentId, path) {
@@ -396,6 +378,10 @@ function PreviewManager() {
 
   }
 
+  this.setToken = function(token) {
+    driveAccessToken = token;
+  }
+
   return this;
 }
 
@@ -468,7 +454,7 @@ function replaceLinkedFile(match, body, preParent, path) {
   if (src.startsWith('https://') || src.startsWith('http://')) {
  
     body = body.replace(match[0], match[0].replace('<link ','<web-link ').replace('<script ','<web-script '));
-    match = getMatch(body);
+    match = getMatchLinkedFile(body);
  
   } else {
 
@@ -538,14 +524,11 @@ function replaceTemplate(body, preParent = -1, path = ['root']) {
   function getSingleFileContent(body, preParent = -1, path = ['root']) {
 
     if (body === undefined) {
-      // gitTree.length = 0;
       if (locked === -1 || (activeFile && locked === activeFile.fid)) {
       
         body = fileTab[activeTab].editor.env.editor.getValue();
         
         preParent = activeFile ? activeFile.parentId : activeFolder;
-        // if (activeFile)
-          // appendGitTree(activeFile.name, divless.replace(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
       } else {
       
         let file = odin.dataOf(locked, fileStorage.data.files, 'fid');
@@ -557,7 +540,6 @@ function replaceTemplate(body, preParent = -1, path = ['root']) {
           body = file.content;
         
         preParent = file.parentId;
-        // appendGitTree(file.name, divless.replace(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
       }
       
     }
@@ -575,14 +557,11 @@ function replaceTemplate(body, preParent = -1, path = ['root']) {
   function getHTML(body, preParent = -1, path = ['root']) {
 
     if (body === undefined) {
-      gitTree.length = 0;
       if (locked === -1 || (activeFile && locked === activeFile.fid)) {
       
         body = fileTab[activeTab].editor.env.editor.getValue();
         
         preParent = activeFile ? activeFile.parentId : activeFolder;
-        // if (activeFile)
-          // appendGitTree(activeFile.name, divless.replace(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
       } else {
       
         let file = odin.dataOf(locked, fileStorage.data.files, 'fid');
@@ -594,60 +573,11 @@ function replaceTemplate(body, preParent = -1, path = ['root']) {
           body = file.content;
         
         preParent = file.parentId;
-        // appendGitTree(file.name, divless.replace(body).replace(/href="\$/g,'href="').replace(/__\//g,''));
       }
       
     }
     
     return body;
-  }
-
-  function previewPWA(body) {
-      
-      if (!isPWAFrameLoaded) {
-        aww.pop('Waiting for PWA installer...');
-        if (debugPWAUrl.length > 0)
-          PWALoadWindow = window.open(debugPWAUrl,'PWAFrame');
-        else
-          PWALoadWindow = window.open('https://localpwa.web.app/','PWAFrame');
-      }
-      
-      let waitFirstLoad = setInterval(() => {
-        
-        if (isPWAFrameLoaded) {
-          aww.pop('Saving app data on device...');
-          let canvas = document.createElement('canvas');
-          let ctx = canvas.getContext('2d');
-          let backgrounds = ['#000839','#ffa41b','#000000','#192b58','#ffa34d','#f67575','#d4f8e8'];
-          let bg = backgrounds[Math.floor(Math.random()*6)+0];
-
-          let src128 = {
-            url: $('#in-PWA-src-128-url').value.trim(),
-            type: $('#in-PWA-src-128-type').value.trim(),
-          }
-          if (!['image/png','image/jpg','image/jpeg'].includes(src128.type))
-            src128.type = 'image/png';
-          if (src128.url.length == 0)
-            src128.url = location.origin+'/images/128.png';
-          
-          let src192 = {
-            url: $('#in-PWA-src-192-url').value.trim(),
-            type: $('#in-PWA-src-192-type').value.trim(),
-          }
-          if (!['image/png','image/jpg','image/jpeg'].includes(src192.type))
-            src192.type = 'image/png';
-          if (src192.url.length == 0)
-            src192.url = location.origin+'/images/192.png';
-          PWALoadWindow.postMessage({type:'install', appData:{
-            src128,
-            src192,
-            url: $('#in-PWA-app-url').value.trim(),
-            name: $('#in-PWA-app-name').value.trim(),
-            html: body,
-          }}, '*');
-          clearInterval(waitFirstLoad);
-        }
-      }, 100)
   }
 
   function previewWeb(filePath) {
@@ -661,22 +591,12 @@ function replaceTemplate(body, preParent = -1, path = ['root']) {
 	  .then(() => {
 	  	  let messageChannel = new MessageChannel();
 		    messageChannel.port1.onmessage = previewManager.fileResponseHandler;
-
 	      previewLoadWindow.postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
-	      new Promise(function(resolve) {
-      		portResolver = resolve;
-	      }).then(() => {
-	      	window.open(previewUrl+filePath, previewManager.getFrameName());
-	      })
+        // delayed to focus
+        setTimeout(function() {
+          window.open(previewUrl+filePath, previewManager.getFrameName());
+        }, 1);
 	  });
-
-	  if (!isPreviewFrameLoaded) {
-	    if (previewUrl.length > 0) {
-	      previewLoadWindow = window.open(previewUrl, 'PreviewFrame');
-	    } else {
-	      previewLoadWindow = window.open('https://attemp.web.app/','PreviewFrame');
-	    }
-	  }
   }
   
   function cacheContent(filePath, isForceDeploy) {
@@ -716,42 +636,28 @@ function replaceTemplate(body, preParent = -1, path = ['root']) {
   function getSPA() {
     if (locked > 0) {
       let file = odin.dataOf(locked, fileStorage.data.files, 'fid');
-      return JSON.parse(file.description)['spa-preview'];
+      return file.description['spa-preview'];
     }
     return $('#in-SPA-mode').checked;
   }
 
   function previewHTML(isNoPreview = false) {
-    
-    // appendGitTree('index.html', body);
-
-    let isPWA = $('#in-PWA-enabled').checked;
     let isSPA = getSPA();
     isPreviewSPA = isSPA;
 
-    if (isPWA) {
-      previewPWA();
-      // previewPWA(body);
-    } else {
-      let filePath = previewManager.getPath();
-      if (isSPA) {
-        PREVIEWCONFIG.isReplaceLinkedFile = true;
-        cacheContent(filePath, isNoPreview);
-      } else {
-        PREVIEWCONFIG.isReplaceLinkedFile = false;
-      }
-      if (!isNoPreview) {
+	  let filePath = previewManager.getPath();
+	  if (isSPA) {
+	    PREVIEWCONFIG.isReplaceLinkedFile = true;
+	    cacheContent(filePath, isNoPreview);
+	  } else {
+	    PREVIEWCONFIG.isReplaceLinkedFile = false;
+	  }
+	  if (!isNoPreview) {
 	     previewWeb(filePath);
-      }
-    }
+	  }
   }
 
-  function previewMedia(path) {
-     previewWeb(path);
-  }
-  
   window.previewHTML = previewHTML;
-  window.previewMedia = previewMedia;
   
 })();
 
@@ -773,27 +679,9 @@ window.addEventListener('message', function(e) {
     case 'message-port-opened':
     	portResolver();
     break;
-    case 'pwa-frame-isReady':
-        isPWAFrameLoaded = true;
-        break;
     case 'preview-frame-isReady':
         isPreviewFrameLoaded = true;
         previewFrameResolver();
-        break;
-    case 'pwa-app-installed':
-        aww.pop('PWA ready!');
-        if ($('#in-seperate-PWA-process').checked) {
-          let a = o.cel('a', {
-            href: e.data.url,
-            rel: 'noreferrer',
-            target: '_blank'
-          })
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        } else {
-          window.open(e.data.url, 'preview');
-        }
         break;
     }
   }

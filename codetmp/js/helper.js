@@ -94,9 +94,11 @@ const helper = (function () {
     let type = 'application/octet-stream';
     switch (ext) {
       // web
+      case 'svelte':
       case 'htm':
       case 'html': type ='text/html'; break;
       case 'xml': type ='text/xml'; break;
+      case 'sql': type ='text/sql'; break;
       case 'js': type ='text/javascript'; break;
       case 'css': type ='text/css'; break;
       case 'json': type ='application/json'; break;
@@ -136,6 +138,51 @@ const helper = (function () {
     return getMimeType(name).match(/(text\/html|text\/xml)/);
   }
 
+  function isMediaTypeMultimedia(mimeType) {
+    return mimeType.match(/^(audio|video|image)/);
+  }
+  function isMediaTypeImage(mimeType) {
+    return mimeType.match(/^image/);
+  }
+  function isMediaTypeAV(mimeType) {
+    return mimeType.match(/^(video|audio)/);
+  }
+
+  function isMediaTypeStream(name) {
+    return getMimeType(name) == 'application/octet-stream';
+  }
+
+  function getFileIconColor(fileName) {
+    let bg = '#777777';
+    if (fileName.includes('.css'))
+      bg = '#1e44ff';
+    else if (fileName.includes('.js'))
+      bg = '#ccad1b';
+    else if (fileName.includes('.html'))
+      bg = '#fb5c10';
+    return bg;
+  }
+
+  function redirectWarning() {
+    let notSaved = false;
+    for (let icon of $('.icon-rename')) {
+      if (icon.textContent !== 'close') {
+        notSaved = true;
+        break;
+      }
+    }
+    
+    if (fileTab.length > 1) {
+      notSaved = true
+    } else {
+      if (fileTab[0].fid[0] !== '-')
+        notSaved = true
+    }
+    
+    if (notSaved)
+      return  'Changes you made may not be saved';
+  }
+
   return {
     getFileNameLength,
     parseDescription,
@@ -145,6 +192,12 @@ const helper = (function () {
     getMimeType,
     isMediaTypeText,
     isMediaTypeHTML,
+    isMediaTypeStream,
+    isMediaTypeMultimedia,
+    isMediaTypeImage,
+    isMediaTypeAV,
+    getFileIconColor,
+    redirectWarning,
   };
 
 })();

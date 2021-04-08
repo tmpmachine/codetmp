@@ -55,3 +55,7 @@ codetmp/js/file-manager.js and codetmp/js/ux.js is probably all you care about.
 
 ### Code Editor shortcut or others (Ace editor)
 See initEditor() method on codetmp/js/ux.js. Ace editor by Ajax.org Cloud9 Editor.
+
+
+## Aknowledgements
+Thanks to BrowserStack (https://www.browserstack.com/) for providing free Open source sponsorship that helps development of Codetmp.

@@ -1,7 +1,10 @@
 const preferences = (function() {
 
-  function toggleWordWrap(isEnabled) {
+  function toggleWordWrap() {
     if (fileTab[activeTab]) {
+      settings.data.editor.wordWrapEnabled = !settings.data.editor.wordWrapEnabled;
+      let isEnabled = settings.data.editor.wordWrapEnabled;
+      settings.save();
       let editor = fileTab[activeTab].editor;
       editor.env.editor.session.setUseWrapMode(isEnabled ? true : false);
     }
@@ -23,7 +26,6 @@ const preferences = (function() {
 
   function applyEditorSettings(key, isEnabled) {
     switch (key) {
-      case 'wordWrapEnabled': toggleWordWrap(isEnabled); break;
       case 'emmetEnabled': toggleEmmet(isEnabled); break;
       case 'autoCompleteEnabled': toggleAutocomplete(isEnabled); break;
     }
@@ -58,6 +60,7 @@ const preferences = (function() {
 
   return {
     loadSettings,
+    toggleWordWrap,
   };
 
 })();

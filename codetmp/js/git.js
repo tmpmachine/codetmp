@@ -42,6 +42,12 @@ const git = (function() {
     });
   };
     
+  const downloadFileData = function(url) {
+    return new Promise(resolve => {
+      fetch(url).then(r => r.blob()).then(resolve);
+    })
+  };
+
   const registerFile = function(_file, parentId) {
     let file = new File({
       parentId,
@@ -49,6 +55,10 @@ const git = (function() {
       name: _file.name,
       content: helper.generateRemoteDataContent('git', _file.download_url),
     });
+    let mimeType = helper.getMimeType(file.name);
+    if (helper.isMediaTypeMultimedia(mimeType)) {
+      file.contentLink = _file.download_url;
+    }
 
     fileManager.sync({
       fid: file.fid, 
@@ -339,6 +349,7 @@ const git = (function() {
   let self = {
     clone,
     downloadFile,
+    downloadFileData,
     setToken,
   };
 

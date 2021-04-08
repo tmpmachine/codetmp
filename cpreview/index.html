@@ -86,6 +86,7 @@
             navigator.serviceWorker.controller.postMessage({ message: 'reinit-message-port' }, [e.ports[0]]);
           break;
       		case 'response-file':
+          case 'response-file-multimedia':
 	          navigator.serviceWorker.controller.postMessage({
 	            message: e.data.message,
 	            mime: e.data.mime,

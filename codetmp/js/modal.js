@@ -60,7 +60,7 @@ const modal = (function() {
 
   function submitForm() {
     event.preventDefault();
-    if (event.submitter.name == 'submit') {
+    if (this.dataset.submitter == 'submit') {
       if (type == 'confirm')
         _resolve();
       else
@@ -84,6 +84,12 @@ const modal = (function() {
     overlay.onclick = close;
     btnClose.onclick = close;
     form.onsubmit = submitForm;
+    $('.Btn-submit', modal)[0].onclick = function() {
+      form.dataset.submitter = 'submit';
+    }
+    $('.Btn-cancel', modal)[0].onclick = function() {
+      form.dataset.submitter = 'cancel';
+    }
     document.activeElement.blur();
     setTimeout(() => {
       if (isFocusSubmit)
@@ -109,6 +115,12 @@ const modal = (function() {
     title.textContent = promptText;
     input.value = defaultValue;
     $('.Notes', modal)[0].innerHTML = notes;
+    $('.Btn-submit', modal)[0].onclick = function() {
+      form.dataset.submitter = 'submit';
+    }
+    $('.Btn-cancel', modal)[0].onclick = function() {
+      form.dataset.submitter = 'cancel';
+    }
     setTimeout(() => {
       input.focus();
       if (selectionLength > 0)

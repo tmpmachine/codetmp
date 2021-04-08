@@ -73,7 +73,7 @@ function loadExternalFiles(URLs) {
         isTemp: false,
         loaded: false,
         
-        thumbnailLink: '',
+        contentLink: '',
         id: '',
         name: '',
         content: '',
@@ -100,7 +100,7 @@ function loadExternalFiles(URLs) {
         editor: {
           emmetEnabled: false,
           autoCompleteEnabled: true,
-          divlessHTMLEnabled: true,
+          divlessHTMLEnabled: false,
           wordWrapEnabled: true,
         },
         showHomepage: true,
@@ -130,6 +130,7 @@ function loadExternalFiles(URLs) {
         'js/extension.js',
         'js/preferences.js',
         'js/modal.js',
+        'js/clipboard.js',
       ],
     },
     {
@@ -171,7 +172,7 @@ function loadExternalFiles(URLs) {
     {
       urls: [
         'js/git.js',
-        'https://apis.google.com/js/platform.js?onload=renderButton',
+        'https://apis.google.com/js/platform.js?onload=renderSignInButton',
       ],
     },
     {

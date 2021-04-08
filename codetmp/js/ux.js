@@ -1,10 +1,11 @@
-let debugPWAUrl = '';
 let lastOpenTabIndex = 0;
 let pressedKeys = {};
 let fontSizeScale = [12, 14, 16, 18, 21, 24, 30, 36, 48];
 let fontSize = 2;
 let lineLock = -1;
 let pasteLine = false;
+let lastClickEl;
+let doubleClick = false;
 
 window.name = 'parent';
 
@@ -81,6 +82,61 @@ const stateManager = (function() {
 
 const ui = {
 
+  toggleFileDownload: function() {
+    toggleModal('file-download');
+    let form = $('.modal-window[data-name="file-download"] form')[0];
+    let isCompressed = (selectedFile.length > 1 || (selectedFile.length === 1 && selectedFile[0].dataset.type == 'folder'));
+    $('._in-replaceFileTemplate', form)[0].classList.toggle('w3-hide', isCompressed);
+    setTimeout(() => {
+      form.submit.focus();
+    }, 50)
+  },
+
+  previewMedia: function(file, mimeType) {
+    toggleModal('media-preview');
+    
+    let media;
+    if (mimeType.includes('audio')) 
+      media = document.createElement('audio');
+    else if (mimeType.includes('video'))
+      media = document.createElement('video');
+    else if (mimeType.includes('image')) {
+      media = document.createElement('img');
+      media.addEventListener('click', () => {
+        toggleModal('media-preview');
+      });
+    }
+    media.classList.add('Medial-el');
+    media.setAttribute('controls','controls');
+    $('.media-preview .Media')[0].append(media);
+    
+    return new Promise((resolve, reject) => {
+      fileManager.getPreviewLink(file).then(resolve).catch(reject);
+    }).then(src => {
+      media.src = src;
+      $('.media-preview .Title')[0].textContent = file.name;
+      $('.media-preview .Download')[0].onclick = () => {
+        let a = document.createElement('a');
+        a.href = src;
+        a.target = '_blank';
+        a.download = file.name;
+        $('#limbo').appendChild(a);
+        a.click();
+        $('#limbo').removeChild(a);
+      };
+    }).catch(() => {
+      aww.pop('Failed to preview media.');
+    });
+  },
+
+  closeMediaPreview: function() {
+    let src = $('.media-preview .Media')[0].src;
+    $('.media-preview .Title')[0].textContent = '';
+    $('.media-preview .Download')[0].onclick = null;
+    $('.media-preview .Medial-el')[0].remove();
+    URL.revokeObjectURL(src);
+  },
+
   enableJSZip: function() {
     $('.clickable[data-callback="file-download"]')[0].classList.toggle('hide', false);
   },
@@ -100,18 +156,9 @@ const ui = {
     }
   },
 
-	setFileActionButton: function(isShown) {
-    o.classList.toggle($('.btn-file-action'), 'w3-hide', true);
-    if (selectedFile.length > 0) {
-      for (let btn of $('.btn-file-action')) {
-        if (btn.dataset.callback == 'file-rename') {
-          if (selectedFile.length === 1)
-            btn.classList.toggle('w3-hide', false);
-        } else {
-          btn.classList.toggle('w3-hide', false);
-        }
-      }
-    }
+	toggleFileActionButton: function() {
+    let isHide = (selectedFile.length === 0);
+    o.classList.toggle($('.btn-file-action'), 'w3-hide', isHide);
 	},
 
   setGitToken: function() {
@@ -197,7 +244,7 @@ const ui = {
 		        	return;
 
 		        let folder = new Folder({
-		          	name,
+                name: fileManager.getDuplicateName(activeFolder, name, 'folder'),
 		          	modifiedTime: new Date().toISOString(),
 		          	parentId: activeFolder,
 		        });
@@ -209,6 +256,26 @@ const ui = {
 	        	clearSelection();
 	      	});
 	    }
+      function newFile() {
+          if (!$('#in-my-files').classList.contains('active'))
+            return;
+          
+          modal.prompt('File name', 'Untitled').then(name => {
+            if (!name) 
+              return;
+            let file = new File({
+                name: fileManager.getDuplicateName(activeFolder, name),
+                modifiedTime: new Date().toISOString(),
+                parentId: activeFolder,
+            });
+            commit({
+              fid: file.fid,
+              action: 'create',
+              type: 'files',
+            });
+            clearSelection();
+          });
+      }
       function confirmDeletion(message) {
         return new Promise(resolve => {
           modal.confirm(message).then(() => {
@@ -278,7 +345,7 @@ const ui = {
 		    }
 		  }
 
-    function downloadSelected() {
+    function fileDownload(self) {
       if (selectedFile.length === 0)
         return;
 
@@ -287,20 +354,40 @@ const ui = {
         return
       }
 
+      let form = self.target;
       let zip = new JSZip();
       let zipName = getSelected(selectedFile[0]).title+'.zip';
-      fileManager.createBundle(selectedFile, zip).then(() => {
-        zip.generateAsync({type:"blob"})
-        .then(function(content) {
-          blob = new Blob([content], {type: 'application/zip'});
-          a = document.createElement('a');
+      let isCompressed = ( selectedFile.length > 1 || (selectedFile.length === 1 && (selectedFile[0].dataset.type == 'folder')) );
+      let options = {
+        replaceDivless: form.replaceDivless.checked,
+        replaceFileTemplate: form.replaceFileTemplate.checked,
+      };
+
+      if (isCompressed) {
+        fileManager.createBundle(selectedFile, zip, options).then(() => {
+          zip.generateAsync({type:"blob"})
+          .then(function(content) {
+            blob = new Blob([content], {type: 'application/zip'});
+            a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = zipName;
+            $('#limbo').appendChild(a);
+            a.click();
+            $('#limbo').removeChild(a);
+          });
+        })
+      } else {
+        fileManager.downloadSingle(selectedFile[0], options).then(blob => {
+          if (blob === null)
+            return
+          let a = document.createElement('a');
           a.href = URL.createObjectURL(blob);
-          a.download = zipName;
+          a.download = getSelected(selectedFile[0]).title;
           $('#limbo').appendChild(a);
           a.click();
           $('#limbo').removeChild(a);
-        });
-      })
+        })
+      }
     }
 
     function getDescription() {
@@ -317,8 +404,9 @@ const ui = {
 			renameFolder,
 			renameFile,
 			newFolder,
+      newFile,
 			deleteSelected,
-      downloadSelected,
+      fileDownload,
       getDescription,
 		};
 
@@ -477,6 +565,8 @@ function toggleModal(name) {
       let isHide = modal.classList.toggle('Hide');
       if (isHide) {
       	stateManager.popState([0]);
+        if (modal.dataset.close)
+          ui[modal.dataset.close]();
       } else {
       	stateManager.pushState([0]);
       }
@@ -489,14 +579,12 @@ function toggleModalByClick() {
   toggleModal(this.dataset.target);
 }
 
-function hideNavbarSubMenu() {
-  $('#nav-bar').classList.toggle('hoverable', false);
-  setTimeout(() => {
-    $('#nav-bar').classList.toggle('hoverable', true);
-  }, 250);
-}
-
 function initNavMenus() {
+
+  function checkAuth(callback) {
+    if ($('body')[0].classList.contains('is-authorized'))
+      callback();
+  }
 
   let callbacks = {
     'new-file': newFile,
@@ -504,11 +592,11 @@ function initNavMenus() {
     'new-folder': ui.fileManager.newFolder,
     'save': fileManager.save,
     'preview': () => previewHTML(),
-    'deploy': renderAndDeployLocked,
-    'deploy-single': renderAndDeploySingle,
+    'publish-to-blogger': () => checkAuth(publishToBlogger),
     'my-files': myFiles,
     'trash': trash,
     'toggle-editor-theme': toggleTheme,
+    'toggle-word-wrap': preferences.toggleWordWrap,
     'toggle-in-frame': toggleInFrame,
     'set-font-size': setFontSize,
     'about': toggleHomepage,
@@ -531,7 +619,6 @@ function initNavMenus() {
     if (isSupported) {
       menu.classList.toggle('hide', false);
       menu.addEventListener('click', callbacks[key]);
-      menu.addEventListener('click', hideNavbarSubMenu);
     }
   }
 
@@ -664,12 +751,66 @@ function initInframeLayout() {
   window.addEventListener('touchmove', mouseMove);
 }
 
+function initTabFocusHandler() {
+
+  function tabFocusHandler(e) {
+    if (e.keyCode === 9) {
+      document.body.classList.add('tab-focused');
+      window.removeEventListener('keydown', tabFocusHandler);
+      window.addEventListener('mousedown', disableTabFocus);
+    }
+  }
+
+  function disableTabFocus() {
+    document.body.classList.remove('tab-focused');
+    window.removeEventListener('mousedown', disableTabFocus);
+    window.addEventListener('keydown', tabFocusHandler);
+  }
+
+  window.addEventListener('keydown', tabFocusHandler);
+}
+
+function initMenuBar() {
+
+  function handler(e) {
+    if (document.activeElement.classList.contains('Root') || document.activeElement.classList.contains('menu-link')) {
+      if (e.target != document.activeElement && e.target.classList.contains('Root')) {
+        if (e.target.dataset.callback === undefined) {
+          e.target.focus();
+          e.target.click();
+        }
+      }
+    }
+  }
+  
+  function blur() {
+    if (document.activeElement.classList.contains('auth-required') && !$('body')[0].classList.contains('is-authorized')) {
+
+    } else {
+      document.activeElement.blur();
+    }
+  }
+  
+  $('#nav-bar').addEventListener('mouseover', handler);
+  for (let node of $('.menu-bar a')) {
+    if (node.classList.contains('Root'))
+      node.setAttribute('tabindex', '0');
+    if (node.getAttribute('href') == '#')
+      node.href = 'javascript:void(0)';
+  }
+  
+  for (let node of $('.menu-bar a:not(.Root)'))
+    node.addEventListener('click', blur)
+}
+
 function initUI() {
   
   initInframeLayout();
   fileManager.list();
   preferences.loadSettings();
   newTab();
+  initTabFocusHandler();
+  initMenuBar();
 
   for (let modal of $('.modal-window')) {
     modal.classList.toggle('transition-enabled', true);
@@ -677,15 +818,30 @@ function initUI() {
     $('.Btn-close',modal)[0].addEventListener('click', toggleModalByClick);
   }
   
+  function preventDefault(event) {
+    event.preventDefault();
+  }
+  
+  function attachSubmitable(selector, actions) {
+    for (let element of document.querySelectorAll(selector)) {
+      element.addEventListener('submit', preventDefault);
+      element.addEventListener('submit', actions[element.dataset.callback]);
+    }
+  }
+  
   function attachClickable(selector, actions) {
     for (let element of document.querySelectorAll(selector))
       element.addEventListener('click', actions[element.dataset.callback]);
   }
   
+  attachSubmitable('.submittable', {
+    'confirm-download': ui.fileManager.fileDownload,
+  });
+  
   attachClickable('.clickable', {
     'file-rename': renameFile,
     'file-delete': ui.fileManager.deleteSelected,
-    'file-download': ui.fileManager.downloadSelected,
+    'file-download': ui.toggleFileDownload,
     'clear-data': ui.confirmClearData,
     'set-git-token': ui.setGitToken,
     'clone-repo': ui.cloneRepo,
@@ -693,25 +849,23 @@ function initUI() {
     'toggle-file-info': () => toggleModal('file-info'),
     'toggle-settings': () => toggleModal('settings'),
     'toggle-account': () => toggleModal('account'),
+    'new-folder' : ui.fileManager.newFolder,
+    'new-file' : ui.fileManager.newFile,
+    'sign-out' : signOut,
   });
 
   o.listen({
-    'btn-create-template'   : createBlogTemplate,
     'btn-create-entry'      : createBlogEntry,
-    'btn-create-app'        : createBlogApp,
     'btn-menu-template'     : function() { toggleInsertSnippet() },
-    'btn-new-folder'        : ui.fileManager.newFolder,
-    'btn-new-file'          : function() { $('#btn-menu-my-files').click(); ui.openNewTab(); },
     'btn-menu-save'         : fileManager.save,
     '.btn-material'         : ui.toggleMenu,
-    'btn-menu-preview'      : function() { previewHTML() },
+    'btn-menu-preview'      : function() { openPreviewWindow(); previewHTML(); },
     'btn-undo' : () => { fileTab[activeTab].editor.env.editor.undo(); fileTab[activeTab].editor.env.editor.focus() },
     'btn-redo' : () => { fileTab[activeTab].editor.env.editor.redo(); fileTab[activeTab].editor.env.editor.focus() },
     '.file-settings-button' : function() { showFileSetting(this.dataset.section) },
     'more-tab'              : function() { ui.switchTab(1) },
     'btn-refresh-sync'      : function() { drive.syncFromDrive() },
   });
-  checkAuth();
   applyKeyboardListener();
   initNavMenus();
   attachMouseListener();
@@ -869,8 +1023,6 @@ function openDevelopmentSettings(settings) {
 	
   if (settings.blogName || settings.blog)
     showFileSetting('blogger');
-  if (settings['pwa-name'])
-    showFileSetting('pwa');
 }
 
 function setEditorMode(fileName = '') {
@@ -1093,6 +1245,26 @@ function getTabWidth() {
   return width;
 }
 
+function fileClose(fid) {
+  let idx;
+  if (fid)
+    idx = odin.idxOf(String(fid), fileTab, 'fid')
+  else
+    idx = activeTab
+  
+  if (activeTab == idx) {
+    activeTab = idx
+    confirmCloseTab()
+  } else {
+    let tmp = activeTab;
+    activeTab = idx;
+    if (idx < tmp)
+      confirmCloseTab(true, tmp-1)
+    else
+      confirmCloseTab(true, tmp)
+  }
+}
+
 function confirmCloseTab(focus = true, comeback) {
 	if (focus) {
 		if ($('.file-tab')[activeTab].firstElementChild.firstElementChild.textContent.trim() != 'close') {
@@ -1127,46 +1299,6 @@ function changeFocusTab(focus, comeback) {
 	}
 }
 
-function createBlogTemplate() {
-  
-  let templateName = window.prompt('Template name');
-  if (!templateName) return;
-
-  oblog.config({
-    blog: $('#in-blog-name').value
-  });
-  
-  aww.pop('creating blog template...');
-  
-  oblog.pages.list(response => {
-    
-    let notFound = true;
-    if (response.items)
-      for (let page of response.items) {
-        if (page.title == 'Template :: '+templateName) {
-          alert('Template already exists in Blogger. Please delete them manually');
-          window.open('https://blogger.com/blogger.g?blogID='+oblog.authModule.auth.data.blogId+'#allpages');
-          notFound = false;
-          break;
-        }
-      }
-    
-    if (notFound) {
-      oblog.pages.insert({
-        title: 'Template :: '+templateName,
-      }, response => {
-      
-        aww.pop('blog template created successfully...');
-        $('#chk-in-pre').checked = true;
-        $('#in-eid').value = 'p'+response.id;
-        fileManager.save();
-        
-      }, 'id')
-    }
-    
-  },'items(id,title)');
-}
-
 function createBlogEntry() {
   
   let templateName = window.prompt('Post title');
@@ -1189,58 +1321,27 @@ function createBlogEntry() {
   }, 'id')
 }
 
-function createBlogApp() {
-  
-  let templateName = window.prompt('Post title');
-  if (!templateName) return;
-
-  oblog.config({
-    blog: $('#in-blog-name').value
-  });
-  
-  aww.pop('creating blog entry...');
-  
-  oblog.posts.insert({
-    title: templateName,
-    labels: ['_bloggerApps'],
-  }, response => {
-    
-    aww.pop('blog entry created successfully');
-    $('#in-eid').value = response.id;
-    $('#in-blog-id').value = response.blog.id;
-    fileManager.save();
-    
-  }, 'id,blog(id)')
-}
-
-function getFileColor(fileName) {
-  let defaultBg;
-  if (fileName.includes('.css'))
-    defaultBg = '#1e44ff';
-  else if (fileName.includes('.js'))
-    defaultBg = '#ccad1b';
-  else if (fileName.includes('.html'))
-    defaultBg = '#fb5c10';
-  return defaultBg;
-}
-
 function loadBreadCrumbs() {
   $('#breadcrumbs').innerHTML = '';
   let i = 0;
   for (let b of breadcrumbs) {
-    let link;
-    if (i == breadcrumbs.length-1)
-      link = o.cel('div',{innerHTML:o.creps('tmp-breadcrumb-fake', b)});
-    else
-      link = o.cel('div',{innerHTML:o.creps('tmp-breadcrumb', b)});
-    $('#breadcrumbs').appendChild(link.firstElementChild);
+    let button = $('#tmp-breadcrumb').content.cloneNode(true).firstElementChild;
+    button.textContent = b.title;
+    if (i == breadcrumbs.length-1) {
+    	button.classList.add('isActive');
+    } else {
+	    button.dataset.fid = b.folderId;
+    	button.addEventListener('click', openBread);
+    }
+    $('#breadcrumbs').appendChild(button);
     i++;
   }
 }
 
-function openBread(id) {
-  activeFolder = id;
-  let idx = odin.idxOf(id,breadcrumbs,'folderId');
+function openBread() {
+	let fid = this.dataset.fid;
+  activeFolder = parseInt(fid);
+  let idx = odin.idxOf(fid,breadcrumbs,'folderId');
   breadcrumbs = breadcrumbs.slice(0,idx+1);
   fileManager.list();
   clearSelection();
@@ -1258,7 +1359,7 @@ function openFileConfirm(el) {
     	selectedFile.splice(index, 1);
 		  toggleFileHighlight(el, false);
     }
-    ui.setFileActionButton();
+    ui.toggleFileActionButton();
     return
     
   } else {
@@ -1293,16 +1394,16 @@ function openFileConfirm(el) {
       fileManager.open(el.getAttribute('data'))
     } else {
       let folderId = Number(el.getAttribute('data'))
-      openFolder(folderId);
+      fileManager.openFolder(folderId);
     }
     toggleFileHighlight(lastClickEl, false);
   }
-  ui.setFileActionButton();
+  ui.toggleFileActionButton();
 }
 
 function navScrollUp() {
   let fileContainerOffsetTop = selectedFile[0].classList.contains('folder-list') ? selectedFile[0].offsetTop : selectedFile[0].parentNode.offsetTop;
-  let scrollTop = (fileContainerOffsetTop - 8 - 64 - $('#nav-bar').offsetHeight);
+  let scrollTop = (fileContainerOffsetTop - $('#nav-bar').offsetHeight + $('#status-bar').offsetHeight);
   if (scrollTop < $('#file-list').parentNode.scrollTop) {
     $('#file-list').parentNode.scrollTop = scrollTop;
   }
@@ -1310,8 +1411,9 @@ function navScrollUp() {
 
 function navScrollDown() {
   let fileContainerOffsetTop = selectedFile[0].classList.contains('folder-list') ? selectedFile[0].offsetTop : selectedFile[0].parentNode.offsetTop;
-  let scrollTop = (fileContainerOffsetTop + selectedFile[0].offsetHeight + 8);
-  let visibleScreenHeight = $('#file-list').parentNode.scrollTop + 64 + $('#nav-bar').offsetHeight + $('#file-list').parentNode.offsetHeight;
+  let padding = 16;
+  let scrollTop = (fileContainerOffsetTop + selectedFile[0].offsetHeight + padding + $('#status-bar').offsetHeight);
+  let visibleScreenHeight = $('#file-list').parentNode.scrollTop + $('#nav-bar').offsetHeight + $('#file-list').parentNode.offsetHeight;
   if (scrollTop > visibleScreenHeight)
     $('#file-list').parentNode.scrollTop += scrollTop - visibleScreenHeight;
 }
@@ -1438,7 +1540,10 @@ function navScrollDown() {
     if (!$('#btn-menu-my-files').classList.contains('active')) return;
     event.preventDefault();
     
-    let fileContainerWidth = (screen.width < 450) ? 153.2 : 203.2;
+    let fileContainers = $('.folder-list,.file-list');
+    let fileContainerWidth = 0;
+	if (fileContainers.length > 0)
+    	fileContainerWidth = fileContainers[0].offsetWidth;
     let fileCount = Math.floor( ($('#file-list').offsetWidth - 16 * 2) / fileContainerWidth);
 
     switch (event.keyCode) {
@@ -1481,15 +1586,7 @@ function renameFile() {
     ui.fileManager.renameFile();
 }
 
-function renderAndDeploySingle() {
-  let tmpLocked = locked;
-  locked = -1;
-  previewHTML(true);
-  deploy();
-  locked = tmpLocked;
-}
-
-function renderAndDeployLocked() {
+function publishToBlogger() {
   previewHTML(true);
   deploy();
 }
@@ -1505,12 +1602,14 @@ function applyKeyboardListener() {
   
   function lockFile() {
     if ($('#btn-menu-my-files').classList.contains('active')) {
-      if (selectedFile.length > 0 && selectedFile[0].classList.contains('file-list-clicker')) {
-        for (let i=0; i<$('.file-list').length; i++) {
-          if ($('.file-list-clicker')[i] == selectedFile[0]) {
-            $('.btn-lock')[i].click()
-            break;
-          }
+      if (selectedFile.length === 1 && selectedFile[0].dataset.type == 'file') {
+        let fid = selectedFile[0].dataset.fid;
+        if (locked !== fid) {
+          locked = parseInt(fid);
+          aww.pop('Preview file locked');
+        } else {
+          locked = -1;
+          aww.pop('Preview file unlocked');
         }
       }
     } else {
@@ -1523,14 +1622,14 @@ function applyKeyboardListener() {
         locked = (locked == fid) ? -1 : fid;
       
       if (locked == fid || notFile) {
-        aww.pop('File locked');
+        aww.pop('Preview file locked');
         $('.file-tab')[activeTab].lastElementChild.style.background = 'orange';
         clearTimeout(lockFile.wait);
         lockFile.wait = setTimeout(() => {
           $('.file-tab')[activeTab].lastElementChild.style.background = '#FFEB3B';
         }, 200)
       } else {
-        aww.pop('File unlocked');
+        aww.pop('Preview file unlocked');
         $('.file-tab')[activeTab].lastElementChild.style.background = 'inherit';
         clearTimeout(lockFile.wait);
         lockFile.wait = setTimeout(() => {
@@ -1547,7 +1646,7 @@ function applyKeyboardListener() {
    			  toggleFileHighlight(el, false);
    	    doubleClick = false;
    	    selectedFile.length = 0;
-        ui.setFileActionButton();
+        ui.toggleFileActionButton();
    	  } else {
          if (!fileReaderModule.isDragging) {
 	         $('#btn-menu-my-files').click();
@@ -1589,7 +1688,7 @@ function applyKeyboardListener() {
     
     if (breadcrumbs.length > 1)
       breadcrumbs.pop();
-    openFolder(activeFile.parentId);
+    fileManager.openFolder(activeFile.parentId);
   }
   
   function copyUploadBody() {
@@ -1741,8 +1840,6 @@ function applyKeyboardListener() {
   }
 
   keyboard.listen({
-    'Alt+Enter': renderAndDeployLocked,
-    'Alt+Shift+Enter': renderAndDeploySingle,
     'Alt+Shift+N': ui.fileManager.newFolder,
     'Alt+<': () => ui.switchTab(-1),
     'Alt+>': () => ui.switchTab(1),
@@ -1780,6 +1877,21 @@ function applyKeyboardListener() {
   });
 };
 
+function openPreviewWindow() {
+  if (!$('#btn-menu-my-files').classList.contains('active')) {
+    let filePath = previewManager.getPath();
+    // delayed to focus
+    setTimeout(() => {
+      window.open(previewUrl+filePath, previewManager.getFrameName());
+    }, 1)
+  }
+}
+
+window.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.keyCode == 13)
+    openPreviewWindow();  
+});
+
 function autoSync(event) {
   let isOnline = navigator.onLine ? true : false;
   if (isOnline) {
@@ -1789,55 +1901,15 @@ function autoSync(event) {
     }
   }
 }
+
 window.addEventListener('online', autoSync);
-
-function isOpenFileManager() {
-	return $('#in-my-files').classList.contains('active');
-}
-
-window.addEventListener('copy', function(e) { 
-	if (stateManager.isState(0)) 
-		copyFile(false);
-});
-window.addEventListener('cut', function(e) { 
-	if (stateManager.isState(0)) 
-		copyFile(true);
-});
-window.addEventListener('paste', function(e) { 
-	if (stateManager.isState(0))
-		pasteFile();
-});
-
-window.onbeforeunload = function(e) {
-  let notSaved = false;
-  for (let icon of $('.icon-rename')) {
-    if (icon.textContent !== 'close') {
-      notSaved = true;
-      break;
-    }
-  }
-  
-  if (fileTab.length > 1) {
-    notSaved = true
-  } else {
-    if (fileTab[0].fid[0] !== '-')
-      notSaved = true
-  }
-  
-  if (notSaved)
-    return  'Changes you made may not be saved';
-}
-
-
-function checkAuth() {
-  if (localStorage.getItem('data-token') !== null) {
-    $('#label-account').textContent = 'My Account';
-    $('#login-info').style.display = 'none';
-    o.classList.toggle($('.auth-required'), ['unauthorized'], false);
-  }
-}
+window.addEventListener('cut', fileClipBoard.handler);
+window.addEventListener('copy', fileClipBoard.handler);
+window.addEventListener('paste', fileClipBoard.handler);
+window.onbeforeunload = helper.redirectWarning;
 
 function authReady() {
+  $('body')[0].classList.toggle('is-authorized', true);
   if (fileStorage.data.rootId === '')
     drive.readAppData();
   else {
@@ -1847,13 +1919,13 @@ function authReady() {
 }
 
 function authLogout() {
-  $('#label-account').textContent = 'Sign in';
-  $('#login-info').style.display = 'block';  
-  o.classList.toggle($('.auth-required'), ['unauthorized'], true);
   fileStorage.reset();
   settings.reset();
   localStorage.removeItem('data-token');
   localStorage.removeItem('data-token-expires');
+  
+  $('body')[0].classList.toggle('is-authorized', false);
+  
   activeFolder = -1;
   while (breadcrumbs.length > 1)
     breadcrumbs.splice(1,1);    
@@ -1869,7 +1941,7 @@ function signOut() {
   });
 }
 
-function renderButton() {
+function renderSignInButton() {
   gapi.signin2.render('g-signin2', {
     'scope': 'https://www.googleapis.com/auth/blogger https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive',
     'width': 240,
@@ -1881,18 +1953,6 @@ function renderButton() {
       authReady();
     },
   });
-}
-
-function lockRender(self, fid, name) {
-  for (let el of $('.btn-lock'))
-    el.classList.toggle('w3-text-purple', false)
-  
-  if (locked !== fid) {
-    locked = fid;
-    self.classList.toggle('w3-text-purple')
-  } else {
-    locked = -1;
-  }
 }
 
 function toggleFileHighlight(el, isActive) {
@@ -1909,7 +1969,7 @@ function clearSelection() {
 		toggleFileHighlight(el, false);
 	selectedFile.length = 0;
 	lastClickEl = null;
-  ui.setFileActionButton();
+  ui.toggleFileActionButton();
 }
 
 function selectAllFiles() {
@@ -1918,6 +1978,6 @@ function selectAllFiles() {
 		selectedFile = [...$('.folder-list'), ...$('.file-list-clicker')];
 		for (let el of selectedFile)
 			toggleFileHighlight(el, true);
-    ui.setFileActionButton();
+    ui.toggleFileActionButton();
 	}
 }

@@ -1,10 +1,11 @@
 L = console.log;
-let cacheVersion = '1.1433';
+let cacheVersion = '1.16';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
 let uid = 0;
 let isRelinkingMessagePort = false;
+let rere;
 
 self.addEventListener('message', function(e) {
   if (typeof(e.data) == 'undefined')
@@ -30,6 +31,21 @@ self.addEventListener('message', function(e) {
         response = new Response(e.data.content, {headers:{'Content-Type': e.data.mime}});
       }
       resolverQueue['R'+e.data.resolverUID](response);
+    break;
+    case 'response-file-multimedia':
+      	let data = e.data.content;
+      	let request = new Request(data.contentLink, {
+    		method: 'GET',
+    		headers: {
+			    Authorization: 'Bearer '+data.accessToken,
+    		},
+  		});
+      	if (data.source == 'git') {
+      		request = new Request(data.contentLink);
+      	}
+      	fetch(request)
+      	.then(resolverQueue['R'+e.data.resolverUID])
+      	.catch(resolverQueue['R'+e.data.resolverUID]);
     break;
   }
 });
@@ -77,7 +93,7 @@ function checkMessagePort() {
                 client.postMessage({ message: 'port-missing' });
                 isRelinkingMessagePort = true;
               }
-              let timeout = 10000;
+              let timeout = 3000;
               let waiting = setInterval(() => {
                 timeout -= 10;
                 if (timeout === 0) {
@@ -109,7 +125,7 @@ function responseBySearch(e, resolve) {
     });
     uid++;
   }).catch(() => {
-    resolve(new Response('Cannot find requested file/directory. Make sure Codetmp is already open on other tab then refresh this page.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
+    resolve(new Response('Error: missing port. Make sure Codetmp is already open. If this problem persist try using another browser or switch to in-frame preview mode.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
   })
 }
 
@@ -154,7 +170,7 @@ self.addEventListener('fetch', function(e) {
             uid++;
           })
         }).catch(() => {
-          resolve(new Response('Request failed. Make sure Codetmp is already open.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
+          resolve(new Response('Error: missing port. Make sure Codetmp is already open. If this problem persist try using another browser or switch to in-frame preview mode.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
         }) 
 
       }).then((respomse) => {

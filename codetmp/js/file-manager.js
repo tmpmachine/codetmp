@@ -1,16 +1,11 @@
 let fileManager = new FileManager();
 let activeFile;
 let activeFolder = -1;
-
-let lastClickEl;
 let selectedFile = [];
 let clipBoard = [];
-let doubleClick = false;
-
 let fileTab = [];
 let activeTab = 0;
-
-let breadcrumbs = [{folderId:'-1',title:'My Files'}];
+let breadcrumbs = [{folderId:-1,title:'My Files'}];
 
 function File(data = {}) {
   
@@ -75,7 +70,7 @@ function FileManager() {
   async function writeToDisk() {
     let writable = await fileTab[activeTab].fileHandle.createWritable();
     let content = fileTab[activeTab].editor.env.editor.getValue();
-    if (settings.data.editor.divlessHTMLEnabled) {
+	if (helper.isMediaTypeHTML(fileTab[activeTab].name) && settings.data.editor.divlessHTMLEnabled) {
       content = divless.replace(content);
     }
     await writable.write(content);
@@ -127,9 +122,7 @@ function FileManager() {
       if (trashed) continue;
       
       let clsLock = '';
-      let defaultBg = '#777';
-      
-      defaultBg = getFileColor(name);
+      let iconColor = helper.getFileIconColor(name);
         
       if (fid === locked)
         clsLock = 'w3-text-purple';
@@ -137,7 +130,7 @@ function FileManager() {
       let el = o.cel('div',{ innerHTML: o.creps('tmp-file-list', {
         fid,
         name,
-        defaultBg,
+        iconColor,
         clsLock
       }) });
 
@@ -230,7 +223,7 @@ function FileManager() {
     }
   };
   
-  function saveUntitled() {
+  function saveAsNewFile() {
   	let fileName = $('.file-name')[activeTab].textContent;
     modal.prompt('File name', fileName, '', helper.getFileNameLength(fileName)).then(name => {
       if (!name) 
@@ -266,47 +259,40 @@ function FileManager() {
     });
   }
 
-  this.save = function() {
-    
-    let modifiedTime = new Date().toISOString();
-    if (activeFile === undefined) {
-      if (fileTab[activeTab].fileHandle !== null) {
-        writeToDisk()
-      } else {
-      	saveUntitled();
-      }
-    } else {
-      
-      if (fileTab[activeTab].fileHandle !== null) {
-        writeToDisk()
-      } else {
-        activeFile.content = fileTab[activeTab].editor.env.editor.getValue();
-        activeFile.modifiedTime = modifiedTime;
-        activeFile.description = ui.fileManager.getDescription();
-        handleSync({
-          fid: activeFile.fid,
-          action: 'update',
-          metadata: ['media', 'description'],
-          type: 'files'
-        });
-        drive.syncToDrive();
-        fileStorage.save();
-        $('.icon-rename')[activeTab].textContent = 'close';
-      }
+  function saveExistingFile() {
+    activeFile.content = fileTab[activeTab].editor.env.editor.getValue();
+    activeFile.modifiedTime = (new Date()).toISOString();
+    activeFile.description = ui.fileManager.getDescription();
+    handleSync({
+      fid: activeFile.fid,
+      action: 'update',
+      metadata: ['media', 'description'],
+      type: 'files'
+    });
+    drive.syncToDrive();
+    fileStorage.save();
+    $('.icon-rename')[activeTab].textContent = 'close';
+  }
 
+  this.save = function() {
+    if (fileTab[activeTab].fileHandle !== null) {
+        writeToDisk();
+    } else {
+      if (activeFile === undefined) {
+      	saveAsNewFile();
+      } else {
+        saveExistingFile();
+      }
     }
   };
   
   this.list = function() {
-    
     $('#file-list').innerHTML = '';
-    
     displayListFolders();
     displayListFiles();
     loadBreadCrumbs();
-    
     selectedFile.splice(0, 1);
-    ui.setFileActionButton();
+    ui.toggleFileActionButton();
   };
 
   function getFileContent(file) {
@@ -331,108 +317,263 @@ function FileManager() {
 
   function getFileHandle(file) {
     if (file.fileRef.name !== undefined) {
-      if (file.fileRef.entry !== undefined)
+      if (file.fileRef.entry !== undefined) {
         return file.fileRef.entry;
+      }
     }
     return null;
   }
 
+  function openOnEditor(f) {
+    activeFile = f;
+    if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
+      confirmCloseTab(false);
+
+    getFileContent(f).then(content => {
+      let idx = odin.idxOf(f.fid, fileTab, 'fid')
+      if (idx < 0) {
+        newTab(fileTab.length, {
+          fid: f.fid,
+          editor: initEditor(content),
+          name: f.name,
+          fiber: 'close',
+          file: f,
+          fileHandle: getFileHandle(f),
+        });
+      } else {
+        fileTab[activeTab].content = fileTab[activeTab].editor.env.editor.getValue();
+        focusTab(f.fid, false);
+      }
+      
+    if ($('#btn-menu-my-files').classList.contains('active'))
+        $('#btn-menu-my-files').click();
+  
+      openDevelopmentSettings(f.description);
+    })
+  }
+
   this.open = function(fid) {
-    
     let f = fileManager.get({fid, type: 'files'});
-    let isMediaTypeText = helper.isMediaTypeText(f.name);
+    let mimeType = helper.getMimeType(f.name);
 
     new Promise(function(resolve, reject) {
-            
-  	  if (f.loaded || !isMediaTypeText) {
+      let isMediaTypeMultimedia = helper.isMediaTypeMultimedia(mimeType);
+  	  if (f.loaded || isMediaTypeMultimedia) {
   	    resolve();
   	  } else {
   	    fileManager.downloadMedia(f).then(resolve);
   	  }
-  	  
   	}).then(() => {
-      
-      if (isMediaTypeText) {
-        
-     	activeFile = f;
-        if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
-          confirmCloseTab(false);
-    
-        getFileContent(f).then(content => {
-          let idx = odin.idxOf(f.fid, fileTab, 'fid')
-          if (idx < 0) {
-            newTab(fileTab.length, {
-              fid: f.fid,
-              editor: initEditor(content),
-              name: f.name,
-              fiber: 'close',
-              file: f,
-              fileHandle: getFileHandle(f),
-            });
-          } else {
-            fileTab[activeTab].content = fileTab[activeTab].editor.env.editor.getValue();
-            focusTab(f.fid, false);
-          }
-          
-        if ($('#btn-menu-my-files').classList.contains('active'))
-            $('#btn-menu-my-files').click();
-      
-          openDevelopmentSettings(f.description);
-        })
-
+      let isMediaTypeText = helper.isMediaTypeText(f.name);
+      let isMediaTypeStream = helper.isMediaTypeStream(f.name);
+      if (isMediaTypeText || isMediaTypeStream) {
+     	  openOnEditor(f);
       } else {
-        
-        previewMedia(fileManager.getFullPath(f));
-
+        ui.previewMedia(f, mimeType);
       }
-    	
     }).catch(function(error) {
       L(error);
       aww.pop('Could not download file');
     });
   };
 
-  function insertTreeToBundle(container, folder) {
+  this.getPreviewLink = function(f) {
+    return new Promise(async (resolve, reject) => {
+
+      let src = f.contentLink;
+
+      if (f.fileRef.name !== undefined) {
+        src = URL.createObjectURL(f.fileRef);
+      } else {
+        if (helper.isHasSource(f.content)) {
+          src = helper.getRemoteDataContent(f.content).downloadUrl;
+        } else {
+          if (f.id.length > 0 && src.length === 0) {
+            let contentLink = await drive.getWebContentLink(f.id);
+            f.contentLink = contentLink;
+            src = contentLink;
+            fileStorage.save();
+          }
+        }
+      }
+
+      if (src.length === 0)
+        reject();
+      else
+        resolve(src);
+    });
+  }
+
+  function insertTreeToBundle(container, folder, fileRequests, options) {
     let folders = fileManager.listFolders(container.fid);
     let files = fileManager.listFiles(container.fid);
     for (let f of folders) {
         let subFolder = folder.folder(f.name);
-        insertTreeToBundle(f, subFolder)
+        insertTreeToBundle(f, subFolder, fileRequests, options)
     }
     for (let f of files) {
+		if (f.trashed)
+	    	continue;
+
       if (f.fileRef.name !== undefined) {
         folder.file(f.name, f.fileRef, {binary: true});
       } else {
-        folder.file(f.name, f.content);
+    	  fileRequests.push({f, folder, options})
       }
     }
   }
 
-  this.createBundle = function(selectedFile, zip) {
-      return new Promise((resolve, reject) => {
-        for (let file of selectedFile) {
+  function getReqFileContent(f, options) {
+	  	return new Promise(resolve => {
+		      let mimeType = helper.getMimeType(f.name);
+
+		      if (f.loaded) {
+            
+            	let content = f.content;
+	          	if (needConvertDivless(f, options)) 
+	              content = divless.replace(content);
+              
+        		resolve(new Blob([content], {type: mimeType}));
+
+		      } else {
+
+			      if (helper.isHasSource(f.content)) {
+		        	let source = helper.getRemoteDataContent(f.content);
+		        	if (needConvertDivless(f, options)) 
+				      	fetch(source.downloadUrl).then(r => r.text()).then(content => {
+					      content = divless.replace(content);
+			        		resolve(new Blob([content], {type: mimeType}));
+
+				      	});
+			      	else
+				      	fetch(source.downloadUrl).then(r => r.blob()).then(resolve);
+			      } else {
+			        drive.downloadDependencies(f).then(media => {
+				      	if (helper.isHasSource(f.content)) {
+			        		let source = helper.getRemoteDataContent(f.content);
+			        		if (needConvertDivless(f, options)) 
+						      	fetch(source.downloadUrl).then(r => r.text()).then(content => {
+							      content = divless.replace(content);
+					        		resolve(new Blob([content], {type: mimeType}));
+						      	});
+					      	else
+					      		fetch(source.downloadUrl).then(r => r.blob()).then(resolve);
+			        	} else {
+			        		if (needConvertDivless(f, options)) 
+						      media = divless.replace(media);
+			        		resolve(new Blob([media], {type: mimeType}));
+			        	}
+			        });
+			      }
+
+		      }
+
+	  	});
+  }
+
+  function needConvertDivless(f, options) {
+  	if (helper.isMediaTypeHTML(f.name) && options.replaceDivless)
+  		return true;
+  	return false;
+  }
+
+  this.createBundle = function(selectedFile, zip, options) {
+	return new Promise(resolve => {
+
+		let fileRequests = [];
+
+		 for (let file of selectedFile) {
           if (file.dataset.type == 'folder') {
             let f = fileManager.get({fid: Number(file.getAttribute('data')), type: 'folders'})
             let folder = zip.folder(f.name);
-            insertTreeToBundle(f, folder);
+            insertTreeToBundle(f, folder, fileRequests, options);
           } else if (file.dataset.type == 'file') {
             let f = fileManager.get({fid: Number(file.getAttribute('data')), type: 'files'})
+            if (f.trashed)
+            	continue;
             if (f.fileRef.name !== undefined) {
-              zip.file(f.name, f.fileRef, {binary: true});
+              	zip.file(f.name, f.fileRef, {binary: true});
             } else {
-            	if (helper.isMediaTypeHTML(f.name) && settings.data.editor.divlessHTMLEnabled) {
-	            	zip.file(f.name, divless.replace(f.content));
-	          	} else {
-	            	zip.file(f.name, f.content);
-	          	}
+    		    	fileRequests.push({f, folder: zip, options})
             }
           }
         }
-        resolve();
-      });
+
+    	let countError = 0;
+       	handleRequestChunks(fileRequests, resolve, countError);
+	});
   }
 
-  this.getDuplicate = function(name, parentId, type = 'file') {
+  function replaceFileTag(content) {
+    let preParent = -1
+    let match = getMatchTemplate(content);
+    while (match !== null) {
+      let searchPath = JSON.parse(JSON.stringify(path = ['root']));
+      content = replaceFile(match, content, preParent, searchPath);
+      match = getMatchTemplate(content);
+    }
+    return content;
+  }
+
+  this.downloadSingle = function(file, options) {
+    return new Promise(resolve => {
+
+        new Promise(resolveReader => {
+
+            if (file.dataset.type == 'file') {
+              let f = fileManager.get({fid: Number(file.getAttribute('data')), type: 'files'})
+              if (!f.trashed) {
+                if (f.fileRef.name !== undefined) {
+                  resolveReader(f.fileRef);
+                } else {
+                  getReqFileContent(f, options).then(blob => {
+                    resolveReader(blob);
+                  })
+                }
+              } else {
+                resolve(null)
+              }
+            } else {
+                resolve(null)
+            }
+
+        }).then(blob => {
+          if (options.replaceFileTag) {
+            let mimeType = helper.getMimeType(f.name);
+              let reader = new FileReader();
+              reader.onload = function() {
+                let content = replaceFileTag(reader.result);
+                resolve(new Blob([content], {type: mimeType}));
+              }
+              reader.readAsText(blob);
+            } else {
+              resolve(blob);
+            }
+        })
+
+
+    });
+  }
+
+  function handleRequestChunks(requests, resolveZip, countError) {
+  	if (requests.length > 0) {
+  		let request = requests[0];
+  		getReqFileContent(request.f, request.options).then(content => {
+  			requests.shift();
+  			handleRequestChunks(requests, resolveZip, countError);
+  	     request.folder.file(request.f.name, content);
+  		}).catch(() => {
+  			requests.shift();
+  			handleRequestChunks(requests, resolveZip, countError+1);
+  		})
+  	} else {
+  		if (countError > 0)
+  			alert('There is an error while downloading files. You might want to redownload some files');
+  		resolveZip();
+  	}
+  }
+
+  this.getExistingItem = function(name, parentId, type = 'file') {
     let haystack;
     if (type == 'file')
       haystack = fileManager.listFiles(parentId);
@@ -440,11 +581,42 @@ function FileManager() {
       haystack = fileManager.listFolders(parentId);
 
     for (var i=0; i<haystack.length; i++) {
-      if (haystack[i].name === name && !haystack[i].trashed) {
+      if (haystack[i].trashed)
+        continue;
+      if (haystack[i].name === name) {
         return haystack[i];
       }
     }
     return null;
+  }
+
+  this.getDuplicateName = function(parentId, name, type = 'file', originalName = '', duplicateCount = 1) {
+    if (originalName == '')
+      originalName = name;
+    let existing = this.getExistingItem(name, parentId, type);
+    if (existing !== null) {
+        let ext = '';
+        var arr = originalName.split('.');
+        if (arr.length > 1) {
+          ext = '.'+arr.pop();
+        }
+        return this.getDuplicateName(parentId, arr.join('.')+' ('+duplicateCount+')'+ext, type, originalName, duplicateCount+1);
+    }
+    return name;
+  }
+
+  this.openFolder = function(folderId) {
+    activeFolder = folderId;
+    
+    if (activeFolder == -1) {
+      breadcrumbs.splice(1);
+    } else {
+      let folder = fileManager.get({fid: folderId, type: 'folders'});
+      title = folder.name;
+      breadcrumbs.push({folderId:activeFolder, title: title})
+    }
+    
+    fileManager.list();
   }
 }
 
@@ -534,34 +706,6 @@ function getFileAtPath(path, parentId = -1) {
   return found;
 }
 
-function fileClose(fid) {
-  
-  let idx;
-  
-  if (fid)
-    idx = odin.idxOf(String(fid), fileTab, 'fid')
-  else
-    idx = activeTab
-  
-  if (activeTab == idx) {
-    
-    activeTab = idx
-    confirmCloseTab()
-  } else {
-    
-    let tmp = activeTab;
-    activeTab = idx;
-    
-    if (idx < tmp)
-      confirmCloseTab(true, tmp-1)
-    else
-      confirmCloseTab(true, tmp)
-  }
-  
-}
-
-
-
 
 (function() {
 
@@ -649,255 +793,6 @@ function fileClose(fid) {
 })();
 
 
-function openFolder(folderId) {
-  activeFolder = folderId;
-  
-  if (activeFolder == -1) {
-    breadcrumbs.splice(1);
-  } else {
-    let folder = fileManager.get({fid: folderId, type: 'folders'});
-    title = folder.name;
-    breadcrumbs.push({folderId:activeFolder, title: title})
-  }
-  
-  fileManager.list();
-}
-
-
-(function() {
-  
-  function getBranch(parents) {
-    let files = []
-    let folders = []
-    
-    for (let p of parents) {
-      let f = fileManager.listFiles(p.fid);
-      let f2 = fileManager.listFolders(p.fid);
-      
-      for (let i of f)
-        files.push(i)
-      for (let i of f2)
-        folders.push(i)
-        
-      let data = getBranch(f2);
-      
-      for (let i of data.files)
-        files.push(i)
-      for (let i of data.folders)
-        folders.push(i)
-    }
-    
-    return {files: files, folders: folders};
-  }
-  
-  function getAllBranch(fid) {
-    let files = [];
-    let folders = fileManager.listFolders(fid, 'fid');
-    
-    let data = getBranch(folders);
-    
-    for (let f of data.files)
-      files.push(f)
-    for (let f of data.folders)
-      folders.push(f)
-      
-    let fileIds = [];
-    let folderIds = [];
-    for (let f of files)
-      fileIds.push(f.fid)
-    for (let f of folders)
-      folderIds.push(f.fid)
-      
-    return {fileIds: fileIds, folderIds: folderIds}
-  }
-  
-  window.getAllBranch = getAllBranch;
-  
-})();
-
-
-(function() {
-  
-  let copyParentFolderId = -2;
-  
-  function copyFile(cut) {
-    clipBoard.length = 0;
-    for (let f of selectedFile) {
-      if (clipBoard.indexOf(f) < 0) {
-        clipBoard.push(f);
-      }
-    }
-    
-    copyParentFolderId = activeFolder;
-    pasteFile.mode = cut ? 'cut' : 'copy';
-  }
-  window.copyFile = copyFile;
-  
-  function getDuplicateName(name, type = 'file', originalName = '', duplicateCount = 1) {
-  	if (originalName == '')
-  		originalName = name;
-  	let existing = fileManager.getDuplicate(name, copyParentFolderId, type);
-	if (existing !== null) {
-	  	let ext = '';
-	  	var arr = originalName.split('.');
-	  	if (arr.length > 1) {
-		  	ext = '.'+arr.pop();
-	  	}
-	  	return getDuplicateName(arr.join('.')+' ('+duplicateCount+')'+ext, type, originalName, duplicateCount+1);
-	}
-  	return name;
-  }
-
-  function copySingleFile({ id, fid, description, name, content, loaded }, modifiedTime) {
-    let action = (loaded) ? 'create' : 'copy';
-    let file = new File({
-      id,
-      name: getDuplicateName(name),
-      modifiedTime,
-      content,
-      description,
-      loaded,
-      parentId: activeFolder,
-    }, action, false, false);
-    fileManager.sync({
-      fid: file.fid, 
-      action, 
-      type: 'files',
-    });
-  }
-  
-  function copyBranchFile(fileIds, road, modifiedTime) {
-    
-    if (fileIds.length === 0) return;
-    
-    ({ id, fid, name, description, parentId, content, loaded, trashed } = fileManager.get({fid: fileIds[0], type: 'files'}));
-    
-    if (!trashed) {
-      let idx = odin.idxOf(parentId, road, 0);
-      let action = (loaded) ? 'create' : 'copy';
-      let file = new File({
-        id,
-        name: getDuplicateName(name),
-        description,
-        modifiedTime,
-        trashed,
-        content,
-        loaded,
-        parentId: road[idx][1],
-      }, action, false, false);
-      fileManager.sync({
-        fid: file.fid, 
-        action, 
-        type: 'files',
-      });
-    }
-    fileIds.splice(0, 1);
-    copyBranchFile(fileIds, road, modifiedTime);
-  }
-  
-  function copyBranchFolder(folderIds, modifiedTime, road = []) {
-  
-    if (folderIds.length === 0) return road;
-    
-    let folderId = folderIds[0];
-    
-    ({ name, modifiedTime, parentId, trashed } = fileManager.get({fid: folderId, type: 'folders'}));
-    
-    if (!trashed) {
-      road.push([folderId, fileStorage.data.counter.folders]);
-      
-      let idx = odin.idxOf(parentId, road, 0);
-      let folder = new Folder({
-        name: getDuplicateName(name, 'folder'),
-        modifiedTime,
-        parentId: (idx < 0) ? activeFolder : road[idx][1],
-      })
-      fileManager.sync({
-        fid: folder.fid, 
-        action: 'create', 
-        type: 'folders',
-      });
-    }
-    
-    folderIds.splice(0, 1);
-  
-    return copyBranchFolder(folderIds, modifiedTime, road);
-    
-  }
-  
-  function fileMove(data, fileType) {
-  
-    handleSync({
-      fid: data.fid,
-      action: 'update',
-      metadata: ['parents'],
-      type: fileType,
-      source: data.parentId
-    });
-    
-    data.parentId = activeFolder;
-  }
-  
-  function isBreadcrumb(folderId) {
-    for (let path of breadcrumbs.slice(1)) {
-      if (path.folderId == folderId) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function pasteFile() {
-    
-    if (clipBoard.length === 0) return;
-
-    while (clipBoard.length > 0) {
-      let data;
-      let fid = clipBoard[0].getAttribute('data');
-      let type = clipBoard[0].getAttribute('data-type');
-      let modifiedTime = new Date().toISOString();
-      
-      if (type === 'file') {
-        data = fileManager.get({fid, type:'files'});
-        if (pasteFile.mode === 'copy')
-          copySingleFile(data, modifiedTime);
-        else {
-          if (data.parentId !== activeFolder)
-            fileMove(data, 'files');
-        }
-      } else {
-        if (pasteFile.mode === 'copy') {
-          let branch = getAllBranch(fid);
-          let road = copyBranchFolder(branch.folderIds, modifiedTime);
-          copyBranchFile(branch.fileIds, road, modifiedTime);
-        } else {
-          data = fileManager.get({fid, type: 'folders'});
-          if (isBreadcrumb(fid)) {
-            aww.pop("Cannot move folder within it's own directory.");
-          } else {
-            fileMove(data, 'folders');
-          }
-        }
-      }
-      
-      clipBoard.splice(0, 1);
-      selectedFile.splice(0, 1);
-    }
-    
-    drive.syncToDrive();
-    fileStorage.save();
-    fileManager.list();
-    
-    copyParentFolderId = -2;
-  }
-  pasteFile.mode = 'copy';
-  
-  window.pasteFile = pasteFile;
-  
-})();
-
-
-
 function trashList() {
   
   var el;
@@ -924,9 +819,7 @@ function trashList() {
   
   for (let {fid, name, trashed} of files) {
     let clsLock = '';
-    let defaultBg = '#777';
-    
-    defaultBg = getFileColor(name);
+    let iconColor = helper.getFileIconColor(name);
       
     if (fid === locked)
       clsLock = 'w3-text-purple';
@@ -934,7 +827,7 @@ function trashList() {
     el = o.cel('div',{ innerHTML: o.creps('tmp-list-file-trash', {
       fid,
       name,
-      defaultBg,
+      iconColor,
       clsLock
     }) });
     

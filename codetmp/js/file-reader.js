@@ -131,7 +131,7 @@ const fileReaderModule = (function() {
 			let fileRef = await getFileRef(item.entry);
 			if (item.isPressedCtrlKey)
 				fileRef.entry = item.entry;
-			let existingItem = fileManager.getDuplicate(item.name, item.parentId);
+			let existingItem = fileManager.getExistingItem(item.name, item.parentId);
 			if (existingItem) {
 	        	modal.confirm(`Item with the same name already exists. Overwrite? (${truncate(item.name)})`).then(() => {
 					existingItem.fileRef = fileRef;
@@ -166,7 +166,7 @@ const fileReaderModule = (function() {
 	}
 
 	function handleItemDirectory(item) {
-		let folder = fileManager.getDuplicate(item.name, item.parentId, 'folder');
+		let folder = fileManager.getExistingItem(item.name, item.parentId, 'folder');
 		if (folder === null) {
 			folder = new Folder({
 			    parentId: item.parentId,
@@ -175,7 +175,7 @@ const fileReaderModule = (function() {
 			fileManager.sync({
 				fid: folder.fid, 
 			    action: 'create', 
-			    type: 'folder',
+			    type: 'folders',
 			});
 		}
 
@@ -370,15 +370,18 @@ const fileReaderModule = (function() {
 			keyHandler.timeout = setTimeout(function() {
 				isPressedCtrlKey = false;
 				changeDropMessage()
-			}, 500);
+			}, 50);
 		}
 	}
 
 	function showDropZone(dropZone) {
+		changeDropMessage()
 		dropZone.classList.toggle('w3-hide', false);
 		if (isSupportSaveFile) {
 			window.addEventListener('keydown', keyHandler);
 			window.addEventListener('keyup', keyHandler);
+			$('.Helpnote', dropZone)[0].classList.toggle('w3-opacity', !document.hasFocus());
+			$('.Helpnote', dropZone)[1].classList.toggle('w3-hide', document.hasFocus());
 		}
 	}
 
@@ -413,12 +416,11 @@ const fileReaderModule = (function() {
 		dropZone.addEventListener('drop', preventDefault);
 		dropZone.addEventListener('dragover', preventDefault);
 		dragZone.addEventListener('dragover', preventDefault);
-		
 		dragZone.addEventListener('dragenter', () => {
-			showDropZone(dropZone);
 			isDragging = true;
 			isPressedCtrlKey = false;
 			activeDropZone = dropZone;
+			showDropZone(dropZone);
 		});
 
 		dropZone.addEventListener('drop', e => {
@@ -428,9 +430,11 @@ const fileReaderModule = (function() {
 			else if (target == 'explorer')
 				handleExplorerDrop(e, target, isPressedCtrlKey);
 			isDragging = false;
+			isPressedCtrlKey = false;
 		});
 		dropZone.addEventListener('dragleave', () => {
 			hideDropZone(dropZone);
+			isPressedCtrlKey = false;
 			isDragging = false;
 		});
 	}
