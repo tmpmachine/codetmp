@@ -37,8 +37,9 @@ Advanced writing
 [ .class-1 @element-id .class-2 {background:red} contenteditable="true" "This is the content" .class-3 {padding:8px}]
 ```
 
-For available HTML & CSS shortnames, read more on https://github.com/tmpmachine/divless-html.
+For available HTML & CSS shortnames, read more at https://github.com/tmpmachine/divless-html.
 
+Documentation : https://github.com/tmpmachine/codetmp/wiki/Divless,-nameless-close-HTML-tag.
 
 ## Contribute
 You can just grab a clone of this repo and open `codetmp/index.html` without local server. You will need a local server and set your own Google Project Id to use Google products API.
