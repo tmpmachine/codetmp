@@ -1,6 +1,9 @@
 # Codetmp
 Codetmp helps you develop JavaScript applications in the browser.
 
+## Dear, Forkers and Developers
+This project is build with plain JavaScript because I can't setup proper development environment due to my PC hardware condition back in 2017. Always checkout to the latest development branch version for better structured file and code. Regards.
+
 ## Official Website
 [https://codetmp.web.app](https://codetmp.web.app)
 
