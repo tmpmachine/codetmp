@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  
+  <link type="image/x-icon" rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII="/>
+  <meta charset="utf-8"/>
+  <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+  
+</head>
+<body>
+
+  Nothing to show here. Please go to <a href="https://codetmp.web.app">Codetmp</a> and write your code.
+  
+  <script> L = console.log </script>
+  <!-- service worker handler -->
+  <script>
+    let isReady = false;
+    let controllerResolver = null;
+
+     if (window.opener !== null) {
+        new Promise(function(resolve) {
+          controllerResolver = resolve;
+        }).then(function() {
+          window.opener.postMessage({ message:'preview-frame-isReady' }, '*');
+        })
+      }
+
+    if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
+      
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        location.href = location.href;
+      });
+      
+      navigator.serviceWorker.register('/sw.js').then(function(sw) {
+        if (!navigator.serviceWorker.controller) {
+          return;
+        }
+        
+        if (controllerResolver)
+          controllerResolver();
+
+        if (sw.waiting) {
+          sw.waiting.postMessage({message: 'skipWaiting'});
+          L('Preview page updated. You might want to reload the page.');
+          return;
+        }
+    
+        if (sw.installing) {
+          sw.installing.addEventListener('statechange', function() {
+            if (sw.installing.state == 'installed') {
+              sw.waiting.postMessage({message: 'skipWaiting'});
+              L('Preview page updated. You might want to reload the page.');
+            }
+          })
+          return;
+        }
+        
+        sw.addEventListener('updatefound',function() {
+          sw.installing.addEventListener('statechange', function() {
+            if (this.state == 'installed') {
+              sw.waiting.postMessage({message: 'skipWaiting'});
+              L('Preview page updated. You might want to reload the page.');
+            }
+          })
+        })
+      }).catch(function() {
+        console.error('Something went wrong.')
+      });
+    }
+  </script>
+  <script>
+
+    (function() {
+      
+      window.addEventListener('message', messageReceiver, false);
+      
+      function messageReceiver(e) {
+      	if (typeof(e.data) == 'undefined')
+      		return;
+
+      	switch (e.data.message) {
+          case 'init-message-port':
+	          navigator.serviceWorker.controller.postMessage({ message: 'init-message-port' }, [e.ports[0]]);
+      		break;
+          case 'reinit-message-port':
+            navigator.serviceWorker.controller.postMessage({ message: 'reinit-message-port' }, [e.ports[0]]);
+          break;
+      		case 'response-file':
+          case 'response-file-multimedia':
+	          navigator.serviceWorker.controller.postMessage({
+	            message: e.data.message,
+	            mime: e.data.mime,
+	            content: e.data.content,
+	            resolverUID: e.data.resolverUID,
+	          });
+      		break;
+      	}
+      }
+
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (typeof(event.data) == 'undefined')
+          return;
+
+        switch (event.data.message) {
+          case 'port-missing':
+            window.opener.postMessage({ message: 'port-missing' }, '*');
+          break;
+          case 'message-port-opened':
+            window.opener.postMessage({ message: 'message-port-opened' }, '*');
+          break;
+        }
+      });
+
+    })();
+
+  </script>
+  
+</body>
+</html>

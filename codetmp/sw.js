@@ -1,0 +1,126 @@
+L = console.log;
+let cacheVersion = '7.1754';
+let cacheItem = 'codetmp-'+cacheVersion;
+
+self.addEventListener('message', function(e) {
+  if (e.data.action == 'skipWaiting') {
+    self.skipWaiting();
+  } else if (e.data && e.data.type == 'extension' && e.data.name !== null && e.data.name.length > 0) {
+    cacheExtension(e); 
+  }
+});
+
+self.addEventListener('install', function(event) {
+
+  let urls = [
+    '/',
+    '/css/style.css',
+    
+    '/assets/ace/ace.js',
+    '/assets/ace/theme-codetmp.js',
+    '/assets/ace/theme-github.js',
+    '/assets/ace/mode-html.js',
+    '/assets/ace/mode-json.js',
+    '/assets/ace/mode-css.js',
+    '/assets/ace/mode-javascript.js',
+    '/assets/ace/worker-html.js',
+    '/assets/ace/worker-json.js',
+    '/assets/ace/worker-css.js',
+    '/assets/ace/worker-javascript.js',
+    '/assets/ace/ext-searchbox.js',
+    '/assets/ace/ext-prompt.js',
+    '/assets/ace/ext-language_tools.js',
+    '/assets/ace/snippets/javascript.js',
+    '/assets/ace/snippets/html.js',
+
+    '/assets/images/128.png',
+    '/assets/images/128ap.png',
+    '/assets/images/192.png', 
+    '/assets/images/GitHub_Logo.png', 
+    
+    'https://fonts.googleapis.com/css2?family=Material+Icons+Round', 
+    'https://fonts.gstatic.com/s/materialiconsround/v37/LDItaoyNOAY6Uewc665JcIzCKsKc_M9flwmP.woff2', 
+
+    '/views/modals.html',
+    '/views/templates.html',
+
+    '/js/require/divless.js',
+    '/js/require/o.js',
+    '/js/require/auth2helper.js',
+    '/js/require/lsdb.js',
+    '/js/require/keyboard.js',
+    '/js/require/odin.js',
+    '/js/require/oblog.js',
+    '/js/require/aww.js',
+    '/js/require/jszip.min.js',
+
+    '/js/components/api.js',
+    '/js/components/extension.js',
+    '/js/components/preferences.js',
+    '/js/components/modal.js',
+    '/js/components/helper.js',
+    '/js/components/file-reader.js',
+    '/js/components/git.js',
+    '/js/components/notifier.js',
+    '/js/components/template.js',
+    '/js/components/preview.js',
+    '/js/components/clipboard.js',
+    '/js/components/file-manager.js',
+    '/js/components/drive.js',
+    
+    '/js/dom-events.js',
+    '/js/ux.js',
+    
+    '/index.js',
+  ];
+ 
+  event.waitUntil(
+    Promise.all([
+      caches.open(cacheItem).then(function(cache) {
+        return cache.addAll(urls);
+      }),
+    	self.skipWaiting(),
+    ]).catch(error => {
+      console.error(error);
+    })
+  );  
+});
+
+self.addEventListener('activate', function(e) {
+  e.waitUntil(Promise.all([
+    caches.keys().then(function(c) {
+      c.map(function(cname) {
+        if (!cname.endsWith(cacheVersion))
+          caches.delete(cname);
+      });
+    }),
+  	self.clients.claim(),
+  ]));
+});
+
+self.addEventListener('fetch', function(e) {
+  e.respondWith(
+    caches.match(e.request).then(function(resp) {
+      if (resp)
+        return resp;
+      
+      return fetch(e.request).then(function(r) {
+        return r;
+      }).catch(function() {
+        console.error('Check connection.');
+      });
+    })
+  );
+});
+
+function cacheExtension(e) {
+  	e.waitUntil(Promise.all([
+      caches.open(cacheItem).then(function(cache) {
+        return cache.addAll(e.data.files);
+      }),
+      e.source.postMessage({ 
+      	name: e.data.name, 
+      	type: e.data.type,
+      }),
+    ]));
+}
