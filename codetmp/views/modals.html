@@ -1,0 +1,347 @@
+<export>
+
+<div class="search-box w3-container w3-hide Export" style="position:fixed;z-index:8177;top:0;width:100%;">
+  <div class="w3-padding-large"></div>
+  <div class="w3-left-align" style="max-width:400px;margin:auto;">
+    <div class="w3-card" style="position:relative;">
+      <div class="search-box" style="position:relative;">
+        <div class="w3-round w3-white" style="position:relative;z-index:1;">
+          <div class="w3-left w3-right">
+            <label for="search-input">
+              <i id="btn-somefun" class="material-icons ai-button w3-container w3-padding-16 w3-xlarge" onclick="somefun(this)">search</i>
+            </label>
+          </div>
+          <div class="button-tb" style="overflow:hidden;">
+            <input id="search-input" class="w3-padding-16 w3-round w3-white w3-padding" autocomplete='off' onkeydown='wgSearch.selectHints()' oninput='wgSearch.find(this.value)' placeholder='Search snippets' type='text' name='q' style="width:100%;border:0;"/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="search-result" style="position:relative;z-index:1;top:-2px;"></div>
+  </div>
+</div>
+
+<div id="update-notif" class="Export" style="position:fixed;bottom:0;left:0;background:#0b0b0e;color:#ccc;z-index:8177;font-weight:bold;width:100%;">
+  <div class="w3-right">
+    <div id="btn-refresh" class="w3-left w3-padding-16 w3-container" style="text-transform:uppercase;font-weight:bold;color:#d8d782;">Refresh</div>
+    <div id="btn-dismiss" class="w3-left w3-padding-16 w3-container" style="text-transform:uppercase;font-weight:bold;">Dismiss</div>
+  </div>
+  <div class="w3-rest">
+    <div class="w3-padding-16 w3-container w3-small">New version available</div>
+  </div>
+</div>
+
+<div id="cprompt-modal" class="window Hide Export" data-name="account" style="display: grid;align-items: center">
+  <div class="Wrapper" style="height: auto">
+      <div class="Overlay" data-target="account"></div>
+      <div class="Modal bg8 col3">
+        <div class="Header no-select">
+          <h5><b class="Title"></b></h5>
+          <i class="Btn-close material-icons w3-button w3-hover-none" data-target="account" style="color:#aaa;">close</i>
+        </div>
+      <div class="Content">
+        <form class="form">
+          <input type="" name="" class="w3-input" spellcheck="false">
+          <small class="Notes"></small>
+          <div class="w3-margin-top w3-right-align no-select">
+            <button class="Btn-submit btn-style-1" type="submit" name="submit" ><i class="material-icons">check</i>Ok</button>
+            <button name="cancel" class="Btn-cancel btn-style-2"><i class="material-icons">close</i>Cancel</button>
+          </div>
+        </form>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div id="cconfirm-modal" class="window Hide Export" data-name="account" style="display: grid;align-items: center">
+  <div class="Wrapper" style="height: auto">
+      <div class="Overlay" data-target="account"></div>
+      <div class="Modal bg8 col3">
+        <div class="Header no-select">
+          <h5><b class="Title">Confirm</b></h5>
+          <i class="Btn-close material-icons w3-button w3-hover-none" data-target="account" style="color:#aaa;">close</i>
+        </div>
+      <div class="Content">
+        <form class="form">
+          <p class="Message"></p>
+          <div class="w3-margin-top w3-right-align no-select">
+            <button class="Btn-submit btn-style-1" type="submit" name="submit" ><i class="material-icons">check</i>Ok</button>
+            <button name="cancel" class="Btn-cancel btn-style-2"><i class="material-icons">close</i>Cancel</button>
+          </div>
+        </form>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div class="window modal-window Hide Export" data-name="settings">
+  <div class="Wrapper">
+      <div class="Overlay" data-target="settings"></div>
+      <div class="Modal bg8 col3">
+        <div class="Header no-select">
+          <h5><b>Settings</b></h5>
+          <i class="Btn-close material-icons w3-button w3-hover-none" data-target="settings" style="color:#aaa;">close</i>
+        </div>
+      <div class="Content">
+        <h6 style="font-weight:bold;">Preview</h6>
+        <p>
+          <label><input data-name="divlessHTMLEnabled" class="w3-check input-settings" type="checkbox"/> Replace Divless-HTML tag</label>
+        </p>
+        <hr>
+        <h6 style="font-weight:bold;">Editor</h6>
+        <p>
+          <label><input data-name="emmetEnabled" class="w3-check input-settings" type="checkbox"/> Emmet Support</label>
+        </p>
+        <p>
+          <label><input data-name="autoCompleteEnabled" class="w3-check input-settings" type="checkbox"/> Autocompletion</label>
+        </p>
+        <hr/>
+        <h6 style="font-weight:bold;">Google Drive Sync</h6>
+        <input id="check-auto-sync" class="w3-check" type="checkbox" oninput="ui.toggleAutoSync()" checked/> <label for="check-auto-sync">Automatically sync files and folders</label>          
+        <hr/>
+        <h6 style="font-weight:bold;">File Storage</h6>
+        <p>Delete locally saved files & folders (doesn't affect your files on Google Drive).</p>
+        <button class="btn-style-1 clickable" style="width:auto" data-callback="clear-data">Clear data</button>
+        
+        <hr/>
+        <h6 style="font-weight:bold;">GitHub Token</h6>
+        <p>Set personal access token to get higher rate limit. Valid until this application is closed.</p>
+        <input id="check-save-token" class="w3-check" type="checkbox" oninput="ui.toggleSaveToken()"/> <label for="check-save-token">Store token in browser storage</label>
+        <br>
+        <br>
+        <button class="btn-style-1 clickable" style="width:auto" data-callback="set-git-token">Set token</button>
+        </div>
+        <div style="padding: 8px 12px;background: #ffffff;" class="w3-hide-medium w3-hide-large">
+          <div class=" w3-button w3-border w3-block clickable" data-callback="toggle-settings" style="text-align: center;background: dodgerblue;color:#fff;">
+            <div class="w3-small w3-padding-small" style="font-weight:bold;">Close</div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div class="window modal-window Hide Export" data-name="publish-blogger">
+  <div class="Wrapper">
+      <div class="Overlay" data-target="publish-blogger"></div>
+      <div class="Modal bg8 col3">
+        <div class="Header no-select">
+          <h5><b>Publish to Blogger</b></h5>
+          <i class="Btn-close material-icons w3-button w3-hover-none" data-target="publish-blogger" style="color:#aaa;">close</i>
+        </div>
+      <div class="Content">
+
+	      <div class="unauthorized">You're not logged in. Sign in to use this feature.</div>
+        <form id="blog" class="authorized submittable preventDefault if-post" data-callback="publish-blog">
+          
+        	<p>Item to publish : currently opened tab.</p>
+
+          <div class="w3-tiny">Select Blog (or create a new one at <a href="https://blogger.com"><u>Blogger</u></a>)</div>
+          <select id="blog-list" name="blogId"></select>
+          <br/>
+          <div class="w3-tiny">
+          	<span class="if-post">Page Type</span>
+          </div>
+          <label>
+            <input type="radio" name="postType" value="posts" checked=""> Post
+          </label>
+          <label>
+            <input type="radio" name="postType" value="pages"> Page
+          </label>
+          <div class="w3-tiny">
+          	<span class="if-post">Post Title</span>
+          </div>
+          <input class="description" name="postTitle" style="width:100%;"/>
+          <div class="w3-tiny">
+          	<span class="if-post">Entry ID (leave blank if you're posting a new entry)</span>
+          </div>
+          <input class="description" name="entryId" style="width:100%;"/>
+          <div class="w3-tiny">
+          	<span class="if-post">Publish Option</span>
+          </div>
+	      <label><input type="checkbox" name="option"> Update entry title</label>
+          <div style="height:1em"></div>
+          <button class="btn-style-1">Publish</button>
+        </form>
+
+        <div style="padding: 8px 12px;background: #ffffff;" class="w3-hide-medium w3-hide-large">
+          <div class=" w3-button w3-border w3-block Btn-close" data-target="publish-blogger" style="text-align: center;background: dodgerblue;color:#fff;">
+            <div class="w3-small w3-padding-small" style="font-weight:bold;">Close</div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div class="window modal-window Hide Export" data-name="deploy-firebase">
+  <div class="Wrapper">
+      <div class="Overlay" data-target="deploy-firebase"></div>
+      <div class="Modal bg8 col3">
+        <div class="Header no-select">
+          <h5><b>Deploy to Firebase Hosting</b></h5>
+          <i class="Btn-close material-icons w3-button w3-hover-none" data-target="deploy-firebase" style="color:#aaa;">close</i>
+        </div>
+      <div class="Content">
+
+        <div class="unauthorized">You're not logged in. Sign in to use this feature.</div>
+
+        <div class="feature-disabled" data-feature="firebase">
+          Access to Firebase account is required.
+          <div style="height:1em"></div>
+          <button class="clickable btn-style-1" style="width:100%" data-callback="grant-firebase-access">Grant Access</button>
+        </div>
+
+        <form class="authorized feature-enabled submittable preventDefault if-post" data-callback="deploy-hosting" data-feature="firebase">
+          
+          <p>Note : You are deploying current opened directory.</p>
+          <div class="w3-tiny">Manage your project at <a href="https://firebase.google.com/"><u>Firebase</u></a></div>
+
+          <div style="height:1em"></div>
+          <div class="w3-tiny">Select Project</div>
+          <select id="project-list" class="inputable" data-callback="select-project" name="projectId"></select>
+          <div style="height:1em"></div>
+          <div class="w3-tiny">
+            <span class="if-post">Select Site</span>
+          </div>
+          <select id="site-list" class="inputable" data-callback="select-site" name="siteId"></select>
+          
+          <div style="height:1em"></div>
+          <button class="btn-style-1">Deploy</button>
+          <div style="height:1em"></div>
+          <div id="deploy-logs"></div>
+        </form>
+
+        <div style="padding: 8px 12px;background: #ffffff;" class="w3-hide-medium w3-hide-large">
+          <div class=" w3-button w3-border w3-block Btn-close" data-target="deploy-firebase" style="text-align: center;background: dodgerblue;color:#fff;">
+            <div class="w3-small w3-padding-small" style="font-weight:bold;">Close</div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div class="window modal-window Hide Export" data-name="file-download">
+  <div class="Wrapper" style="height:100%;display:flex;align-items:center">
+      <div class="Overlay" data-target="file-download"></div>
+      <div class="Modal bg8 col3" style="width:100%">
+        <div class="Header no-select">
+          <h5><b>File Download</b></h5>
+          <i class="Btn-close material-icons w3-button w3-hover-none" data-target="file-download" style="color:#aaa;">close</i>
+        </div>
+      <div class="Content">
+        <h6 style="font-weight:bold;">Download options</h6>
+        <form class="submittable preventDefault" data-callback="confirm-download">
+          <p >
+            <label class="no-select"><input class="w3-check" name="replaceDivless" type="checkbox"/> Replace Divless-HTML tag</label>
+          </p>
+          <p class="no-select">
+          <!-- <p class="no-select _in-replaceFileTemplate"> -->
+            <label class="no-select"><input class="w3-check" name="replaceFileTag" type="checkbox"/> Replace &lt;file> template </label>
+          </p>
+          <div style="text-align:right;">
+            <button class="btn-style-1" name="submit" style="width:auto">Download</button>
+          </div>
+        </form>
+        </div>
+        <div style="padding: 8px 12px;background: #ffffff;" class="w3-hide-medium w3-hide-large">
+          <div class=" w3-button w3-border w3-block clickable" data-callback="file-download" style="text-align: center;background: dodgerblue;color:#fff;">
+            <div class="w3-small w3-padding-small" style="font-weight:bold;">Close</div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div class="window modal-window Hide Export" data-name="account">
+  <div class="Wrapper">
+      <div class="Overlay" data-target="account"></div>
+      <div class="Modal bg8 col3">
+        <div class="Header no-select">
+          <h5><b>My Account</b></h5>
+          <i class="Btn-close material-icons w3-button w3-hover-none" data-target="account" style="color:#aaa;">close</i>
+        </div>
+      <div class="Content">
+        <p class="w3-small unauthorized">(!) Your files are <b>currently stored locally</b> in browser storage. Sign in to synchronize with Google Drive across devices.</p>
+        <div id="g-signin2" class="unauthorized"></div>
+        <div class="authorized">
+          <button class="btn-style-1 clickable" style="width:auto" data-callback="sign-out">Sign out</button>
+        </div>
+        <hr/>
+        <p class="w3-small">By using <b>Codetmp</b>, you're considered agreed to terms and condition written on articles below :</p>
+        <ul>
+          <li>
+             <u><a target="_blank" href="/TOS.html" style="font-weight:bold;">Terms of Service</a></u>
+          </li>
+          <li>
+             <u><a href="/PP.html" target="_blank" style="font-weight:bold;">Privacy Policy</a></u>
+          </li>
+        </ul>
+        </div>
+        <div style="padding: 8px 12px;background: #ffffff;" class="w3-hide-medium w3-hide-large">
+          <div class=" w3-button w3-border w3-block clickable" data-callback="toggle-account" style="text-align: center;background: dodgerblue;color:#fff;">
+             <div class="w3-small w3-padding-small" style="font-weight:bold;">Close</div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div class="window modal-window Hide Export" data-name="file-info">
+  <div class="Wrapper">
+      <div class="Overlay" data-target="file-info"></div>
+      <div class="Modal bg8 col3">
+        <div class="Header no-select">
+          <h5><b>File Info</b></h5>
+          <i class="Btn-close material-icons w3-button w3-hover-none" data-target="file-info" style="color:#aaa;">close</i>
+        </div>
+      <div class="Content">
+                    
+            <div id="btn-open-directory" class="w3-button w3-border w3-margin-bottom w3-block w3-hide">
+              <div class="w3-small w3-padding-small w3-left" style="font-weight:bold;">Open Directory</div>
+            </div>
+            <small>Preview mode</small>
+            <div>
+              <input id="in-SPA-mode" class="description" type="checkbox" name="spa-preview"/> <label class="w3-tiny" for="in-SPA-mode">Single Page Application</label>
+            </div>
+
+            <div class="authorized">
+              <small>Development</small>
+              <div class="w3-tiny">Blog name</div>
+              <input id="in-blog-name" class="description" name="blogName" style="width:100%;"/>
+              <div class="w3-tiny">Blog ID</div>
+              <input id="in-blog-id" class="description" name="blogId" style="width:100%;"/>
+              <div class="w3-tiny">Entry ID</div>
+              <input id="in-eid" class="description" name="entryId" style="width:100%;"/>
+              <div class="w3-tiny" style="margin-top:1em;">Render and deploy option</div>
+              <button class="clickable" data-callback="btn-create-entry">Create Blog Entry</button>
+            </div>
+        </div>
+        <div style="padding: 8px 12px;background: #ffffff;" class="w3-hide-medium w3-hide-large">
+          <div class=" w3-button w3-border w3-block clickable" data-callback="toggle-file-info" style="text-align: center;background: dodgerblue;color:#fff;">
+             <div class="w3-small w3-padding-small" style="font-weight:bold;">Close</div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div class="media-preview window modal-window Hide Export" data-name="media-preview" data-close="closeMediaPreview">
+  <div class="Inner">
+    <div class="Header no-select">
+      <div class="Title"></div>
+      <i class="material-icons w3-button w3-hover-none Download Act-button" title="Download media">get_app</i>
+      <i class="Btn-close material-icons w3-button w3-hover-none Act-button" data-target="media-preview">close</i>
+    </div>
+    <div style="padding:16px;height: 100%;overflow: hidden;">
+      <div class="Media">
+        <div class="Overlay" data-target="media-preview"></div>
+      </div>
+    <div>
+  </div>
+</div>
+
+</export>
+
+<script>
+  let content = document.getElementsByTagName('export')[0].innerHTML.trim();
+  window.opener.postMessage({ content }, '*');
+</script>

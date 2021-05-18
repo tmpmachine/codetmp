@@ -25,7 +25,7 @@ function minifyFiles() {
 	function minifyCSS(srcPath) {
 		fs.readdir(srcPath, (err, files) => {
 		  	files.forEach(filename => {
-		    	if (['style.css'].includes(filename)) {
+		    	if (['css/style.css'].includes(filename)) {
 					minify(srcPath+filename, {minifyCSS: true}).then(content => {
 						let path = srcPath+filename
 						fs.writeFile(path, content, () => {
@@ -40,8 +40,8 @@ function minifyFiles() {
 	function minifyHTML(srcPath) {
 		fs.readdir(srcPath, (err, files) => {
 		  	files.forEach(filename => {
-		    	if (['index.html'].includes(filename)) {
-					let path = srcPath+filename
+		    	if (filename.endsWith('.html')) {
+					let path = srcPath+filename;
 		    		fs.readFile(path, 'utf8' , (err, data) => {
 					  	if (err) {
 					    	console.error(err)
@@ -61,7 +61,9 @@ function minifyFiles() {
 	}
 
 	minifyHTML('./deploy/codetmp/');
+	minifyHTML('./deploy/codetmp/views/');
 	minifyCSS('./deploy/codetmp/');
 	minifyJS('./deploy/codetmp/js/');
-	minifyJS('./deploy/codetmp/require/');
+	minifyJS('./deploy/codetmp/js/require/');
+	minifyJS('./deploy/codetmp/js/components/');
 }

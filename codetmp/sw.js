@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '7.1';
+let cacheVersion = '7.1754';
 let cacheItem = 'codetmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
@@ -14,64 +14,76 @@ self.addEventListener('install', function(event) {
 
   let urls = [
     '/',
-    '/style.css',
-    '/ace/theme-codetmp.js',
-    '/ace/theme-github.js',
-    '/ace/mode-html.js',
-    '/ace/mode-json.js',
-    '/ace/mode-css.js',
-    '/ace/mode-javascript.js',
-    '/ace/worker-html.js',
-    '/ace/worker-json.js',
-    '/ace/worker-css.js',
-    '/ace/worker-javascript.js',
-    '/ace/ext-searchbox.js',
-    '/ace/ext-prompt.js',
+    '/css/style.css',
+    
+    '/assets/ace/ace.js',
+    '/assets/ace/theme-codetmp.js',
+    '/assets/ace/theme-github.js',
+    '/assets/ace/mode-html.js',
+    '/assets/ace/mode-json.js',
+    '/assets/ace/mode-css.js',
+    '/assets/ace/mode-javascript.js',
+    '/assets/ace/worker-html.js',
+    '/assets/ace/worker-json.js',
+    '/assets/ace/worker-css.js',
+    '/assets/ace/worker-javascript.js',
+    '/assets/ace/ext-searchbox.js',
+    '/assets/ace/ext-prompt.js',
+    '/assets/ace/ext-language_tools.js',
+    '/assets/ace/snippets/javascript.js',
+    '/assets/ace/snippets/html.js',
 
-    '/images/128.png',
-    '/images/128ap.png',
-    '/images/192.png', 
-    '/images/google/1x/btn_google_signin_dark_normal_web.png',
-    '/images/google/1x/btn_google_signin_dark_focus_web.png',
-    '/images/google/1x/btn_google_signin_dark_pressed_web.png',
-    '/assets/GitHub_Logo.png', 
+    '/assets/images/128.png',
+    '/assets/images/128ap.png',
+    '/assets/images/192.png', 
+    '/assets/images/GitHub_Logo.png', 
+    
     'https://fonts.googleapis.com/css2?family=Material+Icons+Round', 
     'https://fonts.gstatic.com/s/materialiconsround/v37/LDItaoyNOAY6Uewc665JcIzCKsKc_M9flwmP.woff2', 
 
-    '/require/divless.js',
-    '/require/o.js',
-    '/require/auth2helper.js',
-    '/require/lsdb.js',
-    '/require/keyboard.js',
-    '/require/odin.js',
-    '/require/oblog.js',
-    '/require/aww.js',
-    '/require/jszip.min.js',
+    '/views/modals.html',
+    '/views/templates.html',
 
-    '/js/api.js',
-    '/js/extension.js',
-    '/js/preferences.js',
-    '/js/modal.js',
-    '/js/helper.js',
-    '/js/file-reader.js',
-    '/js/git.js',
-    '/js/template.js',
-    '/js/preview.js',
-    '/js/ux.js',
-    '/js/clipboard.js',
-    '/js/file-manager.js',
-    '/js/drive.js',
-    '/index.js',
+    '/js/require/divless.js',
+    '/js/require/o.js',
+    '/js/require/auth2helper.js',
+    '/js/require/lsdb.js',
+    '/js/require/keyboard.js',
+    '/js/require/odin.js',
+    '/js/require/oblog.js',
+    '/js/require/aww.js',
+    '/js/require/jszip.min.js',
+
+    '/js/components/api.js',
+    '/js/components/extension.js',
+    '/js/components/preferences.js',
+    '/js/components/modal.js',
+    '/js/components/helper.js',
+    '/js/components/file-reader.js',
+    '/js/components/git.js',
+    '/js/components/notifier.js',
+    '/js/components/template.js',
+    '/js/components/preview.js',
+    '/js/components/clipboard.js',
+    '/js/components/file-manager.js',
+    '/js/components/drive.js',
     
-    '/ace/ace.js',
+    '/js/dom-events.js',
+    '/js/ux.js',
+    
+    '/index.js',
   ];
  
-  event.waitUntil(Promise.all([
-    caches.open(cacheItem).then(function(cache) {
-      return cache.addAll(urls);
-    }),
-  	self.skipWaiting(),
-  ]));  
+  event.waitUntil(
+    Promise.all([
+      caches.open(cacheItem).then(function(cache) {
+        return cache.addAll(urls);
+      }),
+    	self.skipWaiting(),
+    ]).catch(error => {
+      console.error(error);
+    })
+  );  
 });
 
 self.addEventListener('activate', function(e) {

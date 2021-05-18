@@ -1,11 +1,11 @@
 {
   "name": "Codetmp",
   "icons": [{
-    "src": "images/128.png",
+    "src": "assets/images/128.png",
     "type": "image/png",
     "sizes": "128x128"
   }, {
-    "src": "images/192.png",
+    "src": "assets/images/192.png",
     "type": "image/png",
     "sizes": "192x192"
   }],

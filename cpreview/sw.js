@@ -5,7 +5,7 @@ let messagePort;
 let resolverQueue = {};
 let uid = 0;
 let isRelinkingMessagePort = false;
-let rere;
+let catchedBlob = {};
 
 self.addEventListener('message', function(e) {
   if (typeof(e.data) == 'undefined')
@@ -25,7 +25,7 @@ self.addEventListener('message', function(e) {
     break;
     case 'response-file':
       let response;
-      if (e.data.content == '<404/>') {
+      if (e.data.content == '<404></404>') {
         response = new Response('Not found', {status: 404, statusText: 'not found'});
       } else {
         response = new Response(e.data.content, {headers:{'Content-Type': e.data.mime}});
@@ -43,9 +43,20 @@ self.addEventListener('message', function(e) {
       	if (data.source == 'git') {
       		request = new Request(data.contentLink);
       	}
-      	fetch(request)
-      	.then(resolverQueue['R'+e.data.resolverUID])
-      	.catch(resolverQueue['R'+e.data.resolverUID]);
+
+        if (catchedBlob[data.contentLink]) {
+            let response = new Response(catchedBlob[data.contentLink]);
+            resolverQueue['R'+e.data.resolverUID](response);
+        } else {
+        	fetch(request)
+        	.then(r => r.blob())
+          .then(blob => {
+            catchedBlob[data.contentLink] = blob;
+            let response = new Response(catchedBlob[data.contentLink]);
+            resolverQueue['R'+e.data.resolverUID](response);
+          })
+        	.catch(resolverQueue['R'+e.data.resolverUID]);
+        }
     break;
   }
 });
