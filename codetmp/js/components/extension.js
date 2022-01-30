@@ -45,7 +45,10 @@ const extension = (function() {
 
   function load(name) {
     let ext = getModule(name);
-    loadExternalFiles(ext.files).then(ext.callback);
+    window.app.loadFiles([{
+      urls: ext.files,
+      callback: ext.callback,
+    }]);
   }
 
   function cache(name) {
@@ -62,4 +65,5 @@ const extension = (function() {
     load, 
     cache,
   };
+  
 })();

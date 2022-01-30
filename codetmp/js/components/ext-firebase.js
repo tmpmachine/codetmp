@@ -5,20 +5,21 @@ const fire = (() => {
   let ver = '';
   let hash = '';
   let token = '';
+  let _cacheControl = 1800;
   let headers = {
     'Authorization': 'Bearer '+token,
     'Content-Type': 'application/json',
   };
   let logger = $('#deploy-logs');
 
-  function selectProject() {
-    projectId = this.value;
+  function selectProject(value) {
+    projectId = value;
     $('#site-list').innerHTML = '';
     listSite();
   }
 
-  function selectSite(_siteId) {
-    siteId = _siteId;
+  function selectSite(value) {
+    siteID = value;
   }
 
   function listProject() {
@@ -109,7 +110,7 @@ const fire = (() => {
                       "headers": [{
                         "glob": "**",
                         "headers": {
-                          "Cache-Control": "max-age=1800"
+                          "Cache-Control": "max-age="+_cacheControl
                         }
                       }]
                     }
@@ -137,7 +138,7 @@ const fire = (() => {
             replaceDivless: settings.data.editor.divlessHTMLEnabled,
           };
 
-          fileManager.getReqFileContent(file, options).then(blob => {
+          app.fileBundler.getReqFileContent(file, options).then(blob => {
 
             let r = new FileReader();
             r.onload = function() {
@@ -218,9 +219,11 @@ const fire = (() => {
   }
 
 
-  function init() {
-    if (token.length > 0)
+  async function init() {
+    if (token.length > 0) {
+       await auth2.init();
       listProject();
+    }
   }
 
   function setToken(_token) {
@@ -257,8 +260,10 @@ const fire = (() => {
     return queue;
   }
 
-  async function deploy() {
+  async function deploy(e) {
+    let form = e.target;
     let files = await populateFiles();
+    _cacheControl = parseInt(form.cacheControl.value);
     
     if (files.length > 50) {
       if (!window.confirm('Upload cap limit exceeded. You are about to upload more than 50 files. This will take a long time. Continue?')) {

@@ -1,9 +1,9 @@
 let DOMEvents = {
 	/* ----- */
 	/*
-		DOM event handler is structured as below :
+		DOM event handlers are structured as below :
 
-		eventClass {
+		className {
 			data-callback-attribute: callbackFunction
 		}
 	*/
@@ -22,7 +22,6 @@ let DOMEvents = {
 		'set-git-token': ui.setGitToken,
 		'clone-repo': ui.cloneRepo,
 		'toggle-homepage': () => toggleHomepage(),
-		'toggle-file-info': () => toggleModal('file-info'),
 		'toggle-settings': () => toggleModal('settings'),
 		'toggle-account': () => toggleModal('account'),
 		'new-folder' : ui.fileManager.newFolder,
@@ -30,43 +29,57 @@ let DOMEvents = {
 		'sign-out' : signOut,
 		'grant-firebase-access': () => auth2.grant('https://www.googleapis.com/auth/firebase'),
 
-		'change-workspace': changeWorkspace,
+		'change-workspace': ui.changeWorkspace,
 		'change-file-list-view': ui.changeFileListView,
 
-		'btn-create-entry': createBlogEntry,
 	    'btn-menu-template': function() { toggleInsertSnippet() },
 	    'btn-menu-save': fileManager.save,
-	    'btn-menu-preview': function() { openPreviewWindow(); previewHTML(); },
+	    'btn-menu-preview': function() { openPreviewWindow(); previewHandler.previewHTML(); },
 	    'btn-undo': () => { fileTab[activeTab].editor.env.editor.undo(); fileTab[activeTab].editor.env.editor.focus() },
 	    'btn-redo': () => { fileTab[activeTab].editor.env.editor.redo(); fileTab[activeTab].editor.env.editor.focus() },
 	    'more-tab': function() { ui.switchTab(1) },
+	    
+	    'expand-tree-explorer': function() { 
+	    	settings.data.explorer.tree = true;
+	    	settings.save();
+	    	document.body.classList.toggle('--tree-explorer', true) 
+	    },
+	    'collapse-tree-explorer': function() {
+	    	settings.data.explorer.tree = false;
+	    	settings.save();
+	     	document.body.classList.toggle('--tree-explorer', false) 
+	 	},
+	    'reload-file-tree': ui.reloadFileTree,
+	    'generate-single-file': ui.fileGenerator.generate,
+		'copy-generated-file': ui.fileGenerator.copy,
+	    'create-workspace': ui.tree.createWorkspace,
 	},
 
 	submittable: {
-		'confirm-download': ui.fileManager.fileDownload,
-		'publish-blog': publishToBlog,
-		'deploy-hosting': () => fire.deploy(),
+		'confirm-download': ui.fileDownload,
+		'deploy-hosting': (e) => fire.deploy(e),
 	},
 
 	inputable: {
-		'select-project': () => fire.selectProject(),
-		'select-site': () => fire.selectSite(),
+		'select-project': function() { fire.selectProject(this.value) },
+		'select-site': function() { fire.selectSite(this.value) },
 	},
 
 
 	/* ----- */
 	/*
-		clickableMenu is similiar to clickable event except it handles menu UI after the event is triggered i.e closing selected sub menu parent
+		Similiar to clickable group with addition of handling menu UI i.e closing selected sub menu parent
 		
-		className : menu-link
+		actual className : menu-link
+		to do : determine a fitting className
 	*/
 	clickableMenu: {
-		'open-in-explorer': keyboardCallbacks.openFileDirectory,
+		'open-in-explorer': () => deferFeature1.openFileDirectory(),
 		'new-file': ui.newFile,
 		'new-file-on-disk': ui.newDiskFile,
 		'new-folder': ui.fileManager.newFolder,
 		'save': fileManager.save,
-		'preview': () => previewHTML(),
+		'preview': () => previewHandler.previewHTML(),
 		'my-files': ui.myFiles,
 		'trash': ui.trash,
 		'toggle-editor-theme': ui.toggleTheme,
@@ -76,6 +89,7 @@ let DOMEvents = {
 		'about': toggleHomepage,
 		'sign-out': signOut,
 		'modal': toggleModalByClick,
+		'generate-single-file': ui.toggleGenerateSingleFile,
 	},
 
 
@@ -84,35 +98,32 @@ let DOMEvents = {
 		'Alt+Shift+N': ui.fileManager.newFolder,
 		'Alt+<': () => ui.switchTab(-1),
 		'Alt+>': () => ui.switchTab(1),
-		'Alt+L': keyboardCallbacks.lockFile,
-		'Alt+B': keyboardCallbacks.copyUploadBody,
+		'Alt+P': ui.toggleGenerateSingleFile,
 		'Alt+M': () => {
 			if (!$('#in-home').classList.contains('active'))
 		    	ui.toggleMyFiles();
 		},
-		'Alt+R': keyboardCallbacks.toggleWrapMode,
-		'Alt+I': keyboardCallbacks.toggleFileInfo,
-		'Alt+N': () => { 
-			if (!$('#in-home').classList.contains('active')) {
-		    	if ($('#btn-menu-my-files').classList.contains('active'))
-		    		ui.toggleMyFiles();
-				ui.openNewTab();
-			}
+		'Alt+R': () => deferFeature1.toggleWrapMode(),
+		'Alt+N': ui.fileManager.newFile,
+		'Alt+Q': () => {
+			document.body.classList.toggle('--tree-explorer');
+			settings.data.explorer.tree = document.body.classList.contains('--tree-explorer');
+	    	settings.save();
 		},
 		'Alt+W': confirmCloseTab,
-		'Alt+O': keyboardCallbacks.openFileDirectory,
+		'Alt+O': () => deferFeature1.openFileDirectory(),
 		'Ctrl+S': () => { event.preventDefault(); fileManager.save() },
 		'Ctrl+D': () => { event.preventDefault(); ui.fileManager.deleteSelected() },
 		'Ctrl+A': selectAllFiles,
-		'Ctrl+V': keyboardCallbacks.handlePasteRow,
+		'Ctrl+V': () => deferFeature1.handlePasteRow(),
 		'Ctrl+O': () => { fileManager.openLocal(event) },
-		'Alt+D': keyboardCallbacks.toggleTemplate,
+		'Alt+D': () => deferFeature1.toggleTemplate(),
 		'Ctrl+Enter': function() {
 		  if ($('#btn-menu-my-files').classList.contains('active')) {
 		  	if (selectedFile.length > 0) 
 		        renameFile();
 		  } else {
-		    previewHTML();
+		    previewHandler.previewHTML();
 		  }
 		},
 	},

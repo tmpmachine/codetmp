@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '7.1754';
+let cacheVersion = '18';
 let cacheItem = 'codetmp-'+cacheVersion;
 
 self.addEventListener('message', function(e) {
@@ -15,6 +15,7 @@ self.addEventListener('install', function(event) {
   let urls = [
     '/',
     '/css/style.css',
+    '/css/file-tree.css',
     
     '/assets/ace/ace.js',
     '/assets/ace/theme-codetmp.js',
@@ -32,6 +33,8 @@ self.addEventListener('install', function(event) {
     '/assets/ace/ext-language_tools.js',
     '/assets/ace/snippets/javascript.js',
     '/assets/ace/snippets/html.js',
+    '/assets/icons/folder_open.svg',
+    '/assets/icons/folder_close.svg',
 
     '/assets/images/128.png',
     '/assets/images/128ap.png',
@@ -46,27 +49,37 @@ self.addEventListener('install', function(event) {
 
     '/js/require/divless.js',
     '/js/require/o.js',
-    '/js/require/auth2helper.js',
     '/js/require/lsdb.js',
     '/js/require/keyboard.js',
     '/js/require/odin.js',
-    '/js/require/oblog.js',
     '/js/require/aww.js',
     '/js/require/jszip.min.js',
 
-    '/js/components/api.js',
+    '/js/components/auth2helper.js',
+    '/js/components/support.js',
     '/js/components/extension.js',
     '/js/components/preferences.js',
     '/js/components/modal.js',
     '/js/components/helper.js',
+    '/js/components/tab-manager.js',
     '/js/components/file-reader.js',
+    '/js/components/file-bundler.js',
     '/js/components/git.js',
     '/js/components/notifier.js',
-    '/js/components/template.js',
-    '/js/components/preview.js',
+    '/js/components/snippet-manager.js',
+    '/js/components/preview-handler.js',
     '/js/components/clipboard.js',
     '/js/components/file-manager.js',
+    '/js/components/file-tree.js',
     '/js/components/drive.js',
+    '/js/components/keyboard-handler.js',
+    '/js/components/defer-feature-1.js',
+    '/js/components/defer-feature-2.js',
+    '/js/components/single-file-generator.js',
+    '/js/components/environment-manager.js',
+    
+    '/js/core/app.js',
+    '/js/core/app-data.js',
     
     '/js/dom-events.js',
     '/js/ux.js',

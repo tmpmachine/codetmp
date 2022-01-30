@@ -15,16 +15,16 @@
 <template id="tmp-hints" class="Export">
   <div class="w3-white">
     <div class="Container" data-index="">
-      <div class="search-hints" style="position:relative;">
+      <div class="search-hints relative">
         <div class="Title w3-padding w3-block"></div>
       </div>
     </div>
   </div>
 </template>
 <template id="tmp-hints-last" class="Export">
-  <div class="w3-white" style="border-radius:0 0 4px 4px;overflow:hidden;">
+  <div class="w3-white ov-hidden" style="border-radius:0 0 4px 4px;">
     <div class="Container" data-index="">
-      <div class="search-hints last" style="position:relative;">
+      <div class="search-hints last relative">
         <div class="Title w3-padding w3-block"></div>
       </div>
     </div>
@@ -35,15 +35,15 @@
 </template>
 <template id="tmp-file-list" class="Export">
   <div class="file-list bg2 files pointer no-select Clicker" onclick='openFileConfirm(this)' title="" data-type="file" data-fid="" data="" style="position: relative;">
-    <div class="w3-center w3-padding-32 Area">
-      <i class="material-icons w3-xxlarge Preview-icon">insert_drive_file</i>
+    <div class="w3-center Area" style="padding:32px 0">
+      <i class="material-icons Preview-icon" style="font-size:36px">insert_drive_file</i>
       <span class="Label"></span>
     </div>
     <div class="inner">
       <i class="material-icons icons w3-medium w3-left Icon" style="padding:2px 0">insert_drive_file</i>
-      <div class="w3-rest w3-small w3-left-align w3-padding" style="font-weight:bold;position:relative;">
-        <div style="display: grid;height:100%;position: absolute;top: 0;left: 0;width: 100%;">
-          <div style="display: flex;align-items: center;height: 100%;" class="Name"></div>
+      <div class="w3-rest w3-small w3-left-align w3-padding relative" style="font-weight:bold;">
+        <div class="h-100 d-grid w-100 absolute" style="top: 0;left: 0;">
+          <div style="align-items: center;" class="h-100 Name d-flex"></div>
         </div>
       </div>
     </div>
@@ -52,15 +52,15 @@
 <template id="tmp-folder-list" class="Export">
   <div class="folder-list bg2 folders pointer no-select Clicker inner" onclick='openFileConfirm(this)' title="" data-type="folder" data="">
     <i class="icons material-icons w3-medium w3-left" style="padding:2px 0">folder</i>
-    <small style="font-weight:bold;position:relative;overflow:hidden;">
-      <div style="display: grid;height:100%;position: absolute;">
-        <div style="display: flex;align-items: center;height: 100%;" class="Name"></div>
+    <small class="relative ov-hidden" style="font-weight:bold">
+      <div class="h-100 d-grid absolute">
+        <div style="align-items: center" class="h-100 Name d-flex"></div>
       </div>
     </small>
   </div>
 </template>
 <template id="tmp-list-file-trash" class="Export">
-  <div class="file-list files pointer no-select bg7 hover-bg3-light" style="margin:0.1em;padding:0;position:relative;">
+  <div class="file-list files pointer no-select bg7 hover-bg3-light relative" style="margin:0.1em;padding:0;">
     <div class="w3-center w3-padding-32">
       <i class="material-icons w3-xxlarge" style="color:#777;">insert_drive_file</i>
     </div>
@@ -68,8 +68,8 @@
       <div class="w3-col" style="width:24px;">
         <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__iconColor__!important;">insert_drive_file</i>
       </div>
-      <div class="w3-rest w3-small w3-left-align w3-padding" style="font-weight:bold;position:relative;">
-        <div style="position:absolute;width:100%;top:0;left:0;height:100%;">
+      <div class="w3-rest w3-small w3-left-align w3-padding relative" style="font-weight:bold;">
+        <div style="top:0;left:0" class="h-100 w-100 absolute">
           __name__
         </div>
       </div>
@@ -78,12 +78,12 @@
 </template>
 <template id="tmp-list-folder-trash" class="Export">
   <div class="folder-list w3-left w3-left-align pointer no-select folders bg2 hover-bg3-light" style="margin:0.1em;padding:0;">
-    <div style="padding:8px 16px;display:grid;grid-template-columns:auto 1fr;">
+    <div class="d-grid" style="padding:8px 16px;grid-template-columns:auto 1fr;">
       <div style="width:24px;">
         <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__iconColor__!important;">folder</i>
       </div>
-      <small style="font-weight:bold;position:relative;overflow:hidden;">
-        <div style="position:absolute;width:100%;top:0;left:0;height:100%;">
+      <small class="relative ov-hidden" style="font-weight:bold;">
+        <div style="top:0;left:0;" class="h-100 w-100 absolute">
           __name__
         </div>
       </small>
@@ -91,13 +91,13 @@
   </div>
 </template>
 <template id="tmp-file-tab" class="Export">
-  <div class="w3-left file-tab" data-title="__name__" style="width:180px;background:#101113;position:relative;z-index:1;">
+  <div class="w3-left file-tab relative" data-title="__name__" oncontextmenu="ui.tab.openDirectory(this)" data-parent-id="">
     <div>
       <div class="w3-right" style="padding:6px 10px;">
         <i class="material-icons w3-right w3-button w3-hover-none w3-hover-text-light-grey w3-medium w3-text-gray icon-rename" onclick="fileClose('__fid__')" style="padding:4px 0 4px 9px;">__fiber__</i>
       </div>
-      <div class="w3-rest" style="position:relative;padding:18px 24px;line-height:1.5em;">
-        <div class="file-tab-name no-select w3-small file-name w3-left" onclick="focusTab('__fid__', true)" data-title="__name__" style="position:absolute;left:0;top:0;width:100%;color:#fff!important;padding:10px 10px 10px 19px;font-weight:bold;">__name__</div>
+      <div class="w3-rest relative" style="padding:18px 24px;line-height:1.5em;">
+        <div class="file-tab-name no-select w3-small file-name w3-left w-100 absolute" onclick="focusTab('__fid__', true)" data-title="__name__" style="left:0;top:0;color:#fff!important;padding:10px 10px 10px 19px;font-weight:bold;">__name__</div>
       </div>
     </div>
     <div class="Indicator"></div>
@@ -125,10 +125,18 @@
     <p>Drop to edit files locally.</p>
   </div>
 </template>
+<template data-name="tree-node" class="Export">
+  <ul class="file-tree-list file-tree d-none" data-fid="-1">
+    <li class="folder-root open">
+      <span class="folder-name root" data-fid="">Root</span>
+      <ul class="isLoaded"></ul>
+    </li>
+  </ul>
+</template>
 
 </export>
 
 <script>
   let content = document.getElementsByTagName('export')[0].innerHTML.trim();
-  window.opener.postMessage({ content }, '*');
+  window.opener.postMessage({ type: 'export-html', content }, '*');
 </script>

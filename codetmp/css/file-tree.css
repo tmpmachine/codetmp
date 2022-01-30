@@ -1,0 +1,211 @@
+.tree-explorer {
+  display:  grid;
+  grid-template-rows:  auto auto 1fr;
+  width:  220px;
+  overflow: auto;
+  background: #16191d;
+  height: 100%;
+  color: white;
+  z-index: 1222;
+  font-size: 0.9rem;
+  border-right: 1px solid #1d2126;
+}
+.tree-explorer .file-tree-list,
+.tree-explorer .file-tree-list ul {
+  -webkit-user-select: none;
+  user-select: none;
+  list-style-type: none;
+  font-size: 1em;
+  line-height: 1.8em;
+  margin-left: 10px;
+  padding-left: 0px;
+  border-left: 1px dotted #2e353d;
+}
+.tree-explorer .file-tree-list li {
+  position: relative;
+  width: fit-content;
+}
+
+.tree-explorer #file-tree {
+  opacity: 0.85;
+}
+.tree-explorer .file-tree-list li span {
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  padding-left: 24px;
+  padding-right: 8px;
+  display: block;
+  font-size:  12px;
+}
+.tree-explorer span.file-name.--focus {
+  background: #323a43;
+}
+
+.tree-explorer .file-tree-list li span.file-name:before {
+  display: block;
+  content: ' ';
+  width: 16px;
+  height: 1px;
+  position: absolute;
+  top: 13px;
+  left:  0px;
+  border-bottom: 1px dotted #505050;
+}
+
+.tree-explorer .file-tree-list li:before {
+  list-style-type: none;
+  font-family: FontAwesome;
+  display: block;
+  content:  ' ';
+  background-size: cover!important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  font-size: 1.3em;
+  color: #555;
+  z-index: -1;
+  margin: 2px;
+}
+.tree-explorer .file-tree-list .folder-root {
+  list-style-type: none;
+  width: 100%;
+}
+.tree-explorer .file-tree-list li:not(.folder-root) {
+  width: 100%;
+}
+.tree-explorer .file-tree-list li span:hover:after {
+  background: #24292d;
+  display: 'block';
+  width:100%;
+  z-index: -4;
+  left:0;
+  top:0;
+  position:absolute;
+  content: ' ';
+  height: 25px;
+}
+.tree-explorer .file-tree-list .folder-root:before {
+  background-image: url('./../assets/icons/folder_close.svg');
+  background-size: cover;
+}
+.tree-explorer .file-tree-list .folder-root.open:before {
+  background-image: url('./../assets/icons/folder_open.svg');
+  background-size: cover;
+}
+.tree-explorer li.folder-root.closed > ul {
+  display:  none;
+}
+.tree-explorer li.folder-root.open > ul {
+  opacity: 1;
+  display: block;
+}
+
+.tree-explorer .file-name:not(.--focus).--opened:before {
+      border-bottom: 1px dotted #3bff99;
+}
+.tree-explorer .file-name.--focus.--opened:before{
+  content: '';
+  background: #3bff99;
+  box-sizing: border-box;
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  top: 9px;
+  left: 5px;
+}
+
+
+
+.tree-explorer-btn-collapse[data-callback="collapse-tree-explorer"] {
+    border: 0;
+    cursor: pointer;
+    text-align: right;
+    color: #00bcd4;
+    width: 100%
+}
+
+.tree-explorer-btn-collapse[data-callback="reload-file-tree"] {
+    border: 0;
+    cursor: pointer;
+    color: white;
+    opacity: .6;
+    font-size: 8px;
+    text-align: right;
+    border: 1px solid #6d6d6d;
+    /* border-radius: 5px; */
+    padding: 2px 6px;
+    align-items: center;
+    display: flex;
+    grid-gap: 4px;
+
+}
+
+.tree-explorer > div:nth-child(1) {
+  height:34px;position:relative;display:flex;justify-content:flex-end;width:100%;
+}
+
+.tree-explorer > div:nth-child(2) {
+  padding: 8px 8px 4px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.tree-explorer > div:nth-child(3) {
+  padding:2px 0px;overflow: auto;
+}
+
+.tree-explorer-btn-collapse ~ button {
+    border: 0;
+    color: white;
+    opacity: .6;
+    font-size: 8px;
+    text-align: right;
+    padding: 2px 6px;
+    align-items: center;
+    display: flex;
+    grid-gap: 4px;
+    background: inherit;
+}
+.tree-explorer .folder-name.root {
+  background: #03a9f440;
+}
+
+#tree-workspace {
+    display: grid;
+    max-height: 90px;
+    overflow: auto; 
+    background: #14171a;
+    gap: 2px;
+    grid-template-columns: repeat(3,1fr);
+    padding: 8px;
+}
+
+#tree-workspace > div {
+  color: white;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  font-family: sans-serif;
+  font-size: 10px;
+  text-align: center;
+  padding: 4px;
+  cursor: pointer;
+  border: 1px solid #464646;
+}
+
+#tree-workspace > div.--active {
+  background: #464646;
+}
+#tree-workspace > div:not(.--active) {
+    opacity: 0.5;
+}
+#tree-workspace > div:not(.--active):hover {
+    opacity: 1;
+}
+#tree-workspace :first-child:nth-last-child(1) {
+  display:none;
+}

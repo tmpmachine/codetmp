@@ -1,14 +1,37 @@
+let navStructure = {
+  root: {
+    activeFile: null,
+    fileTab: [],
+    selectedFile: [],
+    activeTab: 0,
+    activeFolder: -1,
+    breadcrumbs: [{folderId:-1,title:'My Files'}],
+  },
+};
+
+let navMain = new lsdb('nav-main', navStructure);
+let navTemp = new lsdb('nav-temp', navStructure);
+let navs = [navMain, navTemp];
+
+for (let key in navStructure.root) {
+  Object.defineProperty(window, key, { 
+    get: () => navs[activeWorkspace].data[key],
+    set: value => navs[activeWorkspace].data[key] = value,
+  })
+}
+
+// dom
 let pressedKeys = {};
+
+// global / environment
 let notif;
-window.name = 'parent';
+
+// preview
+// window.name = 'parent';
 
 const fileExplorerManager = {
 	lastClickEl: null,
 	doubleClick: false,
-};
-
-const tabManager = {
-	lastOpenTabIndex: 0,
 };
 
 const editorManager = {
@@ -139,6 +162,89 @@ const modalWindowManager = (function() {
 })();
 
 const ui = {
+	tab: {
+		openDirectory: function(self) {
+			if (self.dataset.parentId != '' && self.classList.contains('isActive')) {
+				let parentId = parseInt(self.dataset.parentId);
+				tabManager.openDirectory(parentId);
+			}
+			event.preventDefault();
+		},
+	},
+	fileGenerator: {
+		generate: function() {
+			let form = this.form;
+			window.app.getComponent('single-file-generator').then(sfg => {
+				sfg.generate(form);
+			}).catch((e) => {
+				aww.pop('Component is not ready yet.')
+			});
+		},
+		copy: function() {
+			let form = this.form;
+			window.app.getComponent('single-file-generator').then(sfg => {
+				sfg.copy(form);
+			}).catch((e) => {
+				aww.pop('Component is not ready yet.')
+			});
+		},
+	},
+	tree: {
+		renameFolder: function(folder) {
+			window.app.getComponent('fileTree').then(fileTree => {
+    		fileTree.renameItem(folder, 'folder');
+    	});
+		},
+		renameFile: function(file) {
+			window.app.getComponent('fileTree').then(fileTree => {
+    		fileTree.renameItem(file, 'file');
+    	});
+		},
+		appendFile: function(file) {
+			window.app.getComponent('fileTree').then(ft => {
+	      ft.appendFile(file);
+	    });
+		},
+		appendFolder: function(folder) {
+			window.app.getComponent('fileTree').then(ft => {
+	      ft.appendFolder(folder);
+	    });
+		},
+		createWorkspace: function() {
+			window.app.getComponent('fileTree').then(ft => {
+	      ft.createWorkspace(activeFolder);
+	    });
+		},
+	},
+	highlightTree: function(fid, isRevealFileTree = true) {
+		window.app.getComponent('fileTree').then(ft => {
+      ft.highlightTree(fid, isRevealFileTree);
+    });
+	},
+	reloadFileTree: function() {
+		window.app.getComponent('fileTree').then(ft => {
+			ft.reload();
+		})
+	},
+	changeWorkspace: function() {
+	  if (this.dataset.target != $('#workspace-title').textContent) {
+	    for (let node of $('.workspace .Btn')) {
+	      node.classList.toggle('active');
+	    }
+	    $('#workspace-title').textContent = this.dataset.target;
+	    activeWorkspace = parseInt(this.dataset.index);
+	    fileManager.list();
+	    listTab();
+	    if (fileTab.length === 0)
+	      newTab();
+	    focusTab(fileTab[activeTab].fid);
+	    loadBreadCrumbs();
+	    window.app.getComponent('fileTree').then(ft => {
+				// ft.reload();
+				app.fileTree.reset()
+			})
+	  }
+	},
   newFile: function() {
     if (!$('#btn-menu-my-files').classList.contains('active')) {
       ui.openNewTab();
@@ -184,7 +290,7 @@ const ui = {
   toggleInFrame: function() {
     $('#main-layout').classList.toggle('inframe-mode');
     $('#main-layout').classList.toggle('normal-mode');
-    previewMode = (previewMode == 'normal') ? 'inframe' : 'normal';
+    previewHandler.previewMode = (previewHandler.previewMode == 'normal') ? 'inframe' : 'normal';
     fileTab[activeTab].editor.env.editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
   },
   setFontSize: function() {
@@ -215,15 +321,23 @@ const ui = {
 
   toggleFileDownload: function() {
     toggleModal('file-download');
-    let form = $('.modal-window[data-name="file-download"] form')[0];
-    setTimeout(() => {
-      form.submit.focus();
-    }, 50)
+    // let form = $('.modal-window[data-name="file-download"] form')[0];
+    // setTimeout(() => {
+      // form.submit.focus();
+    // }, 50)
+  },
+
+  toggleGenerateSingleFile: function() {
+    toggleModal('generate-single-file');
+    // let form = $('.modal-window[data-name="generate-single-file"] form')[0];
+    // setTimeout(() => {
+      // form.submit.focus();
+    // }, 50)
   },
 
   previewMedia: function(file, mimeType) {
     toggleModal('media-preview');
-    
+
     let media;
     if (mimeType.includes('audio')) 
       media = document.createElement('audio');
@@ -231,20 +345,19 @@ const ui = {
       media = document.createElement('video');
     else if (mimeType.includes('image')) {
       media = document.createElement('img');
-      media.addEventListener('click', () => {
-        toggleModal('media-preview');
-      });
     }
     media.classList.add('Medial-el');
     media.setAttribute('controls','controls');
-    $('.media-preview .Media')[0].append(media);
+    let modal = $('.modal-component[data-name="media-preview"]')[0];
+    $('.media', modal)[0].innerHTML = '';
+    $('.media', modal)[0].append(media);
     
     return new Promise((resolve, reject) => {
       fileManager.getPreviewLink(file).then(resolve).catch(reject);
     }).then(src => {
       media.src = src;
-      $('.media-preview .Title')[0].textContent = file.name;
-      $('.media-preview .Download')[0].onclick = () => {
+      $('.title', modal)[0].textContent = file.name;
+      $('.download', modal)[0].onclick = () => {
         let a = document.createElement('a');
         a.href = src;
         a.target = '_blank';
@@ -279,7 +392,7 @@ const ui = {
       stateManager.pushState([1]);
       setTimeout(() => { document.activeElement.blur() }, 1);
     } else {
-      clipBoard.length = 0;
+      // fileClipBoard.clipBoard.length = 0;
       stateManager.popState([1]);
       fileTab[activeTab].editor.env.editor.focus();
     }
@@ -331,6 +444,8 @@ const ui = {
 		          metadata: ['name'],
 		          type: 'folders'
 		        });
+		        ui.tree.renameFolder(folder);
+
 	      	});
 	    }
 	    function renameFile() {
@@ -348,6 +463,7 @@ const ui = {
 		          metadata: ['name'],
 		          type: 'files'
 		        });
+		        ui.tree.renameFile(file);
 
 		        if (activeFile) {
 		          if (fid === activeFile.fid)
@@ -372,7 +488,7 @@ const ui = {
 		        if (!name) 
 		        	return;
 
-		        let folder = new Folder({
+		        let folder = fileManager.newFolder({
                 name: fileManager.getDuplicateName(activeFolder, name, 'folder'),
 		          	modifiedTime: new Date().toISOString(),
 		          	parentId: activeFolder,
@@ -383,16 +499,21 @@ const ui = {
 		        	type: 'folders',
 	        	});
 	        	clearSelection();
+	        	ui.tree.appendFolder(folder);
+
 	      	});
 	    }
+
       function newFile() {
-          if (!$('#in-my-files').classList.contains('active'))
+          if (!$('#in-my-files').classList.contains('active')) {
+						ui.openNewTab();
             return;
+          }
           
           modal.prompt('File name', 'Untitled').then(name => {
             if (!name) 
               return;
-            let file = new File({
+            let file = fileManager.newFile({
                 name: fileManager.getDuplicateName(activeFolder, name),
                 modifiedTime: new Date().toISOString(),
                 content: '',
@@ -403,6 +524,8 @@ const ui = {
               type: 'files',
             });
             clearSelection();
+            ui.tree.appendFile(file);
+
           });
       }
       function confirmDeletion(message) {
@@ -414,41 +537,45 @@ const ui = {
       }
 	    function deleteFolder(selectedFile) {
 	    	let selection = getSelected(selectedFile);
-		      	let data = fileManager.get({fid: selection.id, type: 'folders'});
-		      	data.trashed = true;
-	        	commit({
-		        	fid: data.fid,
-		        	action: 'update',
-		        	metadata: ['trashed'],
-		        	type: 'folders'
-		      	});
+      	let data = fileManager.get({fid: selection.id, type: 'folders'});
+      	data.trashed = true;
+      	commit({
+        	fid: data.fid,
+        	action: 'update',
+        	metadata: ['trashed'],
+        	type: 'folders'
+      	});
+      	window.app.getComponent('fileTree').then(fileTree => {
+      		fileTree.removeFolder(data);
+      	});
 	    }
 	    function deleteFile(selectedFile) {
 	    	let selection = getSelected(selectedFile);
 	    	let fid = selection.id;
-		      	let data = fileManager.get({fid, type: 'files'});
-		      	data.trashed = true;
-		      
-		      	if (activeFile && data.fid === activeFile.fid) {
-		        	activeFile = null;
-				  	fileTab[activeTab].fiber = 'fiber_manual_record';
-		        	$('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
-		      	}
-		      
-		      	for (let sync of fileStorage.data.sync) {
-		        	if (sync.action === 52 && sync.copyId === fid) {
-		          	sync.action = 12;
-		        	}
-		      	}
-		      
-		      	locked = -1;
-		      
-			    commit({
-			        fid: data.fid,
-			        action: 'update',
-			        metadata: ['trashed'],
-			        type: 'files'
-			    });
+      	let data = fileManager.get({fid, type: 'files'});
+      	data.trashed = true;
+      
+      	if (activeFile && data.fid === activeFile.fid) {
+        	activeFile = null;
+		  	fileTab[activeTab].fiber = 'fiber_manual_record';
+        	$('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
+      	}
+      
+      	for (let sync of fileStorage.data.sync) {
+        	if (sync.action === 52 && sync.copyId === fid) {
+          	sync.action = 12;
+        	}
+      	}
+      
+		    commit({
+		        fid: data.fid,
+		        action: 'update',
+		        metadata: ['trashed'],
+		        type: 'files'
+		    });
+		    window.app.getComponent('fileTree').then(fileTree => {
+	    		fileTree.removeFile(data);
+	      });
 	    }
 
 	    function deleteSelected() {
@@ -475,72 +602,16 @@ const ui = {
 		    }
 		  }
 
-    function fileDownload(self) {
-      if (selectedFile.length === 0)
-        return;
-
-      if (JSZip === undefined) {
-        aww.pop('JSZip component is not yet loaded. Try again later.');
-        return
-      }
-
-      let form = self.target;
-      let zip = new JSZip();
-      let zipName = getSelected(selectedFile[0]).title+'.zip';
-      let isCompressed = ( selectedFile.length > 1 || (selectedFile.length === 1 && (selectedFile[0].dataset.type == 'folder')) );
-      let options = {
-        replaceDivless: form.replaceDivless.checked,
-        replaceFileTag: form.replaceFileTag.checked,
-      };
-
-      if (isCompressed) {
-        fileManager.createBundle(selectedFile, zip, options).then(() => {
-          zip.generateAsync({type:"blob"})
-          .then(function(content) {
-            blob = new Blob([content], {type: 'application/zip'});
-            a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = zipName;
-            $('#limbo').appendChild(a);
-            a.click();
-            $('#limbo').removeChild(a);
-          });
-        })
-      } else {
-        fileManager.downloadSingle(selectedFile[0], options).then(blob => {
-          if (blob === null)
-            return
-          let a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = getSelected(selectedFile[0]).title;
-          $('#limbo').appendChild(a);
-          a.click();
-          $('#limbo').removeChild(a);
-        })
-      }
-    }
-
-    function getDescription() {
-      let data = {};
-      for (let desc of $('.description')) {
-        if ((['text','hidden','textarea'].includes(desc.type) && desc.value.length === 0) ||
-        (desc.type == 'checkbox' && !desc.checked)) continue;
-        data[desc.getAttribute('name')] = (desc.type == 'checkbox') ? desc.checked : desc.value;
-      }
-      return data;
-    };
-
     return {
 			renameFolder,
 			renameFile,
 			newFolder,
       newFile,
 			deleteSelected,
-      fileDownload,
-      getDescription,
-		};
+			getSelected,
+    };
 
-	})(),
+	})(), // end of ui.fileManager
 
   toggleMenu: function() {
     
@@ -610,7 +681,6 @@ const ui = {
     if ($('#in-my-files').classList.contains('active')) {
 		$('#btn-menu-save-wrapper').classList.toggle('hide', true);
 	  	$('#btn-menu-preview-wrapper').classList.toggle('hide', true);
-	  	$('#btn-file-info-wrapper').classList.toggle('hide', true);
 	  	$('#btn-menu-template').classList.toggle('hide', true);
 
 	  	$('#btn-home-wrapper').classList.toggle('hide', false);
@@ -621,7 +691,6 @@ const ui = {
     } else {
 	    $('#btn-menu-save-wrapper').classList.toggle('hide', false);
 	  	$('#btn-menu-preview-wrapper').classList.toggle('hide', false);
-	  	$('#btn-file-info-wrapper').classList.toggle('hide', false);
 	  	$('#btn-menu-template').classList.toggle('hide', false);
 	  	$('#btn-home-wrapper').classList.toggle('hide', true);
 	  	$('#btn-account-wrapper').classList.toggle('hide', true);
@@ -684,193 +753,52 @@ const ui = {
 
   alert: function({text, isPersistent = false, timeout}) {
     aww.pop(text, isPersistent, timeout);
-  }
-};
+  },
 
-function toggleModal(name) {
-  for (let modal of $('.modal-window')) {
-    if (modal.dataset.name == name) {
-      let isHide = modal.classList.toggle('Hide');
-      if (isHide) {
-      	stateManager.popState([0]);
-        if (modal.dataset.close)
-          ui[modal.dataset.close]();
-      } else {
-      	stateManager.pushState([0]);
-      }
-      break;
-    }
-  }
-}
+  fileDownload: function(self) {
+  	window.app.getComponent('fileBundler').then(fb => {
+  		fb.fileDownload(self);
+  	}).catch((e) => {
+  		L(e);
+  		aww.pop('Component is not ready. Try again later.');
+  	});
+  },
 
-function changeExplorerView(type) {
-  if (!['list', 'grid'].includes(type))
-    return;
 
-  settings.data.explorer.view = type;
-  settings.save();
-  $('#file-list').classList.toggle('list-view', (type == 'list'));
-  for (let node of $('.Btn[data-callback="change-file-list-view"]')) {
-    node.classList.toggle('active', false);
-    if (node.dataset.type == type) {
-      node.classList.toggle('active', true);
-      $('#view-type-icon').innerHTML = $('.material-icons', node)[0].innerHTML;
-    }
-  }
-}
+}; // end of ui
+
+// modal
 
 function toggleModalByClick() {
-  toggleModal(this.dataset.target);
+	toggleModal(this.dataset.target);
 }
 
-function initNavMenus() {
-
-  function checkAuth(callback) {
-    if ($('body')[0].classList.contains('is-authorized'))
-      callback();
-  }
-
-  for (let menu of $('.menu-link')) {
-    
-    if (menu.dataset.shortcut) {
-      let shortcut = $('#tmp-keyboard-shortcut').content.cloneNode(true);
-      $('.shortcuts', shortcut)[0].textContent = menu.dataset.shortcut;
-      menu.append(shortcut);
-    }
-
-    let key = menu.dataset.callback;
-    let isSupported = checkBrowserSupport(key);
-    if (isSupported) {
-      menu.classList.toggle('hide', false);
-      menu.addEventListener('click', DOMEvents.clickableMenu[key]);
-    }
-  }
-
-  function checkBrowserSupport(key) {
-    let status = true;
-    switch (key) {
-      case 'new-file-on-disk': status = isSupport.showSaveFilePicker; break;
-    }
-    return status;
-  }
+function toggleModal(name) {
+	let modal = $(`.modal-component[data-name="${name}"]`)[0];
+	modal.addEventListener('onclose', onclosemodal);
+	modal.toggle();
+  stateManager.pushState([0]);
 }
 
-function logWarningMessage() {
-	let cssRule = "color:rgb(249,162,34);font-size:60px;font-weight:bold";
-	setTimeout(console.log.bind(console, "%cATTENTION", cssRule), 0); 
-	setTimeout(console.log.bind(console, "This window is intended for developers and someone might be tyring to steal your data by asking you to enter malicious code from here."), 0); 
-	setTimeout(console.log.bind(console, "Ignore this message if you're well aware of what you're going to do."), 0); 
+function onclosemodal(event) {
+	let modal = event.target;
+	modal.removeEventListener('onclose', onclosemodal);
+	// delay to handle global key listener
+  window.setTimeout(() => {
+    stateManager.popState([0]);
+  }, 50)
 }
 
-function toggleHomepage() {
-  $('#sidebar').classList.toggle('HIDE');
-  $('#in-home').classList.toggle('active');
-  $('#main-editor').classList.toggle('editor-mode');
-  if ($('#in-my-files').classList.contains('active'))
-  	$('#btn-menu-my-files').click();
-}
-
-function initInframeLayout() {
-  let isDragged = false;
-  let width = 350;
-  $('#inframe-preview').style.width = width+'px';
-  function mouseHandler(event) {
-    if (event.type == 'mousedown') {
-      $('#main-layout').classList.add('blocked');
-      oldX = event.pageX;
-    } else if (event.type == 'touchstart') {
-      $('#main-layout').classList.add('blocked');
-      oldX = event.changedTouches[0].pageX;
-    } else {
-      $('#main-layout').classList.remove('blocked');
-    }
-    isDragged = (event.type == 'mousedown' || event.type == 'touchstart') ? true : false;
-  }
-  let oldX, delta, updateEditor;
-  function mouseMove(event) {
-    if (isDragged) {
-      if (event.type == 'touchmove') {
-        event = event.changedTouches[0];
-      }
-      delta = oldX - event.pageX;
-      oldX = event.pageX;
-      width += delta;
-      $('#inframe-preview').style.width = width+'px';
-      clearTimeout(updateEditor);
-      updateEditor = setTimeout(function() {
-        fileTab[activeTab].editor.env.editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
-      }, 100);
-    }
-  }
-  $('#gutter').addEventListener('touchstart', mouseHandler, {passive: true});
-  $('#gutter').addEventListener('mousedown', mouseHandler, {passive: true});
-  document.addEventListener('mouseup', mouseHandler, {passive: true});
-  document.addEventListener('touchend', mouseHandler, {passive: true});
-  document.addEventListener('mousemove', mouseMove, {passive: true});
-  document.addEventListener('touchmove', mouseMove, {passive: true});
-}
-
-function initTabFocusHandler() {
-
-  function tabFocusHandler(e) {
-    if (e.keyCode === 9) {
-      document.body.classList.add('tab-focused');
-      window.removeEventListener('keydown', tabFocusHandler);
-      window.addEventListener('mousedown', disableTabFocus);
-    }
-  }
-
-  function disableTabFocus() {
-    document.body.classList.remove('tab-focused');
-    window.removeEventListener('mousedown', disableTabFocus);
-    window.addEventListener('keydown', tabFocusHandler);
-  }
-
-  window.addEventListener('keydown', tabFocusHandler);
-}
-
-function initMenuBar() {
-
-  function handler(e) {
-    if (document.activeElement.classList.contains('Root') || document.activeElement.classList.contains('menu-link')) {
-      if (e.target != document.activeElement && e.target.classList.contains('Root')) {
-        if (e.target.dataset.callback === undefined) {
-          e.target.focus();
-          e.target.click();
-        }
-      }
-    }
-  }
-  
-  function blur() {
-    if (document.activeElement.classList.contains('authorized') && !$('body')[0].classList.contains('is-authorized')) {
-
-    } else {
-      document.activeElement.blur();
-    }
-  }
-  
-  $('#nav-bar').addEventListener('mouseover', handler);
-  for (let node of $('.menu-bar a')) {
-    if (node.classList.contains('Root'))
-      node.setAttribute('tabindex', '0');
-    if (node.getAttribute('href') == '#')
-      node.href = 'javascript:void(0)';
-  }
-  
-  for (let node of $('.menu-bar a:not(.Root)'))
-    node.addEventListener('click', blur)
-}
-
+// init
 function initUI() {
   
-  notif = Notifier($('#tmp-notif'), $('#notif-list'));
-  initInframeLayout();
+	notif = Notifier($('#tmp-notif'), $('#notif-list'));
+  // initInframeLayout();
   fileManager.list();
   preferences.loadSettings();
   newTab();
   initTabFocusHandler();
-  initMenuBar();
+  // initMenuBar();
   changeExplorerView(settings.data.explorer.view);
 
   for (let modal of $('.modal-window')) {
@@ -912,27 +840,13 @@ function initUI() {
   }
 
 	o.listen({
-    	'.btn-material': ui.toggleMenu,
+    '.btn-material': ui.toggleMenu,
 	});
-	applyKeyboardListener();
-	initNavMenus();
-	attachMouseListener();
+	// initNavMenus();
+	// attachMouseListener();
 }
 
-function attachMouseListener() {
-	$('#editor-wrapper').addEventListener('mousewheel', event => {
-		if (fileTab[activeTab].editor.env.editor.isFocused()) {
-	  		event.preventDefault();
-			wheel(event.deltaY / 1000 * -1);
-		}
-	}, {passive:false});
-	function wheel(delta) {
-	  if (pressedKeys.ctrlKey) {
-	 	let value = (delta < 0) ? -1 : +1;
-	 	editorManager.changeFontIndex(value);
-	  }
-	}
-}
+// DOM events
 
 function toggleInsertSnippet(persistent) {
   if ($('#in-my-files').classList.contains('active')) return
@@ -955,85 +869,14 @@ function toggleInsertSnippet(persistent) {
   }
 }
 
-function compressTab(idx) {
-  for (let tab of $('.file-tab'))
-    tab.style.display = 'inline-block';
-
-  $('#more-tab').style.display = ($('.file-tab').length > 1 && getTabWidth() >= $('#file-title').offsetWidth - 48) ? 'inline-block' : 'none';
-  let maxOpenTab = Math.floor(($('#file-title').offsetWidth - 48) / $('.file-tab')[idx].offsetWidth);
-
-  if ($('.file-tab').length > maxOpenTab) {
-    let lastOpenedTabIndex = Math.max(idx, $('.file-tab').length - 1);
-    let firstOpenedTabIndex = Math.max(lastOpenedTabIndex - (maxOpenTab - 1), 0);
-    
-    if (idx >= tabManager.lastOpenTabIndex && idx <= tabManager.lastOpenTabIndex + maxOpenTab - 1) {
-      firstOpenedTabIndex = tabManager.lastOpenTabIndex;
-      lastOpenedTabIndex = firstOpenedTabIndex + maxOpenTab - 1;
-    }
-    
-    while (idx < firstOpenedTabIndex) {
-      lastOpenedTabIndex--;
-      firstOpenedTabIndex--;
-    }
-    
-    for (let i=0; i<$('.file-tab').length; i++) {
-      if (i < firstOpenedTabIndex || i > lastOpenedTabIndex)
-        $('.file-tab')[i].style.display = 'none';
-      else
-        $('.file-tab')[i].style.display = 'inline-block';
-    }
-    
-    tabManager.lastOpenTabIndex = firstOpenedTabIndex;
+function openPreviewWindow() {
+  if (!$('#btn-menu-my-files').classList.contains('active')) {
+    let filePath = previewHandler.getPath();
+    // delayed to focus
+    setTimeout(() => {
+      window.open(environment.previewUrl+filePath, previewHandler.getFrameName());
+    }, 1)
   }
-}
-
-function focusTab(fid) {
-  
-  let idx = odin.idxOf(String(fid), fileTab, 'fid');
-  
-  for (let tab of $('.file-tab')) {
-    tab.classList.toggle('isActive', false);
-  }
-  
-  $('.file-tab')[idx].classList.toggle('isActive', true);
-  
-  compressTab(idx);
-  activeTab = idx;
-  $('#editor-wrapper').innerHTML = '';
-  $('#editor-wrapper').append(fileTab[idx].editor)
-  
-  fileTab[idx].editor.env.editor.focus();
-  fileTab[idx].editor.env.editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
-  fileTab[idx].editor.env.editor.setFontSize(editorManager.fontSize);
-  activeFile = (String(fid)[0] == '-') ? null : fileTab[activeTab].file;
-  setEditorMode(fileTab[activeTab].name);
-  
-  let fileSettings = activeFile ? activeFile.description : {};
-  openDevelopmentSettings(fileSettings);
-}
-
-function fixOldSettings(key, desc, settings) {
-  if (key == 'blogName' && settings.blog)
-    desc.value = settings.blog;
-  else if (key == 'entryId' && settings.eid)
-    desc.value = settings.eid;
-  else if ((key == 'isWrap' && settings.pre) ||
-  (key == 'isSummaryFix' && settings.bibibi) ||
-  (key == 'isBreak' && settings.more)
-  )
-    desc.checked = true;
-}
-
-function openDevelopmentSettings(settings) {
-  settings = helper.parseDescription(settings)
-	for (let desc of $('.description')) {
-	  let key = desc.getAttribute('name');
-    if (['text','textarea','hidden'].includes(desc.type))
-      desc.value = settings[key] || '';
-    else if (desc.type == 'checkbox')
-      desc.checked = settings[key] || false;
-    fixOldSettings(key, desc, settings);
-	}	
 }
 
 function setEditorMode(fileName = '') {
@@ -1104,19 +947,19 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
     name: "custom-copy",
     bindKey: {win: "Ctrl-C"},
     exec: function(editor) {
-    	let selection = editor.getSelectionRange();
-    	if (selection.start.row == selection.end.row && selection.start.column == selection.end.column) {
-  			let row = selection.start.row
-  			let col = selection.start.column
-  			editor.selection.setSelectionRange({start:{row,column:0},end:{row:row+1,column:0}})
-  			document.execCommand('copy');
-  			editor.clearSelection();
-  			editor.moveCursorTo(row, col);
-  			editorManager.isPasteRow = true;
-    	} else {
-			  document.execCommand('copy');
-  			editorManager.isPasteRow = false;
-    	}
+      let selection = editor.getSelectionRange();
+      if (selection.start.row == selection.end.row && selection.start.column == selection.end.column) {
+        let row = selection.start.row
+        let col = selection.start.column
+        editor.selection.setSelectionRange({start:{row,column:0},end:{row:row+1,column:0}})
+        document.execCommand('copy');
+        editor.clearSelection();
+        editor.moveCursorTo(row, col);
+        editorManager.isPasteRow = true;
+      } else {
+        document.execCommand('copy');
+        editorManager.isPasteRow = false;
+      }
     }
   });
   
@@ -1124,16 +967,16 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
     name: "custom-cut",
     bindKey: {win: "Ctrl-X"},
     exec: function(editor) {
-    	let selection = editor.getSelectionRange();
-    	if (selection.start.row == selection.end.row && selection.start.column == selection.end.column) {
-  			let row = selection.start.row
-  			editor.selection.setSelectionRange({start:{row,column:0},end:{row:row+1,column:0}})
-  			document.execCommand('cut');
-  			editorManager.isPasteRow = true;
-    	} else {
-			  document.execCommand('cut');
-  			editorManager.isPasteRow = false;
-    	}
+      let selection = editor.getSelectionRange();
+      if (selection.start.row == selection.end.row && selection.start.column == selection.end.column) {
+        let row = selection.start.row
+        editor.selection.setSelectionRange({start:{row,column:0},end:{row:row+1,column:0}})
+        document.execCommand('cut');
+        editorManager.isPasteRow = true;
+      } else {
+        document.execCommand('cut');
+        editorManager.isPasteRow = false;
+      }
     }
   });
 
@@ -1178,7 +1021,7 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   editor.moveCursorTo(row, col);
   editor.commands.removeCommand('fold');
   editor.session.on("change", function(delta) {
-  	fileTab[activeTab].fiber = 'fiber_manual_record';
+    fileTab[activeTab].fiber = 'fiber_manual_record';
     $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
     $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
   })
@@ -1197,72 +1040,20 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   return editorElement;
 }
 
+
+// tab
+
+// to do: remove after replacing all call to related component
 function listTab() {
-    $('#file-title').innerHTML = '';
-    let fragment = document.createDocumentFragment();
-    for (let tab of fileTab) {
-	    el = o.element('div', {
-	      innerHTML: o.template('tmp-file-tab', {
-	        fid: tab.fid,
-	        name: tab.name,
-	        fiber: tab.fiber,
-	      })
-	    })
-	    fragment.append(el.firstElementChild);
-    }
-    $('#file-title').append(fragment);
+ 	tabManager.list();
 }
 
 function newTab(position, data) {
-  
-  let fid, el;
-  let name = 'untitled.html';
-  if (data) {
-    fid = data.fid
-    el = o.element('div', {
-      innerHTML: o.template('tmp-file-tab', {
-        fid,
-        name: data.name,
-        fiber: 'close'
-      })
-    });
-    if (data.fileHandle === undefined)
-      data.fileHandle = null;
-  } else {
-    fid = '-' + (new Date).getTime();
-    el = o.element('div', {
-      innerHTML: o.template('tmp-file-tab', {
-        fid,
-        name,
-        fiber: 'close',
-      })
-    })
-  }
-  
-  if (position >= 0) {
-    $('#file-title').insertBefore(el.firstElementChild, $('.file-tab')[position])
-  } else {
-    $('#file-title').append(el.firstElementChild)
-  }
-  
-  
-  if (data) {
-    if (position >= 0)
-      fileTab.splice(position, 0, data);
-    else
-      fileTab.push(data)
-  } else {
-  	let tabData = {
-		name,
-      fid,
-      editor: initEditor(),
-      fiber: 'close',
-      fileHandle: null,
-    };
-    fileTab.push(tabData);
-  }
-  
-  focusTab(fid)
+  tabManager.newTab(position, data);
+}
+
+function focusTab(fid) {
+  tabManager.focusTab(fid);
 }
 
 function getTabWidth() {
@@ -1293,202 +1084,52 @@ function fileClose(fid) {
 }
 
 function confirmCloseTab(focus = true, comeback) {
-	if (focus) {
-		if ($('.file-tab')[activeTab].firstElementChild.firstElementChild.textContent.trim() != 'close') {
-	      modal.confirm('Changes you made will be lost.').then(() => {
-  	    	changeFocusTab(focus, comeback);
-	      }).catch(() => fileTab[activeTab].editor.env.editor.focus())
-	    } else {
-		    changeFocusTab(focus, comeback);
-	    }	
-	} else {
-		closeActiveTab()
-	}
+  if (focus) {
+    if ($('.file-tab')[activeTab].firstElementChild.firstElementChild.textContent.trim() != 'close') {
+        modal.confirm('Changes you made will be lost.').then(() => {
+          tabManager.changeFocusTab(focus, comeback);
+        }).catch(() => fileTab[activeTab].editor.env.editor.focus())
+      } else {
+        tabManager.changeFocusTab(focus, comeback);
+      } 
+  } else {
+    closeActiveTab()
+  }
 }
 
 function closeActiveTab() {
-	$('#file-title').removeChild($('.file-tab')[activeTab]);
-	fileTab.splice(activeTab, 1);
+	let fid = parseInt(fileTab[activeTab].fid); 
+	window.app.getComponent('fileTree').then(fileTree => {
+	  fileTree.removeOpenIndicator(fid);
+	});
+  $('#file-title').removeChild($('.file-tab')[activeTab]);
+  fileTab.splice(activeTab, 1);
 }
 
 function changeFocusTab(focus, comeback) {
-	closeActiveTab()
-	if (fileTab.length == 0) {
-	  newTab()
-	  activeFile = null;
-	} else {
-	  if (comeback === undefined) {
-	    if (activeTab == 0)
-	      focusTab(fileTab[0].fid);
-	    else
-	      focusTab(fileTab[activeTab-1].fid);
-	  }
-	}
+  tabManager.changeFocusTab(focus, comeback);
 }
 
-function createBlogEntry() {
-  
-  let templateName = window.prompt('Post title');
-  if (!templateName) return;
+function initTabFocusHandler() {
 
-  oblog.config({
-    blog: $('#in-blog-name').value
-  });
-  
-  aww.pop('creating blog entry...');
-  
-  oblog.posts.insert({
-    title: templateName,
-  }, response => {
-    
-    aww.pop('blog entry created successfully');
-    $('#in-eid').value = response.id;
-    fileManager.save();
-    
-  }, 'id')
-}
-
-function loadBreadCrumbs() {
-  $('#breadcrumbs').innerHTML = '';
-  let i = 0;
-  for (let b of breadcrumbs) {
-    let button = $('#tmp-breadcrumb').content.cloneNode(true).firstElementChild;
-    button.textContent = b.title;
-    if (i == breadcrumbs.length-1) {
-    	button.classList.add('isActive');
-    } else {
-	    button.dataset.fid = b.folderId;
-    	button.addEventListener('click', openBread);
+  function tabFocusHandler(e) {
+    if (e.keyCode === 9) {
+      document.body.classList.add('tab-focused');
+      window.removeEventListener('keydown', tabFocusHandler);
+      window.addEventListener('mousedown', disableTabFocus);
     }
-    $('#breadcrumbs').appendChild(button);
-    i++;
   }
-  let parentNode = $('#breadcrumbs').parentNode;
-  parentNode.scrollTo(parentNode.scrollWidth, 0);
-}
 
-function openBread() {
-	let fid = this.dataset.fid;
-  activeFolder = parseInt(fid);
-  let idx = odin.idxOf(fid,breadcrumbs,'folderId');
-  breadcrumbs = breadcrumbs.slice(0,idx+1);
-  fileManager.list();
-  clearSelection();
-}
-
-function openFileConfirm(el) {
-
-  let index = selectedFile.indexOf(el);
-  if (pressedKeys.shiftKey || pressedKeys.ctrlKey) {
-	  fileExplorerManager.doubleClick = false;
-    if (index < 0) {
-      if (pressedKeys.shiftKey) {
-        if (selectedFile.length === 0) {
-          selectedFile.push(el);
-          toggleFileHighlight(el, true);  
-        } else {
-          let last = selectedFile[selectedFile.length-1];
-          clearSelection();
-          selectedFile.push(last)
-
-          let direction = 'previousElementSibling';
-          let ele = last.nextElementSibling; 
-          while (ele) {
-            if (ele === el) {
-              direction = 'nextElementSibling';
-              break
-            } else {
-              ele = ele.nextElementSibling;
-            }
-          }
-
-          let next = last[direction];
-          while (next) {
-            if (next.classList.contains('separator')) {
-              next = next[direction];
-            } else {
-              selectedFile.push(next);
-              if (next === el)
-                break;
-              next = next[direction];
-            }
-          }
-
-          for (let sel of selectedFile)
-            toggleFileHighlight(sel, true);  
-        }
-      } else {
-  	    selectedFile.push(el);
-  		  toggleFileHighlight(el, true);
-      }
-    } else {
-      if (pressedKeys.shiftKey) {
-
-      } else {
-      	selectedFile.splice(index, 1);
-  		  toggleFileHighlight(el, false);
-      }
-    }
-    ui.toggleFileActionButton();
-    return
-    
-  } else {
-	  
-	  for (let el of selectedFile)
-		  toggleFileHighlight(el, false);
-  			
-  	if (selectedFile.length > 1) {
-  		selectedFile.length = 0;
-  		index = -1;
-  	}
-
-  	if (index < 0) {
-	    selectedFile[0] = el;
-		  fileExplorerManager.doubleClick = false;
-		  toggleFileHighlight(el, false);
-    } 
+  function disableTabFocus() {
+    document.body.classList.remove('tab-focused');
+    window.removeEventListener('mousedown', disableTabFocus);
+    window.addEventListener('keydown', tabFocusHandler);
   }
-  
-  if (!fileExplorerManager.doubleClick) {
-    fileExplorerManager.lastClickEl = el;
-    fileExplorerManager.doubleClick = true;
-    toggleFileHighlight(fileExplorerManager.lastClickEl, true);
-    setTimeout(function(){
-      fileExplorerManager.doubleClick = false;
-    }, 500);
-  } else {
-    let type = selectedFile[0].dataset.type;
-    selectedFile.splice(0, 1);
-    fileExplorerManager.doubleClick = false;
-    if (type == 'file') {
-      fileManager.open(el.getAttribute('data'))
-    } else {
-      let folderId = Number(el.getAttribute('data'))
-      fileManager.openFolder(folderId);
-    }
-    toggleFileHighlight(fileExplorerManager.lastClickEl, false);
-  }
-  ui.toggleFileActionButton();
+
+  window.addEventListener('keydown', tabFocusHandler);
 }
 
-function navScrollUp() {
-  let fileContainerOffsetTop = selectedFile[0].offsetTop;
-  let customDefinedGap = 34;
-  let scrollTop = (fileContainerOffsetTop - customDefinedGap + $('#status-bar').offsetHeight);
-  if (scrollTop < $('#file-list').parentNode.scrollTop) {
-    $('#file-list').parentNode.scrollTop = scrollTop;
-  }
-}
-
-function navScrollDown() {
-  let fileContainerOffsetTop = selectedFile[0].offsetTop;
-  let padding = 16;
-  let customDefinedGap = 28;
-  let scrollTop = (fileContainerOffsetTop + selectedFile[0].offsetHeight + padding + $('#status-bar').offsetHeight);
-  let visibleScreenHeight = $('#file-list').parentNode.scrollTop + customDefinedGap + $('#file-list').parentNode.offsetHeight;
-  if (scrollTop > visibleScreenHeight)
-    $('#file-list').parentNode.scrollTop += scrollTop - visibleScreenHeight;
-}
+// explorer, DOM events
 
 (function() {
   
@@ -1499,7 +1140,8 @@ function navScrollDown() {
       if (next.classList.contains('separator')) {
         next = next[target];
       } else {
-        clearSelection();
+    	if (!pressedKeys.shiftKey)
+        	clearSelection();
         next.click();
         break;
       }
@@ -1540,7 +1182,8 @@ function navScrollDown() {
         next = next[target];
     }
 
-    clearSelection();
+    if (!pressedKeys.shiftKey)
+    	clearSelection();
     selTarget.click();
   }
   
@@ -1593,263 +1236,8 @@ function navScrollDown() {
   
 })();
 
-function renameFile() {
-  if (selectedFile[0].dataset.type === 'folder')
-    ui.fileManager.renameFolder();
-  else
-    ui.fileManager.renameFile();
-}
 
-function publishToBlogger() {
-  previewHTML(true);
-  deploy();
-}
-
-let keyboardCallbacks = {
-  lockFile: function () {
-    if ($('#btn-menu-my-files').classList.contains('active')) {
-      if (selectedFile.length === 1 && selectedFile[0].dataset.type == 'file') {
-        let fid = selectedFile[0].dataset.fid;
-        if (locked !== fid) {
-          locked = parseInt(fid);
-          aww.pop('Preview file locked');
-        } else {
-          locked = -1;
-          aww.pop('Preview file unlocked');
-        }
-      }
-    } else {
-      let fid = fileTab[activeTab].fid;
-      let notFile = false;
-      if (typeof(fid) == 'string') {
-        locked = -1;
-        notFile = true;
-      } else
-        locked = (locked == fid) ? -1 : fid;
-      
-      if (locked == fid || notFile) {
-        aww.pop('Preview file locked');
-        $('.file-tab')[activeTab].lastElementChild.style.background = 'orange';
-        clearTimeout(lockFile.wait);
-        lockFile.wait = setTimeout(() => {
-          $('.file-tab')[activeTab].lastElementChild.style.background = '#FFEB3B';
-        }, 200)
-      } else {
-        aww.pop('Preview file unlocked');
-        $('.file-tab')[activeTab].lastElementChild.style.background = 'inherit';
-        clearTimeout(lockFile.wait);
-        lockFile.wait = setTimeout(() => {
-          $('.file-tab')[activeTab].lastElementChild.style.background = '#FFEB3B';
-        }, 200)
-      }
-    }
-  },
-  copyUploadBody: function() {
-    let textarea = document.createElement('textarea');
-    textarea.style.height = '0';
-    document.body.append(textarea);
-    previewHTML(true);
-    textarea.value = uploadBody;
-    textarea.select();
-    document.execCommand('copy');
-    aww.pop('Copied to clipboard');
-    document.body.removeChild(textarea)
-    fileTab[activeTab].editor.env.editor.focus()
-  },
-  toggleWrapMode: function() {
-    settings.data.wrapMode = !settings.data.wrapMode;
-    settings.save();
-    focusTab(fileTab[activeTab].fid);
-  },
-  toggleFileInfo: function() {
-    if (!stateManager.isState(0))
-      toggleModal('file-info');
-  },
-  openFileDirectory: function() {
-    if (!activeFile || $('#btn-menu-my-files').classList.contains('active')) return
-    breadcrumbs.splice(1);
-    let stack = [];
-    let parentId = activeFile.parentId;
-    while (parentId != -1) {
-      folder = fileManager.get({fid: parentId, type: 'folders'});
-      breadcrumbs.splice(1, 0, {folderId:folder.fid, title: folder.name})
-      parentId = folder.parentId
-    }
-    loadBreadCrumbs();
-    $('#btn-menu-my-files').click();
-    
-    if (breadcrumbs.length > 1)
-      breadcrumbs.pop();
-    fileManager.openFolder(activeFile.parentId);
-  },
-  handlePasteRow: function() {
-    if (editorManager.isPasteRow) {
-      let editor = fileTab[activeTab].editor.env.editor;
-      let selection = editor.getSelectionRange();
-      let row = selection.start.row
-      let col = selection.start.column
-      editor.clearSelection();
-      editor.moveCursorTo(row, 0);
-      setTimeout(function() {
-        editor.moveCursorTo(row+1, col);
-      }, 1);
-    }
-  },
-  toggleTemplate: function() {
-    event.preventDefault();
-      $('#btn-menu-template').click();
-  }
-};
-
-function applyKeyboardListener() {
-  
-  function previousFolder() {
-    if ($('#btn-menu-my-files').classList.contains('active') && $('.breadcrumbs').length > 1) {
-      event.preventDefault();
-      $('.breadcrumbs')[$('.breadcrumbs').length-2].click()
-    }
-  }
-  
-  function keyEscape() {
-    if ($('#btn-menu-my-files').classList.contains('active')) {
-   	  if (selectedFile.length > 0) {
-   	    for (let el of selectedFile)
-   			  toggleFileHighlight(el, false);
-   	    fileExplorerManager.doubleClick = false;
-   	    selectedFile.length = 0;
-        ui.toggleFileActionButton();
-   	  } else {
-         if (!fileReaderModule.isDragging) {
-	         $('#btn-menu-my-files').click();
-	         fileTab[activeTab].editor.env.editor.focus();
-         }
-   	  }
-    }
-  }
-  
-  function doubleClickOnFile() {
-    selectedFile[0].click();
-    if (selectedFile[0])
-      selectedFile[0].click();
-  }
-  
-  function selectFileByName(key) {
-    let found = false;
-    let matchName = [];
-    for (let el of $('.folder-list')) {
-      if (el.title.toLowerCase().startsWith(key)) {
-        matchName.push(el);
-      }
-    }
-
-    for (let el of $('.file-list')) {
-      if (el.title.toLowerCase().startsWith(key)) {
-        matchName.push(el);
-      }
-    }
-
-    if (matchName.length == 0) {
-      if (selectedFile.length > 0) {
-        toggleFileHighlight(fileExplorerManager.lastClickEl, false);
-        fileExplorerManager.doubleClick = false;
-        selectedFile.length = 0;
-      }
-    }
-
-    if (typeof(selectedFile[0]) == 'undefined') {
-      if (matchName.length > 0) {
-        matchName[0].click();
-        navScrollUp();
-        navScrollDown();
-      }
-    } else {
-      let selectedIndex = matchName.indexOf(selectedFile[0]);
-      if (selectedIndex < 0) {
-        if (matchName.length > 0) {
-          matchName[0].click();
-          navScrollUp();
-          navScrollDown();
-        }
-      } else {
-        if (matchName.length > 1) {
-          selectedIndex = selectedIndex + 1 == matchName.length ? 0 : selectedIndex + 1;
-          matchName[selectedIndex].click();
-          navScrollUp();
-          navScrollDown();
-        }
-      }
-    }
-  }
-
-  window.addEventListener('blur', e => { 
-  	pressedKeys.shiftKey = false; pressedKeys.ctrlKey = false; 
-  	editorManager.isPasteRow = false;
-  })
-  window.addEventListener('keyup', e => { 
-  	pressedKeys.shiftKey = e.shiftKey; pressedKeys.ctrlKey = e.ctrlKey;
-  })
-  window.addEventListener('keydown', e => { 
-  	pressedKeys.shiftKey = e.shiftKey; 
-  	pressedKeys.ctrlKey = e.ctrlKey; 
-  })
-
-  window.addEventListener('keydown', function(e) {
-    if (modalWindowManager.hasOpenModal()) {
-	  	if (event.key === 'Escape') {
-    		modalWindowManager.closeAll();
-	  	}
-	  	return;
-    }
-
-    if (e.altKey && (fileTab[activeTab].editor.env.editor.isFocused() || document.activeElement.id == 'search-input')) {
-      e.preventDefault();
-    }
-
-    if (!$('#btn-menu-my-files').classList.contains('active')) {
-    	if (event.key === 'Escape') {
-    		toggleInsertSnippet(false);
-    		fileTab[activeTab].editor.env.editor.focus();
-    	}
-    }
-
-    if (!e.ctrlKey && !e.altKey && $('#btn-menu-my-files').classList.contains('active')) {
-      if (('_-.abcdefghijklmnopqrstuvwxyz1234567890'.includes(e.key))) {
-        selectFileByName(e.key);
-      } else {
-        switch (event.key) {
-          case 'Backspace': 
-            previousFolder(); 
-            break;
-          case 'Escape': 
-            keyEscape();
-            break;
-          case 'Delete': 
-            ui.fileManager.deleteSelected(); 
-            break;
-          case 'ArrowLeft': 
-          case 'ArrowDown': 
-          case 'ArrowRight': 
-          case 'ArrowUp': 
-            navigationHandler(event);
-            break;
-          case 'Enter': 
-            if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
-              event.preventDefault();
-              doubleClickOnFile();
-            }
-          break;
-        }
-      }
-    }
-  });
-
-  let keyboard = new KeyTrapper();
-  keyboard.isBlocked = function() {
-  	return stateManager.isState(1);
-  }
-  keyboard.listen(DOMEvents.keyboardShortcuts);
-};
-
+// drive
 function autoSync(event) {
   let isOnline = navigator.onLine ? true : false;
   if (isOnline) {
@@ -1860,6 +1248,7 @@ function autoSync(event) {
   }
 }
 
+// auth
 function authReady() {
   $('body')[0].classList.toggle('is-authorized', true);
   if (fileStorage.data.rootId === '') {
@@ -1869,28 +1258,16 @@ function authReady() {
     drive.syncToDrive();
   }
   let uid = gapi.auth2.getAuthInstance().currentUser.get().getId();
-  oblog.blogs.list(uid, listBlogs,'items(id,name)&status=LIVE');
-  isSupport.check('firebase');
+  support.check('firebase');
 }
-
-function listBlogs(json) {
-  $('#blog-list').innerHTML = '';
-  for (let blog of json.items) {
-    let option = document.createElement('option');
-    option.value = blog.id;
-    option.textContent = blog.name;
-    $('#blog-list').append(option);
-  }
-}
-
 function authLogout() {
   fileStorage.reset();
   settings.reset();
   notif.reset();
+  ui.reloadFileTree();
 
   $('body')[0].classList.toggle('is-authorized', false);
-  $('#blog-list').innerHTML = '';
-  isSupport.check('firebase');
+  support.check('firebase');
   
   activeFolder = -1;
   while (breadcrumbs.length > 1)
@@ -1909,7 +1286,7 @@ function signOut() {
 
 function renderSignInButton() {
   gapi.signin2.render('g-signin2', {
-    'scope': 'https://www.googleapis.com/auth/blogger https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive'+auth2.additionalScopes,
+    'scope': 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive'+auth2.additionalScopes,
     'width': 240,
     'height': 50,
     'longtitle': true,
@@ -1919,6 +1296,184 @@ function renderSignInButton() {
       authReady();
     },
   });
+}
+
+// explorer
+
+function toggleHomepage() {
+  $('#sidebar').classList.toggle('HIDE');
+  $('#in-home').classList.toggle('active');
+  $('#main-editor').classList.toggle('editor-mode');
+  if ($('#in-my-files').classList.contains('active'))
+    $('#btn-menu-my-files').click();
+}
+
+function renameFile() {
+  if (selectedFile[0].dataset.type === 'folder')
+    ui.fileManager.renameFolder();
+  else
+    ui.fileManager.renameFile();
+}
+
+function changeExplorerView(type) {
+  if (!['list', 'grid'].includes(type))
+    return;
+
+  settings.data.explorer.view = type;
+  settings.save();
+  $('#file-list').classList.toggle('list-view', (type == 'list'));
+  for (let node of $('.Btn[data-callback="change-file-list-view"]')) {
+    node.classList.toggle('active', false);
+    if (node.dataset.type == type) {
+      node.classList.toggle('active', true);
+      $('#view-type-icon').innerHTML = $('.material-icons', node)[0].innerHTML;
+    }
+  }
+}
+
+function loadBreadCrumbs() {
+  $('#breadcrumbs').innerHTML = '';
+  let i = 0;
+  for (let b of breadcrumbs) {
+    let button = $('#tmp-breadcrumb').content.cloneNode(true).firstElementChild;
+    button.textContent = b.title;
+    if (i == breadcrumbs.length-1) {
+      button.classList.add('isActive');
+    } else {
+      button.dataset.fid = b.folderId;
+      button.addEventListener('click', openBread);
+    }
+    $('#breadcrumbs').appendChild(button);
+    i++;
+  }
+  let parentNode = $('#breadcrumbs').parentNode;
+  parentNode.scrollTo(parentNode.scrollWidth, 0);
+}
+
+function openBread() {
+  let fid = this.dataset.fid;
+  activeFolder = parseInt(fid);
+  if (this.textContent == '..') {
+	  fileManager.reloadBreadcrumb();
+  } else {
+	  let idx = odin.idxOf(fid,breadcrumbs,'folderId');
+	  breadcrumbs = breadcrumbs.slice(0,idx+1);
+  }
+  fileManager.list();
+  clearSelection();
+}
+
+function openFileConfirm(el) {
+  let index = selectedFile.indexOf(el);
+  if (pressedKeys.shiftKey || pressedKeys.ctrlKey) {
+    fileExplorerManager.doubleClick = false;
+    if (index < 0) {
+      if (pressedKeys.shiftKey) {
+        if (selectedFile.length === 0) {
+          selectedFile.push(el);
+          toggleFileHighlight(el, true);  
+        } else {
+          let last = selectedFile[selectedFile.length-1];
+          clearSelection();
+          selectedFile.push(last)
+
+          let direction = 'previousElementSibling';
+          let ele = last.nextElementSibling; 
+          while (ele) {
+            if (ele === el) {
+              direction = 'nextElementSibling';
+              break
+            } else {
+              ele = ele.nextElementSibling;
+            }
+          }
+
+          let next = last[direction];
+          while (next) {
+            if (next.classList.contains('separator')) {
+              next = next[direction];
+            } else {
+              selectedFile.push(next);
+              if (next === el)
+                break;
+              next = next[direction];
+            }
+          }
+
+          for (let sel of selectedFile)
+            toggleFileHighlight(sel, true);  
+        }
+      } else {
+        selectedFile.push(el);
+        toggleFileHighlight(el, true);
+      }
+    } else {
+      if (pressedKeys.shiftKey) {
+
+      } else {
+        selectedFile.splice(index, 1);
+        toggleFileHighlight(el, false);
+      }
+    }
+    ui.toggleFileActionButton();
+    return
+    
+  } else {
+    
+    for (let el of selectedFile)
+      toggleFileHighlight(el, false);
+        
+    if (selectedFile.length > 1) {
+      selectedFile.length = 0;
+      index = -1;
+    }
+
+    if (index < 0) {
+      selectedFile[0] = el;
+      fileExplorerManager.doubleClick = false;
+      toggleFileHighlight(el, false);
+    } 
+  }
+  
+  if (!fileExplorerManager.doubleClick) {
+    fileExplorerManager.lastClickEl = el;
+    fileExplorerManager.doubleClick = true;
+    toggleFileHighlight(fileExplorerManager.lastClickEl, true);
+    setTimeout(function(){
+      fileExplorerManager.doubleClick = false;
+    }, 500);
+  } else {
+    let type = selectedFile[0].dataset.type;
+    selectedFile.splice(0, 1);
+    fileExplorerManager.doubleClick = false;
+    if (type == 'file') {
+      fileManager.open(el.getAttribute('data'))
+    } else {
+      let folderId = Number(el.getAttribute('data'))
+      fileManager.openFolder(folderId);
+    }
+    toggleFileHighlight(fileExplorerManager.lastClickEl, false);
+  }
+  ui.toggleFileActionButton();
+}
+
+function navScrollUp() {
+  let fileContainerOffsetTop = selectedFile[0].offsetTop;
+  let customDefinedGap = 34;
+  let scrollTop = (fileContainerOffsetTop - customDefinedGap + $('#status-bar').offsetHeight);
+  if (scrollTop < $('#file-list').parentNode.scrollTop) {
+    $('#file-list').parentNode.scrollTop = scrollTop;
+  }
+}
+
+function navScrollDown() {
+  let fileContainerOffsetTop = selectedFile[0].offsetTop;
+  let padding = 16;
+  let customDefinedGap = 28;
+  let scrollTop = (fileContainerOffsetTop + selectedFile[0].offsetHeight + padding + $('#status-bar').offsetHeight);
+  let visibleScreenHeight = $('#file-list').parentNode.scrollTop + customDefinedGap + $('#file-list').parentNode.offsetHeight;
+  if (scrollTop > visibleScreenHeight)
+    $('#file-list').parentNode.scrollTop += scrollTop - visibleScreenHeight;
 }
 
 function toggleFileHighlight(el, isActive) {
@@ -1937,20 +1492,71 @@ function clearSelection() {
 function selectAllFiles() {
 	if (stateManager.isState(0)) {
     event.preventDefault();
-		selectedFile = [...$('.folder-list'), ...$('.file-list')];
+		selectedFile = [...$('.folder-list, .file-list')];
 		for (let el of selectedFile)
 			toggleFileHighlight(el, true);
     ui.toggleFileActionButton();
 	}
 }
 
-function openPreviewWindow() {
-  if (!$('#btn-menu-my-files').classList.contains('active')) {
-    let filePath = previewManager.getPath();
-    // delayed to focus
-    setTimeout(() => {
-      window.open(previewUrl+filePath, previewManager.getFrameName());
-    }, 1)
+function previousFolder() {
+  if ($('#btn-menu-my-files').classList.contains('active') && $('.breadcrumbs').length > 1) {
+    event.preventDefault();
+    $('.breadcrumbs')[$('.breadcrumbs').length-2].click()
+  }
+}
+
+function doubleClickOnFile() {
+  selectedFile[0].click();
+  if (selectedFile[0])
+    selectedFile[0].click();
+}
+
+function selectFileByName(key) {
+  let found = false;
+  let matchName = [];
+  for (let el of $('.folder-list')) {
+    if (el.title.toLowerCase().startsWith(key)) {
+      matchName.push(el);
+    }
+  }
+
+  for (let el of $('.file-list')) {
+    if (el.title.toLowerCase().startsWith(key)) {
+      matchName.push(el);
+    }
+  }
+
+  if (matchName.length == 0) {
+    if (selectedFile.length > 0) {
+      toggleFileHighlight(fileExplorerManager.lastClickEl, false);
+      fileExplorerManager.doubleClick = false;
+      selectedFile.length = 0;
+    }
+  }
+
+  if (typeof(selectedFile[0]) == 'undefined') {
+    if (matchName.length > 0) {
+      matchName[0].click();
+      navScrollUp();
+      navScrollDown();
+    }
+  } else {
+    let selectedIndex = matchName.indexOf(selectedFile[0]);
+    if (selectedIndex < 0) {
+      if (matchName.length > 0) {
+        matchName[0].click();
+        navScrollUp();
+        navScrollDown();
+      }
+    } else {
+      if (matchName.length > 1) {
+        selectedIndex = selectedIndex + 1 == matchName.length ? 0 : selectedIndex + 1;
+        matchName[selectedIndex].click();
+        navScrollUp();
+        navScrollDown();
+      }
+    }
   }
 }
 

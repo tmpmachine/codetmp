@@ -8,21 +8,6 @@ const helper = (function () {
     return fileName.length;
   }
 
-  function parseDescription(description) {
-    if (typeof(description) == 'string') {
-      if (description.startsWith('{')) {
-        try {
-          description = JSON.parse(description);
-        } catch (e) {
-          description = {};
-        }
-      } else {
-        description = parseDescriptionOld(description);
-      }
-    }
-    return description;
-  }
-
   function fixOldParse(ob) {
     if (ob.bibibi)
       ob.isSummaryFix = true;
@@ -30,46 +15,9 @@ const helper = (function () {
       ob.isWrap = true;
     if (ob.more)
       ob.isBreak = true;
-    if (ob.blog)
-      ob.blogName = ob.blog;
     if (ob.eid)
       ob.entryId = ob.eid;
   }
-
-  function parseDescriptionOld(txt) {
-    
-    let obj = {};
-    txt = txt.split('\n');
-    
-    for (let i = 0; i < txt.length; i++) {
-      
-      let t = txt[i];
-      t = t.trim();
-      if (t.length === 0) {
-        
-        txt.splice(i, 1);
-        i -= 1;
-        continue;
-      }
-      
-      let key = t.split(':')[0];
-      let val = t.split(key+': ')[1];
-      
-      if (val === "false")
-        val = false;
-      else if (val === "true")
-        val = true;
-      else if (val == undefined)
-        val = "";
-        
-      obj[key] = val;
-    }
-    
-    fixOldParse(obj);
-    
-    return obj;
-  }
-
 
   function generateRemoteDataContent(origin, downloadUrl) {
     let data = {
@@ -183,9 +131,12 @@ const helper = (function () {
       return  'Changes you made may not be saved';
   }
 
+  function hasFileReference(fileRef) {
+    return !(typeof(fileRef.name) == 'undefined');
+  }
+
   return {
     getFileNameLength,
-    parseDescription,
     generateRemoteDataContent,
     getRemoteDataContent,
     isHasSource,
@@ -198,6 +149,7 @@ const helper = (function () {
     isMediaTypeAV,
     getFileIconColor,
     redirectWarning,
+    hasFileReference,
   };
 
 })();

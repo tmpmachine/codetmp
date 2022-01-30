@@ -1,6 +1,12 @@
+"use strict";
+
 const preferences = (function() {
 
-  function toggleWordWrap() {
+  let SELF = {
+
+  };
+
+  SELF.toggleWordWrap = function() {
     if (fileTab[activeTab]) {
       settings.data.editor.wordWrapEnabled = !settings.data.editor.wordWrapEnabled;
       let isEnabled = settings.data.editor.wordWrapEnabled;
@@ -47,7 +53,7 @@ const preferences = (function() {
     }
   }
 
-  function loadSettings() {
+  SELF.loadSettings = function() {
     initEditorSettings();
     $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
     $('#check-auto-sync').checked = settings.data.autoSync ? true : false;
@@ -56,11 +62,43 @@ const preferences = (function() {
     if (!$('#check-show-homepage').checked) {
       toggleHomepage();
     }
-  }
-
-  return {
-    loadSettings,
-    toggleWordWrap,
   };
+
+  SELF.loadEnvironmentSettings = function(file) {
+  
+    new Promise((resolve, reject) => {
+      if (file.loaded) {
+        resolve(file);
+      } else {
+        
+          drive.downloadDependencies(file).then(media => {
+          file.content = media;
+          file.loaded = true;
+          fileStorage.save();
+          resolve(file);
+        });
+      }
+      
+    }).then(file => {
+      let setup = JSON.parse(file.content);
+      let files = setup.snippets;
+      for (let path of files) {
+        let f = getFileAtPath(path);
+        if (typeof(f) == 'undefined' || f.trashed)
+          L('Environemnt error : snippet '+path+' not found');
+        else
+          downloadSnippetFile(f.fid)
+          .then(f => {
+            let html = document.createElement('div');
+            html.style.display = 'none';
+            document.body.append(html);
+            html.innerHTML += f.content;
+            applySnippets(html);
+          });
+      }
+    });
+  };
+
+  return SELF;
 
 })();

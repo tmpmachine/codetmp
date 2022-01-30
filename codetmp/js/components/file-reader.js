@@ -96,7 +96,7 @@ const fileReaderModule = (function() {
 	async function openOnEditor(data) {
 		if (isDir(data.type))
 			return;
-		if (parseInt(fileTab[activeTab].fid) < 0) {
+		// if (parseInt(fileTab[activeTab].fid) < 0) {
 			let fileRef = await getFileRef(data.entry);
 			let content = await fileRef.text();
 			let tabData = {
@@ -107,7 +107,7 @@ const fileReaderModule = (function() {
 				fileHandle: data.isPressedCtrlKey ? data.entry : null,
 			};
 			newTab(-1, tabData);
-		}
+		// }
 	}
 
 	function proceedNextQueueItem(item) {
@@ -153,28 +153,30 @@ const fileReaderModule = (function() {
 				fileRef.entry = item.entry;
 			let existingItem = fileManager.getExistingItem(item.name, item.parentId);
 			if (existingItem) {
-	        	modal.confirm(`Item with the same name already exists. Overwrite? (${truncate(item.name)})`).then(() => {
+      	modal.confirm(`Item with the same name already exists. Overwrite? (${truncate(item.name)})`).then(() => {
 					existingItem.fileRef = fileRef;
+					delete existingItem.blob;
 					existingItem.loaded = true;
-				    fileManager.sync({
-				    	fid: existingItem.fid, 
-				        action: 'update',
-				        metadata: ['media'], 
-				        type: 'files',
-			          	isTemp: true,
-				    });
-				    delayResolve(resolve, item);
-			    }).catch(() => {
-				    delayResolve(resolve, item);
+			    fileManager.sync({
+			    	fid: existingItem.fid, 
+			        action: 'update',
+			        metadata: ['media'], 
+			        type: 'files',
+		          	isTemp: true,
 			    });
+			    delayResolve(resolve, item);
+		    }).catch(() => {
+			    delayResolve(resolve, item);
+		    });
 			} else {
-				let file = new File({
+				let file = fileManager.newFile({
 				    fileRef,
 				    content: null,
 				    name: item.name,
 				    parentId: item.parentId,
 				    isTemp: true,
 				});
+				ui.tree.appendFile(file);
 				fileManager.sync({
 					fid: file.fid, 
 				    action: 'create', 
@@ -190,10 +192,11 @@ const fileReaderModule = (function() {
 	function handleItemDirectory(item) {
 		let folder = fileManager.getExistingItem(item.name, item.parentId, 'folder');
 		if (folder === null) {
-			folder = new Folder({
+			folder = fileManager.newFolder({
 			    parentId: item.parentId,
 			    name: item.name,
 			});
+			ui.tree.appendFolder(folder);
 			fileManager.sync({
 				fid: folder.fid, 
 			    action: 'create', 
@@ -468,13 +471,15 @@ const fileReaderModule = (function() {
 
 	function uploadFile(self) {
 		let f = self.files[0];
-		let file = new File({
+		let file = fileManager.newFile({
 		    fileRef: f,
 		    content: null,
 		    name: f.name,
 		    parentId: activeFolder,
 		    isTemp: true,
 		});
+		ui.tree.appendFile(file);
+
 		fileManager.sync({
 			fid: file.fid, 
 		    action: 'create', 

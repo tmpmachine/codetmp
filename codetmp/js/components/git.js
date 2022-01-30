@@ -49,12 +49,13 @@ const git = (function() {
   };
 
   const registerFile = function(_file, parentId) {
-    let file = new File({
+    let file = fileManager.newFile({
       parentId,
       loaded: false,
       name: _file.name,
       content: helper.generateRemoteDataContent('git', _file.download_url),
     });
+    ui.tree.appendFile(file);
     let mimeType = helper.getMimeType(file.name);
     if (helper.isMediaTypeMultimedia(mimeType)) {
       file.contentLink = _file.download_url;
@@ -67,17 +68,18 @@ const git = (function() {
     });
   };
     
-  const registerDir = function(repo, _file, parentId) {
-    let file = new Folder({
+  const registerDir = function(repo, _folder, parentId) {
+    let folder = fileManager.newFolder({
       parentId,
-      name: _file.name,
+      name: _folder.name,
     });
+    ui.tree.appendFolder(folder);
     fileManager.sync({
-      fid: file.fid, 
+      fid: folder.fid, 
       action: 'create', 
       type: 'folders',
     });
-    clonePath(repo, _file.path, file.fid);
+    clonePath(repo, _folder.path, folder.fid);
   };
     
   const readingData = function(repo, files, parentId) {
@@ -146,10 +148,11 @@ const git = (function() {
           timeout: 5000,
         });
       } else {
-        let folder = new Folder({
+        let folder = fileManager.newFolder({
           parentId: activeFolder,
           name: repo.name,
         });
+        ui.tree.appendFolder(folder);
         fileManager.sync({
           fid: folder.fid, 
           action: 'create', 

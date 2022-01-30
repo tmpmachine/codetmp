@@ -1,5 +1,4 @@
 /* v1.39 - 17 Jan 2021 */
-
 (function () {
   
   function generateAttributes(attributes) {
@@ -40,10 +39,8 @@
     ['s'  ,'span'     ,true ,''],
     ['l'  ,'label'    ,true ,''],
     ['t'  ,'textarea' ,true ,''],
-    
     ['sel','select'   ,true ,''],
     ['opt','option'   ,true ,''],
-    ['M'  ,'i'        ,true ,'material-icons'],
   ];
   let CSSShortname = {
     'p:': 'padding:',
@@ -88,7 +85,7 @@
     'row-start:': 'grid-row-start:',
     'col-end:': 'grid-column-end:',
     'row-end:': 'grid-row-end:',
-    'gap:': 'grid-gap:',
+    'Gap:': 'grid-gap:',
     
     'col:': 'color:',
     'bg:': 'background:',
@@ -104,9 +101,12 @@
     'b:': 'bottom:',
     
     'lh:': 'line-height:',
+    'jt:': 'justify-content:',
+    'ali:': 'align-items:',
+    'als:': 'align-self:',
   };
   
-  function replaceShortName(meat, attributes) {
+  function replaceShortName(inputText, attributes) {
     
     const lt = String.fromCharCode(60);
     const gt = String.fromCharCode(62);
@@ -125,8 +125,8 @@
     };
     
     const skips = [
-      {open:'<code>', close:'</code>'},
-      {open:'<style>', close:'</style>'},
+      {open:'<!--nodivless-->', close:'<!--/nodivless-->'},
+      {open:'<style', close:'</style>'},
       {open:'<script', close:'</script>'},
     ];
     
@@ -177,6 +177,7 @@
     const newMatch = [];
     var charBypass = '';
     var state = '';
+    let skipNextLineFeeds = false;
     
     function finishTag() {
       var tagName = tagStack.join('');
@@ -242,6 +243,9 @@
         if (char == ']') {
           stack.push(newAtt+openingClose+innerHTML+closeTag[closeTag.length-1]);
           closeTag.pop();
+        } else if (char == '\r') {
+          stack.push(newAtt+openingClose+innerHTML+'\n');
+          skipNextLineFeeds = true;
         } else {
           stack.push(newAtt+openingClose+innerHTML+'\n');
         }
@@ -266,7 +270,7 @@
     }
     
     
-    for (var char of meat) {
+    for (var char of inputText) {
       if (state == 'open' || state == 'skip') {
         stack.push(char);
         var match = false;
@@ -320,6 +324,13 @@
         } else {
           if (state == 'open') {
             state = '';
+            if (stack.join('') == '<!--[') {
+              attMode = '';
+              unClose++;
+              state = 'getTagName';
+              stack.pop();
+              stack.push(lt);
+            }
           } else {
             pointer = 0;
           }
@@ -364,6 +375,12 @@
           case '\n':
           case '\r':
 
+            if (char == '\n') {
+              if (skipNextLineFeeds) {
+                skipNextLineFeeds = false;
+                continue;
+              }
+            }
             stopRender(char);
             
             break;
