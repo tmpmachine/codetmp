@@ -1,0 +1,285 @@
+<export>
+
+<div class="w-100 search-box w3-container w3-hide Export" style="position:fixed;z-index:8177;top:0">
+  <div class="w3-padding-large"></div>
+  <div class="w3-left-align" style="max-width:400px;margin:auto;">
+    <div class="w3-card relative">
+      <div class="search-box relative">
+        <div class="w3-round w3-white d-grid relative" style="z-index:1;grid-template-columns:1fr auto;align-items:center">
+          <div class="button-tb ov-hidden">
+            <input id="search-input" class="w3-round w3-white w3-padding w-100" autocomplete='off' onkeydown='wgSearch.selectHints()' oninput='wgSearch.find(this.value)' placeholder='Search snippets' type='text' name='q' style="border:0;padding:16px"/>
+          </div>
+          <div>
+            <label for="search-input">
+              <i id="btn-search" class="material-icons ai-button w3-container" onclick="resetSearch(this)">search</i>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="search-result" class="relative" style="z-index:1;top:-2px;"></div>
+  </div>
+</div>
+
+<div id="update-notif" class="Export w-100" style="position:fixed;bottom:0;left:0;background:#0b0b0e;color:#ccc;z-index:8177;font-weight:bold">
+  <div class="w3-right">
+    <div id="btn-refresh" class="w3-left w3-container" style="padding:16px;text-transform:uppercase;font-weight:bold;color:#d8d782;">Refresh</div>
+    <div id="btn-dismiss" class="w3-left w3-container" style="padding:16px;text-transform:uppercase;font-weight:bold;">Dismiss</div>
+  </div>
+  <div class="w3-rest">
+    <div class="w3-container w3-small" style="padding:16px;">New version available</div>
+  </div>
+</div>
+
+<modal-v2 class="modal-component Export" data-name="settings">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b class="title">Settings</b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      <section>
+        <h6 style="font-weight:bold;">Preview</h6>
+        <p>
+          <label><input data-name="divlessHTMLEnabled" class="autofocus w3-check input-settings" type="checkbox"/> Replace Divless-HTML format (.html file only)</label>
+        </p>
+      </section>
+      <hr/>
+      <section>
+        <h6 style="font-weight:bold;">File System API</h6>
+        <p>
+          <label><input data-name="divlessHTMLFSEnabled" class="autofocus w3-check input-settings" type="checkbox"/> Replace Divless-HTML format on file save (.html file only)</label>
+        </p>
+      </section>
+      <hr/>
+      <section>
+        <h6 style="font-weight:bold;">Editor</h6>
+        <p>
+          <label><input data-name="emmetEnabled" class="w3-check input-settings" type="checkbox"/> Emmet Support</label>
+        </p>
+        <p>
+          <label><input data-name="autoCompleteEnabled" class="w3-check input-settings" type="checkbox"/> Autocompletion</label>
+        </p>
+      </section>
+      <hr/>
+      <section>
+        <h6 class="w3-hide" style="font-weight:bold;">Google Drive Sync</h6>
+        <p>
+        <label><input id="check-auto-sync" class="w3-check" type="checkbox" oninput="ui.toggleAutoSync()" checked/> Automatically sync files and folders</label>          
+        </p>
+      </section>
+      <hr/>
+      <section>
+        <h6 style="font-weight:bold;">File Storage</h6>
+        <p>Delete locally saved files & folders (doesn't affect your files on Google Drive).</p>
+        <button class="btn-style-1 clickable toggler" style="width:auto" data-callback="clear-data">Clear data</button>
+      </section>
+      <hr/>
+      <section>
+        <h6 style="font-weight:bold;">GitHub Token</h6>
+        <p>Set personal access token to get higher rate limit. Valid until this application is closed.</p>
+        <p><label><input id="check-save-token" class="w3-check" type="checkbox" oninput="ui.toggleSaveToken()"/> Store token in browser storage</label></p>
+        <button class="btn-style-1 clickable" style="width:auto" data-callback="set-git-token">Set token</button>
+      </section>
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export" data-name="deploy-firebase">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b class="title">Deploy to Firebase Hosting</b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      <section>
+        <div class="unauthorized">You're not logged in. Sign in to use this feature.</div>
+
+        <div class="feature-disabled" data-feature="firebase">
+          Access to Firebase account is required.
+          <div style="height:1em"></div>
+          <button class="clickable btn-style-1 w-100" data-callback="grant-firebase-access">Grant Access</button>
+        </div>
+
+        <form class="authorized feature-enabled submittable preventDefault if-post" data-callback="deploy-hosting" data-feature="firebase">
+          
+          <p>Note : You are deploying current opened directory.</p>
+          <div class="w3-tiny">Manage your project at <a href="https://firebase.google.com/" target="_blank"><u>Firebase</u></a></div>
+
+          <div style="height:1em"></div>
+          <div class="w3-tiny">Select Project</div>
+          <select id="project-list" class="inputable" data-callback="select-project" name="projectId"></select>
+          <div style="height:1em"></div>
+          <div class="w3-tiny">
+            <span class="if-post">Select Site</span>
+          </div>
+          <select id="site-list" class="inputable" data-callback="select-site" name="siteId"></select>
+          <div style="height:1em"></div>
+          <div class="w3-tiny">
+            <span class="if-post">Cache-Control</span>
+          </div>
+          <input type="number" value="1800" name="cacheControl"/> seconds
+
+          <div style="height:1em"></div>
+          <button class="btn-style-1">Deploy</button>
+          <div style="height:1em"></div>
+          <div id="deploy-logs"></div>
+        </form>
+
+      </section> 
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export" data-name="file-download">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b class="title">File Download</b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      <section>
+        <h6 style="font-weight:bold;">Download options</h6>
+        <form class="submittable preventDefault" data-callback="confirm-download">
+          <p >
+            <label class="no-select"><input class="w3-check" name="replaceDivless" type="checkbox"/> Replace Divless-HTML tag</label>
+          </p>
+          <p class="no-select">
+          <!-- <p class="no-select _in-replaceFileTemplate"> -->
+            <label class="no-select"><input class="w3-check" name="replaceFileTag" type="checkbox"/> Replace &lt;file> template </label>
+          </p>
+          <div style="text-align:right;">
+            <button class="btn-style-1 autofocus" name="submit" style="width:auto">Download</button>
+          </div>
+        </form>
+      </section> 
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export" data-name="generate-single-file">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b>Generate Single File</b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      <section>
+        <h6 style="font-weight:bold;">File options</h6>
+        <form onsubmit="event.preventDefault()">
+          <p>
+            <label class="no-select"><input class="w3-check" name="replaceDivless" type="checkbox"/> Replace Divless-HTML tag</label>
+          </p>
+          <div class="d-flex justify-content-end mt-1">
+            <button class="btn-style-1 clickable toggler" data-callback="generate-single-file" name="submit" style="width:auto">Generate</button>
+            <button class="btn-style-1 ml-2 clickable toggler autofocus" data-callback="copy-generated-file" name="submit" style="width:auto"><i class="material-icons" style="color:white">content_paste</i> <span class="ml-1">Copy</span></button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export" data-name="account">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b>My Account</b></h5>
+      <button class="material-icons toggler close-btn autofocus">close</button>
+    </div>
+    <div class="Content">
+      <section>
+        <p class="w3-small unauthorized">(!) Your files are <b>currently stored locally</b> in browser storage. Sign in to synchronize with Google Drive across devices.</p>
+        <div id="g-signin2" class="unauthorized"></div>
+        <div class="authorized">
+          <button class="btn-style-1 clickable" style="width:auto" data-callback="sign-out">Sign out</button>
+        </div>
+        <hr/>
+        <p class="w3-small">By using <b>Codetmp</b>, you're considered agreed to terms and condition written on articles below :</p>
+        <ul>
+          <li>
+             <u><a target="_blank" href="pages/TOS.html" style="font-weight:bold;">Terms of Service</a></u>
+          </li>
+          <li>
+             <u><a href="pages/PP.html" target="_blank" style="font-weight:bold;">Privacy Policy</a></u>
+          </li>
+        </ul>
+        </section>
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export no-select" data-name="media-preview">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header d-flex justify-content-between">
+      <div class="title mr-auto"></div>
+      <i class="material-icons w3-button w3-hover-none download Act-button" title="Download media">get_app</i>
+      <i class="Btn-close material-icons w3-button w3-hover-none toggler">close</i>
+    </div>
+    <div class="ov-auto media d-flex justify-content-center align-items-center" style="min-height: 200px;"><div>
+  </div>
+</modal-v2>
+
+<!-- <div class="media-preview window modal-window Hide Export" data-name="media-preview" data-close="closeMediaPreview">
+  <div class="Inner">
+    <div class="Header no-select">
+      <div class="Title"></div>
+      <i class="material-icons w3-button w3-hover-none Download Act-button" title="Download media">get_app</i>
+      <i class="Btn-close material-icons w3-button w3-hover-none Act-button" data-target="media-preview">close</i>
+    </div>
+    <div style="padding:16px;" class="h-100 ov-hidden">
+      <div class="Media">
+        <div class="Overlay" data-target="media-preview"></div>
+      </div>
+    <div>
+  </div>
+</div> -->
+
+<modal-v2 class="modal-component Export" data-name="prompt">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b class="title"></b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      <form data-type="prompt">
+        <section>
+          <input type="" name="" class="w3-input autofocus" spellcheck="false">
+          <small class="notes"></small>
+          <div class="w3-margin-top w3-right-align no-select">
+            <button class="Btn-submit btn-style-1" type="submit" name="submit" ><i class="material-icons">check</i>Ok</button>
+            <button type="button" class="toggler btn-style-2"><i class="material-icons">close</i>Cancel</button>
+          </div>
+        </section>
+      </form>
+      </div>
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export" data-name="confirm">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b class="title">Confirm</b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      <form data-type="confirm">
+        <section>
+        <p class="message"></p>
+        <div class="w3-margin-top w3-right-align no-select">
+          <button class="Btn-submit btn-style-1 autofocus" type="submit" name="submit" ><i class="material-icons">check</i>Ok</button>
+          <button type="button" class="toggler btn-cancel btn-style-2"><i class="material-icons">close</i>Cancel</button>
+        </div>
+        </section>
+      </form>
+      </div>
+    </div>
+  </div>
+</modal-v2>
+
+</export>
+
+<script>
+  let content = document.getElementsByTagName('export')[0].innerHTML.trim();
+  window.opener.postMessage({ type: 'export-html', content }, '*');
+</script>

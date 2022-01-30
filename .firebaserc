@@ -1,0 +1,17 @@
+{
+  "targets": {
+    "codetmp": {
+      "hosting": {
+        "cpreview": [
+          "cpreview"
+        ],
+        "codetmp": [
+          "codetmp"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "codetmp"
+  }
+}
