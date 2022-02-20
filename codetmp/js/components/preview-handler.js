@@ -259,12 +259,18 @@ function PreviewHandler() {
         if (file.fileRef.entry) {
           if (tabIdx >= 0) {
             content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
+            if (settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/)) {
+              content = divless.replace(content);
+            }
             return content;
           }
           return await file.fileRef.entry.getFile();
         }
         if (tabIdx >= 0) {
             content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
+            if (settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/)) {
+              content = divless.replace(content);
+            }
             return content;
         }
         return file.fileRef;
