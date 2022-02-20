@@ -377,7 +377,10 @@
             $('#btn-menu-my-files')[0].click();
           let rootTitle = (parentId == -1 || parentId === undefined) ? 'My Files' : '..';
           breadcrumbs.length = 0;
-          breadcrumbs.push({folderId:parentId, title: rootTitle})
+          breadcrumbs.push({
+            folderId: parentId === undefined ? folderId : parentId,
+            title: rootTitle,
+          });
           fileManager.openFolder(folderId);
         }
       });
