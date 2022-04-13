@@ -1013,17 +1013,23 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
       editor.prompt({ $type: "gotoLine" });
     },
   });
+  let undoMgr = new ace.UndoManager();
   editor.setValue(content)
   editor.clearSelection();
-  editor.getSession().setUndoManager(new ace.UndoManager())
+  editor.getSession().setUndoManager(undoMgr);
   editor.focus();
   editor.getSession().setScrollTop(scrollTop);
   editor.moveCursorTo(row, col);
   editor.commands.removeCommand('fold');
-  editor.session.on("change", function(delta) {
-    fileTab[activeTab].fiber = 'fiber_manual_record';
-    $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
-    $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
+  editor.session.on("change", function() {
+  	if (undoMgr.canUndo()) {
+	  	fileTab[activeTab].fiber = 'fiber_manual_record';
+	    $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
+	    // $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
+  	} else {
+	  	fileTab[activeTab].fiber = 'close';
+	    $('.icon-rename')[activeTab].textContent = 'close';
+  	}
   })
    
   if (settings.data.editor.emmetEnabled) {
