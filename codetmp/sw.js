@@ -18,6 +18,7 @@ self.addEventListener('install', function(event) {
     '/css/file-tree.css',
     
     '/assets/ace/ace.js',
+    '/assets/ace/theme-codetmp-markdown.js',
     '/assets/ace/theme-codetmp.js',
     '/assets/ace/theme-github.js',
     '/assets/ace/mode-html.js',
@@ -33,6 +34,7 @@ self.addEventListener('install', function(event) {
     '/assets/ace/ext-language_tools.js',
     '/assets/ace/snippets/javascript.js',
     '/assets/ace/snippets/html.js',
+    '/assets/ace/snippets/markdown.js',
     '/assets/icons/folder_open.svg',
     '/assets/icons/folder_close.svg',
 
