@@ -887,6 +887,8 @@ function setEditorMode(fileName = '') {
     editor.session.setMode("ace/mode/css");
   else if (fileName.endsWith('.js'))
     editor.session.setMode("ace/mode/javascript");
+  else if (fileName.endsWith('.md'))
+    editor.session.setMode("ace/mode/markdown");
   else if (fileName.endsWith('.json'))
     editor.session.setMode("ace/mode/json");
   else
