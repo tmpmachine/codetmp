@@ -385,37 +385,37 @@ const fileReaderModule = (function() {
 		}
 	}
 
-	function keyHandler(e) {
-		if (e.type == 'keydown' && e.keyCode == 17) {
-			clearTimeout(keyHandler.timeout);
-			isPressedCtrlKey = true;
-			changeDropMessage()
-		} else {
-			clearTimeout(keyHandler.timeout);
-			keyHandler.timeout = setTimeout(function() {
-				isPressedCtrlKey = false;
-				changeDropMessage()
-			}, 50);
-		}
-	}
+	// function keyHandler(e) {
+	// 	if (e.type == 'keydown' && e.keyCode == 17) {
+	// 		clearTimeout(keyHandler.timeout);
+	// 		isPressedCtrlKey = true;
+	// 		changeDropMessage()
+	// 	} else {
+	// 		clearTimeout(keyHandler.timeout);
+	// 		keyHandler.timeout = setTimeout(function() {
+	// 			isPressedCtrlKey = false;
+	// 			changeDropMessage()
+	// 		}, 50);
+	// 	}
+	// }
 
 	function showDropZone(dropZone) {
 		changeDropMessage()
 		dropZone.classList.toggle('w3-hide', false);
-		if (isSupportSaveFile) {
-			window.addEventListener('keydown', keyHandler);
-			window.addEventListener('keyup', keyHandler);
-			$('.Helpnote', dropZone)[0].classList.toggle('w3-opacity', !document.hasFocus());
-			$('.Helpnote', dropZone)[1].classList.toggle('w3-hide', document.hasFocus());
-		}
+		// if (isSupportSaveFile) {
+			// window.addEventListener('keydown', keyHandler);
+			// window.addEventListener('keyup', keyHandler);
+			// $('.Helpnote', dropZone)[0].classList.toggle('w3-opacity', !document.hasFocus());
+			// $('.Helpnote', dropZone)[1].classList.toggle('w3-hide', document.hasFocus());
+		// }
 	}
 
 	function hideDropZone(dropZone) {
 		dropZone.classList.toggle('w3-hide', true);
-		if (isSupportSaveFile) {
-			window.removeEventListener('keydown', keyHandler);
-			window.removeEventListener('keyup', keyHandler);
-		}
+		// if (isSupportSaveFile) {
+			// window.removeEventListener('keydown', keyHandler);
+			// window.removeEventListener('keyup', keyHandler);
+		// }
 	}
 
 	function handleExplorerDrop(e, target, isPressedCtrlKey) {
@@ -443,7 +443,8 @@ const fileReaderModule = (function() {
 		dragZone.addEventListener('dragover', preventDefault);
 		dragZone.addEventListener('dragenter', () => {
 			isDragging = true;
-			isPressedCtrlKey = false;
+			// isPressedCtrlKey = false;
+			isPressedCtrlKey = (ui.states.storage == STORAGE_STATE.fileSystem);
 			activeDropZone = dropZone;
 			showDropZone(dropZone);
 		});
@@ -455,11 +456,11 @@ const fileReaderModule = (function() {
 			else if (target == 'explorer')
 				handleExplorerDrop(e, target, isPressedCtrlKey);
 			isDragging = false;
-			isPressedCtrlKey = false;
+			// isPressedCtrlKey = false;
 		});
 		dropZone.addEventListener('dragleave', () => {
 			hideDropZone(dropZone);
-			isPressedCtrlKey = false;
+			// isPressedCtrlKey = false;
 			isDragging = false;
 		});
 	}

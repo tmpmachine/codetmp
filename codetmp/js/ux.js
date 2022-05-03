@@ -1,3 +1,9 @@
+const STORAGE_STATE = {
+  main: 1,
+  playground: 2,
+  fileSystem: 3,
+}
+
 let navStructure = {
   root: {
     activeFile: null,
@@ -11,7 +17,8 @@ let navStructure = {
 
 let navMain = new lsdb('nav-main', navStructure);
 let navTemp = new lsdb('nav-temp', navStructure);
-let navs = [navMain, navTemp];
+let navLocal = new lsdb('nav-local', navStructure);
+let navs = [navMain, navTemp, navLocal];
 
 for (let key in navStructure.root) {
   Object.defineProperty(window, key, { 
@@ -162,6 +169,9 @@ const modalWindowManager = (function() {
 })();
 
 const ui = {
+  states: {
+    storage: STORAGE_STATE.default,
+  },
 	tab: {
 		openDirectory: function(self) {
 			if (self.dataset.parentId != '' && self.classList.contains('isActive')) {
@@ -229,14 +239,20 @@ const ui = {
 	changeWorkspace: function() {
 	  if (this.dataset.target != $('#workspace-title').textContent) {
 	    for (let node of $('.workspace .Btn')) {
-	      node.classList.toggle('active');
+	      node.classList.toggle('active', false);
+	      if (this == node) {
+	        node.classList.toggle('active', true);
+	      }
 	    }
 	    $('#workspace-title').textContent = this.dataset.target;
-	    activeWorkspace = parseInt(this.dataset.index);
+	    let index = parseInt(this.dataset.index);
+      ui.states.storage = STORAGE_STATE[this.dataset.storage];
+      activeWorkspace = index;
 	    fileManager.list();
 	    listTab();
-	    if (fileTab.length === 0)
+	    if (fileTab.length === 0) {
 	      newTab();
+	    }
 	    focusTab(fileTab[activeTab].fid);
 	    loadBreadCrumbs();
 	    window.app.getComponent('fileTree').then(ft => {

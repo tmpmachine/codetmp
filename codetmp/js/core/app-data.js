@@ -84,7 +84,10 @@
     let tempStorage = new lsdb('temp-file-storage', fileStructure, {
       isStoreData: false,
     });
-    let workspaces = [mainStorage, tempStorage];
+    let temp2Storage = new lsdb('temp2-file-storage', fileStructure, {
+      isStoreData: false,
+    });
+    let workspaces = [mainStorage, tempStorage, temp2Storage];
     window.mainStorage = mainStorage;
     Object.defineProperty(window, 'fileStorage', { 
       get: () => workspaces[activeWorkspace],
