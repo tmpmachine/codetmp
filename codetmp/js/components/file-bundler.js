@@ -180,8 +180,7 @@
                     if (needConvertDivless(f, options)) {
                       let r = new FileReader();
                       r.onload = function() {
-                        let blob = new Blob([divless.replace(r.result)], {type:blob.type});
-                        resolve(blob);
+                        resolve(new Blob([divless.replace(r.result)], {type:blob.type}));
                       }
                       r.readAsText(blob);                 
                     } else {
