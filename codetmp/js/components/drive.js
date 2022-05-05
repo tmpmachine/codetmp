@@ -326,6 +326,12 @@ const drive = (function() {
         resolve();
         return;
       }
+      
+      let a = [];
+      for (let p of parents) {
+      	a.push(`"${p}"`);
+      };
+      let queryParents = '('+a.join(' in parents or ')+' in parents)';
    		   
    		if (nextPageToken.length > 0) {
 	      for (var i = 0; i < parents.length; i++) {
@@ -343,11 +349,6 @@ const drive = (function() {
         resolve();
       }
 
-      let a = [];
-      for (let p of parents) {
-      	a.push(`"${p}"`);
-      };
-      let queryParents = '('+a.join(' in parents or ')+' in parents)';
       let url = apiUrl+'files?q=('+escape(queryParents)+')&fields=nextPageToken,files(name, id, trashed, parents, mimeType, modifiedTime)';
       if (typeof(nextPageToken) !== 'undefined')
         url = url+'&pageToken='+nextPageToken;
