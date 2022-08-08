@@ -275,6 +275,8 @@ function insertTemplate() {
     let curCol = fileTab[activeTab].editor.env.editor.getCursorPosition().column
     fileTab[activeTab].editor.env.editor.insert(data.snippet);
     fileTab[activeTab].editor.env.editor.moveCursorToPosition({row:fileTab[activeTab].editor.env.editor.getCursorPosition().row+data.pos[0], column: curCol+data.pos[1]});
-    fileTab[activeTab].editor.env.editor.focus();
+    window.setTimeout(() => {
+      fileTab[activeTab].editor.env.editor.focus();
+    }, 10);
   }
 }
