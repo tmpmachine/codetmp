@@ -26,8 +26,8 @@
     },
     {
       "target": "codetmp",
-      // "public": "codetmp", // local
-      "public": "deploy/codetmp", // deploy
+      "public_": "deploy/codetmp",
+      "public": "codetmp",
       "ignore": [
         "firebase.json",
         "**/.*",
