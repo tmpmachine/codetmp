@@ -1,3 +1,9 @@
+function delayedFocusCursorEditor() {
+  window.setTimeout(() => {
+    fileTab[activeTab].editor.env.editor.focus();
+  }, 10);
+};
+
 const keyboardHandler = {
 
   init: function() {
@@ -59,7 +65,7 @@ const keyboardHandler = {
     if (!$('#btn-menu-my-files').classList.contains('active')) {
       if (event.key === 'Escape') {
         toggleInsertSnippet(false);
-        fileTab[activeTab].editor.env.editor.focus();
+        delayedFocusCursorEditor();
       }
     }
 
@@ -107,8 +113,8 @@ const keyboardHandler = {
       } else {
          if (!fileReaderModule.isDragging) {
            $('#btn-menu-my-files').click();
-           fileTab[activeTab].editor.env.editor.focus();
-         }
+           delayedFocusCursorEditor();
+        }
       }
     }
   },
