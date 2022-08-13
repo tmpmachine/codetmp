@@ -14,9 +14,13 @@ self.addEventListener('install', function(event) {
 
   let urls = [
     '/',
+    '/manifest.json',
     '/css/style.css',
     '/css/file-tree.css',
     
+    '/assets/js/fflate.js',
+    '/assets/js/sha256.js',
+
     '/assets/ace/ace.js',
     '/assets/ace/theme-codetmp-markdown.js',
     '/assets/ace/theme-codetmp.js',
@@ -57,6 +61,7 @@ self.addEventListener('install', function(event) {
     '/js/require/aww.js',
     '/js/require/jszip.min.js',
 
+    '/js/components/ext-firebase.js',
     '/js/components/auth2helper.js',
     '/js/components/support.js',
     '/js/components/extension.js',
