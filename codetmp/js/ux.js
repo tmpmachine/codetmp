@@ -337,18 +337,10 @@ const ui = {
 
   toggleFileDownload: function() {
     toggleModal('file-download');
-    // let form = $('.modal-window[data-name="file-download"] form')[0];
-    // setTimeout(() => {
-      // form.submit.focus();
-    // }, 50)
   },
 
   toggleGenerateSingleFile: function() {
     toggleModal('generate-single-file');
-    // let form = $('.modal-window[data-name="generate-single-file"] form')[0];
-    // setTimeout(() => {
-      // form.submit.focus();
-    // }, 50)
   },
 
   previewMedia: function(file, mimeType) {
@@ -794,6 +786,18 @@ function toggleModal(name) {
 	modal.addEventListener('onclose', onclosemodal);
 	modal.toggle();
   stateManager.pushState([0]);
+  
+  switch (name) {
+    case 'snippet-manager':
+      listSnippets();
+      break;
+    default:
+      break;
+  }
+}
+
+function listSnippets() {
+  L(123)
 }
 
 function onclosemodal(event) {

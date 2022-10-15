@@ -1,16 +1,15 @@
 let snippets = [
-  {pos: [-3, 2], title: 'HTML', snippet: '<!DOCTYPE html>\n<html>\n<head>\n\n<\/head>\n<body>\n\t\n\t\n\t\n<\/body>\n<\/html>'},
-  {pos: [-1, 2], title: 'style', snippet: '<style>\n\t\n<\/style>'},
-  {pos: [-1, 2], title: 'inline script', snippet: '<script>\n\t\n<\/script>'},
-  {pos: [-2, 14], title: 'template', snippet: '<template id="">\n\t\n<\/template>'},
-  {pos: [0, 11], title: 'include file', snippet: '<file src=""><\/file>'},
-  {pos: [0, 13], title: 'external script', snippet: '<script src=""><\/script>'},
-  {pos: [0, 12], title: 'link', snippet: '<link href="" rel="stylesheet"/>'},
-  {pos: [1, 0], title: 'meta viewport', snippet: '<meta name="viewport" content="width=device-width"/>\n'},
-  {pos: [1, 0], title: 'charset', snippet: '<meta charset="utf-8"/>\n'},
-  {pos: [1, 0], title: 'querySelector()', snippet: "<script> $ = function(selector, node=document) { let nodes = node.querySelectorAll(selector); return selector.startsWith('#') ? nodes[0] : nodes } </script>"},
-  {pos: [1, 0], title: 'console.log()', snippet: '<script> L = console.log </script>'},
-  // {title: 'reload snippet', callback: loadSnippets},
+  {title: 'HTML', snippet: '<!DOCTYPE html>\n<html>\n<head>\n\n<\/head>\n<body>\n\t\n\t${1}\n\t\n<\/body>\n<\/html>'},
+  {title: 'style', snippet: '<style>\n\t${1}\n<\/style>'},
+  {title: 'inline script', snippet: '<script>\n\t${1}\n<\/script>'},
+  {title: 'template', snippet: '<template id="${2}">\n\t${1}\n<\/template>'},
+  {title: 'include file', snippet: '<file src="${1}"><\/file>'},
+  {title: 'external script', snippet: '<script src="${1}"><\/script>'},
+  {title: 'link', snippet: '<link href="${1}" rel="stylesheet"/>'},
+  {title: 'meta viewport', snippet: '<meta name="viewport" content="width=device-width"/>\n'},
+  {title: 'charset', snippet: '<meta charset="utf-8"/>\n'},
+  {title: 'querySelector()', snippet: "<script> window.$ = document.querySelectorAll.bind(document); </script>"},
+  {title: 'console.log()', snippet: '<script> window.L = console.log </script>'},
 ];
 let customSnippetsCounter = 0;
 let index = 0;
@@ -93,7 +92,7 @@ function fuzzysearch (needle, haystack) {
     var nch = needle.charCodeAt(i);
     while (j < tlen) {
       if (haystack.charCodeAt(j++) === nch) {
-        matchIndexes.push(j-1)
+        matchIndexes.push(j-1);
         continue outer;
       }
     }
@@ -121,7 +120,7 @@ var wgSearch = {
         if (search.matchIndexes.length === 0) {
           if (value == titleOri.toLowerCase()) {
             data.push({index:snippets[i].index,title:'<b>'+titleOri+'</b>'});
-            match++  
+            match++;
           } else {
           extraMatch.push({index:snippets[i].index,title:titleOri});
             xmatch++;
@@ -133,7 +132,7 @@ var wgSearch = {
             titleOri[index] = '<b>'+titleOri[index]+'</b>';
           }
           data.push({index:snippets[i].index,title:titleOri.join('')});
-          match++
+          match++;
         }
       }
     }
@@ -148,7 +147,7 @@ var wgSearch = {
   selectHints: function() {
     let hints = $('.search-hints');
     if (hints.length === 0)
-        return
+        return;
 
     switch(event.keyCode) {
       case 13:
@@ -264,19 +263,25 @@ function resetSearch(self, bypass) {
   }
 }
 
-function insertTemplate() {
-  let index = this.dataset.index;
-  let data = snippets[index];
-  $('#search-result').innerHTML = '';
-  toggleInsertSnippet();
-  if (data.callback) {
-    data.callback();
-  } else {
-    let curCol = fileTab[activeTab].editor.env.editor.getCursorPosition().column
-    fileTab[activeTab].editor.env.editor.insert(data.snippet);
-    fileTab[activeTab].editor.env.editor.moveCursorToPosition({row:fileTab[activeTab].editor.env.editor.getCursorPosition().row+data.pos[0], column: curCol+data.pos[1]});
-    window.setTimeout(() => {
-      fileTab[activeTab].editor.env.editor.focus();
-    }, 10);
+;(function() {
+  
+  const snippetManager = ace.require('ace/snippets').snippetManager;
+  
+  window.insertTemplate = function() {
+    let index = this.dataset.index;
+    let data = snippets[index];
+    $('#search-result').innerHTML = '';
+    toggleInsertSnippet();
+    if (data.callback) {
+      data.callback();
+    } else {
+      let editor = fileTab[activeTab].editor.env.editor;
+      snippetManager.insertSnippet(editor, data.snippet);
+      window.setTimeout(() => {
+        editor.focus();
+      }, 10);
+    }
   }
-}
+  
+  
+})();
