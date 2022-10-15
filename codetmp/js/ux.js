@@ -866,6 +866,34 @@ function initUI() {
 	// attachMouseListener();
 }
 
+function initFileHandler() {
+  
+  if ('launchQueue' in window && 'files' in LaunchParams.prototype) {
+    launchQueue.setConsumer((launchParams) => {
+      if (!launchParams.files.length) {
+        return;
+      }
+      for (const fileHandle of launchParams.files) {
+        fileHandle.getFile().then(openOnEditor.bind(fileHandle));
+      }
+    });
+    
+    async function openOnEditor(fileRef) {
+  		let content = await fileRef.text();
+  		let tabData = {
+  			content,
+  			fileHandle: this,
+  			fid: '-' + (new Date).getTime(),
+  			name: fileRef.name,
+  			editor: initEditor(content),
+  		};
+  		newTab(-1, tabData);
+  	}
+    
+  }
+  
+}
+
 // DOM events
 
 function toggleInsertSnippet(persistent) {

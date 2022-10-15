@@ -79,6 +79,7 @@ window.app.loadFiles([
     callback: function() {
       fileReaderModule.init();
       keyboardHandler.init();
+      initFileHandler();
     },
   },
   {

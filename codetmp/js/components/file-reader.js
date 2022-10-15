@@ -53,7 +53,7 @@ const fileReaderModule = (function() {
 			} else {
 				reject('default');
 			}
-		})
+		});
 	}
 
 	function checkGetAsEntrySupport(item) {
@@ -78,7 +78,7 @@ const fileReaderModule = (function() {
 			} else {
 				errorHandler();
 			}
-		})
+		});
 	}
 
 	function getContent(fileRef) {
@@ -96,18 +96,16 @@ const fileReaderModule = (function() {
 	async function openOnEditor(data) {
 		if (isDir(data.type))
 			return;
-		// if (parseInt(fileTab[activeTab].fid) < 0) {
-			let fileRef = await getFileRef(data.entry);
-			let content = await fileRef.text();
-			let tabData = {
-				content,
-				fid: '-' + (new Date).getTime(),
-				name: data.name,
-				editor: initEditor(content),
-				fileHandle: data.isPressedCtrlKey ? data.entry : null,
-			};
-			newTab(-1, tabData);
-		// }
+		let fileRef = await getFileRef(data.entry);
+		let content = await fileRef.text();
+		let tabData = {
+			content,
+			fid: '-' + (new Date).getTime(),
+			name: data.name,
+			editor: initEditor(content),
+			fileHandle: data.isPressedCtrlKey ? data.entry : null,
+		};
+		newTab(-1, tabData);
 	}
 
 	function proceedNextQueueItem(item) {
@@ -141,7 +139,7 @@ const fileReaderModule = (function() {
 				entry.file(resolve);
 			else if (HANDLER_TYPE == 2)
 				entry.getFile().then(resolve);
-		})
+		});
 	}
 
 	function handleItemFile(item) {

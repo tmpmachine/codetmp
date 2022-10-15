@@ -12,5 +12,24 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#333",
-  "theme_color": "#333"
+  "theme_color": "#333",
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "application/json": [".json"],
+        "text/javascript": [".js"],
+        "text/html": [".html"],
+        "text/css": [".css"]
+      },
+      "icons": [
+        {
+          "src": "assets/images/128.png",
+          "sizes": "128x128",
+          "type": "image/png"
+        }
+      ],
+      "launch_type": "single-client"
+    }
+  ]
 }
