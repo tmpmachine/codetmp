@@ -298,10 +298,13 @@ const ui = {
   },
   toggleTheme: function() {
     let editor = fileTab[activeTab].editor.env.editor;
-    if (editor.getTheme().includes('codetmp'))
+    if (editor.getTheme().includes('codetmp')) {
       editor.setTheme('ace/theme/github');
-    else
+    } else {
+      ace.config.set('basePath', 'assets/ace');
       editor.setTheme('ace/theme/codetmp');
+      ace.config.set('basePath', ACE_CDN_BASEPATH);
+    }
   },
   toggleInFrame: function() {
     $('#main-layout').classList.toggle('inframe-mode');
@@ -947,9 +950,13 @@ function setEditorMode(fileName = '') {
     editor.session.setMode("ace/mode/html");
 
   if (themeMd) {
+    ace.config.set('basePath', 'assets/ace');
     editor.setTheme('ace/theme/codetmp-markdown');
+    ace.config.set('basePath', ACE_CDN_BASEPATH);
   } else {
+    ace.config.set('basePath', 'assets/ace');
     editor.setTheme('ace/theme/codetmp');
+    ace.config.set('basePath', ACE_CDN_BASEPATH);
   }
 }
 
@@ -958,10 +965,22 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   editorElement.classList.add('editor');
   editorElement.style.opacity = '0'
   let editor = ace.edit(editorElement);
-
+  editor.session.on('changeMode', function(e, session){
+  	if ('ace/mode/javascript' === session.getMode().$id) {
+  		if (!!session.$worker) {
+  			session.$worker.send('setOptions', [{
+  				'esversion': 9,
+  				'esnext': false,
+  			}]);
+  		}
+  	}
+  });
+  
+  ace.config.set('basePath', 'assets/ace');
   editor.setTheme("ace/theme/codetmp", () => {
     editorElement.style.opacity = '1';
   });
+  ace.config.set('basePath', ACE_CDN_BASEPATH);
   editor.session.setMode("ace/mode/html");
   editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
   editor.session.setTabSize(2);

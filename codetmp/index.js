@@ -1,3 +1,4 @@
+const ACE_CDN_BASEPATH = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6';
 let activeWorkspace = 0;
 let environment = {
   previewUrl: 'https://cpreview.web.app/',
@@ -50,13 +51,12 @@ window.app.loadFiles([
       'js/ux.js',
       'js/components/notifier.js',
       'js/core/app-data.js',
-      'assets/ace/ace.js',
+      // 'assets/ace/ace.js',
+      `${ACE_CDN_BASEPATH}/ace.min.js`,
       'js/components/tab-manager.js',
     ],
     callback: function() {
-      // loadStorageData();
-      // logWarningMessage();
-      ace.config.set('basePath', 'assets/ace');
+      ace.config.set('basePath', `${ACE_CDN_BASEPATH}`);
     },
   },
   {
