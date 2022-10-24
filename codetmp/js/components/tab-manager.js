@@ -93,11 +93,14 @@ function TabManagerComponent() {
     $('#editor-wrapper').innerHTML = '';
     $('#editor-wrapper').append(fileTab[idx].editor)
     
-    fileTab[idx].editor.env.editor.focus();
     fileTab[idx].editor.env.editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
     fileTab[idx].editor.env.editor.setFontSize(editorManager.fontSize);
     activeFile = (String(fid)[0] == '-') ? null : fileTab[activeTab].file;
     setEditorMode(fileTab[activeTab].name);  
+    
+    window.setTimeout(() => {
+      fileTab[idx].editor.env.editor.focus();
+    }, 1);
   };
 
   function compressTab(idx) {

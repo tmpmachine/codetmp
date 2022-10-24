@@ -405,7 +405,7 @@ const ui = {
     } else {
       // fileClipBoard.clipBoard.length = 0;
       stateManager.popState([1]);
-      fileTab[activeTab].editor.env.editor.focus();
+      setTimeout(() => { fileTab[activeTab].editor.env.editor.focus(); }, 1);
     }
   },
 
@@ -1121,6 +1121,8 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
       'enableLiveAutocompletion': true,
     });
   }
+  
+  window.setTimeout(() => { editor.focus(); }, 1);
 
   return editorElement;
 }
