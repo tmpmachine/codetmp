@@ -15,17 +15,17 @@
 
          for (let file of selectedFile) {
             if (file.dataset.type == 'folder') {
-              let f = fileManager.get({fid: Number(file.getAttribute('data')), type: 'folders'})
+              let f = await fileManager.get({fid: Number(file.getAttribute('data')), type: 'folders'})
               let folder = zip.folder(f.name);
               await insertTreeToBundle(f, folder, fileRequests, options);
             } else if (file.dataset.type == 'file') {
-              let f = fileManager.get({fid: Number(file.getAttribute('data')), type: 'files'})
+              let f = await fileManager.get({fid: Number(file.getAttribute('data')), type: 'files'});
               if (f.trashed)
                 continue;
               if (f.isTemp && helper.hasFileReference(f.fileRef) && f.content === null) {
                 zip.file(f.name, f.fileRef, {binary: true});
               } else {
-                fileRequests.push({f, folder: zip, options})
+                fileRequests.push({f, folder: zip, options});
               }
             }
           }
@@ -41,18 +41,17 @@
     }
 
     function downloadSingle(file, options) {
-      return new Promise(resolve => {
+      return new Promise(async (resolve) => {
 
-          let f = fileManager.get({fid: Number(file.getAttribute('data')), type: 'files'})
+          let f = await fileManager.get({fid: Number(file.getAttribute('data')), type: 'files'})
           new Promise(resolveReader => {
 
               if (f.isTemp && helper.hasFileReference(f.fileRef) && f.content === null) {
-              // if (f.fileRef.name !== undefined) {
                 resolveReader(f.fileRef);
               } else {
                 SELF.getReqFileContent(f, options).then(blob => {
                   resolveReader(blob);
-                })
+                });
               }
 
           }).then(blob => {
@@ -63,12 +62,12 @@
             r.onload = function() {
               if (r.result == '/*RD-start*/')  {
                 let r = new FileReader();
-                r.onload = function() {
+                r.onload = async function() {
                   let source = helper.getRemoteDataContent(r.result);
                   if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) { 
-                    fetch(source.downloadUrl).then(r => r.text()).then(content => {
+                    fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
                         if (options.replaceFileTag)
-                          content = replaceFileTag(content, f.parentId);
+                          content = await replaceFileTag(content, f.parentId);
                         resolve(new Blob([divless.replace(content)], {type:blob.type}));
                     });
                   } else {
@@ -79,10 +78,10 @@
               } else {
                 if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) { 
                   let r = new FileReader();
-                  r.onload = function() {
+                  r.onload = async function() {
                     let content = r.result;
                     if (options.replaceFileTag)
-                      content = replaceFileTag(content, f.parentId);
+                      content = await replaceFileTag(content, f.parentId);
                     resolve(new Blob([divless.replace(content)], {type:blob.type}));
                   }
                   r.readAsText(blob);                 
@@ -110,7 +109,7 @@
           requests.shift();
           notif.update(notifId, {content:'Failed'}, true);
           handleRequestChunks(requests, resolveZip, countError+1);
-        })
+        });
       } else {
         if (countError > 0)
           alert('There is an error while downloading files. You might want to redownload some files');
@@ -119,7 +118,7 @@
     }
 
     SELF.getReqFileContent = function(f, options) {
-      return new Promise(resolve => {
+      return new Promise(async (resolve) => {
 
         let mimeType = helper.getMimeType(f.name);
         let isMultimedia = helper.isMediaTypeMultimedia(mimeType);
@@ -136,7 +135,7 @@
             
               let content = f.content;
               if (needReplaceFileTag(f, options))
-                content = replaceFileTag(content, f.parentId);
+                content = await replaceFileTag(content, f.parentId);
               if (needConvertDivless(f, options)) 
                 content = divless.replace(content);
               
@@ -147,9 +146,9 @@
             if (helper.isHasSource(f.content)) {
               let source = helper.getRemoteDataContent(f.content);
               if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) {
-                fetch(source.downloadUrl).then(r => r.text()).then(content => {
+                fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
                   if (options.replaceFileTag)
-                    content = replaceFileTag(content, f.parentId);
+                    content = await replaceFileTag(content, f.parentId);
                    content = divless.replace(content);
                    resolve(new Blob([content], {type: mimeType}));
                 });
@@ -166,9 +165,9 @@
                     r.onload = function() {
                       let source = helper.getRemoteDataContent(r.result);
                       if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) { 
-                        fetch(source.downloadUrl).then(r => r.text()).then(content => {
+                        fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
                             if (options.replaceFileTag)
-                              content = replaceFileTag(content, f.parentId);
+                              content = await replaceFileTag(content, f.parentId);
                             resolve(new Blob([divless.replace(content)], {type:blob.type}));
                         });
                       } else {
@@ -209,12 +208,12 @@
       return false;
     }
 
-    function replaceFileTag(content, parentId) {
+    async function replaceFileTag(content, parentId) {
       let preParent = -1
       let match = getMatchTemplate(content);
       while (match !== null) {
         let searchPath = JSON.parse(JSON.stringify(['root']));
-        content = previewHandler.replaceFile(match, content, parentId, searchPath);
+        content = await previewHandler.replaceFile(match, content, parentId, searchPath);
         match = getMatchTemplate(content);
       }
       return content;
@@ -227,8 +226,8 @@
     function folderToZip(container, folder, fileRequests, options) {
       return new Promise(async resolve => {
 
-        let folders = fileManager.listFolders(container.fid);
-        let files = fileManager.listFiles(container.fid);
+        let folders = await fileManager.listFolders(container.fid);
+        let files = await fileManager.listFiles(container.fid);
         for (let f of folders) {
           if (f.trashed)
             continue;

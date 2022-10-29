@@ -43,6 +43,11 @@ window.app.loadFiles([
   },
   {
     urls: [
+      'js/core/app-data.js',
+    ],
+  },
+  {
+    urls: [
       'js/require/o.js',
       'js/require/keyboard.js',
       'js/require/odin.js',
@@ -50,13 +55,13 @@ window.app.loadFiles([
       'js/components/file-manager.js',
       'js/ux.js',
       'js/components/notifier.js',
-      'js/core/app-data.js',
       // 'assets/ace/ace.js',
       `${ACE_CDN_BASEPATH}/ace.min.js`,
       'js/components/tab-manager.js',
     ],
     callback: function() {
       ace.config.set('basePath', `${ACE_CDN_BASEPATH}`);
+      fileManager.initIDBStorage();
     },
   },
   {

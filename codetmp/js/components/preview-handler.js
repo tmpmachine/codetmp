@@ -45,8 +45,8 @@ function PreviewHandler() {
 
   async function responseAsMedia(event, path, mimeType) {
 
-  	let file = getFileAtPath(path).file;
-    if (file === null) {
+  	let file = (await getFileAtPath(path)).file;
+    if (file === null || file === undefined) {
       previewLoadWindow.postMessage({
         message: 'response-file', 
         mime: '',
@@ -112,7 +112,7 @@ function PreviewHandler() {
   	}, '*');
   }
 
-	this.fileResponseHandler = function (event) {
+	this.fileResponseHandler = async function (event) {
 	  if (event.data.method && event.data.path == '/codetmp/files') {
       switch (event.data.method) {
         case 'POST':
@@ -214,19 +214,19 @@ function PreviewHandler() {
       let path = decodeURI(removeParam(event.data.path));
       let mimeType = helper.getMimeType(path);
       if (helper.isMediaTypeText(path)) {
-        responseAsText(event, path, mimeType+'; charset=UTF-8');
+        await responseAsText(event, path, mimeType+'; charset=UTF-8');
       } else {
-        responseAsMedia(event, path, mimeType);
+        await responseAsMedia(event, path, mimeType);
       }
     }
-  }
+  };
 
-  function getFileAtPath(src) {
+  async function getFileAtPath(src) {
     let preParent = activeFolder;
     let relativeParent = preParent;
     let path = ['root'];
-    let parentId = previewHandler.getDirectory(src, relativeParent, path);
-    let files = fileManager.listFiles(parentId);
+    let parentId = await previewHandler.getDirectory(src, relativeParent, path);
+    let files = await fileManager.listFiles(parentId);
     let name = src.replace(/.*?\//g,'');
     let isFileFound = false;
     let file = null;
@@ -249,7 +249,7 @@ function PreviewHandler() {
     }
 
     let content = '<404></404>';
-    let filePath = getFileAtPath(src);
+    let filePath = await getFileAtPath(src);
     let file = filePath.file;
     let parentId = filePath.parentId;
 
@@ -301,7 +301,7 @@ function PreviewHandler() {
     return name;
   }
 
-  this.getDirectory = function(source, parentId, path) {
+  this.getDirectory = async function(source, parentId, path) {
     source = decodeURI(source);
     while (source.match('//')) {
       source = source.replace('//','/');
@@ -318,7 +318,8 @@ function PreviewHandler() {
       	parentId = -1;
       } else if (dirName === '..' || dirName === '.') {
         
-        folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
+        // folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
+        folder = await fileManager.get({fid: parentId, type: 'folders'});
         if (folder === undefined) {
           break;
         }
@@ -326,7 +327,7 @@ function PreviewHandler() {
         parentId = folder.parentId;
       } else {
         
-        let folders = fileManager.listFolders(parentId);
+        let folders = await fileManager.listFolders(parentId);
         for (let f of folders) {
           if (f.name.toLowerCase() == dirName.toLowerCase() && !f.trashed) {
             folder = f;
@@ -350,7 +351,7 @@ function PreviewHandler() {
     return parentId;
   }
 
-  this.getPath = function() {
+  this.getPath = async function() {
 
     let file;
 
@@ -366,22 +367,23 @@ function PreviewHandler() {
   	let parentId = file.parentId;
   	
     while (parentId >= 0) {
-  		let folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
+  		// let folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
+  		folder = await fileManager.get({fid: parentId, type: 'folders'});
   		path.push(folder.name);
   		parentId = parseInt(folder.parentId);
   	}
   	return path.reverse().join('/');
 
-  }
+  };
 
   this.setToken = function(token) {
     driveAccessToken = token;
-  }
+  };
 
-  this.previewHTML = function() {
-    let filePath = previewHandler.getPath();
-     previewWeb(filePath);
-  }
+  this.previewHTML = async function() {
+    let filePath = await previewHandler.getPath();
+    previewWeb(filePath);
+  };
 
   function previewWeb(filePath) {
     new Promise(function(resolve) {
@@ -402,11 +404,11 @@ function PreviewHandler() {
     });
   }
 
-  function replaceFile(match, body, preParent, path) {
+  async function replaceFile(match, body, preParent, path) {
     let src = match[0].substring(11, match[0].length-9);
     let relativeParent = preParent;
-    let parentId = previewHandler.getDirectory(src, relativeParent, path);
-    let files = fileManager.listFiles(parentId);
+    let parentId = await previewHandler.getDirectory(src, relativeParent, path);
+    let files = await fileManager.listFiles(parentId);
     let name = src.replace(/.*?\//g,'');
     let file = null;
     for (let i=0; i<files.length; i++) {

@@ -15,7 +15,7 @@
       },
       explorer: {
         view: 'grid',
-        tree: false,
+        tree: true,
       },
       showHomepage: true,
       autoSync: true,

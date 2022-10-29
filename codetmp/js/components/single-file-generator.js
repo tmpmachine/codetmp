@@ -2,55 +2,55 @@ window.app.registerComponent('single-file-generator', new SingleFileGeneratorCom
 
 function SingleFileGeneratorComponent() {
 
-  this.generate = function(form) {
+  this.generate = async function(form) {
     let options = {
       replaceDivless: form.replaceDivless.checked,
     };
-    let content = getSingleFileContent(options);
+    let content = await getSingleFileContent(options);
     downloadFile(content);
   };
 
-  this.copy = function(form) {
+  this.copy = async function(form) {
     let options = {
       replaceDivless: form.replaceDivless.checked,
     };
-    let content = getSingleFileContent(options);
+    let content = await getSingleFileContent(options);
     copyToClipboard(content, form);
   }
 
-  function getSingleFileContent(options) {
+  async function getSingleFileContent(options) {
     let body = fileTab[activeTab].editor.env.editor.getValue();
     let preParent = activeFile ? activeFile.parentId : activeFolder;
     let path = ['root'];
-    body = replaceTemplate(body, preParent, path);
+    body = await replaceTemplate(body, preParent, path);
     body = body.replace(/<web-script /g, '<script ').replace(/<web-link /g, '<link ');
     if (options.replaceDivless)
       body = divless.replace(body);
     return body;
   }
 
-  function replaceTemplate(body, preParent = -1, path = ['root']) {
+  async function replaceTemplate(body, preParent = -1, path = ['root']) {
     let match = getMatchLinkedFile(body);
     while (match !== null) {
       let searchPath = JSON.parse(JSON.stringify(path));
-      body = replaceLinkedFile(match, body, preParent, searchPath);
+      body = await replaceLinkedFile(match, body, preParent, searchPath);
       match = getMatchLinkedFile(body);
     }
 
     match = getMatchTemplate(body);
     while (match !== null) {
       let searchPath = JSON.parse(JSON.stringify(path));
-      body = replaceFile(match, body, preParent, searchPath);
+      body = await replaceFile(match, body, preParent, searchPath);
       match = getMatchTemplate(body);
     }
     return body;
   }
 
-  function replaceFile(match, body, preParent, path) {
+  async function replaceFile(match, body, preParent, path) {
     let src = match[0].substring(11, match[0].length-9);
     let relativeParent = preParent;
-    let parentId = previewHandler.getDirectory(src, relativeParent, path);
-    let files = fileManager.listFiles(parentId);
+    let parentId = await previewHandler.getDirectory(src, relativeParent, path);
+    let files = await fileManager.listFiles(parentId);
     let name = src.replace(/.*?\//g,'');
     let file = null;
     for (let i=0; i<files.length; i++) {
@@ -74,7 +74,7 @@ function SingleFileGeneratorComponent() {
         else
           content = file.content;
       }
-      let swap = replaceTemplate(content, parentId, path);
+      let swap = await replaceTemplate(content, parentId, path);
       body = body.replace(new RegExp(match[0]), swap);
     }
     return body;
@@ -84,11 +84,11 @@ function SingleFileGeneratorComponent() {
     return content.match(/<file src=.*?><\/file>/);
   }
 
-  function getMatchLinkedFile(content) {
+  async function getMatchLinkedFile(content) {
     return content.match(/<script .*?src=.*?><\/script>|<link .*?rel=('|")stylesheet('|").*?>/);
   }
 
-  function replaceLinkedFile(match, body, preParent, path) {
+  async function replaceLinkedFile(match, body, preParent, path) {
 
     let tagName;
     let isScriptOrLink = false;
@@ -123,8 +123,8 @@ function SingleFileGeneratorComponent() {
         src = src.replace(/__\//, '');
       }
       
-      let parentId = previewHandler.getDirectory(src, relativeParent, path);
-      let files = fileManager.listFiles(parentId);
+      let parentId = await previewHandler.getDirectory(src, relativeParent, path);
+      let files = await fileManager.listFiles(parentId);
       let name = src.replace(/.*?\//g,'');
       let file = null;
       for (let i=0; i<files.length; i++) {
