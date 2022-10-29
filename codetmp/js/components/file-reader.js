@@ -149,7 +149,7 @@ const fileReaderModule = (function() {
 			let fileRef = await getFileRef(item.entry);
 			if (item.isPressedCtrlKey)
 				fileRef.entry = item.entry;
-			let existingItem = fileManager.getExistingItem(item.name, item.parentId);
+			let existingItem = await fileManager.getExistingItem(item.name, item.parentId);
 			if (existingItem) {
       	modal.confirm(`Item with the same name already exists. Overwrite? (${truncate(item.name)})`).then(() => {
 					existingItem.fileRef = fileRef;
@@ -167,7 +167,7 @@ const fileReaderModule = (function() {
 			    delayResolve(resolve, item);
 		    });
 			} else {
-				let file = fileManager.newFile({
+				let file = await fileManager.newFile({
 				    fileRef,
 				    content: null,
 				    name: item.name,
@@ -187,10 +187,10 @@ const fileReaderModule = (function() {
 		}).then(proceedNextQueueItem);
 	}
 
-	function handleItemDirectory(item) {
-		let folder = fileManager.getExistingItem(item.name, item.parentId, 'folder');
+	async function handleItemDirectory(item) {
+		let folder = await fileManager.getExistingItem(item.name, item.parentId, 'folder');
 		if (folder === null) {
-			folder = fileManager.newFolder({
+			folder = await fileManager.newFolder({
 			    parentId: item.parentId,
 			    name: item.name,
 			});
@@ -213,7 +213,7 @@ const fileReaderModule = (function() {
 	  	let item = await entry.next();
 	  	if (!item.done) {
 	  		item.value[1].isPressedCtrlKey = isPressedCtrlKey;
-			getFileContent(item.value[1], parentId, queue, false).then(saveToStorage);
+			  getFileContent(item.value[1], parentId, queue, false).then(saveToStorage);
 	    	readEntries(entry, parentId, queue, isPressedCtrlKey, resolve);
 	  	} else {
 	  		resolve();
@@ -260,10 +260,11 @@ const fileReaderModule = (function() {
 	}
 
 	function getFileContent(item, parentId, queue, isDataTransferItem = true) {
-	  	return new Promise(async resolve => {
-	  		let entry = item;
-	  		if (isDataTransferItem)
-		  		entry = await item.getAsFileSystemHandle();
+  	return new Promise(async resolve => {
+  		let entry = item;
+  		if (isDataTransferItem) {
+	  		entry = await item.getAsFileSystemHandle();
+  		}
 			resolve({
 				queue,
 				parentId,
@@ -272,7 +273,7 @@ const fileReaderModule = (function() {
 				type: entry.kind,
 				isPressedCtrlKey: item.isPressedCtrlKey,
 			});	
-	  	})
+  	})
 	}
 
 	function getEntryContent(item, parentId, queue, isDataTransferItem = true) {
@@ -468,9 +469,9 @@ const fileReaderModule = (function() {
 		initDragDropZone('explorer', $('#in-my-files-drop-zone'));
 	}
 
-	function uploadFile(self) {
+	async function uploadFile(self) {
 		let f = self.files[0];
-		let file = fileManager.newFile({
+		let file = await fileManager.newFile({
 		    fileRef: f,
 		    content: null,
 		    name: f.name,

@@ -32,22 +32,25 @@ let DOMEvents = {
 		'change-workspace': ui.changeWorkspace,
 		'change-file-list-view': ui.changeFileListView,
 
-	    'btn-menu-template': function() { toggleInsertSnippet() },
+	    'btn-menu-template': function() { toggleInsertSnippet(); },
 	    'btn-menu-save': fileManager.save,
-	    'btn-menu-preview': function() { openPreviewWindow(); previewHandler.previewHTML(); },
-	    'btn-undo': () => { fileTab[activeTab].editor.env.editor.undo(); fileTab[activeTab].editor.env.editor.focus() },
-	    'btn-redo': () => { fileTab[activeTab].editor.env.editor.redo(); fileTab[activeTab].editor.env.editor.focus() },
-	    'more-tab': function() { ui.switchTab(1) },
+	    'btn-menu-preview': async function() { 
+	      await openPreviewWindow(); 
+	      await previewHandler.previewHTML(); 
+	    },
+	    'btn-undo': () => { fileTab[activeTab].editor.env.editor.undo(); fileTab[activeTab].editor.env.editor.focus(); },
+	    'btn-redo': () => { fileTab[activeTab].editor.env.editor.redo(); fileTab[activeTab].editor.env.editor.focus(); },
+	    'more-tab': function() { ui.switchTab(1); },
 	    
 	    'expand-tree-explorer': function() { 
 	    	settings.data.explorer.tree = true;
 	    	settings.save();
-	    	document.body.classList.toggle('--tree-explorer', true) 
+	    	document.body.classList.toggle('--tree-explorer', true) ;
 	    },
 	    'collapse-tree-explorer': function() {
 	    	settings.data.explorer.tree = false;
 	    	settings.save();
-	     	document.body.classList.toggle('--tree-explorer', false) 
+	     	document.body.classList.toggle('--tree-explorer', false);
 	 	},
 	    'reload-file-tree': ui.reloadFileTree,
 	    'generate-single-file': ui.fileGenerator.generate,
@@ -112,11 +115,11 @@ let DOMEvents = {
 		},
 		'Alt+W': confirmCloseTab,
 		'Alt+O': () => deferFeature1.openFileDirectory(),
-		'Ctrl+S': () => { event.preventDefault(); fileManager.save() },
-		'Ctrl+D': () => { event.preventDefault(); ui.fileManager.deleteSelected() },
+		'Ctrl+S': () => { event.preventDefault(); fileManager.save(); },
+		'Ctrl+D': () => { event.preventDefault(); ui.fileManager.deleteSelected(); },
 		'Ctrl+A': selectAllFiles,
 		'Ctrl+V': () => deferFeature1.handlePasteRow(),
-		'Ctrl+O': () => { fileManager.openLocal(event) },
+		'Ctrl+O': () => { fileManager.openLocal(event); },
 		'Alt+D': () => deferFeature1.toggleTemplate(),
 		'Ctrl+Enter': function() {
 		  if ($('#btn-menu-my-files').classList.contains('active')) {

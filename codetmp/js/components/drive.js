@@ -11,26 +11,18 @@ const drive = (function() {
     httpHeaders.Authorization = 'Bearer '+access_token;
   }
 
-  function getAvailParents() {
+  async function getAvailParents() {
     let folds = [mainStorage.data.rootId];
-    mainStorage.data.folders.map((folder) => {
+    let folders = await fileManager.getAllFolders();
+    folders.map((folder) => {
       if (folder.id.length > 0 && !folder.isSync)
         folds.push(folder.id);
     });
     return folds;
   }
 
-  function getRegisteredParents() {
-    let folds = [mainStorage.data.rootId];
-    mainStorage.data.folders.map((folder) => {
-      if (folder.id !== '')
-        folds.push(folder.id);
-    });
-    return folds;
-  }
-
   let downloadQueue = {};
-  let waitList = []
+  let waitList = [];
   let queueLimit = 10;
   let queueInLine = 0;
   
@@ -48,10 +40,10 @@ const drive = (function() {
     return new Promise(resolve => {
       waitList.push(resolve);
       nextDownloadQueue();
-    })
+    });
   }
   
-  async function downloadDependencies(file, returnType = 'text') {
+  function downloadDependencies(file, returnType = 'text') {
     return new Promise(async (resolve, reject) => {
      await auth2.init();
      if (downloadQueue[file.id]) {
@@ -86,16 +78,17 @@ const drive = (function() {
     });
   }
 
-  function registerFolder(folders, newBranch = []) {
+  async function registerFolder(folders, newBranch = []) {
     
-    if (folders.length === 0) return newBranch;
+    if (folders.length === 0) 
+      return newBranch;
     
     let {id, name, modifiedTime, trashed, parents, isLoaded} = folders[0];
-    let f = fileManager.get({id, type: 'folders'}, 0);
+    let f = await fileManager.get({id, type: 'folders'}, 0);
 
     if (parents) {
       
-      let parentFolderId = getParentId(parents[0]);
+      let parentFolderId = await getParentId(parents[0]);
       if (f) {
         f.name = name;
         f.trashed = trashed;
@@ -104,9 +97,11 @@ const drive = (function() {
         if (new Date(f.modifiedTime).getTime()-new Date(modifiedTime).getTime() < -100) {
           f.modifiedTime = modifiedTime;
         }
+        
+        await fileManager.update(f, 'folders');
       } else {
         if (parentFolderId > -2) {
-          let folder = fileManager.newFolder({
+          let folder = await fileManager.newFolder({
             id,
             name,
             modifiedTime,
@@ -115,7 +110,9 @@ const drive = (function() {
             parentId: parentFolderId,
           }, 0);
           newBranch.push(id);
-          ui.tree.appendFile(folder);
+          if (!folder.trashed) {
+            ui.tree.appendFolder(folder);
+          }
         }
       }
       if (activeWorkspace === 0) {
@@ -127,20 +124,21 @@ const drive = (function() {
     }
 
     folders.splice(0, 1);
-    return registerFolder(folders, newBranch);
+    return await registerFolder(folders, newBranch);
   }
 
-  function registerFile(files) {
+  async function registerFile(files) {
     
-    if (files.length === 0) return;
+    if (files.length === 0) 
+      return;
     
     let {id, name, modifiedTime, trashed, parents} = files[0];
-    let f = fileManager.get({id, type: 'files'}, 0);
+    let f = await fileManager.get({id, type: 'files'}, 0);
     let mimeType = helper.getMimeType(name);
 
     if (parents) {
       
-      let parentFolderId = getParentId(parents[0]);
+      let parentFolderId = await getParentId(parents[0]);
       if (f) {
         f.name = name;
         f.trashed = trashed;
@@ -152,12 +150,17 @@ const drive = (function() {
           delete f.blob;
           
           if (f.loaded) {
-	          downloadDependencies(f).then(content => {
+	          downloadDependencies(f).then(async (content) => {
 	          	f.content = content;
+	          	await fileManager.update(f, 'files');
 	          	mainStorage.save();
 	          	ui.reloadOpenTab(f.fid);
 	          });
+          } else {
+            await fileManager.update(f, 'files');
           }
+        } else {
+      	  await fileManager.update(f, 'files');
         }
       } else {
         if (parentFolderId > -2) {
@@ -169,8 +172,10 @@ const drive = (function() {
             loaded: false,
             parentId: parentFolderId,
           };
-          let file  = fileManager.newFile(data, 0);
-          ui.tree.appendFile(file);
+          let file  = await fileManager.newFile(data, 0);
+          if (!file.trashed) {
+            ui.tree.appendFile(file);
+          }
         }
       }
       if (activeWorkspace === 0) {
@@ -208,7 +213,7 @@ const drive = (function() {
       headers: httpHeaders,
     }).then(response => {
       return response.json();
-    }).then(json => {
+    }).then(async (json) => {
       
       let allFolders = [];
       let allFiles = [];
@@ -221,8 +226,8 @@ const drive = (function() {
         }
       });
       
-      registerFolder(allFolders);
-      registerFile(allFiles);
+      await registerFolder(allFolders);
+      await registerFile(allFiles);
       mainStorage.save();
 
       if (json.nextPageToken) {
@@ -234,7 +239,7 @@ const drive = (function() {
       if (syncFromDrive.refresh) {
         syncFromDrive.refresh = false;
         if (activeWorkspace === 0)
-          fileManager.list();
+          await fileManager.list();
       }
       
       settings.data.drive.startPageToken = json.newStartPageToken;
@@ -242,7 +247,12 @@ const drive = (function() {
     });
   }
 
-  async function syncFromDrive(parents = getAvailParents(), dirLevel = 1, nextPageToken, pendingBranch = []) {
+  async function syncFromDrive(parents, dirLevel = 1, nextPageToken, pendingBranch = []) {
+    
+    if (parents === undefined) {
+      parents = await getAvailParents();
+    }
+    
     if (settings.data.drive.startPageToken.length === 0) {
       
       if (!mainStorage.data.rootId) 
@@ -268,7 +278,7 @@ const drive = (function() {
         headers: httpHeaders,
       }).then(function(result) {
         return result.json();
-      }).then(function(json) {
+      }).then(async function(json) {
         let folds = [];
         let allFolders = [];
         let allFiles = [];
@@ -282,16 +292,18 @@ const drive = (function() {
           }
         });
         
-        let newBranch = [...registerFolder(allFolders), ...pendingBranch];
-        registerFile(allFiles);
+        let newBranch = [...await registerFolder(allFolders), ...pendingBranch];
+        await registerFile(allFiles);
   
         if (typeof(json.nextPageToken) !== 'undefined') {
           syncFromDrive(parents, dirLevel, json.nextPageToken, newBranch);
         } else {
           for (let parentId of parents) {
-            let folder = fileManager.get({id: parentId, type: 'folders'}, 0);
-            if (folder)
+            let folder = await fileManager.get({id: parentId, type: 'folders'}, 0);
+            if (folder) {
               folder.isSync = true;
+              await fileManager.update(folder, 'folders');
+            }
           }
           mainStorage.save();
           if (dirLevel < 2)
@@ -303,7 +315,7 @@ const drive = (function() {
         if (syncFromDrive.refresh) {
           syncFromDrive.refresh = false;
           if (activeWorkspace === 0)
-            fileManager.list();
+            await fileManager.list();
         }
       });
     } else {
@@ -359,7 +371,7 @@ const drive = (function() {
         headers: httpHeaders,
       }).then(function(result) {
         return result.json();
-      }).then(function(json) {
+      }).then(async function(json) {
         let folds = [];
         let allFolders = [];
         let allFiles = [];
@@ -373,13 +385,13 @@ const drive = (function() {
           }
         });
         
-        let newBranch = [...registerFolder(allFolders), ...pendingBranch];
-        registerFile(allFiles);
+        let newBranch = [...await registerFolder(allFolders), ...pendingBranch];
+        await registerFile(allFiles);
   
         if (syncFromDrivePartial.refresh) {
           syncFromDrivePartial.refresh = false;
           if (activeWorkspace === 0)
-            fileManager.list();
+            await fileManager.list();
         }
 
         if (typeof(json.nextPageToken) !== 'undefined') {
@@ -389,11 +401,12 @@ const drive = (function() {
           for (let parentId of parents) {
           	let index = dirSyncQueue.indexOf(parentId);
           	dirSyncQueue.splice(index, 1);
-            let folder = fileManager.get({id: parentId, type: 'folders'}, 0);
+            let folder = await fileManager.get({id: parentId, type: 'folders'}, 0);
             if (folder) {
               folder.isSync = true;
               folder.isLoaded = true;
             }
+            await fileManager.update(folder, 'folders');
           }
           mainStorage.save();
           if (dirLevel < 2) {
@@ -417,11 +430,11 @@ const drive = (function() {
     let fileBlob;
     
     if (action === 'create' || action === 'copy') {
-      ({ id, name, trashed, modifiedTime, parentId, content, fileRef } = fileManager.get({fid, type}, 0));
+      ({ id, name, trashed, modifiedTime, parentId, content, fileRef } = await fileManager.get({fid, type}, 0));
       method = 'POST';
       metaHeader = {
         modifiedTime,
-        parents: [getParents(parentId).id],
+        parents: [(await getParents(parentId)).id],
         mimeType: (type === 'folders') ? 'application/vnd.google-apps.folder' : helper.getMimeType(name),
       };
       
@@ -434,7 +447,7 @@ const drive = (function() {
       
     } else if (action === 'update') {
       
-      ({ id, name, trashed, modifiedTime, parentId, content, fileRef } = fileManager.get({fid, type}, 0));
+      ({ id, name, trashed, modifiedTime, parentId, content, fileRef } = await fileManager.get({fid, type}, 0));
 
       fetchUrl = apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id';
       method = 'PATCH';
@@ -449,8 +462,8 @@ const drive = (function() {
         else if (meta === 'trashed')
           metaHeader.trashed = trashed;
         else if (meta === 'parents') {
-          source = getParents(source).id;
-          let destination = getParents(parentId).id;
+          source = (await getParents(source)).id;
+          let destination = (await getParents(parentId)).id;
         
           fetchUrl = apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id&addParents='+destination+'&removeParents='+source;
         }
@@ -607,21 +620,24 @@ const drive = (function() {
     syncToDrive.enabled = true;
     $('#txt-sync').textContent = 'Sync ('+mainStorage.data.sync.length+')';
     
-      syncFile(sync).then((json) => {
-        if (json.action === 'create' || json.action === 'copy') {
-          let file = fileManager.get({fid: mainStorage.data.sync[0].fid, type: json.type}, 0);
-          file.id = json.id;
-          // if (sync.isTemp)
-          	// file.isTemp = false;
+    syncFile(sync).then(async (json) => {
+      if (json.action === 'create' || json.action === 'copy') {
+        let file = await fileManager.get({fid: mainStorage.data.sync[0].fid, type: json.type}, 0);
+        file.id = json.id;
+        if (json.type == 'files') {
+          await fileManager.update(file, 'files');
+        } else if (json.type == 'folders') {
+          await fileManager.update(file, 'folders');
         }
-        mainStorage.data.sync.splice(0, 1);
-        syncToDrive.enabled = false;
-        syncToDrive();
-        mainStorage.save();
-  
-      }).catch((error) => {
-        syncToDrive.enabled = false;  
-      });
+      }
+      mainStorage.data.sync.splice(0, 1);
+      syncToDrive.enabled = false;
+      syncToDrive();
+      mainStorage.save();
+
+    }).catch((error) => {
+      syncToDrive.enabled = false;  
+    });
   }
 
   function checkPermission(id) {
@@ -748,18 +764,18 @@ const drive = (function() {
     });
   }
 
-  function getParents(parentId) {
+  async function getParents(parentId) {
     if (parseInt(parentId) === -1)
       return { id: mainStorage.data.rootId} ;
       
-    return fileManager.get({fid: parentId, type: 'folders'}, 0);
+    return await fileManager.get({fid: parentId, type: 'folders'}, 0);
   }
 
-  function getParentId(id) {
+  async function getParentId(id) {
     if (id === mainStorage.data.rootId)
       return -1;
       
-    let data = fileManager.get({id, type:'folders'}, 0);
+    let data = await fileManager.get({id, type:'folders'}, 0);
     if (data)
       return data.fid;
     else

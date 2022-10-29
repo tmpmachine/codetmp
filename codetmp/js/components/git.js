@@ -29,7 +29,7 @@ const git = (function() {
   	let headers = response.headers;
   	let rateLimitRemaining = headers.get('x-ratelimit-remaining');
   	if (rateLimitRemaining) {
-  		rateLimit = parseInt(rateLimitRemaining)
+  		rateLimit = parseInt(rateLimitRemaining);
   	}
     return response.json();
   }
@@ -45,11 +45,11 @@ const git = (function() {
   const downloadFileData = function(url) {
     return new Promise(resolve => {
       fetch(url).then(r => r.blob()).then(resolve);
-    })
+    });
   };
 
-  const registerFile = function(_file, parentId) {
-    let file = fileManager.newFile({
+  const registerFile = async function(_file, parentId) {
+    let file = await fileManager.newFile({
       parentId,
       loaded: false,
       name: _file.name,
@@ -68,8 +68,8 @@ const git = (function() {
     });
   };
     
-  const registerDir = function(repo, _folder, parentId) {
-    let folder = fileManager.newFolder({
+  const registerDir = async function(repo, _folder, parentId) {
+    let folder = await fileManager.newFolder({
       parentId,
       name: _folder.name,
     });
@@ -82,12 +82,12 @@ const git = (function() {
     clonePath(repo, _folder.path, folder.fid);
   };
     
-  const readingData = function(repo, files, parentId) {
+  const readingData = async function(repo, files, parentId) {
     for (let file of files) {
       if (file.type == 'file')
-        registerFile(file, parentId);
+        await registerFile(file, parentId);
       else if (file.type == 'dir')
-        registerDir(repo, file, parentId);
+        await registerDir(repo, file, parentId);
     }
 
     window.clearTimeout(listChanges);
@@ -117,7 +117,7 @@ const git = (function() {
 	      headers:{
 	        'Authorization':'token '+token
 	      },
-	    }
+	    };
   	}
   }
 
@@ -141,14 +141,14 @@ const git = (function() {
   const initClonePath = function(repo, parentId) {
     fetch('https://api.github.com/repos/'+repo.username+'/'+repo.name+'/contents/', getHeader())
     .then(asJSON)
-    .then(function(r) {
+    .then(async function(r) {
       if (r.message == 'Not Found') {
         ui.alert({
           text: 'Repository not found. Check repository web URL.', 
           timeout: 5000,
         });
       } else {
-        let folder = fileManager.newFolder({
+        let folder = await fileManager.newFolder({
           parentId: activeFolder,
           name: repo.name,
         });

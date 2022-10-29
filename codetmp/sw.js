@@ -1,6 +1,7 @@
 L = console.log;
-let cacheVersion = '28';
+let cacheVersion = '30';
 let cacheItem = 'codetmp-'+cacheVersion;
+const ACE_CDN_BASEPATH = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6';
 
 self.addEventListener('message', function(e) {
   if (e.data.action == 'skipWaiting') {
@@ -21,24 +22,26 @@ self.addEventListener('install', function(event) {
     '/assets/js/fflate.js',
     '/assets/js/sha256.js',
 
-    '/assets/ace/ace.js',
+    // ace custom theme
     '/assets/ace/theme-codetmp-markdown.js',
     '/assets/ace/theme-codetmp.js',
-    '/assets/ace/theme-github.js',
-    '/assets/ace/mode-html.js',
-    '/assets/ace/mode-json.js',
-    '/assets/ace/mode-css.js',
-    '/assets/ace/mode-javascript.js',
-    '/assets/ace/worker-html.js',
-    '/assets/ace/worker-json.js',
-    '/assets/ace/worker-css.js',
-    '/assets/ace/worker-javascript.js',
-    '/assets/ace/ext-searchbox.js',
-    '/assets/ace/ext-prompt.js',
-    '/assets/ace/ext-language_tools.js',
-    '/assets/ace/snippets/javascript.js',
-    '/assets/ace/snippets/html.js',
-    '/assets/ace/snippets/markdown.js',
+    
+    `${ACE_CDN_BASEPATH}/ace.js`,
+    `${ACE_CDN_BASEPATH}/theme-github.js`,
+    `${ACE_CDN_BASEPATH}/mode-html.js`,
+    `${ACE_CDN_BASEPATH}/mode-json.js`,
+    `${ACE_CDN_BASEPATH}/mode-css.js`,
+    `${ACE_CDN_BASEPATH}/mode-javascript.js`,
+    `${ACE_CDN_BASEPATH}/worker-html.js`,
+    `${ACE_CDN_BASEPATH}/worker-json.js`,
+    `${ACE_CDN_BASEPATH}/worker-css.js`,
+    `${ACE_CDN_BASEPATH}/worker-javascript.js`,
+    `${ACE_CDN_BASEPATH}/ext-searchbox.js`,
+    `${ACE_CDN_BASEPATH}/ext-prompt.js`,
+    `${ACE_CDN_BASEPATH}/ext-language_tools.js`,
+    `${ACE_CDN_BASEPATH}/snippets/javascript.js`,
+    `${ACE_CDN_BASEPATH}/snippets/html.js`,
+    `${ACE_CDN_BASEPATH}/snippets/markdown.js`,
     '/assets/icons/folder_open.svg',
     '/assets/icons/folder_close.svg',
 

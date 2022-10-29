@@ -35,11 +35,11 @@ const fire = (() => {
           $('#project-list').append(option);
         }
         if (json.results.length > 0) {
-           projectId = json.results[0].projectId
+           projectId = json.results[0].projectId;
            listSite();
         }
       }
-    })
+    });
   }
   
   function listSite() {
@@ -183,12 +183,12 @@ const fire = (() => {
             "files": hashTree
           })
       }).then(r=>r.json()).then(json => {
-        log('(Done)', true)
+        log('(Done)', true);
         resolve(gzipFiles);
       });
 
 
-    }) 
+    }) ;
   }
 
 
@@ -202,8 +202,8 @@ const fire = (() => {
       }).then(r=>r.json()).then(json => {
         log('(Done)', true);
         resolve();
-      })
-    })
+      });
+    });
   }
 
 
@@ -215,7 +215,7 @@ const fire = (() => {
     }).then(r=>r.json()).then(() => {
       log('(Done)', true);
       log('\n\n---Deploy complete.');
-    })
+    });
   }
 
 
@@ -232,7 +232,7 @@ const fire = (() => {
   }
 
   async function populateQueue(queue, parentId, path) {
-    let files = fileManager.listFiles(parentId);
+    let files = await fileManager.listFiles(parentId);
     for (let i=0; i<files.length; i++) {
       if (files[i].trashed)
         continue;
@@ -242,13 +242,13 @@ const fire = (() => {
       });
     }
 
-    let folders = fileManager.listFolders(parentId);
+    let folders = await fileManager.listFolders(parentId);
     for (let i=0; i<folders.length; i++) {
       if (folders[i].trashed)
         continue;
       if (folders[i].id.length > 0 && !folders[i].isLoaded)
         await drive.syncFromDrivePartial([folders[i].id]);
-      populateQueue(queue, folders[i].fid, path+folders[i].name+'/');
+      await populateQueue(queue, folders[i].fid, path+folders[i].name+'/');
     }
   }
 
@@ -303,25 +303,20 @@ const fire = (() => {
            log('Uploading ('+uploader.uploadCount+'/'+uploader.totalUpload+') '+file.path+'... ');
            fetch(`https://upload-firebasehosting.googleapis.com/upload/sites/${siteID}/versions/${ver}/files/${file.hash}` ,opt)
            .then(() => {
-              // log('(Done)', true);
               running--;
               uploader.totalUpload--;
-              // uploader.currentUpload++;
               runner();
               if (uploader.totalUpload === 0)
                 uploader.resolve();
-              // uploadFile(gzFiles, total).then(resolve);
            })
            .catch(err => {
-              // log('(Failed)', true)
               running--;
               uploader.totalUpload--;
-              // uploader.currentUpload++;
               runner();
               if (uploader.totalUpload === 0)
                 uploader.resolve();
-           })
-        }
+           });
+        };
         r.readAsArrayBuffer(file.gzipFile);
 
 

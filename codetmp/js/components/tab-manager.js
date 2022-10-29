@@ -93,11 +93,14 @@ function TabManagerComponent() {
     $('#editor-wrapper').innerHTML = '';
     $('#editor-wrapper').append(fileTab[idx].editor)
     
-    fileTab[idx].editor.env.editor.focus();
     fileTab[idx].editor.env.editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
     fileTab[idx].editor.env.editor.setFontSize(editorManager.fontSize);
     activeFile = (String(fid)[0] == '-') ? null : fileTab[activeTab].file;
     setEditorMode(fileTab[activeTab].name);  
+    
+    window.setTimeout(() => {
+      fileTab[idx].editor.env.editor.focus();
+    }, 1);
   };
 
   function compressTab(idx) {
@@ -148,27 +151,12 @@ function TabManagerComponent() {
     }
   };
 
-  // function attachListener() {
-  //   $('#file-title').addEventListener('contextmenu', handleTabContextMenu);
-  // }
-
-  // function handleTabContextMenu(e) {
-  //   let tabNode = e.target.parentNode.parentNode.parentNode;
-  //   if (tabNode.classList.contains('file-tab')) {
-  //     e.preventDefault();
-  //     let fid = tabNode.dataset.parentid;
-  //     fid = (fid == '') ? activeFolder : parseInt(fid);
-  //     openDirectory(fid);
-  //     SELF.focusTab(fid, false);
-  //   }
-  // }
-
-  SELF.openDirectory = function(fid) {
+  SELF.openDirectory = async function(fid) {
     breadcrumbs.splice(1);
     let stack = [];
     let parentId = fid;
     while (parentId != -1) {
-      let folder = fileManager.get({fid: parentId, type: 'folders'});
+      let folder = await fileManager.get({fid: parentId, type: 'folders'});
       breadcrumbs.splice(1, 0, {folderId:folder.fid, title: folder.name});
       parentId = folder.parentId;
     }
@@ -176,9 +164,7 @@ function TabManagerComponent() {
     $('#btn-menu-my-files').click();
     if (breadcrumbs.length > 1)
       breadcrumbs.pop();
-    fileManager.openFolder(fid);
+    await fileManager.openFolder(fid);
   }
-
-  // attachListener();
 
 }

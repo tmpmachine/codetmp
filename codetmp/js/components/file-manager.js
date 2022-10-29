@@ -6,7 +6,34 @@ function FileManager() {
 
   };
 
-  function File(data, workspaceId) {
+  let STORAGE_TYPE = 'localStorage'; 
+  
+  if ('indexedDB' in window) {
+     // check if cirrently not using fileStorage
+     let storageType = window.localStorage.getItem('codetmp-storage-type');
+     let fs = window.fileStorage.data;
+     if (storageType == 'idb' || (fs.rootId == '' && fs.files.length == 0 && fs.folders.length == 0 && fs.sync.length == 0)) {
+       STORAGE_TYPE = 'idb';
+       window.localStorage.setItem('codetmp-storage-type', 'idb');
+     }
+  }
+
+  SELF.initIDBStorage = async function() {
+      let dbName = 'codetmp';
+      let dbVersion = 1;
+      window.idbStorage = await idb.openDB(dbName, dbVersion, {
+        upgrade(db, oldVersion, newVersion, transaction, event) {
+          let fileStore = db.createObjectStore('files', { keyPath: 'fid', autoIncrement: true });
+          let folderStore = db.createObjectStore('folders', { keyPath: 'fid', autoIncrement: true });
+          fileStore.createIndex('id', 'id', { unique: false });
+          fileStore.createIndex('parentId', 'parentId', { unique: false });
+          folderStore.createIndex('id', 'id', { unique: false });
+          folderStore.createIndex('parentId', 'parentId', { unique: false });
+        },
+      });
+  };
+
+  async function CreateFile(data, workspaceId) {
     
     let temp = activeWorkspace;
     activeWorkspace = workspaceId;
@@ -33,13 +60,21 @@ function FileManager() {
         file[key] = data[key];
     }
     
-    fileStorage.data.files.push(file);
-    fileStorage.data.counter.files++;
+    // store data
+    if (STORAGE_TYPE == 'idb'  && activeWorkspace == 0) {
+      delete file.fid;
+      let fid = await window.idbStorage.put('files', file);
+      file.fid = fid;
+    } else {
+      fileStorage.data.files.push(file);
+      fileStorage.data.counter.files++;
+    }
+
     activeWorkspace = temp;
     return file;
   }
 
-  function Folder(data, workspaceId) {
+  async function CreateFolder(data, workspaceId) {
     
     let temp = activeWorkspace;
     activeWorkspace = workspaceId;
@@ -63,19 +98,27 @@ function FileManager() {
         file[key] = data[key];
     }
     
-    fileStorage.data.counter.folders++;
-    fileStorage.data.folders.push(file);
-    fileStorage.save();
+    // store data
+    if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
+      delete file.fid;
+      let fid = await window.idbStorage.put('folders', file);
+      file.fid = fid;
+    } else {
+      fileStorage.data.counter.folders++;
+      fileStorage.data.folders.push(file);
+      fileStorage.save();
+    }
+
     activeWorkspace = temp;
     return file;
   }
   
-  SELF.newFile = function(data = {}, workspaceId = activeWorkspace) {
-    return new File(data, workspaceId)
+  SELF.newFile = async function(data = {}, workspaceId = activeWorkspace) {
+    return await CreateFile(data, workspaceId)
   };
 
-  SELF.newFolder = function(data = {}, workspaceId = activeWorkspace) {
-    return new Folder(data, workspaceId)
+  SELF.newFolder = async function(data = {}, workspaceId = activeWorkspace) {
+    return await CreateFolder(data, workspaceId)
   };
 
   async function writeToDisk() {
@@ -90,8 +133,8 @@ function FileManager() {
     $('.icon-rename')[activeTab].textContent = 'close';
   }
 
-  function displayListFolders() {
-    let folders = fileManager.listFolders(activeFolder);
+  async function displayListFolders() {
+    let folders = await SELF.listFolders(activeFolder);
     folders.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
     });
@@ -120,8 +163,8 @@ function FileManager() {
     }
   }
 
-  SELF.getListFolder = function(parentId = activeFolder) {
-    let folders = SELF.listFolders(parentId);
+  SELF.getListFolder = async function(parentId = activeFolder) {
+    let folders = await SELF.listFolders(parentId);
     folders.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
     });
@@ -144,7 +187,7 @@ function FileManager() {
       });
     }
     return result;
-  }
+  };
   
   function traversePath(parentId, path = []) {
     if (parentId === -1)
@@ -158,18 +201,42 @@ function FileManager() {
     let path = traversePath(file.parentId).reverse();
     path.push(file.name);
     return path.join('/');
-  }
+  };
 
-  SELF.listFiles = function(parentId) {
-    return odin.filterData(parentId, fileStorage.data.files, 'parentId');
-  }
+  SELF.listFiles = async function(parentId) {
+    if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
+      return await window.idbStorage.getAllFromIndex('files','parentId', parseInt(parentId));
+    } else {
+      return odin.filterData(parentId, fileStorage.data.files, 'parentId');
+    }
+  };
 
-  SELF.listFolders = function(parentId, column = 'parentId') {
-    return odin.filterData(parentId, fileStorage.data.folders, column);
-  }
-
-  function displayListFiles() {
-    let files = fileManager.listFiles(activeFolder);
+  SELF.listFolders = async function(parentId, column = 'parentId') {
+    if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
+      if (column == 'parentId') {
+        return await window.idbStorage.getAllFromIndex('folders', column, parseInt(parentId));
+      } else if (column == 'fid') {
+        return await window.idbStorage.getAllFromIndex('folders', column, parseInt(parentId));
+      }
+    } else {
+      return odin.filterData(parentId, fileStorage.data.folders, column);
+    }
+  };
+  
+  SELF.getAllFolders = async function() {
+    if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
+      let store = window.idbStorage.transaction('folders').objectStore('folders');
+      return await store.getAll();
+    } else {
+      if (activeWorkspace === 0) {
+        return mainStorage.data.folders;
+      }
+    }  
+    return [];
+  };
+  
+  async function displayListFiles() {
+    let files = await fileManager.listFiles(activeFolder);
     files.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
     });
@@ -202,8 +269,8 @@ function FileManager() {
     }
   }
 
-  SELF.getListFiles = function(parentId = activeFolder) {
-    let files = SELF.listFiles(parentId);
+  SELF.getListFiles = async function(parentId = activeFolder) {
+    let files = await SELF.listFiles(parentId);
     files.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
     });
@@ -237,7 +304,7 @@ function FileManager() {
       if (helper.isHasSource(file.content)) {
         source = helper.getRemoteDataContent(file.content);
       }
-      fileManager.downloadDependencies(file, source).then(content => {
+      fileManager.downloadDependencies(file, source).then(async (content) => {
         file.content = content;
         file.loaded = true;
         file.isTemp = false;
@@ -250,6 +317,9 @@ function FileManager() {
             type: 'files'
           });
           drive.syncToDrive();
+        }
+        if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
+          await SELF.update(file, 'files');
         }
         fileStorage.save();
 
@@ -298,11 +368,11 @@ function FileManager() {
   
   function saveAsNewFile() {
   	let fileName = $('.file-name')[activeTab].textContent;
-    modal.prompt('File name', fileName, '', helper.getFileNameLength(fileName)).then(name => {
+    modal.prompt('File name', fileName, '', helper.getFileNameLength(fileName)).then(async (name) => {
       if (!name) 
       	return;
       
-      let file = SELF.newFile({
+      let file = await SELF.newFile({
         name,
       });
       fileManager.sync({
@@ -311,7 +381,7 @@ function FileManager() {
         type: 'files',
       });
       drive.syncToDrive();
-      fileManager.list();
+      await SELF.list();
       fileStorage.save();
       
       let scrollTop = fileTab[activeTab].editor.env.editor.getSession().getScrollTop();
@@ -329,12 +399,12 @@ function FileManager() {
         editor: initEditor(file.content, scrollTop, row, col),
       });
 
-    }).catch(() => {
+    }).catch((err) => {
       fileTab[activeTab].editor.env.editor.focus();
     });
   }
 
-  function saveExistingFile() {
+  async function saveExistingFile() {
     activeFile.content = fileTab[activeTab].editor.env.editor.getValue();
     activeFile.modifiedTime = (new Date()).toISOString();
     fileManager.sync({
@@ -344,6 +414,10 @@ function FileManager() {
       type: 'files'
     });
     drive.syncToDrive();
+
+    if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
+      await SELF.update(activeFile, 'files');
+    }
     fileStorage.save();
     fileTab[activeTab].fiber = 'close';
     $('.icon-rename')[activeTab].textContent = 'close';
@@ -360,12 +434,22 @@ function FileManager() {
       }
     }
   };
+
+  SELF.update = async function(data, type) {
+    if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
+      if (type == 'files') {
+        await window.idbStorage.put('files', data);
+      } else if (type == 'folders') {
+        await window.idbStorage.put('folders', data);
+      }
+    }
+  };
   
-  SELF.list = function() {
+  SELF.list = async function() {
     $('#file-list').innerHTML = '';
-    displayListFolders();
+    await displayListFolders();
     $('#file-list').appendChild(o.element('div', { style: 'flex: 0 0 100%', class: 'separator w3-padding-small' }));
-    displayListFiles();
+    await displayListFiles();
     loadBreadCrumbs();
     selectedFile.splice(0, 1);
     ui.toggleFileActionButton();
@@ -387,16 +471,30 @@ function FileManager() {
     })
   }
   
-  SELF.get = function(data, workspaceId = activeWorkspace) {
+  SELF.get = async function(data, workspaceId = activeWorkspace) {
     let haystack;
-    if (workspaceId === 0)
-      haystack = (data.type == 'files') ? mainStorage.data.files : mainStorage.data.folders;
-    else
-      haystack = (data.type == 'files') ? fileStorage.data.files : fileStorage.data.folders;
-    if (data.id !== undefined)
-      return odin.dataOf(data.id, haystack, 'id')
-    else if (data.fid !== undefined)
-      return odin.dataOf(data.fid, haystack, 'fid')
+
+    if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
+      let store;
+      if (data.type == 'files') {
+        store = window.idbStorage.transaction('files').objectStore('files');
+      } else {
+        store = window.idbStorage.transaction('folders').objectStore('folders');
+      }
+      if (data.id !== undefined)
+        return await window.idbStorage.getFromIndex(data.type, 'id', data.id);
+      else if (data.fid !== undefined)
+        return await store.get(parseInt(data.fid));
+    } else {
+      if (workspaceId === 0)
+        haystack = (data.type == 'files') ? mainStorage.data.files : mainStorage.data.folders;
+      else
+        haystack = (data.type == 'files') ? fileStorage.data.files : fileStorage.data.folders;
+        if (data.id !== undefined)
+          return odin.dataOf(data.id, haystack, 'id')
+        else if (data.fid !== undefined)
+          return odin.dataOf(data.fid, haystack, 'fid')
+    }
   }
 
   function getFileHandle(file) {
@@ -434,8 +532,8 @@ function FileManager() {
     })
   }
 
-  SELF.open = function(fid) {
-    let f = fileManager.get({fid, type: 'files'});
+  SELF.open = async function(fid) {
+    let f = await fileManager.get({fid, type: 'files'});
     let mimeType = helper.getMimeType(f.name);
 
     new Promise(function(resolve, reject) {
@@ -483,7 +581,11 @@ function FileManager() {
             let contentLink = await drive.getWebContentLink(f.id);
             f.contentLink = contentLink;
             src = contentLink;
-            fileStorage.save();
+            if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
+              await SELF.update(f, 'files');
+            } else {
+              fileStorage.save();
+            }
           }
         }
       }
@@ -495,12 +597,12 @@ function FileManager() {
     });
   }
 
-  SELF.getExistingItem = function(name, parentId, type = 'file') {
+  SELF.getExistingItem = async function(name, parentId, type = 'file') {
     let haystack;
     if (type == 'file')
-      haystack = fileManager.listFiles(parentId);
-    else
-      haystack = fileManager.listFolders(parentId);
+      haystack = await SELF.listFiles(parentId);
+    else if (type == 'folder')
+      haystack = await SELF.listFolders(parentId);
 
     for (var i=0; i<haystack.length; i++) {
       if (haystack[i].trashed)
@@ -512,28 +614,28 @@ function FileManager() {
     return null;
   }
 
-  SELF.getDuplicateName = function(parentId, name, type = 'file', originalName = '', duplicateCount = 1) {
+  SELF.getDuplicateName = async function(parentId, name, type = 'file', originalName = '', duplicateCount = 1) {
     if (originalName == '')
       originalName = name;
-    let existing = SELF.getExistingItem(name, parentId, type);
+    let existing = await SELF.getExistingItem(name, parentId, type);
     if (existing !== null) {
         let ext = '';
         var arr = originalName.split('.');
         if (arr.length > 1) {
           ext = '.'+arr.pop();
         }
-        return SELF.getDuplicateName(parentId, arr.join('.')+' ('+duplicateCount+')'+ext, type, originalName, duplicateCount+1);
+        return await SELF.getDuplicateName(parentId, arr.join('.')+' ('+duplicateCount+')'+ext, type, originalName, duplicateCount+1);
     }
     return name;
   }
 
-  SELF.openFolder = function(folderId) {
+  SELF.openFolder = async function(folderId) {
     activeFolder = folderId;
     
     if (activeFolder == -1) {
       breadcrumbs.splice(1);
     } else {
-      let folder = fileManager.get({fid: folderId, type: 'folders'});
+      let folder = await fileManager.get({fid: folderId, type: 'folders'});
       title = folder.name;
       breadcrumbs.push({folderId:activeFolder, title: title})
     }
@@ -676,6 +778,61 @@ function FileManager() {
       
       $('#list-trash').appendChild(el);
     }
+  }
+
+  SELF.deleteFolder = async function(fid) {
+    let data = await SELF.get({fid, type: 'folders'});
+    data.trashed = true;
+    await SELF.update(data, 'folders');
+    
+    commit({
+      fid: data.fid,
+      action: 'update',
+      metadata: ['trashed'],
+      type: 'folders'
+    });
+    window.app.getComponent('fileTree').then(fileTree => {
+      fileTree.removeFolder(data);
+    });
+  }
+
+  SELF.deleteFile = async function(fid) {
+    let data = await SELF.get({fid, type: 'files'});
+    data.trashed = true;
+    await SELF.update(data, 'files');;
+  
+    for (let sync of fileStorage.data.sync) {
+      if (sync.action === 52 && sync.copyId === fid) {
+        sync.action = 12;
+      }
+    }
+
+    commit({
+        fid: data.fid,
+        action: 'update',
+        metadata: ['trashed'],
+        type: 'files'
+    });
+
+    window.app.getComponent('fileTree').then(fileTree => {
+      fileTree.removeFile(data);
+    });
+  };
+  
+  SELF.clearStorage = async function() {
+    if (STORAGE_TYPE == 'idb') {
+      await window.idbStorage.clear('folders');  
+      await window.idbStorage.clear('files');  
+    }
+    window.localStorage.removeItem('codetmp-storage-type');
+    fileStorage.reset();
+  };
+
+  function commit(data) {
+    SELF.sync(data);
+    drive.syncToDrive();
+    fileStorage.save();
+    SELF.list();
   }
 
   return SELF;
