@@ -242,7 +242,7 @@ function PreviewHandler() {
 	this.getContent = async function(src, mimeType) {
 
     if (src == '/untitled.html') {
-    	let content = replaceTemplate(fileTab[activeTab].editor.env.editor.getValue());
+    	let content = await replaceTemplate(fileTab[activeTab].editor.env.editor.getValue());
       if (settings.data.editor.divlessHTMLEnabled)
         return divless.replace(content);
       return content;
@@ -285,7 +285,7 @@ function PreviewHandler() {
         else
           content = file.content;
       }
-      content = replaceTemplate(content, parentId)
+      content = await replaceTemplate(content, parentId)
       if (settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/)) {
         content = divless.replace(content);
       }
@@ -432,7 +432,7 @@ function PreviewHandler() {
         else
           content = file.content;
       }
-      let swap = replaceTemplate(content, parentId, path);
+      let swap = await replaceTemplate(content, parentId, path);
       body = body.replace(new RegExp(match[0]), swap);
     }
     return body;
@@ -440,11 +440,11 @@ function PreviewHandler() {
 
   this.replaceFile = replaceFile;
 
-  function replaceTemplate(body, preParent = -1, path = ['root']) {
+  async function replaceTemplate(body, preParent = -1, path = ['root']) {
     let match = getMatchTemplate(body);
     while (match !== null) {
       let searchPath = JSON.parse(JSON.stringify(path));
-      body = replaceFile(match, body, preParent, searchPath);
+      body = await replaceFile(match, body, preParent, searchPath);
       match = getMatchTemplate(body);
     }
     return body;
