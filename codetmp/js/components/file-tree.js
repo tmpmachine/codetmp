@@ -504,6 +504,7 @@
 
 
   window.app.getComponent('fileTree').then(async (ft) => {
+    await fileManager.onStorageReady();
     await ft.reload();
     ft.attachListener();
     ft.listLocalWorktree();

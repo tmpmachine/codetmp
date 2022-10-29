@@ -33,6 +33,20 @@ function FileManager() {
       });
   };
 
+  SELF.onStorageReady = async function() {
+    return new Promise(resolve => {
+      let interval = window.setInterval(() => {
+        if (STORAGE_TYPE != 'idb') {
+          return;
+        }
+        if (window.idbStorage !== undefined) {
+          window.clearInterval(interval);
+          resolve();
+        }
+      }, 100);
+    });
+  }
+
   async function CreateFile(data, workspaceId) {
     
     let temp = activeWorkspace;
