@@ -561,7 +561,7 @@ const ui = {
 	    	let fid = selection.id;
       	await fileManager.deleteFile(fid);
 
-        if (activeFile && parseInt(data.fid) == parseInt(activeFile.fid)) {
+        if (activeFile && parseInt(fid) == parseInt(activeFile.fid)) {
           activeFile = null;
           fileTab[activeTab].fiber = 'fiber_manual_record';
           $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';

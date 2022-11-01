@@ -12,7 +12,7 @@ function FileManager() {
      // check if cirrently not using fileStorage
      let storageType = window.localStorage.getItem('codetmp-storage-type');
      let fs = window.fileStorage.data;
-     if (storageType == 'idb' || (fs.rootId == '' && fs.files.length == 0 && fs.folders.length == 0 && fs.sync.length == 0)) {
+     if (storageType == 'idb' || (fs.files.length == 0 && fs.folders.length == 0 && fs.sync.length == 0)) {
        STORAGE_TYPE = 'idb';
        window.localStorage.setItem('codetmp-storage-type', 'idb');
      }
@@ -36,10 +36,7 @@ function FileManager() {
   SELF.onStorageReady = async function() {
     return new Promise(resolve => {
       let interval = window.setInterval(() => {
-        if (STORAGE_TYPE != 'idb') {
-          return;
-        }
-        if (window.idbStorage !== undefined) {
+        if (STORAGE_TYPE != 'idb' || window.idbStorage !== undefined) {
           window.clearInterval(interval);
           resolve();
         }
@@ -419,10 +416,12 @@ function FileManager() {
   }
 
   async function saveExistingFile() {
-    activeFile.content = fileTab[activeTab].editor.env.editor.getValue();
-    activeFile.modifiedTime = (new Date()).toISOString();
+    let fid = activeFile.fid;
+    let file = await fileManager.get({fid, type: 'files'});
+    file.content = fileTab[activeTab].editor.env.editor.getValue();
+    file.modifiedTime = (new Date()).toISOString();
     fileManager.sync({
-      fid: activeFile.fid,
+      fid,
       action: 'update',
       metadata: ['media'],
       type: 'files'
@@ -430,7 +429,7 @@ function FileManager() {
     drive.syncToDrive();
 
     if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
-      await SELF.update(activeFile, 'files');
+      await SELF.update(file, 'files');
     }
     fileStorage.save();
     fileTab[activeTab].fiber = 'close';
