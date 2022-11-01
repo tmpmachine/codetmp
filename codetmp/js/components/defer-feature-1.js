@@ -14,7 +14,7 @@ let deferFeature1 = {
     loadBreadCrumbs();
     let targetMenuId;
     let useCallback = false;
-    ui.toggleActionMenu(targetMenuId, useCallback);
+    ui.toggleActionMenu(targetMenuId, useCallback, $('#btn-menu-my-files'));
     
     if (breadcrumbs.length > 1)
       breadcrumbs.pop();

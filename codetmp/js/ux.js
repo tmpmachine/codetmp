@@ -605,15 +605,16 @@ const ui = {
   toggleMenu: function() {
     let targetId = this.getAttribute('target');
     let useCallback = true;
-    ui.toggleActionMenu(targetId, useCallback);
+    let targetNode = this;
+    ui.toggleActionMenu(targetId, useCallback, targetNode);
   },
   
-  toggleActionMenu: function(targetId, useCallback) {
+  toggleActionMenu: function(targetId, useCallback, targetNode) {
     let target;
     if (targetId)
       target = $('#'+targetId);
     else
-      target = $('#btn-menu-my-files');
+      target = targetNode;
 
     target.classList.toggle('active');
     
