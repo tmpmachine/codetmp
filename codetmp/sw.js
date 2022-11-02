@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '34';
+let cacheVersion = '35';
 let cacheItem = 'codetmp-'+cacheVersion;
 const ACE_CDN_BASEPATH = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6';
 
