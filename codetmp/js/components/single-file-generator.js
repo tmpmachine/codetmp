@@ -84,7 +84,7 @@ function SingleFileGeneratorComponent() {
     return content.match(/<file src=.*?><\/file>/);
   }
 
-  async function getMatchLinkedFile(content) {
+  function getMatchLinkedFile(content) {
     return content.match(/<script .*?src=.*?><\/script>|<link .*?rel=('|")stylesheet('|").*?>/);
   }
 
