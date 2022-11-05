@@ -99,10 +99,7 @@ function TabManagerComponent() {
     activeFile = (String(fid)[0] == '-') ? null : fileTab[activeTab].file;
     setEditorMode(fileTab[activeTab].name);  
     
-    let evt = editor.renderer.on('afterRender', function() {
-      editor.focus();
-    });
-    window.setTimeout(() => editor.renderer.removeEventListener('afterRender', evt), 1000);
+    editor.focus();
 
   };
 

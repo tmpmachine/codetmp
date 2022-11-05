@@ -171,7 +171,7 @@
       fileManager.open(target.dataset.fid);
     };
 
-    SELF.highlightTree = function(fid, isRevealFileTree = true) {
+    SELF.highlightTree = async function(fid, isRevealFileTree = true) {
       removeTreeFocus();
       let nodes = $(`.file-name[data-fid="${fid}"]`);
       if (nodes.length > 0) {
@@ -180,13 +180,33 @@
           node.classList.add('--focus', '--opened');
           if (isRevealFileTree) {
             node.setAttribute('tabindex', 0);
-            node.focus();
             node.removeAttribute('tabindex');
+            scrollToView(node);
           }
         }
       } else {
-        SELF.loadAndRevealTreeDirectory(fid);
+        await SELF.loadAndRevealTreeDirectory(fid);
       }
+    }
+
+    function getItemPosY(node) {
+      return node.getBoundingClientRect().top - $('#file-tree')[0].offsetTop + $('#file-tree')[0].scrollTop;
+    }
+
+    function scrollToView(node) {
+      let ftNode = $('#file-tree')[0];
+      let itemY = getItemPosY(node);
+
+      let scrollOffset = node.offsetHeight;
+      let boundY1 = ftNode.scrollTop;
+      let boundY2 = ftNode.scrollTop + ftNode.offsetHeight;
+
+      if (itemY < boundY1) {
+        ftNode.scrollTo(0, itemY - scrollOffset)
+      } else if (itemY > boundY2) {
+        ftNode.scrollTo(0, itemY - ftNode.offsetHeight + scrollOffset * 2)
+      }
+
     }
 
     function removeTreeFocus() {
@@ -200,8 +220,9 @@
     SELF.removeOpenIndicator = function(fid) {
       let nodes = $(`.file-name[data-fid="${fid}"]`);
       if (nodes.length > 0) {
-        for (let node of nodes) 
+        for (let node of nodes) {
           node.classList.remove('--opened');
+        }
       }
     }
 
@@ -249,15 +270,19 @@
       }
 
       revealPathToRoot(flaggedNode);
+      markOpened(fid);
+    };
 
+    function markOpened(fid) {
       let node = $(`.file-tree[data-fid="${SELF.workspaceId}"] .file-name[data-fid="${fid}"]`)[0];
       if (node) {
         node.classList.toggle('--focus', true);
+        node.classList.toggle('--opened', true);
         node.setAttribute('tabindex', 0);
-        node.focus();
         node.removeAttribute('tabindex');
+        scrollToView(node);
       }
-    };
+    }
 
     function revealPathToRoot(span) {
       let subtree = span.parentNode.parentNode.parentNode;

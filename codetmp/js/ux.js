@@ -1109,10 +1109,7 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
     });
   }
 
-  let evt = editor.renderer.on('afterRender', function() {
-    editor.focus();
-  });
-  window.setTimeout(() => editor.renderer.removeEventListener('afterRender', evt), 1000);
+  editor.focus();
   
   return editorElement;
 }

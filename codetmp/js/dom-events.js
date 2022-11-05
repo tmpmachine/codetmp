@@ -113,7 +113,7 @@ let DOMEvents = {
 			settings.data.explorer.tree = document.body.classList.contains('--tree-explorer');
 	    	settings.save();
 		},
-		'Alt+W': confirmCloseTab,
+		'Alt+W': () => confirmCloseTab(),
 		'Alt+O': () => deferFeature1.openFileDirectory(),
 		'Ctrl+S': () => { event.preventDefault(); fileManager.save(); },
 		'Ctrl+D': () => { event.preventDefault(); ui.fileManager.deleteSelected(); },
