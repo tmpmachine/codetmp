@@ -93,14 +93,17 @@ function TabManagerComponent() {
     $('#editor-wrapper').innerHTML = '';
     $('#editor-wrapper').append(fileTab[idx].editor)
     
-    fileTab[idx].editor.env.editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
-    fileTab[idx].editor.env.editor.setFontSize(editorManager.fontSize);
+    let editor = fileTab[idx].editor.env.editor;
+    editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
+    editor.setFontSize(editorManager.fontSize);
     activeFile = (String(fid)[0] == '-') ? null : fileTab[activeTab].file;
     setEditorMode(fileTab[activeTab].name);  
     
-    window.setTimeout(() => {
-      fileTab[idx].editor.env.editor.focus();
-    }, 1);
+    let evt = editor.renderer.on('afterRender', function() {
+      editor.focus();
+    });
+    window.setTimeout(() => editor.renderer.removeEventListener('afterRender', evt), 1000);
+
   };
 
   function compressTab(idx) {

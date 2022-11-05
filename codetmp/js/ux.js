@@ -1108,9 +1108,12 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
       'enableLiveAutocompletion': true,
     });
   }
-  
-  window.setTimeout(() => { editor.focus(); }, 1);
 
+  let evt = editor.renderer.on('afterRender', function() {
+    editor.focus();
+  });
+  window.setTimeout(() => editor.renderer.removeEventListener('afterRender', evt), 1000);
+  
   return editorElement;
 }
 
