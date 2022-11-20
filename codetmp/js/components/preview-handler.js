@@ -70,34 +70,38 @@ function PreviewHandler() {
 
       } else { 
 
-        if (helper.isMediaTypeMultimedia(mimeType)) {
-          let data = {
-            contentLink: drive.apiUrl+'files/'+file.id+'?alt=media',
-            source: 'drive',
-          };
-        	
-          if (helper.isHasSource(file.content)) {
-  	    		data.contentLink = helper.getRemoteDataContent(file.content).downloadUrl;
-            data.source = 'git';
-	      	} else {
-            await auth2.init();
-            data.accessToken = driveAccessToken;
-          }
+        let isHasSource = helper.isHasSource(file.content);
 
-          previewLoadWindow.postMessage({
-            message: 'response-file-multimedia', 
-            mime: mimeType,
-            content: data,
-            resolverUID: event.data.resolverUID,
-          }, '*');
-        } else {
+        if (!isHasSource && file.content.length > 0) {
           previewLoadWindow.postMessage({
             message: 'response-file', 
             mime: mimeType,
             content: new Blob([file.content]),
             resolverUID: event.data.resolverUID,
-          }, '*');         
+          }, '*');
+          return;
         }
+
+        let data = {
+          contentLink: drive.apiUrl+'files/'+file.id+'?alt=media',
+          source: 'drive',
+        };
+        
+        if (isHasSource) {
+          data.contentLink = helper.getRemoteDataContent(file.content).downloadUrl;
+          data.source = 'git';
+        } else {
+          await auth2.init();
+          data.accessToken = driveAccessToken;
+        }
+
+        previewLoadWindow.postMessage({
+          message: 'response-file-multimedia', 
+          mime: mimeType,
+          content: data,
+          resolverUID: event.data.resolverUID,
+        }, '*');
+        
       }
     }
   }
