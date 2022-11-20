@@ -226,7 +226,7 @@ const fileClipBoard = (function() {
             let road = await copyBranchFolder(branch.folderIds, modifiedTime);
             await copyBranchFile(branch.fileIds, road, modifiedTime);
           } else {
-            data = fileManager.get({fid, type: 'folders'});
+            data = await fileManager.get({fid, type: 'folders'});
             if (isBreadcrumb(fid)) {
               aww.pop("Cannot move folder within it's own directory.");
             } else {

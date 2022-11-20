@@ -1424,7 +1424,7 @@ async function openBread() {
   let fid = this.dataset.fid;
   activeFolder = parseInt(fid);
   if (this.textContent == '..') {
-	  fileManager.reloadBreadcrumb();
+	  await fileManager.reloadBreadcrumb();
   } else {
 	  let idx = odin.idxOf(fid,breadcrumbs,'folderId');
 	  breadcrumbs = breadcrumbs.slice(0,idx+1);

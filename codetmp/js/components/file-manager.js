@@ -704,93 +704,17 @@ function FileManager() {
     }
   }
 
-  SELF.reloadBreadcrumb = function() {
+  SELF.reloadBreadcrumb = async function() {
     breadcrumbs.length = 0;
     let folderId = activeFolder;
     while (folderId != -1) {
-      let folder = fileManager.get({fid: folderId, type: 'folders'});
+      let folder = await fileManager.get({fid: folderId, type: 'folders'});
       breadcrumbs.push({folderId:folder.fid, title: folder.name})
       folderId = folder.parentId;
     }
     breadcrumbs.push({folderId:-1, title: 'My Files'});
     breadcrumbs.reverse();
     loadBreadCrumbs();
-  }
-
-
-  function getFileAtPath(path, parentId = -1) {
-      
-    while (path.match('//'))
-      path = path.replace('//','/');
-    
-    let dir = path.split('/');
-    let folder;
-    
-    while (dir.length > 1) {
-      
-      if (dir[0] === '..' || dir[0] === '.'  || dir[0] === '') {
-        
-        folder = fileManager.get({fid: parentId, type: 'folders'});
-        if (folder === undefined)
-          break;
-        dir.splice(0, 1);
-        parentId = folder.parentId;
-      } else {
-        
-        let folders = fileManager.listFolders(parentId);
-        folder = odin.dataOf(dir[0], folders, 'name');
-        if (folder) {
-          parentId = folder.fid;
-          dir.splice(0, 1);
-        } else {
-          parentId = -2;
-          break;
-        }
-      }
-    }
-    
-    let fileName = path.replace(/.+\//g,'')
-    let files = fileManager.listFiles(parentId);
-    let found = files.find(file => file.name == fileName);
-    return found;
-  }
-
-
-  function trashList() {
-    
-    var el;
-    $('#list-trash').innerHTML = '';
-    
-    let folders = odin.filterData(true, fileStorage.data.folders, 'trashed');
-    
-    folders.sort(function(a, b) {
-      return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
-    });
-
-    for (let f of folders) {
-      el = o.element('div',{innerHTML:o.template('tmp-list-folder-trash', f)});
-      $('#list-trash').appendChild(el);
-    }
-    
-    $('#list-trash').appendChild(o.element('div', {style:'flex:0 0 100%;height:16px;'}));
-    
-    let files = odin.filterData(true, fileStorage.data.files, 'trashed');
-    
-    files.sort(function(a, b) {
-      return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
-    });
-    
-    for (let {fid, name, trashed} of files) {
-      let iconColor = helper.getFileIconColor(name);
-        
-      el = o.element('div',{ innerHTML: o.template('tmp-list-file-trash', {
-        fid,
-        name,
-        iconColor,
-      }) });
-      
-      $('#list-trash').appendChild(el);
-    }
   }
 
   SELF.deleteFolder = async function(fid) {
