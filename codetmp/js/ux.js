@@ -1182,7 +1182,7 @@ function initEditorSmartBookmark(editor) {
   
   editor.commands.addCommand({
     name: "custom-next-bookmark",
-    bindKey: {win: "Alt-."},
+    bindKey: {win: "Ctrl-Alt-."},
     exec: function(editor) {
       let row = editor.selection.getCursor().row+1;
       
@@ -1209,7 +1209,7 @@ function initEditorSmartBookmark(editor) {
   
   editor.commands.addCommand({
     name: "custom-previous-bookmark",
-    bindKey: {win: "Alt-,"},
+    bindKey: {win: "Ctrl-Alt-,"},
     exec: function(editor) {
       let row = editor.selection.getCursor().row+1;
       let found = false;
