@@ -240,6 +240,16 @@ html,body{height:100%;}
 .ace_scrollbar::-webkit-scrollbar-thumb { background: #9E9E9E }
 .ace_scrollbar::-webkit-scrollbar-track { }
 
+.ace_gutter-cell.ace_breakpoint:after {
+  content:'';
+  background: #e9da08;
+  width: 2px;
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
 
 #btn-back-to-editor { transition: transform 300ms; transform: translateX(0%); }
 #btn-back-to-editor.hide { transform: translateX(-100%); }

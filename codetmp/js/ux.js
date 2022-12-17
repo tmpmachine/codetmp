@@ -1079,6 +1079,9 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
       editor.prompt({ $type: "gotoLine" });
     },
   });
+
+  initEditorSmartBookmark(editor);
+
   let undoMgr = new ace.UndoManager();
   editor.setValue(content)
   editor.clearSelection();
@@ -1112,6 +1115,121 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   editor.focus();
   
   return editorElement;
+}
+
+function toggleBreakPoint(editor) {
+  let row = editor.selection.getCursor().row;
+  if(editor.session.getBreakpoints()[row] ) {
+    editor.session.clearBreakpoint(row);
+  } else {
+    editor.session.setBreakpoint(row);
+  }
+}
+
+function initEditorSmartBookmark(editor) {
+    
+  editor.commands.addCommand({
+    name: "custom-bookmark",
+    bindKey: {win: "Alt-K Alt-K"},
+    exec: function(editor) {
+      toggleBreakPoint(editor);
+    }
+  });
+  
+  editor.session.doc.on('change', updateDataOnDocChange.bind(editor.session));
+  
+  function updateDataOnDocChange(e) {
+		let delta = e;
+		let range = e;
+		let len, firstRow, f1;
+            
+    if (range.end.row == range.start.row)
+      return;
+                
+    if (delta.action == 'insert') {
+    	len = range.end.row - range.start.row;
+    	firstRow = range.start.row;
+    } else if (delta.action == 'remove') {
+      len = range.start.row - range.end.row;
+			firstRow = range.start.row;
+    }
+		if (len > 0) {
+			args = Array(len);
+			args.unshift(firstRow, 0)
+			this.$breakpoints.splice.apply(this.$breakpoints, args);
+    } else if (len < 0) {
+      let rem = this.$breakpoints.splice(firstRow + 1, -len);
+      if(!this.$breakpoints[firstRow]){
+			  for (let oldBP in rem) {
+				  if (rem[oldBP]) {
+					  this.$breakpoints[firstRow] = rem[oldBP]
+					  break 
+				  }
+        }
+		  }
+		}
+	}
+  
+  editor.commands.addCommand({
+    name: "custom-clear-bookmark",
+    bindKey: {win: "Alt-K Alt-L"},
+    exec: function(editor) {
+      if (window.confirm('Clear all bookmark?')) {
+    	  editor.session.clearBreakpoints();
+      }
+    }
+  });
+  
+  editor.commands.addCommand({
+    name: "custom-next-bookmark",
+    bindKey: {win: "Alt-."},
+    exec: function(editor) {
+      let row = editor.selection.getCursor().row+1;
+      
+      let found = false;
+      
+      for (let i=row; i<editor.session.$breakpoints.length; i++) {
+        if (editor.session.$breakpoints[i] !== undefined) {
+          editor.gotoLine(i+1)
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+      for (let i=0; i<row; i++) {
+          if (editor.session.$breakpoints[i] !== undefined) {
+            editor.gotoLine(i+1)
+            break;
+          }
+        } 
+      }
+    }
+
+  });
+  
+  editor.commands.addCommand({
+    name: "custom-previous-bookmark",
+    bindKey: {win: "Alt-,"},
+    exec: function(editor) {
+      let row = editor.selection.getCursor().row+1;
+      let found = false;
+      for (let i=row-2; i>=0; i--) {
+        if (editor.session.$breakpoints[i] !== undefined) {
+          editor.gotoLine(i+1)
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+      for (let i=editor.session.$breakpoints.length; i>row; i--) {
+          if (editor.session.$breakpoints[i] !== undefined) {
+            editor.gotoLine(i+1)
+            break;
+          }
+        } 
+      }
+    }
+  });
 }
 
 
