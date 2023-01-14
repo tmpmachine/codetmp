@@ -404,7 +404,11 @@ const ui = {
     } else {
       // fileClipBoard.clipBoard.length = 0;
       stateManager.popState([1]);
-      setTimeout(() => { fileTab[activeTab].editor.env.editor.focus(); }, 1);
+      setTimeout(() => { 
+        window.ui.resizeEditor();
+        fileTab[activeTab].editor.env.editor.focus(); 
+        
+      }, 1);
     }
   },
 
@@ -760,8 +764,14 @@ const ui = {
   	});
   },
 
+  resizeEditor: function() {
+    let editor = fileTab[activeTab].editor;
+    editor.env.editor.resize()
+  },
 
 }; // end of ui
+
+window.ui = ui;
 
 // modal
 
@@ -808,6 +818,10 @@ function initUI() {
   preferences.loadSettings();
   newTab();
   initTabFocusHandler();
+  window.setTimeout(() => { 
+    window.ui.resizeEditor();
+  }, 350)
+  
   // initMenuBar();
   changeExplorerView(settings.data.explorer.view);
 
