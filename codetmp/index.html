@@ -747,6 +747,7 @@
     })();
   </script>
   <script>
+    window.asd = console.log;
     window.L = console.log;
     window.$ = function(selector, node=document) { let nodes = node.querySelectorAll(selector); return selector.startsWith('#') ? nodes[0] : nodes };
   </script>
