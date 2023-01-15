@@ -43,12 +43,22 @@
         <p>
           <label><input data-name="divlessHTMLEnabled" class="autofocus w3-check input-settings" type="checkbox"/> Replace Divless-HTML format (.html file only)</label>
         </p>
+        <p>
+          <label><input data-name="minifyJs" class="autofocus w3-check input-settings" type="checkbox"/> Try to minify JavaScript files</label>
+        </p>
       </section>
       <hr/>
       <section>
         <h6 style="font-weight:bold;">File System API</h6>
         <p>
           <label><input data-name="divlessHTMLFSEnabled" class="autofocus w3-check input-settings" type="checkbox"/> Replace Divless-HTML format on file save (.html file only)</label>
+        </p>
+      </section>
+      <hr/>
+      <section>
+        <h6 style="font-weight:bold;">Firebase Hosting</h6>
+        <p>
+          <label><input data-name="minifyJsFirebase" class="autofocus w3-check input-settings" type="checkbox"/> Try to minify JavaScript files</label>
         </p>
       </section>
       <hr/>
@@ -160,12 +170,15 @@
       <section>
         <h6 style="font-weight:bold;">Download options</h6>
         <form class="submittable preventDefault" data-callback="confirm-download">
-          <p >
+          <p>
             <label class="no-select"><input class="w3-check" name="replaceDivless" type="checkbox"/> Replace Divless-HTML tag</label>
           </p>
           <p class="no-select">
           <!-- <p class="no-select _in-replaceFileTemplate"> -->
             <label class="no-select"><input class="w3-check" name="replaceFileTag" type="checkbox"/> Replace &lt;file> template </label>
+          </p>
+          <p class="no-select">
+            <label class="no-select"><input class="w3-check" name="minifyJs" type="checkbox"/> Try to minify JavaScript files</label>
           </p>
           <div style="text-align:right;">
             <button class="btn-style-1 autofocus" name="submit" style="width:auto">Download</button>
@@ -188,6 +201,9 @@
         <form onsubmit="event.preventDefault()">
           <p>
             <label class="no-select"><input class="w3-check" name="replaceDivless" type="checkbox"/> Replace Divless-HTML tag</label>
+          </p>
+          <p>
+            <label class="no-select"><input class="w3-check" name="minifyJs" type="checkbox"/> Try to minify JavaScript files</label>
           </p>
           <div class="d-flex justify-content-end mt-1">
             <button class="btn-style-1 clickable toggler" data-callback="generate-single-file" name="submit" style="width:auto">Generate</button>

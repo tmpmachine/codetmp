@@ -86,6 +86,10 @@ const helper = (function () {
     return getMimeType(name).match(/(text\/html|text\/xml)/);
   }
 
+  function isMediaTypeJavascript(name) {
+    return getMimeType(name).match(/(text\/javascript)/);
+  }
+
   function isMediaTypeMultimedia(mimeType) {
     return mimeType.match(/^(audio|video|image)/);
   }
@@ -147,6 +151,7 @@ const helper = (function () {
     isMediaTypeMultimedia,
     isMediaTypeImage,
     isMediaTypeAV,
+    isMediaTypeJavascript,
     getFileIconColor,
     redirectWarning,
     hasFileReference,

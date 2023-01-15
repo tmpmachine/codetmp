@@ -12,6 +12,8 @@
         divlessHTMLEnabled: false,
         divlessHTMLFSEnabled: false,
         wordWrapEnabled: true,
+        minifyJs: false,
+        minifyJsFirebase: false,
       },
       explorer: {
         view: 'grid',

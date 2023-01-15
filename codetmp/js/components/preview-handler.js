@@ -108,6 +108,14 @@ function PreviewHandler() {
 
   async function responseAsText(event, path, mimeType) {
   	let content = await previewHandler.getContent(path, mimeType);
+    if (typeof Terser != 'undefied' && mimeType == "text/javascript; charset=UTF-8" && settings.data.editor.minifyJs) {
+      try {
+        let result = await Terser.minify(content, { sourceMap: false });
+        content = result.code;
+      } catch (e) {
+        console.log(e)
+      }
+    }
     previewLoadWindow.postMessage({
   		message: 'response-file', 
   		mime: mimeType,

@@ -113,4 +113,10 @@ window.app.loadFiles([
       support.check('JSZip');
     },
   },
+  {
+    urls: [
+      'https://cdn.jsdelivr.net/npm/source-map@0.7.3/dist/source-map.js',
+      'https://cdn.jsdelivr.net/npm/terser/dist/bundle.min.js',
+    ],
+  },
 ]);

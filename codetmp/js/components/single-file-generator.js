@@ -5,6 +5,7 @@ function SingleFileGeneratorComponent() {
   this.generate = async function(form) {
     let options = {
       replaceDivless: form.replaceDivless.checked,
+      minifyJs: form.minifyJs.checked,
     };
     let content = await getSingleFileContent(options);
     downloadFile(content);
@@ -13,6 +14,7 @@ function SingleFileGeneratorComponent() {
   this.copy = async function(form) {
     let options = {
       replaceDivless: form.replaceDivless.checked,
+      minifyJs: form.minifyJs.checked,
     };
     let content = await getSingleFileContent(options);
     copyToClipboard(content, form);
@@ -22,31 +24,31 @@ function SingleFileGeneratorComponent() {
     let body = fileTab[activeTab].editor.env.editor.getValue();
     let preParent = activeFile ? activeFile.parentId : activeFolder;
     let path = ['root'];
-    body = await replaceTemplate(body, preParent, path);
+    body = await replaceTemplate(body, preParent, path, options);
     body = body.replace(/<web-script /g, '<script ').replace(/<web-link /g, '<link ');
     if (options.replaceDivless)
       body = divless.replace(body);
     return body;
   }
 
-  async function replaceTemplate(body, preParent = -1, path = ['root']) {
+  async function replaceTemplate(body, preParent = -1, path = ['root'], options) {
     let match = getMatchLinkedFile(body);
     while (match !== null) {
       let searchPath = JSON.parse(JSON.stringify(path));
-      body = await replaceLinkedFile(match, body, preParent, searchPath);
+      body = await replaceLinkedFile(match, body, preParent, searchPath, options);
       match = getMatchLinkedFile(body);
     }
 
     match = getMatchTemplate(body);
     while (match !== null) {
       let searchPath = JSON.parse(JSON.stringify(path));
-      body = await replaceFile(match, body, preParent, searchPath);
+      body = await replaceFile(match, body, preParent, searchPath, options);
       match = getMatchTemplate(body);
     }
     return body;
   }
 
-  async function replaceFile(match, body, preParent, path) {
+  async function replaceFile(match, body, preParent, path, options) {
     let src = match[0].substring(11, match[0].length-9);
     let relativeParent = preParent;
     let parentId = await previewHandler.getDirectory(src, relativeParent, path);
@@ -73,8 +75,17 @@ function SingleFileGeneratorComponent() {
           content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
         else
           content = file.content;
+
+        if (typeof Terser != 'undefied' && helper.isMediaTypeJavascript(file.name) && options.minifyJs) {
+          try {
+            let result = await Terser.minify(content, { sourceMap: false });
+            content = result.code;
+          } catch (e) {
+            console.log(e)
+          } 
+        }
       }
-      let swap = await replaceTemplate(content, parentId, path);
+      let swap = await replaceTemplate(content, parentId, path, options);
       body = body.replace(new RegExp(match[0]), swap);
     }
     return body;
@@ -88,7 +99,7 @@ function SingleFileGeneratorComponent() {
     return content.match(/<script .*?src=.*?><\/script>|<link .*?rel=('|")stylesheet('|").*?>/);
   }
 
-  async function replaceLinkedFile(match, body, preParent, path) {
+  async function replaceLinkedFile(match, body, preParent, path, options) {
 
     let tagName;
     let isScriptOrLink = false;
@@ -151,6 +162,16 @@ function SingleFileGeneratorComponent() {
             content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
           else
             content = file.content;
+          
+          if (typeof Terser != 'undefied' && helper.isMediaTypeJavascript(file.name) && options.minifyJs) {
+            try {
+              let result = await Terser.minify(content, { sourceMap: false });
+              content = result.code;
+            } catch (e) {
+              console.log(e)
+            } 
+          }
+          
         } else {
           fileManager.downloadMedia(file);
         }

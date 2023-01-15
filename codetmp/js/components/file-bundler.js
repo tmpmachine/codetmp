@@ -138,7 +138,15 @@
                 content = await replaceFileTag(content, f.parentId);
               if (needConvertDivless(f, options)) 
                 content = divless.replace(content);
-              
+              if (needMinifyJs(f, options)) {
+                try {
+                  let result = await Terser.minify(content, { sourceMap: false });
+                  content = result.code;
+                } catch (e) {
+                  console.log(e)
+                }
+              }
+
             resolve(new Blob([content], {type: mimeType}));
 
           } else {
@@ -204,6 +212,12 @@
 
     function needReplaceFileTag(f, options) {
       if (helper.isMediaTypeHTML(f.name) && options.replaceFileTag)
+        return true;
+      return false;
+    }
+
+    function needMinifyJs(f, options) {
+      if (typeof Terser != 'undefied' && helper.isMediaTypeJavascript(f.name) && options.minifyJs)
         return true;
       return false;
     }
@@ -283,6 +297,7 @@
       let options = {
         replaceDivless: form.replaceDivless.checked,
         replaceFileTag: form.replaceFileTag.checked,
+        minifyJs: form.minifyJs.checked,
       };
 
       if (isCompressed) {

@@ -136,6 +136,7 @@ const fire = (() => {
           let options = {
             replaceFileTag: true,
             replaceDivless: settings.data.editor.divlessHTMLEnabled,
+            minifyJs: settings.data.editor.minifyJsFirebase,
           };
 
           app.fileBundler.getReqFileContent(file, options).then(blob => {
