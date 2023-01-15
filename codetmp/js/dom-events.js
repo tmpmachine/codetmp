@@ -112,6 +112,7 @@ let DOMEvents = {
 			document.body.classList.toggle('--tree-explorer');
 			settings.data.explorer.tree = document.body.classList.contains('--tree-explorer');
 	    	settings.save();
+			window.ui.resizeEditor();
 		},
 		'Alt+W': () => confirmCloseTab(),
 		'Alt+O': () => deferFeature1.openFileDirectory(),
