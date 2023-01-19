@@ -13,6 +13,9 @@
   "display": "standalone",
   "background_color": "#333",
   "theme_color": "#333",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
   "file_handlers": [
     {
       "action": "/",
