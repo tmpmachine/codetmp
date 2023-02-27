@@ -8,8 +8,9 @@ let snippets = [
   {title: 'link', snippet: '<link href="${1}" rel="stylesheet"/>'},
   {title: 'meta viewport', snippet: '<meta name="viewport" content="width=device-width"/>\n'},
   {title: 'charset', snippet: '<meta charset="utf-8"/>\n'},
-  {title: 'querySelector()', snippet: "<script> window.$ = document.querySelectorAll.bind(document); </script>"},
-  {title: 'console.log()', snippet: '<script> window.L = console.log </script>'},
+  {title: 'querySelector()', snippet: "<script> window.$ = document.querySelector.bind(document); </script>"},
+  {title: 'querySelectorAll()', snippet: "<script> window.qsa = document.querySelectorAll.bind(document); </script>"},
+  {title: 'console.log()', snippet: '<script> window.asd = console.log; </script>'},
 ];
 let customSnippetsCounter = 0;
 let index = 0;
