@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '46';
+let cacheVersion = '47';
 let cacheItem = 'codetmp-'+cacheVersion;
 const ACE_CDN_BASEPATH = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6';
 
@@ -52,6 +52,8 @@ self.addEventListener('install', function(event) {
     
     'https://fonts.googleapis.com/css2?family=Material+Icons+Round', 
     'https://fonts.gstatic.com/s/materialiconsround/v37/LDItaoyNOAY6Uewc665JcIzCKsKc_M9flwmP.woff2', 
+
+    'https://cdn.jsdelivr.net/npm/idb@7/build/umd.js',
 
     '/views/modals.html',
     '/views/templates.html',
