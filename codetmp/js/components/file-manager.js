@@ -320,6 +320,11 @@ function FileManager() {
         file.loaded = true;
         file.isTemp = false;
 
+        if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
+          await SELF.update(file, 'files');
+        }
+        fileStorage.save();
+        
         if (source.origin == 'git') {
           fileManager.sync({
             fid: file.fid,
@@ -329,10 +334,6 @@ function FileManager() {
           });
           drive.syncToDrive();
         }
-        if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
-          await SELF.update(file, 'files');
-        }
-        fileStorage.save();
 
         if (helper.isHasSource(content)) {
           fileManager.downloadMedia(file).then(() => {
@@ -426,12 +427,13 @@ function FileManager() {
       metadata: ['media'],
       type: 'files'
     });
-    drive.syncToDrive();
 
     if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
       await SELF.update(file, 'files');
     }
     fileStorage.save();
+    drive.syncToDrive();
+
     fileTab[activeTab].fiber = 'close';
     $('.icon-rename')[activeTab].textContent = 'close';
   }
