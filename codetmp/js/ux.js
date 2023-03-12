@@ -921,16 +921,6 @@ function toggleInsertSnippet(persistent) {
   }
 }
 
-async function openPreviewWindow() {
-  if (!$('#btn-menu-my-files').classList.contains('active')) {
-    let filePath = await previewHandler.getPath();
-    // delayed to focus
-    setTimeout(() => {
-      window.open(environment.previewUrl+filePath, previewHandler.getFrameName());
-    }, 1);
-  }
-}
-
 function setEditorMode(fileName = '') {
   let editor = fileTab[activeTab].editor.env.editor;
   let themeMd =  false;
@@ -1762,10 +1752,6 @@ function selectFileByName(key) {
   }
 }
 
-window.addEventListener('keydown', e => {
-  if (e.ctrlKey && e.keyCode == 13)
-    openPreviewWindow();  
-});
 window.addEventListener('online', autoSync);
 window.addEventListener('cut', fileClipBoard.handler);
 window.addEventListener('copy', fileClipBoard.handler);

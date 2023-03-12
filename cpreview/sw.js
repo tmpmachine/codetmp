@@ -1,27 +1,16 @@
-L = console.log;
+let asd = L = console.log;
 let cacheVersion = '1.16';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
 let uid = 0;
-let isRelinkingMessagePort = false;
 let catchedBlob = {};
 
-self.addEventListener('message', function(e) {
-  if (typeof(e.data) == 'undefined')
-      return;
-
+function portMessageHandler(e) {
   switch (e.data.message) {
-    case 'skipWaiting':
-      self.skipWaiting();
-    break;
-    case 'init-message-port':
-      messagePort = e.ports[0];
-      e.source.postMessage({ message: 'message-port-opened' });
-    break;
-    case 'reinit-message-port':
-      messagePort = e.ports[0];
-      isRelinkingMessagePort = false;
+    
+    case 'test-connection':
+      messagePort.postMessage({ message: 'resolve-test-connection' });
     break;
     case 'response-file':
       let response;
@@ -37,13 +26,13 @@ self.addEventListener('message', function(e) {
       	let request = new Request(data.contentLink, {
     		method: 'GET',
     		headers: {
-			    Authorization: 'Bearer '+data.accessToken,
+  		    Authorization: 'Bearer '+data.accessToken,
     		},
   		});
       	if (data.source == 'git') {
       		request = new Request(data.contentLink);
       	}
-
+  
         if (catchedBlob[data.contentLink]) {
             let response = new Response(catchedBlob[data.contentLink]);
             resolverQueue['R'+e.data.resolverUID](response);
@@ -57,6 +46,22 @@ self.addEventListener('message', function(e) {
           })
         	.catch(resolverQueue['R'+e.data.resolverUID]);
         }
+    break;
+  }
+}
+
+self.addEventListener('message', async function(e) {
+  if (typeof(e.data) == 'undefined')
+      return;
+
+  switch (e.data.message) {
+    case 'skipWaiting':
+      self.skipWaiting();
+    break;
+    case 'init-message-port':
+      messagePort = e.ports[0];
+      messagePort.onmessage = portMessageHandler;
+      messagePort.postMessage({ message: 'message-port-opened' });
     break;
   }
 });
@@ -88,56 +93,27 @@ self.addEventListener('activate', function(e) {
 
 function checkMessagePort() {
   return new Promise((resolve, reject) => {
-    self.clients.matchAll({
-      includeUncontrolled: true,
-      type: 'window',
-    }).then((clients) => {
-      if (messagePort) {
-        resolve();
-      } else {
-        let hasClient = false;
-        if (clients && clients.length) {
-          for (let client of clients) {
-            if(client.url == location.origin+'/') {
-              hasClient = true;
-              if (!isRelinkingMessagePort) {
-                client.postMessage({ message: 'port-missing' });
-                isRelinkingMessagePort = true;
-              }
-              let timeout = 3000;
-              let waiting = setInterval(() => {
-                timeout -= 10;
-                if (timeout === 0) {
-                  clearInterval(waiting);
-                  reject();
-                }
-                if (messagePort) {
-                  clearInterval(waiting);
-                  resolve();
-                }
-              }, 10)
-              break;
-            }
-          }
-        }
-        if (!hasClient)
-          reject();
-      }
-    });    
-  })
+    if (messagePort) {
+      resolve();
+    } else {
+      reject();
+    }
+  });
+  
 }
 
 function responseBySearch(e, resolve) {
   checkMessagePort().then(() => {
     resolverQueue['R'+uid] = resolve;
     messagePort.postMessage({ 
+      message: 'request-path',
       path: e.request.url.replace(location.origin, ''),
       resolverUID: uid,  
     });
     uid++;
   }).catch(() => {
-    resolve(new Response('Error: missing port. Make sure Codetmp is already open. If this problem persist try using another browser or switch to in-frame preview mode.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
-  })
+    resolve(new Response('<span id="js-txt-message">Reconnecting port. Please wait ...</span> <script>window.setTimeout(() => { document.querySelector("#js-txt-message").innerHTML = "Failed to establish port connection. Try reopening the file from <a href=\'https://codetmp.web.app/\'>Codetmp</a>." }, 3000)</script>', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }));
+  });
 }
 
 function responseByFetch(e, resolve) {
@@ -162,33 +138,6 @@ self.addEventListener('fetch', function(e) {
       })
     );
 
-  } else if (e.request.url == location.origin+'/codetmp/files') {
-
-    e.respondWith(
-
-      new Promise(function request(resolve) {
-
-        checkMessagePort().then(() => {
-          e.request.json().then(body => {
-            messagePort.postMessage({ 
-              body,  
-              path: e.request.url.replace(location.origin, ''),
-              referrer: e.request.referrer.replace(location.origin, ''),
-              resolverUID: uid,
-              method: e.request.method,
-            });
-            resolverQueue['R'+uid] = resolve;
-            uid++;
-          })
-        }).catch(() => {
-          resolve(new Response('Error: missing port. Make sure Codetmp is already open. If this problem persist try using another browser or switch to in-frame preview mode.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
-        }) 
-
-      }).then((respomse) => {
-        return respomse;
-      })
-
-    );
   } else {
 
     e.respondWith(

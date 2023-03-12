@@ -23,62 +23,97 @@ function PreviewHandler() {
     return newURL;
   }
 
-  new Promise(function(resolve) {
-    if (isPreviewFrameLoaded) 
-      resolve();
-    else {
-      previewFrameResolver = resolve;
+  let messageChannel;
+  let resolvePort;
+  let SELF = {};
+  let mywindow;
+  
+  async function delayWindowFocus() {
+    return new Promise(resolve => window.setTimeout(resolve, 1));
+  }
+  
+  let isPortOpened = false;
+  SELF.previewPath = this.previewPath = async function(requestPath, frameName) {
+    if (!requestPath) {
+      requestPath = await previewHandler.getPath();
     }
-  })
-  .then(() => {
-      let messageChannel = new MessageChannel();
+    if (!frameName) {
+      frameName = previewHandler.getFrameName();
+    }
+    if (isPortOpened) {
+      let url = environment.previewUrl+requestPath;
+      
+      await delayWindowFocus();
+      window.open(url, frameName);
+      testConnection()
+      .catch(() => {
+        isPortOpened = false;
+        SELF.previewPath(requestPath, frameName);
+      });
+    } else {
+      
+      new Promise(resolve => {
+        resolvePort = resolve;
+      }).then(() => {
+        SELF.previewPath(requestPath);
+      });
+      
+      messageChannel = new MessageChannel();
       messageChannel.port1.onmessage = previewHandler.fileResponseHandler;
-
-      previewLoadWindow.postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
-      new Promise(function(resolve) {
-        previewHandler.portResolver = resolve;
-      })
-  });
-
-  if (!isPreviewFrameLoaded)
-    previewLoadWindow = window.open(environment.previewUrl, 'PreviewFrame');
+      await delayWindowFocus();
+      mywindow = window.open(environment.previewUrl, frameName);
+    }
+  };
+  
+  let testConnectionResolver;
+  async function testConnection() {
+    return new Promise((resolve, reject) => {
+      testConnectionResolver = resolve;
+      messageChannel.port1.postMessage({
+        message: 'test-connection', 
+      });
+      window.setTimeout(() => {
+        reject();
+      }, 120);
+    });
+  }
 
   async function responseAsMedia(event, path, mimeType) {
 
   	let file = (await getFileAtPath(path)).file;
     if (file === null || file === undefined) {
-      previewLoadWindow.postMessage({
+      messageChannel.port1.postMessage({
         message: 'response-file', 
         mime: '',
         content: '<404></404>',
         resolverUID: event.data.resolverUID,
-      }, '*');
+      });
     } else {
 
       if (file.isTemp && helper.hasFileReference(file.fileRef) && file.content === null) {
         
-        let content = file.fileRef
+        let content = file.fileRef;
         if (file.fileRef.entry) {
           content = await file.fileRef.entry.getFile();
         }
-        previewLoadWindow.postMessage({
+        messageChannel.port1.postMessage({
           message: 'response-file', 
           mime: helper.getMimeType(file.name),
           content: content,
           resolverUID: event.data.resolverUID,
-        }, '*');
+        });
 
       } else { 
 
         let isHasSource = helper.isHasSource(file.content);
 
         if (!isHasSource && file.content.length > 0) {
-          previewLoadWindow.postMessage({
+          messageChannel.port1.postMessage({
             message: 'response-file', 
             mime: mimeType,
             content: new Blob([file.content]),
             resolverUID: event.data.resolverUID,
-          }, '*');
+          });
           return;
         }
 
@@ -95,12 +130,12 @@ function PreviewHandler() {
           data.accessToken = driveAccessToken;
         }
 
-        previewLoadWindow.postMessage({
+        messageChannel.port1.postMessage({
           message: 'response-file-multimedia', 
           mime: mimeType,
           content: data,
           resolverUID: event.data.resolverUID,
-        }, '*');
+        });
         
       }
     }
@@ -116,22 +151,34 @@ function PreviewHandler() {
         console.log(e)
       }
     }
-    previewLoadWindow.postMessage({
+    messageChannel.port1.postMessage({
   		message: 'response-file', 
   		mime: mimeType,
   		content: content,
   		resolverUID: event.data.resolverUID,
-  	}, '*');
+  	});
   }
 
-	this.fileResponseHandler = async function (event) {
-    let path = decodeURI(removeParam(event.data.path));
-    let mimeType = helper.getMimeType(path);
-    if (helper.isMediaTypeText(path)) {
-      await responseAsText(event, path, mimeType+'; charset=UTF-8');
-    } else {
-      await responseAsMedia(event, path, mimeType);
-    }
+	this.fileResponseHandler = async function (e) {
+	  
+	  switch (e.data.message) {
+	    case 'request-path':
+        let path = decodeURI(removeParam(e.data.path));
+        let mimeType = helper.getMimeType(path);
+        if (helper.isMediaTypeText(path)) {
+          await responseAsText(e, path, mimeType+'; charset=UTF-8');
+        } else {
+          await responseAsMedia(e, path, mimeType);
+        }
+	      break;
+	    case 'resolve-test-connection':
+        testConnectionResolver();
+	      break;
+	    case 'message-port-opened':
+        isPortOpened = true;
+        resolvePort();
+        break;
+	  }
   };
 
   async function getFileAtPath(src) {
@@ -262,7 +309,7 @@ function PreviewHandler() {
     }
     
     return parentId;
-  }
+  };
 
   this.getPath = async function() {
 
@@ -292,30 +339,6 @@ function PreviewHandler() {
   this.setToken = function(token) {
     driveAccessToken = token;
   };
-
-  this.previewHTML = async function() {
-    let filePath = await previewHandler.getPath();
-    previewWeb(filePath);
-  };
-
-  function previewWeb(filePath) {
-    new Promise(function(resolve) {
-      if (isPreviewFrameLoaded) 
-        resolve();
-      else {
-        previewFrameResolver = resolve;
-      }
-    })
-    .then(() => {
-        let messageChannel = new MessageChannel();
-        messageChannel.port1.onmessage = previewHandler.fileResponseHandler;
-        previewLoadWindow.postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
-        // delayed to focus
-        setTimeout(function() {
-          window.open(environment.previewUrl+filePath, previewHandler.getFrameName());
-        }, 1);
-    });
-  }
 
   async function replaceFile(match, body, preParent, path) {
     let src = match[0].substring(11, match[0].length-9);
@@ -370,17 +393,9 @@ function PreviewHandler() {
   window.addEventListener('message', function(e) {
     if (e.data.message) {
       switch (e.data.message) {
-        case 'port-missing':
-          let messageChannel = new MessageChannel();
-          messageChannel.port1.onmessage = previewHandler.fileResponseHandler;
-          previewLoadWindow.postMessage({ message: 'reinit-message-port' }, '*', [messageChannel.port2]);
-        break;
-        case 'message-port-opened':
-          previewHandler.portResolver();
-        break;
         case 'preview-frame-isReady':
           isPreviewFrameLoaded = true;
-          previewFrameResolver();
+          mywindow.postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
           break;
       }
     }

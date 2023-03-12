@@ -9,11 +9,16 @@
 </head>
 <body>
 
-  Nothing to show here. Please go to <a href="https://codetmp.web.app">Codetmp</a> and write your code.
+  <span id="js-txt-message">
+    Nothing to show here. Please go to <a href="https://codetmp.web.app">Codetmp</a> and write your code.
+  </span>
   
   <script> L = console.log </script>
+  <script> window.$ = document.querySelector.bind(document); </script>
+  
   <!-- service worker handler -->
   <script>
+  
     let isReady = false;
     let controllerResolver = null;
 
@@ -21,6 +26,7 @@
         new Promise(function(resolve) {
           controllerResolver = resolve;
         }).then(function() {
+          $('#js-txt-message').textContent = 'Initializing connection port ...';
           window.opener.postMessage({ message:'preview-frame-isReady' }, '*');
         })
       }
@@ -82,18 +88,6 @@
           case 'init-message-port':
 	          navigator.serviceWorker.controller.postMessage({ message: 'init-message-port' }, [e.ports[0]]);
       		break;
-          case 'reinit-message-port':
-            navigator.serviceWorker.controller.postMessage({ message: 'reinit-message-port' }, [e.ports[0]]);
-          break;
-      		case 'response-file':
-          case 'response-file-multimedia':
-	          navigator.serviceWorker.controller.postMessage({
-	            message: e.data.message,
-	            mime: e.data.mime,
-	            content: e.data.content,
-	            resolverUID: e.data.resolverUID,
-	          });
-      		break;
       	}
       }
 
@@ -104,9 +98,6 @@
         switch (event.data.message) {
           case 'port-missing':
             window.opener.postMessage({ message: 'port-missing' }, '*');
-          break;
-          case 'message-port-opened':
-            window.opener.postMessage({ message: 'message-port-opened' }, '*');
           break;
         }
       });
