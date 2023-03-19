@@ -5,9 +5,10 @@ function PreviewHandler() {
   this.portResolver = null;
   this.previewMode = 'normal';
   let driveAccessToken = '';
-  let previewFrameResolver = null;
-  let PreviewLoadWindow = null;
-  let isPreviewFrameLoaded = false;
+  let previewEl = document.createElement('iframe');
+  previewEl.name = 'PreviewFrame2';
+  document.body.append(previewEl);
+  let previewLoadWindow = window.open(environment.previewUrl, 'PreviewFrame2');
 
   function removeParam(url) {
     var oldURL = url;
@@ -393,8 +394,12 @@ function PreviewHandler() {
   window.addEventListener('message', function(e) {
     if (e.data.message) {
       switch (e.data.message) {
+        case 'port-missing':
+          messageChannel = new MessageChannel();
+          messageChannel.port1.onmessage = previewHandler.fileResponseHandler;
+          previewLoadWindow.postMessage({ message: 'reinit-message-port' }, '*', [messageChannel.port2]);
+          break;
         case 'preview-frame-isReady':
-          isPreviewFrameLoaded = true;
           mywindow.postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
           break;
       }

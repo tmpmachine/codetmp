@@ -88,6 +88,9 @@
           case 'init-message-port':
 	          navigator.serviceWorker.controller.postMessage({ message: 'init-message-port' }, [e.ports[0]]);
       		break;
+          case 'reinit-message-port':
+            navigator.serviceWorker.controller.postMessage({ message: 'reinit-message-port' }, [e.ports[0]]);
+          break;
       	}
       }
 

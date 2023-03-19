@@ -5,6 +5,7 @@ let messagePort;
 let resolverQueue = {};
 let uid = 0;
 let catchedBlob = {};
+let isRelinkingMessagePort = false;
 
 function portMessageHandler(e) {
   switch (e.data.message) {
@@ -58,6 +59,11 @@ self.addEventListener('message', async function(e) {
     case 'skipWaiting':
       self.skipWaiting();
     break;
+    case 'reinit-message-port':
+      messagePort = e.ports[0];
+      messagePort.onmessage = portMessageHandler;
+      isRelinkingMessagePort = false;
+    break;
     case 'init-message-port':
       messagePort = e.ports[0];
       messagePort.onmessage = portMessageHandler;
@@ -93,11 +99,46 @@ self.addEventListener('activate', function(e) {
 
 function checkMessagePort() {
   return new Promise((resolve, reject) => {
-    if (messagePort) {
-      resolve();
-    } else {
-      reject();
-    }
+
+    self.clients.matchAll({
+      includeUncontrolled: true,
+      type: 'window',
+    }).then((clients) => {
+      if (messagePort) {
+        resolve();
+      } else {
+        let hasClient = false;
+        if (clients && clients.length) {
+          for (let client of clients) {
+            if(client.url == location.origin+'/') {
+              hasClient = true;
+              if (!isRelinkingMessagePort) {
+                client.postMessage({ message: 'port-missing' });
+                isRelinkingMessagePort = true;
+              }
+              let timeout = 3000;
+              let waiting = setInterval(() => {
+                timeout -= 10;
+                if (timeout === 0) {
+                  isRelinkingMessagePort = false;
+                  clearInterval(waiting);
+                  reject();
+                }
+                if (messagePort) {
+                  isRelinkingMessagePort = false;
+                  clearInterval(waiting);
+                  resolve();
+                }
+              }, 10)
+              break;
+            }
+          }
+        }
+        if (!hasClient)
+          reject();
+      }
+    });    
+
   });
   
 }
@@ -112,7 +153,7 @@ function responseBySearch(e, resolve) {
     });
     uid++;
   }).catch(() => {
-    resolve(new Response('<span id="js-txt-message">Reconnecting port. Please wait ...</span> <script>window.setTimeout(() => { document.querySelector("#js-txt-message").innerHTML = "Failed to establish port connection. Try reopening the file from <a href=\'https://codetmp.web.app/\'>Codetmp</a>." }, 3000)</script>', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }));
+    resolve(new Response('Failed to establish port connection. Try reopening the file from <a href="https://codetmp.web.app/">Codetmp</a>.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
   });
 }
 
