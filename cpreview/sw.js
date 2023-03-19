@@ -1,5 +1,5 @@
 let asd = L = console.log;
-let cacheVersion = '2';
+let cacheVersion = '3';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
