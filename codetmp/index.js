@@ -1,7 +1,7 @@
 const ACE_CDN_BASEPATH = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6';
 let activeWorkspace = 0;
 let environment = {
-  previewUrl: 'https://cpreview.web.app/',
+  previewUrl: 'https://preview.codetmp7.dev/',
 };
 
 window.app.loadFiles([
