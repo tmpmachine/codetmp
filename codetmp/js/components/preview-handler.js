@@ -8,7 +8,7 @@ function PreviewHandler() {
   let previewEl = document.createElement('iframe');
   previewEl.name = 'PreviewFrame2';
   document.body.append(previewEl);
-  let previewLoadWindow = window.open(environment.previewUrl, 'PreviewFrame2');
+  let previewLoadWindow = window.open(environment.previewUrl, 'PreviewFrame');
 
   function removeParam(url) {
     var oldURL = url;
@@ -400,7 +400,9 @@ function PreviewHandler() {
           previewLoadWindow.postMessage({ message: 'reinit-message-port' }, '*', [messageChannel.port2]);
           break;
         case 'preview-frame-isReady':
-          mywindow.postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
+          messageChannel = new MessageChannel();
+          messageChannel.port1.onmessage = previewHandler.fileResponseHandler;
+          previewLoadWindow.postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
           break;
       }
     }
