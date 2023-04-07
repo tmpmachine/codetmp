@@ -5,7 +5,7 @@ Codetmp helps you develop JavaScript applications in the browser.
 This project is build with plain JavaScript because I can't setup proper development environment due to my PC hardware condition back in 2017. Always checkout to the latest development branch version for better structured file and code. Regards.
 
 ## Official Website
-[https://codetmp.web.app](https://codetmp.web.app)
+[https://codetmp7.dev](https://codetmp7.dev)
 
 ## Key Features
 1. Lightweight.
