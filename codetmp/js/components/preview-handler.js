@@ -5,10 +5,9 @@ function PreviewHandler() {
   this.portResolver = null;
   this.previewMode = 'normal';
   let driveAccessToken = '';
-  let previewEl = document.createElement('iframe');
-  previewEl.name = 'PreviewFrame2';
-  document.body.append(previewEl);
-  let previewLoadWindow = window.open(environment.previewUrl, 'PreviewFrame');
+  let targetPreviewDomain = '';
+  let previewFrame1 = window.open(environment.previewUrl, 'PreviewFrame');
+  let previewFrame2 = window.open(environment.previewUrlPWA, 'PreviewFramePWA');
 
   function removeParam(url) {
     var oldURL = url;
@@ -27,14 +26,19 @@ function PreviewHandler() {
   let messageChannel;
   let resolvePort;
   let SELF = {};
-  let mywindow;
   
   async function delayWindowFocus() {
     return new Promise(resolve => window.setTimeout(resolve, 1));
   }
-  
+
+  this.previewPathAtPWA = function() {
+    let targetPreviewDomain = 'PWA';
+    SELF.previewPath(null,null, targetPreviewDomain);
+  }
+
   let isPortOpened = false;
-  SELF.previewPath = this.previewPath = async function(requestPath, frameName) {
+  SELF.previewPath = this.previewPath = async function(requestPath, frameName, _targetPreviewDomain = '') {
+    targetPreviewDomain = _targetPreviewDomain;
     if (!requestPath) {
       requestPath = await previewHandler.getPath();
     }
@@ -42,8 +46,11 @@ function PreviewHandler() {
       frameName = previewHandler.getFrameName();
     }
     if (isPortOpened) {
-      let url = environment.previewUrl+requestPath;
-      
+      let url = environment.previewUrl + requestPath;
+      if (targetPreviewDomain == 'PWA') {
+        url = environment.previewUrlPWA + requestPath;
+      }
+
       await delayWindowFocus();
       window.open(url, '_blank', 'noopener');
       testConnection()
@@ -61,8 +68,9 @@ function PreviewHandler() {
       
       messageChannel = new MessageChannel();
       messageChannel.port1.onmessage = previewHandler.fileResponseHandler;
+      getPreviewFrame().postMessage({ message: 'reinit-message-port' }, '*', [messageChannel.port2]);
       // await delayWindowFocus();
-      // mywindow = window.open(environment.previewUrl, '_blank', 'noopener');
+      // window.open(environment.previewUrl, '_blank', 'noopener');
     }
   };
   
@@ -106,16 +114,9 @@ function PreviewHandler() {
 
       } else { 
 
-        let isHasSource = helper.isHasSource(file.content);
-
-        if (!isHasSource && file.content.length > 0) {
-          messageChannel.port1.postMessage({
-            message: 'response-file', 
-            mime: mimeType,
-            content: new Blob([file.content]),
-            resolverUID: event.data.resolverUID,
-          });
-          return;
+        let isHasSource = false;
+        if (file.content.length > 0) {
+          isHasSource = helper.isHasSource(file.content);
         }
 
         let data = {
@@ -398,18 +399,22 @@ function PreviewHandler() {
     return content.match(/<file src=.*?><\/file>/);
   }
 
+  function getPreviewFrame() {
+    return (targetPreviewDomain == 'PWA') ? previewFrame2 : previewFrame1;
+  }
+
   window.addEventListener('message', function(e) {
     if (e.data.message) {
       switch (e.data.message) {
         case 'port-missing':
           messageChannel = new MessageChannel();
           messageChannel.port1.onmessage = previewHandler.fileResponseHandler;
-          previewLoadWindow.postMessage({ message: 'reinit-message-port' }, '*', [messageChannel.port2]);
+          getPreviewFrame().postMessage({ message: 'reinit-message-port' }, '*', [messageChannel.port2]);
           break;
         case 'preview-frame-isReady':
           messageChannel = new MessageChannel();
           messageChannel.port1.onmessage = previewHandler.fileResponseHandler;
-          previewLoadWindow.postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
+          getPreviewFrame().postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
           break;
       }
     }

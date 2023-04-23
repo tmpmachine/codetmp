@@ -129,5 +129,10 @@ let DOMEvents = {
 		    previewHandler.previewPath();
 		  }
 		},
+		'Ctrl+Shift+Enter': function() {
+			if (!$('#btn-menu-my-files').classList.contains('active')) {
+				previewHandler.previewPathAtPWA();
+			}
+		},
 	},
 };

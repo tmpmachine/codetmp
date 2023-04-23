@@ -262,6 +262,7 @@
                     <a href="#" class="w3-padding Items menu-link hide" data-callback='new-file-on-disk'>New File on Disk</a>
                     <a href="#" class="w3-padding Items menu-link" data-callback='new-folder' data-shortcut="Alt + Shift + N"> New Folder </a>
                     <a href="#" class="w3-padding Items menu-link" data-callback='preview' data-shortcut="Ctrl + Enter"> Preview </a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback='preview' data-shortcut="Ctrl + Shift + Enter">Preview PWAs</a>
                   </div>
                 </div>
                 <div class="drop-menu">
@@ -440,6 +441,7 @@
 
   <div id="limbo" class="limbo">
     <iframe name="PreviewFrame" id="PreviewFrame" src=""></iframe>
+    <iframe name="PreviewFramePWA" id="PreviewFramePWA" src=""></iframe>
     <input id="file-upload" type="file" onchange="fileReaderModule.uploadFile(this)">
   </div>
 
