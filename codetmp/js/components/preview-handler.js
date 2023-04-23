@@ -45,7 +45,7 @@ function PreviewHandler() {
       let url = environment.previewUrl+requestPath;
       
       await delayWindowFocus();
-      window.open(url, frameName);
+      window.open(url, '_blank', 'noopener');
       testConnection()
       .catch(() => {
         isPortOpened = false;
@@ -61,8 +61,8 @@ function PreviewHandler() {
       
       messageChannel = new MessageChannel();
       messageChannel.port1.onmessage = previewHandler.fileResponseHandler;
-      await delayWindowFocus();
-      mywindow = window.open(environment.previewUrl, frameName);
+      // await delayWindowFocus();
+      // mywindow = window.open(environment.previewUrl, '_blank', 'noopener');
     }
   };
   
@@ -177,7 +177,9 @@ function PreviewHandler() {
 	      break;
 	    case 'message-port-opened':
         isPortOpened = true;
-        resolvePort();
+        if (resolvePort) {
+          resolvePort();
+        }
         break;
 	  }
   };
