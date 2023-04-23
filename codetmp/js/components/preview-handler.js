@@ -33,18 +33,18 @@ function PreviewHandler() {
 
   this.previewPathAtPWA = function() {
     let targetPreviewDomain = 'PWA';
-    SELF.previewPath(null,null, targetPreviewDomain);
+    SELF.previewPath(null, targetPreviewDomain);
   }
 
   let isPortOpened = false;
-  SELF.previewPath = this.previewPath = async function(requestPath, frameName, _targetPreviewDomain = '') {
+  SELF.previewPath = this.previewPath = async function(requestPath, _targetPreviewDomain = '') {
     targetPreviewDomain = _targetPreviewDomain;
     if (!requestPath) {
       requestPath = await previewHandler.getPath();
     }
-    if (!frameName) {
-      frameName = previewHandler.getFrameName();
-    }
+    // if (!frameName) {
+      // frameName = previewHandler.getFrameName();
+    // }
     if (isPortOpened) {
       let url = environment.previewUrl + requestPath;
       if (targetPreviewDomain == 'PWA') {
@@ -56,7 +56,7 @@ function PreviewHandler() {
       testConnection()
       .catch(() => {
         isPortOpened = false;
-        SELF.previewPath(requestPath, frameName);
+        SELF.previewPath(requestPath);
       });
     } else {
       
@@ -262,13 +262,13 @@ function PreviewHandler() {
     return content;
   }
 
-  this.getFrameName = function() {
-    let file = activeFile;
-    let name = (this.previewMode == 'inframe') ? 'inframe-preview' : 'preview';
-    if (file !== null)
-      name = 'preview-'+file.fid;
-    return name;
-  }
+  // this.getFrameName = function() {
+  //   let file = activeFile;
+  //   let name = (this.previewMode == 'inframe') ? 'inframe-preview' : 'preview';
+  //   if (file !== null)
+  //     name = 'preview-'+file.fid;
+  //   return name;
+  // }
 
   this.getDirectory = async function(source, parentId, path) {
     source = decodeURI(source);
