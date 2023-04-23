@@ -1,5 +1,5 @@
 let asd = L = console.log;
-let cacheVersion = '6';
+let cacheVersion = '7';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
@@ -13,6 +13,9 @@ function portMessageHandler(e) {
     case 'test-connection':
       messagePort.postMessage({ message: 'resolve-test-connection' });
     break;
+    case 'resolve-test-connection':
+      testConnectionResolver();
+      break;
     case 'response-file':
       let response;
       if (e.data.content == '<404></404>') {
@@ -97,51 +100,77 @@ self.addEventListener('activate', function(e) {
   ]));
 });
 
+let testConnectionResolver;
+function testConnection() {
+  return new Promise((resolve, reject) => {
+    testConnectionResolver = resolve;
+    messagePort.postMessage({
+      message: 'test-connection', 
+    });
+    window.setTimeout(() => {
+      reject();
+    }, 120);
+  });
+}
+
 function checkMessagePort() {
   return new Promise((resolve, reject) => {
 
-    self.clients.matchAll({
-      includeUncontrolled: true,
-      type: 'window',
-    }).then((clients) => {
-      if (messagePort) {
+    if (messagePort) {
+      testConnection().then(r => {
         resolve();
-      } else {
-        let hasClient = false;
-        if (clients && clients.length) {
-          for (let client of clients) {
-            if(client.url == location.origin+'/') {
-              hasClient = true;
-              if (!isRelinkingMessagePort) {
-                client.postMessage({ message: 'port-missing' });
-                isRelinkingMessagePort = true;
-              }
-              let timeout = 3000;
-              let waiting = setInterval(() => {
-                timeout -= 10;
-                if (timeout === 0) {
-                  isRelinkingMessagePort = false;
-                  clearInterval(waiting);
-                  reject();
-                }
-                if (messagePort) {
-                  isRelinkingMessagePort = false;
-                  clearInterval(waiting);
-                  resolve();
-                }
-              }, 10)
-              break;
-            }
-          }
+      }).catch(() => {
+        if (!isRelinkingMessagePort) {
+          relinkMissingPort(resolve, reject);
         }
-        if (!hasClient)
-          reject();
-      }
-    });    
+      })
+    } else {
+      relinkMissingPort(resolve, reject);
+    }
 
   });
   
 }
+
+function relinkMissingPort(resolve, reject) {
+
+  self.clients.matchAll({
+    includeUncontrolled: true,
+    type: 'window',
+  }).then((clients) => {
+    let hasClient = false;
+    if (clients && clients.length) {
+      for (let client of clients) {
+        if(client.url == location.origin+'/') {
+          hasClient = true;
+          if (!isRelinkingMessagePort) {
+            client.postMessage({ message: 'port-missing' });
+            isRelinkingMessagePort = true;
+          }
+          let timeout = 3000;
+          let waiting = setInterval(() => {
+            timeout -= 10;
+            if (timeout === 0) {
+              isRelinkingMessagePort = false;
+              clearInterval(waiting);
+              reject();
+            }
+            if (messagePort) {
+              isRelinkingMessagePort = false;
+              clearInterval(waiting);
+              resolve();
+            }
+          }, 10)
+          break;
+        }
+      }
+    }
+    if (!hasClient) {
+      reject();
+    }
+  }); 
+}
+
 
 function responseBySearch(e, resolve) {
   checkMessagePort().then(() => {

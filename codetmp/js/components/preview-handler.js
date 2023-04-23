@@ -172,6 +172,11 @@ function PreviewHandler() {
           await responseAsMedia(e, path, mimeType);
         }
 	      break;
+      case 'test-connection':
+        messageChannel.port1.postMessage({
+          message: 'resolve-test-connection', 
+        });
+        break;
 	    case 'resolve-test-connection':
         testConnectionResolver();
 	      break;
