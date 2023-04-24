@@ -7,6 +7,17 @@ let uid = 0;
 let catchedBlob = {};
 let isRelinkingMessagePort = false;
 
+let channelName = 'preview';
+try {
+  channelName = location.hostname.split('.')[0]; // get sub domain name
+  // dev port replacement settings
+  if (channelName.includes('5002')) {
+    channelName = 'preview';
+  } else {
+    channelName = 'pwa';
+  }
+} catch (e) { }
+
 function portMessageHandler(e) {
   switch (e.data.message) {
     
@@ -118,7 +129,8 @@ function testConnection() {
   testConnectionPromise = new Promise((resolve, reject) => {
     testConnectionResolver = resolve;
     messagePort.postMessage({
-      message: 'test-connection', 
+      channelName, 
+      message: 'test-connection',
     });
     testConnectionRejectorTimeout = setTimeout(() => {
       reject();
@@ -193,14 +205,13 @@ function relinkMissingPort() {
   });
 
   return relinkingPromise;
-
 }
-
 
 function responseBySearch(e, resolve) {
   checkMessagePort().then(() => {
     resolverQueue['R'+uid] = resolve;
     messagePort.postMessage({ 
+      channelName,
       message: 'request-path',
       path: e.request.url.replace(location.origin, ''),
       resolverUID: uid,  

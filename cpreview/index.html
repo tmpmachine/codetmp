@@ -19,16 +19,29 @@
   <!-- service worker handler -->
   <script>
   
+    let channelName = 'preview'; // default channel name
+    try {
+      channelName = location.hostname.split('.')[0]; // get sub domain name
+      // dev port replacement settings
+      if (channelName.includes('5002')) {
+        channelName = 'preview';
+      } else {
+        channelName = 'pwa';
+      }
+    } catch (e) { }
     let controllerResolver = null;
 
-     if (window.opener !== null) {
-        new Promise(function(resolve) {
-          controllerResolver = resolve;
-        }).then(function() {
-          $('#js-txt-message').textContent = 'Initializing connection port ...';
-          window.opener.postMessage({ message:'preview-frame-isReady' }, '*');
-        })
-      }
+    if (window.opener !== null) {
+      new Promise(function(resolve) {
+        controllerResolver = resolve;
+      }).then(function() {
+        $('#js-txt-message').textContent = 'Initializing connection port ...';
+        window.opener.postMessage({ 
+          channelName,
+          message: 'preview-frame-isReady',
+        }, '*');
+      })
+    }
 
     if (typeof(navigator) !== 'undefined' && 'serviceWorker' in navigator) {
       
@@ -85,10 +98,14 @@
 
       	switch (e.data.message) {
           case 'init-message-port':
-	          navigator.serviceWorker.controller.postMessage({ message: 'init-message-port' }, [e.ports[0]]);
-      		break;
-          case 'reinit-message-port':
-            navigator.serviceWorker.controller.postMessage({ message: 'reinit-message-port' }, [e.ports[0]]);
+	          navigator.serviceWorker.controller.postMessage({ 
+              message: 'init-message-port',
+            }, [e.ports[0]]);
+            break;
+            case 'reinit-message-port':
+            navigator.serviceWorker.controller.postMessage({ 
+              message: 'reinit-message-port',
+            }, [e.ports[0]]);
           break;
       	}
       }
@@ -99,7 +116,10 @@
 
         switch (event.data.message) {
           case 'port-missing':
-            window.opener.postMessage({ message: 'port-missing' }, '*');
+            window.opener.postMessage({ 
+              channelName, 
+              message: 'port-missing', 
+            }, '*');
           break;
         }
       });
