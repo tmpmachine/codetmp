@@ -1,5 +1,5 @@
 let asd = L = console.log;
-let cacheVersion = '8';
+let cacheVersion = '9';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
@@ -10,11 +10,13 @@ let isRelinkingMessagePort = false;
 let channelName = 'preview';
 try {
   channelName = location.hostname.split('.')[0]; // get sub domain name
-  // dev port replacement settings
-  if (channelName.includes('5002')) {
-    channelName = 'preview';
-  } else {
-    channelName = 'pwa';
+  // dev port settings
+  if (location.hostname.includes(':')) {
+    if (channelName.includes('5002')) {
+      channelName = 'preview';
+    } else {
+      channelName = 'pwa';
+    }
   }
 } catch (e) { }
 
