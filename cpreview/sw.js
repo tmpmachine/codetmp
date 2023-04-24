@@ -15,6 +15,8 @@ function portMessageHandler(e) {
     break;
     case 'resolve-test-connection':
       testConnectionResolver();
+      testConnectionPromise = null;
+      clearTimeout(testConnectionRejectorTimeout);
       break;
     case 'response-file':
       let response;
@@ -101,79 +103,100 @@ self.addEventListener('activate', function(e) {
 });
 
 let testConnectionResolver;
+let testConnectionPromise;
+let testConnectionRejectorTimeout;
+
 function testConnection() {
-  return new Promise((resolve, reject) => {
+
+  if (testConnectionPromise) {
+    return testConnectionPromise;
+  }
+  
+  clearTimeout(testConnectionRejectorTimeout);
+  testConnectionPromise = new Promise((resolve, reject) => {
     testConnectionResolver = resolve;
     messagePort.postMessage({
       message: 'test-connection', 
     });
-    window.setTimeout(() => {
+    testConnectionRejectorTimeout = setTimeout(() => {
       reject();
+      testConnectionPromise = null;
     }, 120);
   });
+
+  return testConnectionPromise;
 }
 
-function checkMessagePort() {
+
+function checkMessagePort(e) {
   return new Promise((resolve, reject) => {
-
     if (messagePort) {
-      testConnection().then(r => {
-        resolve();
-      }).catch(() => {
-        if (!isRelinkingMessagePort) {
-          relinkMissingPort(resolve, reject);
-        }
-      })
+      testConnection().then(resolve).catch(() => {
+        relinkMissingPort().then(resolve).catch(reject);
+      });
     } else {
-      relinkMissingPort(resolve, reject);
+      relinkMissingPort().then(resolve).catch(reject);
     }
-
   });
   
 }
 
-function relinkMissingPort(resolve, reject) {
+let relinkingPromise;
 
-  self.clients.matchAll({
-    includeUncontrolled: true,
-    type: 'window',
-  }).then((clients) => {
-    let hasClient = false;
-    if (clients && clients.length) {
-      for (let client of clients) {
-        if(client.url == location.origin+'/') {
-          hasClient = true;
-          if (!isRelinkingMessagePort) {
-            client.postMessage({ message: 'port-missing' });
+function relinkMissingPort() {
+
+  if (relinkingPromise) {
+    return relinkingPromise;
+  }
+
+  relinkingPromise =new Promise((resolve, reject) => {
+
+    self.clients.matchAll({
+      includeUncontrolled: true,
+      type: 'window',
+    }).then((clients) => {
+      let hasClient = false;
+      if (clients && clients.length) {
+        for (let client of clients) {
+          if(client.url == location.origin+'/') {
+            hasClient = true;
             isRelinkingMessagePort = true;
+            client.postMessage({ message: 'port-missing' });
+            let timeout = 3000;
+            let waiting = setInterval(() => {
+              timeout -= 10;
+              if (timeout === 0) {
+                isRelinkingMessagePort = false;
+                clearInterval(waiting);
+                reject();
+                relinkingPromise = null;
+              }
+              if (messagePort) {
+                isRelinkingMessagePort = false;
+                clearInterval(waiting);
+                resolve();
+                relinkingPromise = null;
+              }
+            }, 10)
+            break;
           }
-          let timeout = 3000;
-          let waiting = setInterval(() => {
-            timeout -= 10;
-            if (timeout === 0) {
-              isRelinkingMessagePort = false;
-              clearInterval(waiting);
-              reject();
-            }
-            if (messagePort) {
-              isRelinkingMessagePort = false;
-              clearInterval(waiting);
-              resolve();
-            }
-          }, 10)
-          break;
         }
       }
-    }
-    if (!hasClient) {
-      reject();
-    }
-  }); 
+      if (!hasClient) {
+        reject();
+        relinkingPromise = null;
+      }
+    }); 
+
+  });
+
+  return relinkingPromise;
+
 }
 
 
 function responseBySearch(e, resolve) {
-  checkMessagePort().then(() => {
+  checkMessagePort(e).then(() => {
     resolverQueue['R'+uid] = resolve;
     messagePort.postMessage({ 
       message: 'request-path',
