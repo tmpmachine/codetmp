@@ -46,29 +46,35 @@ function PreviewHandler() {
       // frameName = previewHandler.getFrameName();
     // }
     if (isPortOpened) {
+
       let url = environment.previewUrl + requestPath;
       if (targetPreviewDomain == 'PWA') {
         url = environment.previewUrlPWA + requestPath;
       }
 
-      await delayWindowFocus();
-      window.open(url, '_blank', 'noopener');
       testConnection()
+      .then(async () => {
+        await delayWindowFocus();
+        window.open(url, '_blank', 'noopener');
+      })
       .catch(() => {
         isPortOpened = false;
         SELF.previewPath(requestPath);
       });
+
     } else {
       
       new Promise(resolve => {
         resolvePort = resolve;
       }).then(() => {
+        isPortOpened = true;
+        resolvePort = null;
         SELF.previewPath(requestPath);
       });
       
       messageChannel = new MessageChannel();
       messageChannel.port1.onmessage = previewHandler.fileResponseHandler;
-      getPreviewFrame().postMessage({ message: 'reinit-message-port' }, '*', [messageChannel.port2]);
+      getPreviewFrame().postMessage({ message: 'init-message-port' }, '*', [messageChannel.port2]);
       // await delayWindowFocus();
       // window.open(environment.previewUrl, '_blank', 'noopener');
     }
@@ -182,7 +188,6 @@ function PreviewHandler() {
         testConnectionResolver();
 	      break;
 	    case 'message-port-opened':
-        isPortOpened = true;
         if (resolvePort) {
           resolvePort();
         }

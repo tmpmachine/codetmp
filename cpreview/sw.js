@@ -14,7 +14,9 @@ function portMessageHandler(e) {
       messagePort.postMessage({ message: 'resolve-test-connection' });
     break;
     case 'resolve-test-connection':
-      testConnectionResolver();
+      if (testConnectionResolver) {
+        testConnectionResolver();
+      }
       testConnectionPromise = null;
       clearTimeout(testConnectionRejectorTimeout);
       break;
@@ -128,7 +130,7 @@ function testConnection() {
 }
 
 
-function checkMessagePort(e) {
+function checkMessagePort() {
   return new Promise((resolve, reject) => {
     if (messagePort) {
       testConnection().then(resolve).catch(() => {
@@ -196,7 +198,7 @@ function relinkMissingPort() {
 
 
 function responseBySearch(e, resolve) {
-  checkMessagePort(e).then(() => {
+  checkMessagePort().then(() => {
     resolverQueue['R'+uid] = resolve;
     messagePort.postMessage({ 
       message: 'request-path',
