@@ -154,7 +154,7 @@ const drive = (function() {
 	          	f.content = content;
 	          	await fileManager.update(f, 'files');
 	          	mainStorage.save();
-	          	ui.reloadOpenTab(f.fid);
+	          	ui.reloadOpenTab(f.fid, f.content);
 	          });
           } else {
             await fileManager.update(f, 'files');

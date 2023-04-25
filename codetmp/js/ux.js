@@ -329,10 +329,10 @@ const ui = {
     $('#file-upload').click();
 	},
 
-  reloadOpenTab: function(fid) {
+  reloadOpenTab: function(fid, content) {
     for (let tab of fileTab) {
       if (tab.fid == fid) {
-        tab.editor.env.editor.setValue(tab.file.content);
+        tab.editor.env.editor.setValue(content);
       }
     }
   },
