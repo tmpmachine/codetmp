@@ -6,6 +6,26 @@ const fileClipBoard = (function() {
   let targetWorkspaceId = activeWorkspace;
   let sourceWorkspaceId = activeWorkspace;
 
+  // share clipboard between opened tabs
+  const clipboardChannel = new BroadcastChannel('clipboardChannel');
+  clipboardChannel.addEventListener('message', (evt) => {
+    if (evt.data && evt.data.message) {
+      switch (evt.data.message) {
+        case 'copy':
+          clipBoard = evt.data.clipBoard;
+          pasteMode = evt.data.pasteMode;
+          sourceWorkspaceId = evt.data.sourceWorkspaceId;
+          $('body')[0].classList.toggle('has-clipboard', true);
+          $('.clickable[data-callback="paste"] .Label')[0].textContent = (pasteMode == 'cut') ? 'Move here' : 'Copy here';
+          break;
+        case 'paste':
+          clipBoard.length = 0;
+          selectedFile.length = 0;
+          break;
+      }
+    }
+  });
+
   async function getBranch(parents) {
     let files = [];
     let folders = [];
@@ -59,16 +79,25 @@ const fileClipBoard = (function() {
   function copy(isCut = false) {
     clipBoard.length = 0;
     sourceWorkspaceId = activeWorkspace;
-    for (let f of selectedFile) {
-      if (clipBoard.indexOf(f) < 0) {
-        f.workspaceId = activeWorkspace;
-        clipBoard.push(f);
+    for (let el of selectedFile) {
+      if (clipBoard.indexOf(el) < 0) {
+        el.workspaceId = activeWorkspace;
+        clipBoard.push({
+          fid: el.getAttribute('data'),
+          type: el.getAttribute('data-type'),
+        });
       }
     }
     pasteMode = isCut ? 'cut' : 'copy';
     $('body')[0].classList.toggle('has-clipboard', true);
-
     $('.clickable[data-callback="paste"] .Label')[0].textContent = isCut ? 'Move here' : 'Copy here';
+
+    clipboardChannel.postMessage({
+      clipBoard,
+      pasteMode,
+      sourceWorkspaceId,
+      message: 'copy',
+    });
   }
   
   async function copySingleFile({ id, fid, name, content, loaded, isTemp, fileRef }, modifiedTime) {
@@ -191,8 +220,8 @@ const fileClipBoard = (function() {
 
     while (clipBoard.length > 0) {
       let data;
-      let fid = clipBoard[0].getAttribute('data');
-      let type = clipBoard[0].getAttribute('data-type');
+      let fid = clipBoard[0].fid;
+      let type = clipBoard[0].type;
       let modifiedTime = new Date().toISOString();
       
       if (type === 'file') {
@@ -241,10 +270,14 @@ const fileClipBoard = (function() {
     }
     
     $('body')[0].classList.toggle('has-clipboard', false);
-
+    
     drive.syncToDrive();
     fileStorage.save();
     fileManager.list();
+
+    clipboardChannel.postMessage({
+      message: 'paste',
+    });
   }
 
   function cut() {
