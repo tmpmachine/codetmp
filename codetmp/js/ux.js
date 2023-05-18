@@ -572,6 +572,12 @@ const ui = {
         }
 	    }
 
+      async function unloadSelection(selectedFile, type) {
+	    	let selection = getSelected(selectedFile);
+        let fid = selection.id;
+      	await fileManager.UnloadItem(fid, type);
+	    }
+
 	    function deleteSelected() {
 		    if (selectedFile.length === 1) {
           confirmDeletion('Move selected item to trash?').then(async () => {
@@ -595,6 +601,20 @@ const ui = {
 		    }
 		  }
 
+      function UnloadSelected() {
+		    if (selectedFile.length === 1) {
+          confirmDeletion('Unload selected item?').then(async () => {
+  		      if (selectedFile[0].getAttribute('data-type') === 'folder')
+              unloadSelection(selectedFile[0], 'folders');
+  		      else if (selectedFile[0].getAttribute('data-type') === 'file')
+              unloadSelection(selectedFile[0], 'files');
+            clearSelection();
+          })
+		    } else if (selectedFile.length > 1) {
+          alert('Multiple unload currently not suppoerted')
+		    }
+		  }
+
     return {
 			renameFolder,
 			renameFile,
@@ -602,6 +622,7 @@ const ui = {
       newFile,
 			deleteSelected,
 			getSelected,
+      UnloadSelected,
     };
 
 	})(), // end of ui.fileManager

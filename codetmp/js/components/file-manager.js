@@ -757,6 +757,16 @@ function FileManager() {
       fileTree.removeFile(data);
     });
   };
+
+  SELF.UnloadItem = async function(fid, type) {
+    let data = await SELF.get({fid, type: type});
+    if (type == 'folders') {
+      data.isLoaded = false;
+    } else if (type == 'files') {
+      data.loaded = false;
+    }
+    await SELF.update(data, type);
+  }
   
   SELF.clearStorage = async function() {
     if (STORAGE_TYPE == 'idb') {

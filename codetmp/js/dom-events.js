@@ -11,6 +11,7 @@ let DOMEvents = {
 		'upload-file': ui.uploadFile,
 		'file-rename': renameFile,
 		'file-delete': ui.fileManager.deleteSelected,
+		'file-unload': (evt) => ui.fileManager.UnloadSelected(evt.target),
 		'file-download': ui.toggleFileDownload,
 		'copy': fileClipBoard.copy,
 		'move': fileClipBoard.cut,
