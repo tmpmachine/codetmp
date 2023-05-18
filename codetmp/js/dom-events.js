@@ -83,6 +83,7 @@ let DOMEvents = {
 		'new-folder': ui.fileManager.newFolder,
 		'save': fileManager.save,
 		'preview': () => previewHandler.previewPath(),
+		'preview-at-pwa': () => previewHandler.previewPathAtPWA(),
 		'my-files': ui.myFiles,
 		'trash': ui.trash,
 		'toggle-editor-theme': ui.toggleTheme,
