@@ -191,6 +191,8 @@ function PreviewHandler() {
 	  switch (e.data.message) {
 	    case 'request-path':
         let path = decodeURI(removeParam(e.data.path));
+        if(path.endsWith('/')) 
+          path += 'index.html';
         let mimeType = helper.getMimeType(path);
         if (helper.isMediaTypeText(path)) {
           await responseAsText(e, path, mimeType+'; charset=UTF-8', channelName);
