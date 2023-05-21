@@ -79,6 +79,7 @@ let DOMEvents = {
 		'open-in-explorer': () => deferFeature1.openFileDirectory(),
 		'new-file': ui.newFile,
 		'new-file-on-disk': ui.newDiskFile,
+		'open-disk-folder': () => window.ux.OpenDiskFile(),
 		'new-folder': ui.fileManager.newFolder,
 		'save': fileManager.save,
 		'preview': () => previewHandler.previewPath(),

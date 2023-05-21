@@ -17,6 +17,7 @@ self.addEventListener('install', function(event) {
     '/',
     '/manifest.json',
     '/css/style.css',
+    '/css/app.css',
     '/css/file-tree.css',
     
     '/assets/js/fflate.js',
@@ -25,6 +26,7 @@ self.addEventListener('install', function(event) {
     // ace custom theme
     '/assets/ace/theme-codetmp-markdown.js',
     '/assets/ace/theme-codetmp.js',
+    'https://cdn.jsdelivr.net/gh/tmpmachine/statelist-utility@v1.0.2/statelist.min.js',
     
     `${ACE_CDN_BASEPATH}/ace.js`,
     `${ACE_CDN_BASEPATH}/theme-github.js`,

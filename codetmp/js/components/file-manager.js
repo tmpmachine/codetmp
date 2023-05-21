@@ -125,23 +125,46 @@ function FileManager() {
   }
   
   SELF.newFile = async function(data = {}, workspaceId = activeWorkspace) {
-    return await CreateFile(data, workspaceId)
+    return await CreateFile(data, workspaceId);
   };
 
   SELF.newFolder = async function(data = {}, workspaceId = activeWorkspace) {
-    return await CreateFolder(data, workspaceId)
+    return await CreateFolder(data, workspaceId);
   };
 
   async function writeToDisk() {
     let writable = await fileTab[activeTab].fileHandle.createWritable();
     let content = fileTab[activeTab].editor.env.editor.getValue();
 	  if (helper.isMediaTypeHTML(fileTab[activeTab].name) && settings.data.editor.divlessHTMLFSEnabled) {
-      content = divless.replace(content);
+
+	    // check for divless directory
+	    let currentFile = fileTab[activeTab].file;
+	    let parent = await fileManager.get({fid: currentFile.parentId, type: 'folders'});
+	    if (parent && parent.name == '.divless' && parent.trashed == false) {
+	      let targetFile = currentFile.divlessTarget;
+	      if (!currentFile.divlessTarget) {
+          let files = await SELF.listFiles(parent.parentId);
+          targetFile = files.find(file => file.name == currentFile.name.replace('.divless.html', '.html') && !file.trashed);
+	      }
+        if (targetFile) {
+          currentFile.divlessTarget = targetFile;
+          await writeToDiskFile(divless.replace(content), targetFile);
+        }
+	    } else {
+        content = divless.replace(content);
+	    }
+	    
     }
     await writable.write(content);
     await writable.close();
     fileTab[activeTab].fiber = 'close';
     $('.icon-rename')[activeTab].textContent = 'close';
+  }
+  
+  async function writeToDiskFile(content, file) {
+    let writable = await file.fileRef.entry.createWritable();
+    await writable.write(content);
+    await writable.close();
   }
 
   async function displayListFolders() {
