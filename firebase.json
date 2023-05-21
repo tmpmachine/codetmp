@@ -26,6 +26,26 @@
     },
     {
       "target": "codetmp",
+      "public": "deploy/codetmp",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "max-age=0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "codetmp-dev",
       "public": "codetmp",
       "ignore": [
         "firebase.json",
