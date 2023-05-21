@@ -1,5 +1,12 @@
 const fileReaderModule = (function() {
 
+  let self = {
+		init,
+		readSingleUploadItem,
+		uploadFile,
+		OpenDirectory,
+	};
+
 	let activeDropZone;
 	let isPressedCtrlKey = false;
 	let isDragging = false;
@@ -306,8 +313,8 @@ const fileReaderModule = (function() {
 		for (let item of items) {
 			if (item.kind == 'file') {
 				item.isPressedCtrlKey = isPressedCtrlKey;
-		  		getFileContent(item, parentId, queue).then(callback);
-		  	}
+	  		getFileContent(item, parentId, queue).then(callback);
+	  	}
 		}
 	}
 
@@ -331,15 +338,6 @@ const fileReaderModule = (function() {
 		aww.pop('No supported file handler at the moment');
 	}
 
-	function getHandler() {
-		let handler = getAsDropItems;
-		switch (HANDLER_TYPE) {
-	  		case 1: handler = getAsEntry; break;
-	  		case 2: handler = getAsFileSystemHandle; break;
-	  	}
-	  	return handler;
-	}
-
 	function readTransferItems(items, dropTarget, isPressedCtrlKey) {
 		if (items[0].kind != 'file')
 			return;
@@ -349,7 +347,6 @@ const fileReaderModule = (function() {
 				HANDLER_TYPE = type;
 			let parentId = activeFolder;
 			let callback = (dropTarget == 'editor') ? openOnEditor : saveToStorage;
-			let handler = getHandler();
 			let queue;
 
 			if (dropTarget == 'explorer') {
@@ -359,7 +356,17 @@ const fileReaderModule = (function() {
 				};
 				readQueue.push(queue);
 			}
-	  		handler(items, callback, parentId, queue, isPressedCtrlKey);
+			
+  		switch (HANDLER_TYPE) {
+    		case 1: 
+    		  getAsEntry(items, callback, parentId, queue, isPressedCtrlKey);
+    		  break;
+    		case 2: 
+    		  getAsFileSystemHandle(items, callback, parentId, queue, isPressedCtrlKey);
+    		  break;
+    		default:
+    		  getAsDropItems(items, callback, parentId, queue, isPressedCtrlKey);
+    	}
 		});
 	}
 
@@ -421,15 +428,15 @@ const fileReaderModule = (function() {
 		readTransferItems(e.dataTransfer.items, target, isPressedCtrlKey);
 	}
 
-    function truncate(name) {
-      if (name.length > 30)
-        name = name.slice(0, 30) + '...';
-      return name;
-    }
+  function truncate(name) {
+    if (name.length > 30)
+      name = name.slice(0, 30) + '...';
+    return name;
+  }
 
-    function preventDefault(e) {
-    	e.preventDefault();
-    }
+  function preventDefault(e) {
+  	e.preventDefault();
+  }
 
 	function initDragDropZone(target, dragZone) {
 		let dropZone = $('.drop-zone[data-target="'+target+'"]')[0];
@@ -492,15 +499,88 @@ const fileReaderModule = (function() {
 		self.value = '';
 	}
 
-	let self = {
-		init,
-		readSingleUploadItem,
-		uploadFile,
-	};
-
 	Object.defineProperty(self, 'isDragging', {
 		get: () => isDragging,
 	});
+	
+	async function OpenDirectory(mode = "read") {
+	  
+    let directoryStructure;
+
+    // Recursive function that walks the directory structure.
+    const getFiles = async (dirHandle, path = dirHandle.name, folderFid = '') => {
+      const dirs = [];
+      const files = [];
+      for await (const entry of dirHandle.values()) {
+        const nestedPath = `${path}/${entry.name}`;
+          if (entry.kind === "file") {
+
+				  let fileRef = await entry.getFile();
+				  fileRef.entry = entry;
+				  let file = await fileManager.newFile({
+				    fileRef,
+				    content: null,
+				    name: entry.name,
+				    parentId: (folderFid == '' ? activeFolder : folderFid),
+				    isTemp: true,
+				  });
+    			ui.tree.appendFile(file);
+          
+        } else if (entry.kind === "directory") {
+          
+          if (entry.name.startsWith('.git')) {
+            continue;
+          }
+          
+          folder = await fileManager.newFolder({
+  			    parentId: (folderFid == '' ? activeFolder : folderFid),
+  			    name: entry.name,
+    			});
+    			ui.tree.appendFolder(folder);
+          
+          dirs.push(getFiles(entry, nestedPath, folder.fid));
+        } 
+      }
+      return [
+        ...(await Promise.all(dirs)).flat(),
+        ...(await Promise.all(files)),
+      ];
+    };
+
+    try {
+      // Open the directory.
+      const handle = await showDirectoryPicker({
+        mode,
+      });
+      // Get the directory structure.
+      directoryStructure = await getFiles(handle, undefined);
+      fileManager.list();
+    } catch (err) {
+      if (err.name !== "AbortError") {
+        logStackTrace(err);
+        // console.error(err.name, err.message);
+      }
+    }
+    
+  }
+  
+  function logStackTrace(error) {
+    if (error && error.stack) {
+      const stackLines = error.stack.split('\n').slice(1);
+      const formattedStack = stackLines.map((line) => {
+        const matches = line.match(/((?:http|https):\/\/[^\s]+)/);
+        if (matches && matches.length > 0) {
+          const url = matches[0];
+          const path = url.replace(window.location.origin, '');
+          return `at ${path}`;
+        }
+        return line;
+      });
+  
+      console.log('StackTrace:');
+      console.log(formattedStack.join('\n'));
+    }
+  }
 
 	return self;
 

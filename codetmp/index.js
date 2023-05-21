@@ -45,6 +45,7 @@ window.app.loadFiles([
   {
     urls: [
       'js/core/app-data.js',
+      'https://cdn.jsdelivr.net/gh/tmpmachine/statelist-utility@v1.0.2/statelist.min.js',
     ],
   },
   {

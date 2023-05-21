@@ -168,6 +168,20 @@ const modalWindowManager = (function() {
 
 })();
 
+window.ux = (function() {
+  
+  let SELF = {
+    OpenDiskFile,
+  };
+  
+  function OpenDiskFile() {
+    fileReaderModule.OpenDirectory();
+  }
+  
+  return SELF;
+  
+})();
+
 const ui = {
   states: {
     storage: STORAGE_STATE.default,
@@ -234,7 +248,7 @@ const ui = {
 	reloadFileTree: function() {
 		window.app.getComponent('fileTree').then(ft => {
 			ft.reload();
-		})
+		});
 	},
 	changeWorkspace: async function() {
 	  if (this.dataset.target != $('#workspace-title').textContent) {
@@ -246,6 +260,7 @@ const ui = {
 	    }
 	    $('#workspace-title').textContent = this.dataset.target;
 	    let index = parseInt(this.dataset.index);
+      document.body.stateList.toggle('fs-mode', (index == 2));
       ui.states.storage = STORAGE_STATE[this.dataset.storage];
       activeWorkspace = index;
 	    await fileManager.list();

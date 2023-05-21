@@ -1,0 +1,3 @@
+body:not([data-state~="fs-mode"]) .feature-fs {
+  display: none;
+}
