@@ -13,6 +13,7 @@
         divlessHTMLFSEnabled: false,
         wordWrapEnabled: true,
         minifyJs: false,
+        linkPreviewWindowProcess: false,
         minifyJsFirebase: false,
       },
       explorer: {

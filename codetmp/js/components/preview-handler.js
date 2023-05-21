@@ -42,9 +42,10 @@ function PreviewHandler() {
     if (!requestPath) {
       requestPath = await previewHandler.getPath();
     }
-    // if (!frameName) {
-      // frameName = previewHandler.getFrameName();
-    // }
+    let frameName = '';
+    if (settings.data.editor.linkPreviewWindowProcess) {
+      frameName = previewHandler.getFrameName();
+    }
     let url = environment.previewUrl + requestPath;
     if (targetPreviewDomain == 'pwa') {
       url = environment.previewUrlPWA + requestPath;
@@ -55,7 +56,11 @@ function PreviewHandler() {
       testConnection(_targetPreviewDomain)
       .then(async () => {
         await delayWindowFocus();
-        window.open(url, '_blank', 'noopener');
+        if (frameName) {
+          window.open(url, frameName);
+        } else {
+          window.open(url, '_blank', 'noopener');
+        }
       })
       .catch(() => {
         isPortOpened = false;
@@ -70,7 +75,11 @@ function PreviewHandler() {
         isPortOpened = true;
         resolvePort = null;
         await delayWindowFocus();
-        window.open(url, '_blank', 'noopener');
+        if (frameName) {
+          window.open(url, frameName);
+        } else {
+          window.open(url, '_blank', 'noopener');
+        }
       });
       
       let channel = createMessageChannel(_targetPreviewDomain);
@@ -295,13 +304,13 @@ function PreviewHandler() {
     return content;
   }
 
-  // this.getFrameName = function() {
-  //   let file = activeFile;
-  //   let name = (this.previewMode == 'inframe') ? 'inframe-preview' : 'preview';
-  //   if (file !== null)
-  //     name = 'preview-'+file.fid;
-  //   return name;
-  // }
+  this.getFrameName = function() {
+    let file = activeFile;
+    let name = 'preview';
+    if (file !== null)
+      name = 'preview-'+file.fid;
+    return name;
+  }
 
   this.getDirectory = async function(source, parentId, path) {
     source = decodeURI(source);
