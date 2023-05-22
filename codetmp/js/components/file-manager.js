@@ -139,21 +139,25 @@ function FileManager() {
 
 	    // check for divless directory
 	    let currentFile = fileTab[activeTab].file;
-	    let parent = await fileManager.get({fid: currentFile.parentId, type: 'folders'});
-	    if (parent && parent.name == '.divless' && parent.trashed == false) {
-	      let targetFile = currentFile.divlessTarget;
-	      if (!currentFile.divlessTarget) {
-          let files = await SELF.listFiles(parent.parentId);
-          targetFile = files.find(file => file.name == currentFile.name.replace('.divless.html', '.html') && !file.trashed);
-	      }
-        if (targetFile) {
-          currentFile.divlessTarget = targetFile;
-          await writeToDiskFile(divless.replace(content), targetFile);
-        }
-	    } else {
+      let hasDivlessFile = false;
+      if (currentFile) {
+        let parent = await fileManager.get({fid: currentFile.parentId, type: 'folders'});
+        if (parent && parent.name == '.divless' && parent.trashed == false) {
+          let targetFile = currentFile.divlessTarget;
+          if (!currentFile.divlessTarget) {
+            let files = await SELF.listFiles(parent.parentId);
+            targetFile = files.find(file => file.name == currentFile.name.replace('.divless.html', '.html') && !file.trashed);
+            hasDivlessFile = true;
+          }
+          if (targetFile) {
+            currentFile.divlessTarget = targetFile;
+            await writeToDiskFile(divless.replace(content), targetFile);
+          }
+        } 
+      }
+      if (!hasDivlessFile) {
         content = divless.replace(content);
-	    }
-	    
+      }
     }
     await writable.write(content);
     await writable.close();
