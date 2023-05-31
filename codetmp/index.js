@@ -81,7 +81,7 @@ window.app.loadFiles([
       'js/components/keyboard-handler.js',
       'js/components/file-reader.js',
       'js/components/snippet-manager.js',
-      'js/require/divless.js',
+      'https://cdn.jsdelivr.net/gh/tmpmachine/divless-html@v1.0.1/divless.min.js',
     ],
     callback: function() {
       fileReaderModule.init();

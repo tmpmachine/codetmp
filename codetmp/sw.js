@@ -1,5 +1,5 @@
 L = console.log;
-let cacheVersion = '66';
+let cacheVersion = '67';
 let cacheItem = 'codetmp-'+cacheVersion;
 const ACE_CDN_BASEPATH = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6';
 
@@ -60,7 +60,7 @@ self.addEventListener('install', function(event) {
     '/views/modals.html',
     '/views/templates.html',
 
-    '/js/require/divless.js',
+    'https://cdn.jsdelivr.net/gh/tmpmachine/divless-html@v1.0.1/divless.min.js',
     '/js/require/o.js',
     '/js/require/lsdb.js',
     '/js/require/keyboard.js',
