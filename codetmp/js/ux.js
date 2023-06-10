@@ -936,6 +936,18 @@ function initFileHandler() {
 
 // DOM events
 
+async function hidePalette(event) {
+  await delayMs(10);
+  let el = $('.search-box')[0];
+  el.classList.toggle('w3-hide', true);
+  $('#search-input').value = '';
+  $('#search-input').removeEventListener('blur', hidePalette);
+}
+
+function delayMs(timeout) {
+  return new Promise(resolve => window.setTimeout(resolve, timeout));
+}
+
 function toggleInsertSnippet(persistent) {
   if ($('#in-my-files').classList.contains('active')) return
 
@@ -944,6 +956,8 @@ function toggleInsertSnippet(persistent) {
     el.classList.toggle('w3-hide');
   else
     el.classList.toggle('w3-hide', !persistent);
+
+  $('#search-input').addEventListener('blur', hidePalette);
 
   if (!el.classList.contains('w3-hide')) {
     $('#search-input').value = '';
@@ -1016,6 +1030,14 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   editor.focus();
   editor.moveCursorTo(0,0);
 
+
+  editor.commands.addCommand({
+    // name: "movelinesup",
+    bindKey: {win:"Ctrl-Shift-P"},
+    exec: function() {
+      deferFeature1.toggleTemplate();
+    }
+  });
   editor.commands.addCommand({
     name: "movelinesup",
     bindKey: {win:"Ctrl-Shift-Up"},

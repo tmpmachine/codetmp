@@ -42,8 +42,7 @@ let deferFeature1 = {
   },
 
   toggleTemplate: function() {
-    event.preventDefault();
-      $('#btn-menu-template').click();
+    $('#btn-menu-template').click();
   }
 
 };

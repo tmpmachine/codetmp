@@ -77,6 +77,7 @@ let DOMEvents = {
 		to do : determine a fitting className
 	*/
 	clickableMenu: {
+		'command-palette': () => deferFeature1.toggleTemplate(),
 		'open-in-explorer': () => deferFeature1.openFileDirectory(),
 		'new-file': ui.newFile,
 		'new-file-on-disk': ui.newDiskFile,
@@ -123,7 +124,10 @@ let DOMEvents = {
 		'Ctrl+A': selectAllFiles,
 		'Ctrl+V': () => deferFeature1.handlePasteRow(),
 		'Ctrl+O': () => { fileManager.openLocal(event); },
-		'Alt+D': () => deferFeature1.toggleTemplate(),
+		'Alt+D': () => {
+			event.preventDefault();
+			deferFeature1.toggleTemplate();
+		},
 		'Ctrl+Enter': function() {
 		  if ($('#btn-menu-my-files').classList.contains('active')) {
 		  	if (selectedFile.length > 0) 
