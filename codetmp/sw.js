@@ -2,13 +2,15 @@ let cacheName = 'codetmp-MTE0MDc5NjU';
 
 // delete old cache versioning
 // use manifest-cache.json for future updates
-caches.keys().then(function(c){
-  c.map(function(cacheName){
-    if (cacheName.split('-')[1].length <= 2) {
-      caches.delete(cacheName);
-    }
+function clearOlderVersionCache() {
+  caches.keys().then(function(c){
+    c.map(function(cacheName){
+      if (cacheName.split('-')[1].length <= 2) {
+        caches.delete(cacheName);
+      }
+    });
   });
-});
+}
 
 function extractUrlsFromJson(json) {
   let urls = [];
@@ -38,6 +40,7 @@ self.addEventListener('install', function(event) {
 });
 
 function recache() {
+  clearOlderVersionCache();
   return fetch('manifest-cache.json')
     .then(res => res.json())
     .then(json => {
