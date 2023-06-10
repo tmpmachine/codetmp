@@ -1,0 +1,94 @@
+{
+  "ace": [
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/ace.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/theme-github.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/mode-html.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/mode-json.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/mode-css.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/mode-javascript.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/worker-html.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/worker-json.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/worker-css.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/worker-javascript.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/ext-searchbox.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/ext-prompt.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/ext-language_tools.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/snippets/javascript.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/snippets/html.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/snippets/markdown.js",
+    
+    "/assets/ace/theme-codetmp-markdown.js",
+    "/assets/ace/theme-codetmp.js"
+  ],
+  "library": [
+    "https://cdn.jsdelivr.net/gh/tmpmachine/statelist-utility@v1.0.2/statelist.min.js"
+  ],
+  "root": [
+    "./",
+    "index.html",
+    "manifest.json",
+    "css/style.css",
+    "css/app.css",
+    "css/file-tree.css",
+    
+    "assets/js/fflate.js",
+    "assets/js/sha256.js",
+    
+    "assets/icons/folder_open.svg",
+    "assets/icons/folder_close.svg",
+
+    "assets/images/128.png",
+    "assets/images/128ap.png",
+    "assets/images/192.png", 
+    "assets/images/GitHub_Logo.png", 
+    
+    "https://fonts.googleapis.com/css2?family=Material+Icons+Round", 
+    "https://fonts.gstatic.com/s/materialiconsround/v37/LDItaoyNOAY6Uewc665JcIzCKsKc_M9flwmP.woff2", 
+
+    "https://cdn.jsdelivr.net/npm/idb@7/build/umd.js",
+
+    "views/modals.html",
+    "views/templates.html",
+
+    "https://cdn.jsdelivr.net/gh/tmpmachine/divless-html@v1.0.1/divless.min.js",
+    "js/require/o.js",
+    "js/require/lsdb.js",
+    "js/require/keyboard.js",
+    "js/require/odin.js",
+    "js/require/aww.js",
+    "js/require/jszip.min.js",
+
+    "js/components/ext-firebase.js",
+    "js/components/auth2helper.js",
+    "js/components/support.js",
+    "js/components/extension.js",
+    "js/components/preferences.js",
+    "js/components/modal.js",
+    "js/components/helper.js",
+    "js/components/tab-manager.js",
+    "js/components/file-reader.js",
+    "js/components/file-bundler.js",
+    "js/components/git.js",
+    "js/components/notifier.js",
+    "js/components/snippet-manager.js",
+    "js/components/preview-handler.js",
+    "js/components/clipboard.js",
+    "js/components/file-manager.js",
+    "js/components/file-tree.js",
+    "js/components/drive.js",
+    "js/components/keyboard-handler.js",
+    "js/components/defer-feature-1.js",
+    "js/components/defer-feature-2.js",
+    "js/components/single-file-generator.js",
+    "js/components/environment-manager.js",
+    
+    "js/core/app.js",
+    "js/core/app-data.js",
+    
+    "js/dom-events.js",
+    "js/ux.js",
+    
+    "pwa.js",
+    "index.js"
+  ]
+}
