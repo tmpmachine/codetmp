@@ -620,6 +620,7 @@ const drive = (function() {
     syncToDrive.enabled = true;
     $('#txt-sync').textContent = 'Sync ('+mainStorage.data.sync.length+')';
     
+    mainStorage.data.sync[0].isSyncInProgress = true;
     syncFile(sync).then(async (json) => {
       if (json.action === 'create' || json.action === 'copy') {
         let file = await fileManager.get({fid: mainStorage.data.sync[0].fid, type: json.type}, 0);

@@ -81,6 +81,7 @@
         metadata: [],
         type: '',
         isTemp: false,
+        isSyncInProgress: false,
       },
     };
     let mainStorage = new lsdb('file-storage', fileStructure);

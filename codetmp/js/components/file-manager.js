@@ -718,7 +718,7 @@ function FileManager() {
                 if (meta === 'parents')
                   sync.source = s.source;
               }
-              if (sync.type == 'files') 
+              if (sync.type == 'files' && !s.isSyncInProgress) 
                 fileStorage.data.sync.splice(i, 1);
               break;
           }
