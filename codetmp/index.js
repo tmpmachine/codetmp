@@ -13,8 +13,9 @@ window.app.loadFiles([
     ],
   },
   {
-  urls: [
-    'js/components/ext-firebase.js',
+    urls: [
+      "assets/js/idb@7/umd.js",
+      'js/components/ext-firebase.js',
       'assets/js/fflate.js',
       'assets/js/sha256.js',
       ],
@@ -45,7 +46,7 @@ window.app.loadFiles([
   {
     urls: [
       'js/core/app-data.js',
-      'https://cdn.jsdelivr.net/gh/tmpmachine/statelist-utility@v1.0.2/statelist.min.js',
+      "assets/js/statelist-utility@v1.0.2/statelist.min.js",
     ],
   },
   {
@@ -81,7 +82,7 @@ window.app.loadFiles([
       'js/components/keyboard-handler.js',
       'js/components/file-reader.js',
       'js/components/snippet-manager.js',
-      'https://cdn.jsdelivr.net/gh/tmpmachine/divless-html@v1.0.1/divless.min.js',
+      "assets/js/divless-html@v1.0.1/divless.min.js",
     ],
     callback: function() {
       fileReaderModule.init();
@@ -117,8 +118,8 @@ window.app.loadFiles([
   },
   {
     urls: [
-      'https://cdn.jsdelivr.net/npm/source-map@0.7.3/dist/source-map.js',
-      'https://cdn.jsdelivr.net/npm/terser/dist/bundle.min.js',
+      "assets/js/source-map@0.7.3/source-map.js",
+      "assets/js/terser/bundle.min.js",
     ],
   },
 ]);

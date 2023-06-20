@@ -21,7 +21,11 @@
     "/assets/ace/theme-codetmp.js"
   ],
   "library": [
-    "https://cdn.jsdelivr.net/gh/tmpmachine/statelist-utility@v1.0.2/statelist.min.js"
+    "assets/js/source-map@0.7.3/source-map.js",
+    "assets/js/terser/bundle.min.js",
+    "assets/js/statelist-utility@v1.0.2/statelist.min.js",
+    "assets/js/divless-html@v1.0.1/divless.min.js",
+    "assets/js/idb@7/umd.js"
   ],
   "root": [
     "./",
@@ -45,12 +49,10 @@
     "https://fonts.googleapis.com/css2?family=Material+Icons+Round", 
     "https://fonts.gstatic.com/s/materialiconsround/v37/LDItaoyNOAY6Uewc665JcIzCKsKc_M9flwmP.woff2", 
 
-    "https://cdn.jsdelivr.net/npm/idb@7/build/umd.js",
 
     "views/modals.html",
     "views/templates.html",
 
-    "https://cdn.jsdelivr.net/gh/tmpmachine/divless-html@v1.0.1/divless.min.js",
     "js/require/o.js",
     "js/require/lsdb.js",
     "js/require/keyboard.js",
