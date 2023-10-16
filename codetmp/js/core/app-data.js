@@ -9,8 +9,8 @@
       editor: {
         emmetEnabled: false,
         autoCompleteEnabled: true,
-        divlessHTMLEnabled: false,
-        divlessHTMLFSEnabled: false,
+        divlessHTMLEnabled: true,
+        divlessHTMLFSEnabled: true,
         wordWrapEnabled: true,
         minifyJs: false,
         linkPreviewWindowProcess: false,
