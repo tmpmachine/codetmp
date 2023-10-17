@@ -22,11 +22,7 @@
               let f = await fileManager.get({fid: Number(file.getAttribute('data')), type: 'files'});
               if (f.trashed)
                 continue;
-              if (f.isTemp && helper.hasFileReference(f.fileRef) && f.content === null) {
-                zip.file(f.name, f.fileRef, {binary: true});
-              } else {
-                fileRequests.push({f, folder: zip, options});
-              }
+              fileRequests.push({f, folder: zip, options});
             }
           }
 
@@ -44,21 +40,11 @@
       return new Promise(async (resolve) => {
 
           let f = await fileManager.get({fid: Number(file.getAttribute('data')), type: 'files'})
-          new Promise(resolveReader => {
-
-              if (f.isTemp && helper.hasFileReference(f.fileRef) && f.content === null) {
-                resolveReader(f.fileRef);
-              } else {
-                SELF.getReqFileContent(f, options).then(blob => {
-                  resolveReader(blob);
-                });
-              }
-
-          }).then(blob => {
-
+          SELF.getReqFileContent(f, options).then(fileData => {
+            
+            let blob = fileData.file;
             let firstBytes = blob.slice(0, 12);
             let r = new FileReader();
-            let mimeType = helper.getMimeType(f.name);
             r.onload = function() {
               if (r.result == '/*RD-start*/')  {
                 let r = new FileReader();
@@ -66,9 +52,8 @@
                   let source = helper.getRemoteDataContent(r.result);
                   if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) { 
                     fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
-                        if (options.replaceFileTag)
-                          content = await replaceFileTag(content, f.parentId);
-                        resolve(new Blob([divless.replace(content)], {type:blob.type}));
+                        content = await applyExportOptionToContent(content, options, f.parentId);
+                        resolve(new Blob([content], {type: blob.type}));
                     });
                   } else {
                     fetch(source.downloadUrl).then(r => r.blob()).then(resolve);
@@ -79,10 +64,8 @@
                 if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) { 
                   let r = new FileReader();
                   r.onload = async function() {
-                    let content = r.result;
-                    if (options.replaceFileTag)
-                      content = await replaceFileTag(content, f.parentId);
-                    resolve(new Blob([divless.replace(content)], {type:blob.type}));
+                    let content = await applyExportOptionToContent(r.result, options, f.parentId);
+                    resolve(new Blob([content], {type: blob.type}));
                   }
                   r.readAsText(blob);                 
                 } else {
@@ -96,15 +79,27 @@
       });
     }
 
+    async function applyExportOptionToContent(content, options, parentId) {
+      if (options.replaceFileTag)
+        content = await replaceFileTag(content, parentId);
+      if (options.replaceDivless)
+        content = divless.replace(content);
+      return content;
+    }
+
     function handleRequestChunks(requests, resolveZip, countError) {
       if (requests.length > 0) {
         let request = requests[0];
         let notifId = notif.add({title:'Downloading '+request.f.name, content: 'In progress'});
-        SELF.getReqFileContent(request.f, request.options).then(content => {
+        SELF.getReqFileContent(request.f, request.options).then(async fileData => {
           requests.shift();
           notif.update(notifId, {content:'Done'}, true);
+          let file = fileData.file;
+          if (fileData.isMarkedBinary) {
+            file = await readBlob(file, request.f, request.options)
+          }
+          request.folder.file(request.f.name, file, {binary: fileData.isMarkedBinary});
           handleRequestChunks(requests, resolveZip, countError);
-           request.folder.file(request.f.name, content);
         }).catch(() => {
           requests.shift();
           notif.update(notifId, {content:'Failed'}, true);
@@ -117,6 +112,45 @@
       }
     }
 
+    function readBlob(file, f, options) {
+      return new Promise(resolve => {
+
+        let blob = file;
+        let firstBytes = blob.slice(0, 12);
+        let r = new FileReader();
+        r.onload = function() {
+          if (r.result == '/*RD-start*/')  {
+            let r = new FileReader();
+            r.onload = async function() {
+              let source = helper.getRemoteDataContent(r.result);
+              if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) { 
+                fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
+                    content = await applyExportOptionToContent(content, options, f.parentId);
+                    resolve(new Blob([content], {type: blob.type}));
+                });
+              } else {
+                fetch(source.downloadUrl).then(r => r.blob()).then(resolve);
+              }
+            }
+            r.readAsText(blob);     
+          } else {
+            if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) { 
+              let r = new FileReader();
+              r.onload = async function() {
+                let content = await applyExportOptionToContent(r.result, options, f.parentId);
+                resolve(new Blob([content], {type: blob.type}));
+              }
+              r.readAsText(blob);                 
+            } else {
+              resolve(blob);
+            }
+          }
+        }
+        r.readAsText(firstBytes);
+
+      });
+    }
+
     SELF.getReqFileContent = function(f, options) {
       return new Promise(async (resolve) => {
 
@@ -124,83 +158,111 @@
         let isMultimedia = helper.isMediaTypeMultimedia(mimeType);
         
         if (f.isTemp && helper.hasFileReference(f.fileRef) && f.content === null) {
-          resolve(f.fileRef);
+          resolve({
+            file: f.fileRef, 
+            isMarkedBinary: true,
+          });
           return
         } else if (isMultimedia && typeof(f.blob) != 'undefined') {
-          resolve(f.blob);
+          resolve({
+            file: f.blob, 
+            isMarkedBinary: true,
+          });
           return
         }
           
-          if (f.loaded) {
-            
-              let content = f.content;
-              if (needReplaceFileTag(f, options))
-                content = await replaceFileTag(content, f.parentId);
-              if (needConvertDivless(f, options)) 
-                content = divless.replace(content);
-              if (needMinifyJs(f, options)) {
-                try {
-                  let result = await Terser.minify(content, { sourceMap: false });
-                  content = result.code;
-                } catch (e) {
-                  console.log(e)
-                }
-              }
-
-            resolve(new Blob([content], {type: mimeType}));
-
-          } else {
-
-            if (helper.isHasSource(f.content)) {
-              let source = helper.getRemoteDataContent(f.content);
-              if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) {
-                fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
-                  if (options.replaceFileTag)
-                    content = await replaceFileTag(content, f.parentId);
-                   content = divless.replace(content);
-                   resolve(new Blob([content], {type: mimeType}));
-                });
-              } else { 
-                fetch(source.downloadUrl).then(r => r.blob()).then(resolve);
-              }
-            } else {
-              drive.downloadDependencies(f, 'blob').then(blob => {
-                let firstBytes = blob.slice(0, 12);
-                let r = new FileReader();
-                r.onload = function() {
-                  if (r.result == '/*RD-start*/')  {
-                    let r = new FileReader();
-                    r.onload = function() {
-                      let source = helper.getRemoteDataContent(r.result);
-                      if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) { 
-                        fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
-                            if (options.replaceFileTag)
-                              content = await replaceFileTag(content, f.parentId);
-                            resolve(new Blob([divless.replace(content)], {type:blob.type}));
-                        });
-                      } else {
-                        fetch(source.downloadUrl).then(r => r.blob()).then(resolve);
-                      }
-                    }
-                    r.readAsText(blob);     
-                  } else {
-                    if (needConvertDivless(f, options)) {
-                      let r = new FileReader();
-                      r.onload = function() {
-                        resolve(new Blob([divless.replace(r.result)], {type:blob.type}));
-                      }
-                      r.readAsText(blob);                 
-                    } else {
-                      if (isMultimedia)
-                        f.blob = blob;
-                      resolve(blob);
-                    }
-                  }
-                }
-                r.readAsText(firstBytes);
-              });
+        if (f.loaded) {
+          let content = f.content;
+          if (needReplaceFileTag(f, options) || needConvertDivless(f, options)) {
+            content = await applyExportOptionToContent(content, options, f.parentId);
+          }
+          if (needMinifyJs(f, options)) {
+            try {
+              let result = await Terser.minify(content, { sourceMap: false });
+              content = result.code;
+            } catch (e) {
+              console.log(e)
             }
           }
+          let blob = new Blob([content], {type: mimeType});
+          resolve({
+            file: blob, 
+            isMarkedBinary: false,
+          });
+          return;
+        }
+
+        if (helper.isHasSource(f.content)) {
+          let source = helper.getRemoteDataContent(f.content);
+          if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) {
+            fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
+              content = await applyExportOptionToContent(content, options, f.parentId);
+              resolve({
+                file: new Blob([content], {type: mimeType}), 
+                isMarkedBinary: false
+              });
+            });
+          } else { 
+            fetch(source.downloadUrl).then(r => r.blob()).then(file => {
+              resolve({
+                file, 
+                isMarkedBinary: true
+              });
+            });
+          }
+          return;
+        }
+
+        drive.downloadDependencies(f, 'blob').then(blob => {
+          let firstBytes = blob.slice(0, 12);
+          let r = new FileReader();
+          r.onload = function() {
+            if (r.result == '/*RD-start*/')  {
+              let r = new FileReader();
+              r.onload = function() {
+                let source = helper.getRemoteDataContent(r.result);
+                if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) { 
+                  fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
+                      content = await applyExportOptionToContent(content, options, f.parentId);
+                      resolve({
+                        file: new Blob([content], {type:blob.type}),
+                        isMarkedBinary: false
+                      });
+                  });
+                } else {
+                  fetch(source.downloadUrl).then(r => r.blob()).then(file => {
+                    resolve({
+                      file, 
+                      isMarkedBinary: true
+                    });
+                  });;
+                }
+              }
+              r.readAsText(blob);     
+            } else {
+              if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) {
+                let r = new FileReader();
+                r.onload = async function() {
+                  let content = await applyExportOptionToContent(r.result, options, f.parentId);
+                  resolve({
+                    file: new Blob([content], {type: blob.type}),
+                    isMarkedBinary: false
+                  });
+                }
+                r.readAsText(blob);                 
+              } else {
+                if (isMultimedia)
+                  f.blob = blob;
+                resolve({
+                  file: blob, 
+                  isMarkedBinary: true
+                });
+              }
+            }
+          }
+          r.readAsText(firstBytes);
+        });
+
       });
     }
 

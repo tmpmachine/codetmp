@@ -139,7 +139,7 @@ const fire = (() => {
             minifyJs: settings.data.editor.minifyJsFirebase,
           };
 
-          app.fileBundler.getReqFileContent(file, options).then(blob => {
+          app.fileBundler.getReqFileContent(file, options).then(fileData => {
 
             let r = new FileReader();
             r.onload = function() {
@@ -156,7 +156,7 @@ const fire = (() => {
                 getHashTree(tree, files).then(resolve);
               })
             }
-            r.readAsArrayBuffer(blob);
+            r.readAsArrayBuffer(fileData.file);
           });
         }
       }) 

@@ -147,9 +147,9 @@ function FileManager() {
           if (!currentFile.divlessTarget) {
             let files = await SELF.listFiles(parent.parentId);
             targetFile = files.find(file => file.name == currentFile.name.replace('.divless.html', '.html') && !file.trashed);
-            hasDivlessFile = true;
           }
           if (targetFile) {
+            hasDivlessFile = true;
             currentFile.divlessTarget = targetFile;
             await writeToDiskFile(divless.replace(content), targetFile);
           }
