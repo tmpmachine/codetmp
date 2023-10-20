@@ -8,9 +8,8 @@ let snippets = [
   {title: 'link', snippet: '<link href="${1}" rel="stylesheet"/>'},
   {title: 'meta viewport', snippet: '<meta name="viewport" content="width=device-width"/>\n'},
   {title: 'charset', snippet: '<meta charset="utf-8"/>\n'},
-  {title: 'querySelector()', snippet: "<script> window.$ = document.querySelector.bind(document); </script>"},
-  {title: 'querySelectorAll()', snippet: "<script> window.qsa = document.querySelectorAll.bind(document); </script>"},
-  {title: 'console.log()', snippet: '<script> window.asd = console.log; </script>'},
+  {title: 'querySelector()', snippet: "let $ = document.querySelector.bind(document);"},
+  {title: 'querySelectorAll()', snippet: "let qsa = document.querySelectorAll.bind(document);"},
 ];
 let customSnippetsCounter = 0;
 let index = 0;
@@ -269,6 +268,13 @@ function resetSearch(self, bypass) {
   ace.config.set('basePath', ACE_CDN_BASEPATH);
   const snippetManager = ace.require('ace/snippets').snippetManager;
   
+  // temporary snippet
+  {
+    let snippetText = "snippet asd\n\tconsole.log($1)";
+    let snippets = snippetManager.parseSnippetFile(snippetText);
+    snippetManager.register(snippets,'javascript');
+  }
+
   window.insertTemplate = function() {
     let index = this.dataset.index;
     let data = snippets[index];
