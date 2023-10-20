@@ -512,7 +512,7 @@ const fileReaderModule = (function() {
       const dirs = [];
       const files = [];
       for await (const entry of dirHandle.values()) {
-        const nestedPath = `${path}/${entry.name}`;
+		const nestedPath = `${path}/${entry.name}`;
           if (entry.kind === "file") {
 
 				  let fileRef = await entry.getFile();
@@ -521,7 +521,7 @@ const fileReaderModule = (function() {
 				    fileRef,
 				    content: null,
 				    name: entry.name,
-				    parentId: (folderFid == '' ? activeFolder : folderFid),
+				    parentId: (folderFid === '' ? activeFolder : folderFid),
 				    isTemp: true,
 				  });
     			ui.tree.appendFile(file);
@@ -533,10 +533,10 @@ const fileReaderModule = (function() {
           }
           
           folder = await fileManager.newFolder({
-  			    parentId: (folderFid == '' ? activeFolder : folderFid),
+  			    parentId: (folderFid === '' ? activeFolder : folderFid),
   			    name: entry.name,
-    			});
-    			ui.tree.appendFolder(folder);
+		  });
+    	  ui.tree.appendFolder(folder);
           
           dirs.push(getFiles(entry, nestedPath, folder.fid));
         } 
