@@ -95,10 +95,12 @@
           requests.shift();
           notif.update(notifId, {content:'Done'}, true);
           let file = fileData.file;
+          let zipFileOpt = null;
           if (fileData.isMarkedBinary) {
             file = await readBlob(file, request.f, request.options)
+            zipFileOpt = {binary: true};
           }
-          request.folder.file(request.f.name, file, {binary: fileData.isMarkedBinary});
+          request.folder.file(request.f.name, file, zipFileOpt);
           handleRequestChunks(requests, resolveZip, countError);
         }).catch(() => {
           requests.shift();
