@@ -18,7 +18,7 @@ let deferFeature1 = {
     
     if (breadcrumbs.length > 1)
       breadcrumbs.pop();
-    await fileManager.openFolder(activeFile.parentId);
+    await fileManager.OpenFolder(activeFile.parentId);
   },
 
   toggleWrapMode: function() {

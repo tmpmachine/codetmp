@@ -321,11 +321,11 @@
       let folders;
       let files;
       if (fid === null) {
-        folders = await fileManager.getListFolder(SELF.workspaceId);
+        folders = await fileManager.TaskGetListFolder(SELF.workspaceId);
         files = await fileManager.getListFiles(SELF.workspaceId);
         parentNode = $(`.file-tree[data-fid="${SELF.workspaceId}"] .folder-name[data-fid="${SELF.workspaceId}"]`)[0].nextElementSibling;
       } else {
-        folders = await fileManager.getListFolder(fid);
+        folders = await fileManager.TaskGetListFolder(fid);
         files = await fileManager.getListFiles(fid);
         parentNode = $('ul',parentNode)[0];
         parentNode.classList.toggle('isLoaded', true);
@@ -408,7 +408,7 @@
             folderId: parentId === undefined ? folderId : parentId,
             title: rootTitle,
           });
-          fileManager.openFolder(folderId);
+          fileManager.OpenFolder(folderId);
         }
       });
 
@@ -466,7 +466,7 @@
       
       if (breadcrumbs.length > 1)
         breadcrumbs.pop();
-      fileManager.openFolder(fid);
+      fileManager.OpenFolder(fid);
 
     }
 
@@ -529,7 +529,7 @@
 
 
   window.app.getComponent('fileTree').then(async (ft) => {
-    await fileManager.onStorageReady();
+    await fileManager.TaskOnStorageReady();
     await ft.reload();
     ft.attachListener();
     ft.listLocalWorktree();

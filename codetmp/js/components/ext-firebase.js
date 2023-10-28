@@ -233,7 +233,7 @@ const fire = (() => {
   }
 
   async function populateQueue(queue, parentId, path) {
-    let files = await fileManager.listFiles(parentId);
+    let files = await fileManager.TaskListFiles(parentId);
     for (let i=0; i<files.length; i++) {
       if (files[i].trashed)
         continue;
@@ -243,7 +243,7 @@ const fire = (() => {
       });
     }
 
-    let folders = await fileManager.listFolders(parentId);
+    let folders = await fileManager.TaskListFolders(parentId);
     for (let i=0; i<folders.length; i++) {
       if (folders[i].trashed)
         continue;

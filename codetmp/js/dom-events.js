@@ -123,7 +123,7 @@ let DOMEvents = {
 		'Ctrl+D': () => { event.preventDefault(); ui.fileManager.deleteSelected(); },
 		'Ctrl+A': selectAllFiles,
 		'Ctrl+V': () => deferFeature1.handlePasteRow(),
-		'Ctrl+O': () => { fileManager.openLocal(event); },
+		'Ctrl+O': () => { fileManager.TaskOpenLocal(event); },
 		'Alt+D': () => {
 			event.preventDefault();
 			deferFeature1.toggleTemplate();

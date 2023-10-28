@@ -64,7 +64,7 @@ window.app.loadFiles([
     ],
     callback: function() {
       ace.config.set('basePath', `${ACE_CDN_BASEPATH}`);
-      fileManager.initIDBStorage();
+      fileManager.TaskInitIDBStorage();
     },
   },
   {

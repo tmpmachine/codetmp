@@ -1,14 +1,20 @@
-"use strict";
+const tabManager = (function() {
 
-const tabManager = new TabManagerComponent();
+  "use strict";
 
-function TabManagerComponent() {
+  let SELF = {
+    list,
+    focusTab,
+    changeFocusTab,
+    openDirectory,
 
-  let SELF = this;
+    newTab: NewTab,
+  };
 
-  this.lastOpenTabIndex = 0;
+  let lastOpenTabIndex = 0;
 
-  this.newTab = function(position, data) {
+  function NewTab(position, data) {
+    
     let fid, el;
     let name = 'untitled.html';
     if (data) {
@@ -59,9 +65,10 @@ function TabManagerComponent() {
     }
     
     SELF.focusTab(fid)
-  };
 
-  this.list = function() {
+  }
+
+  function list() {
     $('#file-title').innerHTML = '';
     let fragment = document.createDocumentFragment();
     for (let tab of fileTab) {
@@ -75,9 +82,9 @@ function TabManagerComponent() {
       fragment.append(el.firstElementChild);
     }
     $('#file-title').append(fragment);
-  };
+  }
 
-  this.focusTab = function(fid, isRevealFileTree = true) {
+  function focusTab(fid, isRevealFileTree = true) {
     let idx = odin.idxOf(String(fid), fileTab, 'fid');
     
     for (let tab of $('.file-tab')) {
@@ -101,7 +108,7 @@ function TabManagerComponent() {
     
     editor.focus();
 
-  };
+  }
 
   function compressTab(idx) {
     for (let tab of $('.file-tab'))
@@ -114,8 +121,8 @@ function TabManagerComponent() {
       let lastOpenedTabIndex = Math.max(idx, $('.file-tab').length - 1);
       let firstOpenedTabIndex = Math.max(lastOpenedTabIndex - (maxOpenTab - 1), 0);
       
-      if (idx >= tabManager.lastOpenTabIndex && idx <= tabManager.lastOpenTabIndex + maxOpenTab - 1) {
-        firstOpenedTabIndex = tabManager.lastOpenTabIndex;
+      if (idx >= lastOpenTabIndex && idx <= lastOpenTabIndex + maxOpenTab - 1) {
+        firstOpenedTabIndex = lastOpenTabIndex;
         lastOpenedTabIndex = firstOpenedTabIndex + maxOpenTab - 1;
       }
       
@@ -131,11 +138,11 @@ function TabManagerComponent() {
           $('.file-tab')[i].style.display = 'inline-block';
       }
       
-      tabManager.lastOpenTabIndex = firstOpenedTabIndex;
+      lastOpenTabIndex = firstOpenedTabIndex;
     }
   }
 
-  this.changeFocusTab = function(focus, comeback) {
+  function changeFocusTab(focus, comeback) {
     closeActiveTab()
     if (fileTab.length == 0) {
       newTab()
@@ -144,14 +151,14 @@ function TabManagerComponent() {
       if (comeback === undefined) {
         let isRevealFileTree = false;
         if (activeTab == 0)
-          tabManager.focusTab(fileTab[0].fid, isRevealFileTree);
+          focusTab(fileTab[0].fid, isRevealFileTree);
         else
-          tabManager.focusTab(fileTab[activeTab-1].fid, isRevealFileTree);
+          focusTab(fileTab[activeTab-1].fid, isRevealFileTree);
       }
     }
-  };
+  }
 
-  SELF.openDirectory = async function(fid) {
+  async function openDirectory(fid) {
     breadcrumbs.splice(1);
     let stack = [];
     let parentId = fid;
@@ -164,7 +171,9 @@ function TabManagerComponent() {
     $('#btn-menu-my-files').click();
     if (breadcrumbs.length > 1)
       breadcrumbs.pop();
-    await fileManager.openFolder(fid);
+    await fileManager.OpenFolder(fid);
   }
 
-}
+  return SELF;
+
+})();

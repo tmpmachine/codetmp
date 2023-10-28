@@ -31,8 +31,8 @@ const fileClipBoard = (function() {
     let folders = [];
     
     for (let p of parents) {
-      let f = await fileManager.listFiles(p.fid);
-      let f2 = await fileManager.listFolders(p.fid);
+      let f = await fileManager.TaskListFiles(p.fid);
+      let f2 = await fileManager.TaskListFolders(p.fid);
       
       for (let i of f)
         files.push(i);
@@ -53,7 +53,7 @@ const fileClipBoard = (function() {
   async function getAllBranch(fid) {
     let files = [];
     let folders = [];
-    // let folders = await fileManager.listFolders(fid, 'fid');
+    // let folders = await fileManager.TaskListFolders(fid, 'fid');
     let parentFolder = await fileManager.get({fid, type: 'folders'});
     if (parentFolder !== undefined) {
       folders.push(parentFolder);

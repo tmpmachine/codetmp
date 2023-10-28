@@ -1,9 +1,25 @@
-let fileManager = new FileManager();
-
-function FileManager() {
+let fileManager = (function() {
   
   let SELF = {
+    TaskInitIDBStorage,
+    TaskOnStorageReady,
 
+    newFile,
+    newFolder,
+    TaskClearStorage,
+    OpenFolder,
+    UnloadItem,
+    TaskOpenLocal,
+    TaskDeleteFile,
+    TaskDeleteFolder,
+    
+    TaskListFiles,
+    TaskListFolders,
+    TaskGetAllFolders,
+    TaskGetListFolder,
+    TaskGetExistingItem,
+    
+    TaskGetPreviewLink,
   };
 
   let STORAGE_TYPE = 'localStorage'; 
@@ -18,22 +34,22 @@ function FileManager() {
      }
   }
 
-  SELF.initIDBStorage = async function() {
-      let dbName = 'codetmp';
-      let dbVersion = 1;
-      window.idbStorage = await idb.openDB(dbName, dbVersion, {
-        upgrade(db, oldVersion, newVersion, transaction, event) {
-          let fileStore = db.createObjectStore('files', { keyPath: 'fid', autoIncrement: true });
-          let folderStore = db.createObjectStore('folders', { keyPath: 'fid', autoIncrement: true });
-          fileStore.createIndex('id', 'id', { unique: false });
-          fileStore.createIndex('parentId', 'parentId', { unique: false });
-          folderStore.createIndex('id', 'id', { unique: false });
-          folderStore.createIndex('parentId', 'parentId', { unique: false });
-        },
-      });
-  };
+  async function TaskInitIDBStorage() {
+    let dbName = 'codetmp';
+    let dbVersion = 1;
+    window.idbStorage = await idb.openDB(dbName, dbVersion, {
+      upgrade(db, oldVersion, newVersion, transaction, event) {
+        let fileStore = db.createObjectStore('files', { keyPath: 'fid', autoIncrement: true });
+        let folderStore = db.createObjectStore('folders', { keyPath: 'fid', autoIncrement: true });
+        fileStore.createIndex('id', 'id', { unique: false });
+        fileStore.createIndex('parentId', 'parentId', { unique: false });
+        folderStore.createIndex('id', 'id', { unique: false });
+        folderStore.createIndex('parentId', 'parentId', { unique: false });
+      },
+    });
+  }
 
-  SELF.onStorageReady = async function() {
+  async function TaskOnStorageReady() {
     return new Promise(resolve => {
       let interval = window.setInterval(() => {
         if (STORAGE_TYPE != 'idb' || window.idbStorage !== undefined) {
@@ -124,15 +140,15 @@ function FileManager() {
     return file;
   }
   
-  SELF.newFile = async function(data = {}, workspaceId = activeWorkspace) {
+  async function newFile(data = {}, workspaceId = activeWorkspace) {
     return await CreateFile(data, workspaceId);
-  };
-
-  SELF.newFolder = async function(data = {}, workspaceId = activeWorkspace) {
+  }
+  
+  async function newFolder(data = {}, workspaceId = activeWorkspace) {
     return await CreateFolder(data, workspaceId);
-  };
+  }
 
-  async function writeToDisk() {
+  async function taskWriteToDisk() {
     let writable = await fileTab[activeTab].fileHandle.createWritable();
     let content = fileTab[activeTab].editor.env.editor.getValue();
 	  if (helper.isMediaTypeHTML(fileTab[activeTab].name) && settings.data.editor.divlessHTMLFSEnabled) {
@@ -145,7 +161,7 @@ function FileManager() {
         if (parent && parent.name == '.divless' && parent.trashed == false) {
           let targetFile = currentFile.divlessTarget;
           if (!currentFile.divlessTarget) {
-            let files = await SELF.listFiles(parent.parentId);
+            let files = await TaskListFiles(parent.parentId);
             targetFile = files.find(file => file.name == currentFile.name.replace('.divless.html', '.html') && !file.trashed);
           }
           if (targetFile) {
@@ -171,8 +187,8 @@ function FileManager() {
     await writable.close();
   }
 
-  async function displayListFolders() {
-    let folders = await SELF.listFolders(activeFolder);
+  async function TaskDisplayListFolders() {
+    let folders = await TaskListFolders(activeFolder);
     folders.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
     });
@@ -208,8 +224,8 @@ function FileManager() {
     }
   }
 
-  SELF.getListFolder = async function(parentId = activeFolder) {
-    let folders = await SELF.listFolders(parentId);
+  async function TaskGetListFolder(parentId = activeFolder) {
+    let folders = await TaskListFolders(parentId);
     folders.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
     });
@@ -232,7 +248,7 @@ function FileManager() {
       });
     }
     return result;
-  };
+  }
   
   function traversePath(parentId, path = []) {
     if (parentId === -1)
@@ -248,15 +264,15 @@ function FileManager() {
     return path.join('/');
   };
 
-  SELF.listFiles = async function(parentId) {
+  async function TaskListFiles(parentId) {
     if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
       return await window.idbStorage.getAllFromIndex('files','parentId', parseInt(parentId));
     } else {
       return odin.filterData(parentId, fileStorage.data.files, 'parentId');
     }
-  };
+  }
 
-  SELF.listFolders = async function(parentId, column = 'parentId') {
+  async function TaskListFolders(parentId, column = 'parentId') {
     if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
       if (column == 'parentId') {
         return await window.idbStorage.getAllFromIndex('folders', column, parseInt(parentId));
@@ -266,9 +282,9 @@ function FileManager() {
     } else {
       return odin.filterData(parentId, fileStorage.data.folders, column);
     }
-  };
+  }
   
-  SELF.getAllFolders = async function() {
+  async function TaskGetAllFolders() {
     if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
       let store = window.idbStorage.transaction('folders').objectStore('folders');
       return await store.getAll();
@@ -278,11 +294,11 @@ function FileManager() {
       }
     }  
     return [];
-  };
+  }
   
-  async function displayListFiles() {
+  async function TaskDisplayListFiles() {
     
-    let files = await fileManager.listFiles(activeFolder);
+    let files = await fileManager.TaskListFiles(activeFolder);
     files.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
     });
@@ -321,7 +337,7 @@ function FileManager() {
   }
 
   SELF.getListFiles = async function(parentId = activeFolder) {
-    let files = await SELF.listFiles(parentId);
+    let files = await TaskListFiles(parentId);
     files.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
     });
@@ -400,7 +416,7 @@ function FileManager() {
     }
   };
 
-  SELF.openLocal = async function(event) {
+  async function TaskOpenLocal(event) {
     if (typeof(window.showOpenFilePicker) !== 'undefined') {
       event.preventDefault();
       let [entry] = await window.showOpenFilePicker();
@@ -416,7 +432,7 @@ function FileManager() {
   			});
   		});
     }
-  };
+  }
   
   function saveAsNewFile() {
   	let fileName = $('.file-name')[activeTab].textContent;
@@ -424,7 +440,7 @@ function FileManager() {
       if (!name) 
       	return;
       
-      let file = await SELF.newFile({
+      let file = await newFile({
         name,
       });
       fileManager.sync({
@@ -480,7 +496,7 @@ function FileManager() {
 
   SELF.save = function() {
     if (fileTab[activeTab].fileHandle !== null) {
-        writeToDisk();
+      taskWriteToDisk();
     } else {
       if (activeFile === null) {
       	saveAsNewFile();
@@ -502,9 +518,9 @@ function FileManager() {
   
   SELF.list = async function() {
     $('#file-list').innerHTML = '';
-    await displayListFolders();
+    await TaskDisplayListFolders();
     $('#file-list').appendChild(o.element('div', { style: 'flex: 0 0 100%', class: 'separator w3-padding-small' }));
-    await displayListFiles();
+    await TaskDisplayListFiles();
     loadBreadCrumbs();
     selectedFile.splice(0, 1);
     ui.toggleFileActionButton();
@@ -620,7 +636,7 @@ function FileManager() {
     });
   };
 
-  SELF.getPreviewLink = function(f) {
+  function TaskGetPreviewLink(f) {
     return new Promise(async (resolve, reject) => {
 
       let src = f.contentLink;
@@ -652,12 +668,12 @@ function FileManager() {
     });
   }
 
-  SELF.getExistingItem = async function(name, parentId, type = 'file') {
+  async function TaskGetExistingItem(name, parentId, type = 'file') {
     let haystack;
     if (type == 'file')
-      haystack = await SELF.listFiles(parentId);
+      haystack = await TaskListFiles(parentId);
     else if (type == 'folder')
-      haystack = await SELF.listFolders(parentId);
+      haystack = await TaskListFolders(parentId);
 
     for (var i=0; i<haystack.length; i++) {
       if (haystack[i].trashed)
@@ -672,7 +688,7 @@ function FileManager() {
   SELF.getDuplicateName = async function(parentId, name, type = 'file', originalName = '', duplicateCount = 1) {
     if (originalName == '')
       originalName = name;
-    let existing = await SELF.getExistingItem(name, parentId, type);
+    let existing = await TaskGetExistingItem(name, parentId, type);
     if (existing !== null) {
         let ext = '';
         var arr = originalName.split('.');
@@ -684,15 +700,15 @@ function FileManager() {
     return name;
   }
 
-  SELF.openFolder = async function(folderId) {
+  async function OpenFolder(folderId) {
     activeFolder = folderId;
     
     if (activeFolder == -1) {
       breadcrumbs.splice(1);
     } else {
       let folder = await fileManager.get({fid: folderId, type: 'folders'});
-      title = folder.name;
-      breadcrumbs.push({folderId:activeFolder, title: title})
+      let title = folder.name;
+      breadcrumbs.push({folderId:activeFolder, title})
     }
     
     fileManager.list();
@@ -759,7 +775,7 @@ function FileManager() {
     loadBreadCrumbs();
   }
 
-  SELF.deleteFolder = async function(fid) {
+  async function TaskDeleteFolder(fid) {
     let data = await SELF.get({fid, type: 'folders'});
     data.trashed = true;
     await SELF.update(data, 'folders');
@@ -775,7 +791,7 @@ function FileManager() {
     });
   }
 
-  SELF.deleteFile = async function(fid) {
+  async function TaskDeleteFile(fid) {
     let data = await SELF.get({fid, type: 'files'});
     data.trashed = true;
     await SELF.update(data, 'files');;
@@ -796,9 +812,9 @@ function FileManager() {
     window.app.getComponent('fileTree').then(fileTree => {
       fileTree.removeFile(data);
     });
-  };
+  }
 
-  SELF.UnloadItem = async function(fid, type) {
+  async function UnloadItem(fid, type) {
     let data = await SELF.get({fid, type: type});
     if (type == 'folders') {
       data.isLoaded = false;
@@ -808,14 +824,14 @@ function FileManager() {
     await SELF.update(data, type);
   }
   
-  SELF.clearStorage = async function() {
+  async function TaskClearStorage() {
     if (STORAGE_TYPE == 'idb') {
       await window.idbStorage.clear('folders');  
       await window.idbStorage.clear('files');  
     }
     window.localStorage.removeItem('codetmp-storage-type');
     fileStorage.reset();
-  };
+  }
 
   function commit(data) {
     SELF.sync(data);
@@ -823,7 +839,7 @@ function FileManager() {
     fileStorage.save();
     SELF.list();
   }
-
+  
   return SELF;
-
-}
+  
+})();

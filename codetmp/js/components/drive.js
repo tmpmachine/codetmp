@@ -13,7 +13,7 @@ const drive = (function() {
 
   async function getAvailParents() {
     let folds = [mainStorage.data.rootId];
-    let folders = await fileManager.getAllFolders();
+    let folders = await fileManager.TaskGetAllFolders();
     folders.map((folder) => {
       if (folder.id.length > 0 && !folder.isSync)
         folds.push(folder.id);

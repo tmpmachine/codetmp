@@ -304,8 +304,8 @@
     function folderToZip(container, folder, fileRequests, options) {
       return new Promise(async resolve => {
 
-        let folders = await fileManager.listFolders(container.fid);
-        let files = await fileManager.listFiles(container.fid);
+        let folders = await fileManager.TaskListFolders(container.fid);
+        let files = await fileManager.TaskListFiles(container.fid);
         for (let f of folders) {
           if (f.trashed)
             continue;

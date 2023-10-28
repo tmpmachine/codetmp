@@ -156,7 +156,7 @@ const fileReaderModule = (function() {
 			let fileRef = await getFileRef(item.entry);
 			if (item.isPressedCtrlKey)
 				fileRef.entry = item.entry;
-			let existingItem = await fileManager.getExistingItem(item.name, item.parentId);
+			let existingItem = await fileManager.TaskGetExistingItem(item.name, item.parentId);
 			if (existingItem) {
       	modal.confirm(`Item with the same name already exists. Overwrite? (${truncate(item.name)})`).then(() => {
 					existingItem.fileRef = fileRef;
@@ -195,7 +195,7 @@ const fileReaderModule = (function() {
 	}
 
 	async function handleItemDirectory(item) {
-		let folder = await fileManager.getExistingItem(item.name, item.parentId, 'folder');
+		let folder = await fileManager.TaskGetExistingItem(item.name, item.parentId, 'folder');
 		if (folder === null) {
 			folder = await fileManager.newFolder({
 			    parentId: item.parentId,

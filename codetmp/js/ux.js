@@ -378,7 +378,7 @@ const ui = {
     $('.media', modal)[0].append(media);
     
     return new Promise((resolve, reject) => {
-      fileManager.getPreviewLink(file).then(resolve).catch(reject);
+      fileManager.TaskGetPreviewLink(file).then(resolve).catch(reject);
     }).then(src => {
       media.src = src;
       $('.title', modal)[0].textContent = file.name;
@@ -572,13 +572,13 @@ const ui = {
 	    async function deleteFolder(selectedFile) {
 	    	let selection = getSelected(selectedFile);
         let fid = selection.id;
-      	await fileManager.deleteFolder(fid);
+      	await fileManager.TaskDeleteFolder(fid);
 	    }
 
 	    async function deleteFile(selectedFile) {
 	    	let selection = getSelected(selectedFile);
 	    	let fid = selection.id;
-      	await fileManager.deleteFile(fid);
+      	await fileManager.TaskDeleteFile(fid);
 
         if (activeFile && parseInt(fid) == parseInt(activeFile.fid)) {
           activeFile = null;
@@ -782,7 +782,7 @@ const ui = {
 
   confirmClearData: function() {
     modal.confirm('This will delete all Codetmp saved files & folders on current browser. Continue?', false).then(async () => {
-      await fileManager.clearStorage();
+      await fileManager.TaskClearStorage();
       location.reload();
     });
   },
@@ -848,7 +848,7 @@ function initUI() {
   
 	notif = Notifier($('#tmp-notif'), $('#notif-list'));
   // initInframeLayout();
-  fileManager.onStorageReady().then(() => {
+  fileManager.TaskOnStorageReady().then(() => {
     fileManager.list();
   });
   preferences.loadSettings();
@@ -1512,7 +1512,7 @@ function authReady() {
   support.check('firebase');
 }
 async function authLogout() {
-  await fileManager.clearStorage();
+  await fileManager.TaskClearStorage();
   settings.reset();
   notif.reset();
   ui.reloadFileTree();
@@ -1701,7 +1701,7 @@ function openFileConfirm(el) {
       fileManager.open(el.getAttribute('data'))
     } else {
       let folderId = Number(el.getAttribute('data'))
-      fileManager.openFolder(folderId);
+      fileManager.OpenFolder(folderId);
     }
     toggleFileHighlight(fileExplorerManager.lastClickEl, false);
   }

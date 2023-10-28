@@ -52,7 +52,7 @@ function SingleFileGeneratorComponent() {
     let src = match[0].substring(11, match[0].length-9);
     let relativeParent = preParent;
     let parentId = await previewHandler.getDirectory(src, relativeParent, path);
-    let files = await fileManager.listFiles(parentId);
+    let files = await fileManager.TaskListFiles(parentId);
     let name = src.replace(/.*?\//g,'');
     let file = null;
     for (let i=0; i<files.length; i++) {
@@ -135,7 +135,7 @@ function SingleFileGeneratorComponent() {
       }
       
       let parentId = await previewHandler.getDirectory(src, relativeParent, path);
-      let files = await fileManager.listFiles(parentId);
+      let files = await fileManager.TaskListFiles(parentId);
       let name = src.replace(/.*?\//g,'');
       let file = null;
       for (let i=0; i<files.length; i++) {

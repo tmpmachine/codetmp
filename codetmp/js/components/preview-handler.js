@@ -237,7 +237,7 @@ function PreviewHandler() {
     let relativeParent = preParent;
     let path = ['root'];
     let parentId = await previewHandler.getDirectory(src, relativeParent, path);
-    let files = await fileManager.listFiles(parentId);
+    let files = await fileManager.TaskListFiles(parentId);
     let name = src.replace(/.*?\//g,'');
     let isFileFound = false;
     let file = null;
@@ -338,7 +338,7 @@ function PreviewHandler() {
         parentId = folder.parentId;
       } else {
         
-        let folders = await fileManager.listFolders(parentId);
+        let folders = await fileManager.TaskListFolders(parentId);
         for (let f of folders) {
           if (f.name.toLowerCase() == dirName.toLowerCase() && !f.trashed) {
             folder = f;
@@ -395,7 +395,7 @@ function PreviewHandler() {
     let src = match[0].substring(11, match[0].length-9);
     let relativeParent = preParent;
     let parentId = await previewHandler.getDirectory(src, relativeParent, path);
-    let files = await fileManager.listFiles(parentId);
+    let files = await fileManager.TaskListFiles(parentId);
     let name = src.replace(/.*?\//g,'');
     let file = null;
     for (let i=0; i<files.length; i++) {
