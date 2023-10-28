@@ -176,8 +176,12 @@ function FileManager() {
     folders.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
     });
+
     let counter = 1;
     let downloadQueue = [];
+
+    let docFrag = document.createDocumentFragment();
+
     for (let f of folders) {
       if (f.trashed) continue;
       let el = $('#tmp-folder-list').content.cloneNode(true);
@@ -186,11 +190,14 @@ function FileManager() {
       $('.Clicker', el)[0].setAttribute('data', f.fid);
       $('.Clicker', el)[0].dataset.number = counter;
 
-      $('#file-list').appendChild(el);
+      docFrag.append(el);
       counter++;
       if (!f.isLoaded)
         downloadQueue.push(f.id)
     }
+    
+    $('#file-list').appendChild(docFrag);
+
     if (downloadQueue.length > 0) {
       let notifId = notif.add({
         title: 'Loading directory',
@@ -274,11 +281,15 @@ function FileManager() {
   };
   
   async function displayListFiles() {
+    
     let files = await fileManager.listFiles(activeFolder);
     files.sort(function(a, b) {
       return (a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : 1;
     });
+    
+    let docFrag = document.createDocumentFragment();
     let counter = 1;
+
     for (let {fid, id, isTemp, name, trashed, fileRef} of files) {
       if (trashed) continue;
       
@@ -302,9 +313,11 @@ function FileManager() {
         }
       }
       
-      $('#file-list').appendChild(el);
+      docFrag.append(el);
       counter++;
     }
+    $('#file-list').append(docFrag);
+
   }
 
   SELF.getListFiles = async function(parentId = activeFolder) {
