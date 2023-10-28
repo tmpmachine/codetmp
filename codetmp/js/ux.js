@@ -1024,6 +1024,7 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   ace.config.set('basePath', ACE_CDN_BASEPATH);
   editor.session.setMode("ace/mode/html");
   editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
+  editor.setOption("scrollPastEnd", 1);
   editor.session.setTabSize(2);
   editor.setFontSize(editorManager.fontSize);
   editor.clearSelection();
