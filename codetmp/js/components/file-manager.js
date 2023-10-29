@@ -5,8 +5,12 @@ let fileManager = (function() {
     TaskOnStorageReady,
 
     get: TaskGetFile,
+    update: TaskUpdate,
+
     newFile: CreateFile,
     newFolder: CreateFolder,
+    RenameFile,
+    RenameFolder,
     TaskClearStorage,
     OpenFolder,
     UnloadItem,
@@ -106,7 +110,7 @@ let fileManager = (function() {
             }
 
             let fileHandle = await dirHandle.getFileHandle(file.name, { create: true });
-            if (file.fileRef) {
+            if (helper.hasFileReference(file.fileRef)) {
               const writable = await fileHandle.createWritable();
               await writable.write(file.fileRef);
               await writable.close();
@@ -196,6 +200,62 @@ let fileManager = (function() {
     activeWorkspace = temp;
     return file;
   }
+
+  async function RenameFile(fid, newFileName) {
+    let file = await TaskGetFile({fid, type:'files'});
+    
+    file.name = newFileName;
+    await TaskUpdate(file, 'files');
+    commit({
+      fid: fid,
+      action: 'update',
+      metadata: ['name'],
+      type: 'files'
+    });
+
+    if (activeWorkspace == 2 && helper.hasFileReference(file.fileRef)) {
+      try {
+        let fileHandle = file.fileRef.entry;
+        fileHandle.move(newFileName);
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    return file;
+  }
+
+  // not yet supported, keep for later
+  async function RenameFolder(fid, newFileName) {
+    let folder = await fileManager.get({fid, type: 'folders'});
+
+    let oldFileName = folder.name;
+    folder.name = newFileName;
+    folder.modifiedTime = new Date().toISOString();
+    await TaskUpdate(folder, 'folders');
+    commit({
+      fid: folder.fid,
+      action: 'update',
+      metadata: ['name'],
+      type: 'folders'
+    });
+
+    if (activeWorkspace == 2) {
+      try {
+        let dirHandle = folder.directoryHandle;
+        if (dirHandle == null) {
+          dirHandle = await folder.parentDirectoryHandle.getDirectoryHandle(oldFileName);
+          folder.directoryHandle = dirHandle;
+        }
+        dirHandle.move(newFileName);
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    return folder;
+  }
+
 
   async function taskWriteToDisk() {
     let writable = await fileTab[activeTab].fileHandle.createWritable();
@@ -426,7 +486,7 @@ let fileManager = (function() {
         file.isTemp = false;
 
         if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
-          await SELF.update(file, 'files');
+          await TaskUpdate(file, 'files');
         }
         fileStorage.save();
         
@@ -534,7 +594,7 @@ let fileManager = (function() {
     });
 
     if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
-      await SELF.update(file, 'files');
+      await TaskUpdate(file, 'files');
     }
     fileStorage.save();
     drive.syncToDrive();
@@ -555,7 +615,7 @@ let fileManager = (function() {
     }
   };
 
-  SELF.update = async function(data, type) {
+  async function TaskUpdate(data, type) {
     if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
       if (type == 'files') {
         await window.idbStorage.put('files', data);
@@ -563,7 +623,7 @@ let fileManager = (function() {
         await window.idbStorage.put('folders', data);
       }
     }
-  };
+  }
   
   SELF.list = async function() {
     $('#file-list').innerHTML = '';
@@ -705,7 +765,7 @@ let fileManager = (function() {
             f.contentLink = contentLink;
             src = contentLink;
             if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
-              await SELF.update(f, 'files');
+              await TaskUpdate(f, 'files');
             } else {
               fileStorage.save();
             }
@@ -830,7 +890,7 @@ let fileManager = (function() {
   async function TaskDeleteFolder(fid) {
     let data = await TaskGetFile({fid, type: 'folders'});
     data.trashed = true;
-    await SELF.update(data, 'folders');
+    await TaskUpdate(data, 'folders');
     
     // delete the folder in file system mode
     if (activeWorkspace == 2) {
@@ -860,11 +920,11 @@ let fileManager = (function() {
   async function TaskDeleteFile(fid) {
     let data = await SELF.get({fid, type: 'files'});
     data.trashed = true;
-    await SELF.update(data, 'files');;
+    await TaskUpdate(data, 'files');;
   
     // delete the file in file system mode
     if (activeWorkspace == 2) {
-      if (data.fileRef) {
+      if (helper.hasFileReference(data.fileRef)) {
         try {
           let fileHandle = data.fileRef.entry;
           await fileHandle.remove();  
@@ -899,7 +959,7 @@ let fileManager = (function() {
     } else if (type == 'files') {
       data.loaded = false;
     }
-    await SELF.update(data, type);
+    await TaskUpdate(data, type);
   }
   
   async function TaskClearStorage() {

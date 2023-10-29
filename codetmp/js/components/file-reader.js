@@ -346,6 +346,7 @@ const fileReaderModule = (function() {
 	  		if (type !== undefined)
 				HANDLER_TYPE = type;
 			let parentId = activeFolder;
+			
 			let callback = (dropTarget == 'editor') ? openOnEditor : saveToStorage;
 			let queue;
 
@@ -508,11 +509,27 @@ const fileReaderModule = (function() {
     let directoryStructure;
 
     // Recursive function that walks the directory structure.
-    const getFiles = async (dirHandle, path = dirHandle.name, folderFid = '') => {
+    const getFiles = async (dirHandle, parentFolderFid) => {
+		
       const dirs = [];
       const files = [];
+
+		// create the root directory
+		if (parentFolderFid == -1 && !dirHandle.name.startsWith('.git')) {
+			let folder = await fileManager.newFolder({
+				parentId: parentFolderFid,
+				name: dirHandle.name,
+				directoryHandle: dirHandle,
+			});
+			ui.tree.appendFolder(folder);
+			parentFolderFid = folder.fid;
+
+			dirs.push(folder);
+		}
+		
+		
+		// iterate through subdirectories and files
       for await (const entry of dirHandle.values()) {
-		const nestedPath = `${path}/${entry.name}`;
           if (entry.kind === "file") {
 
 				  let fileRef = await entry.getFile();
@@ -521,7 +538,7 @@ const fileReaderModule = (function() {
 				    fileRef,
 				    content: null,
 				    name: entry.name,
-				    parentId: (folderFid === '' ? activeFolder : folderFid),
+				    parentId: parentFolderFid,
 				    isTemp: true,
 				  });
     			ui.tree.appendFile(file);
@@ -532,14 +549,14 @@ const fileReaderModule = (function() {
             continue;
           }
 		  
-          folder = await fileManager.newFolder({
-  			    parentId: (folderFid === '' ? activeFolder : folderFid),
+          let folder = await fileManager.newFolder({
+  			    parentId: parentFolderFid,
 				parentDirectoryHandle: dirHandle,
   			    name: entry.name,
 		  });
     	  ui.tree.appendFolder(folder);
           
-          dirs.push(getFiles(entry, nestedPath, folder.fid));
+          dirs.push(getFiles(entry, folder.fid));
         } 
       }
       return [
@@ -554,7 +571,8 @@ const fileReaderModule = (function() {
         mode,
       });
       // Get the directory structure.
-      directoryStructure = await getFiles(handle, undefined);
+	  let parentFolderId = -1; // root
+      directoryStructure = await getFiles(handle, parentFolderId);
       fileManager.list();
     } catch (err) {
       if (err.name !== "AbortError") {
