@@ -168,7 +168,7 @@ const modalWindowManager = (function() {
 
 })();
 
-window.ux = (function() {
+let ux = (function() {
   
   let SELF = {
     OpenDiskFile,
@@ -465,25 +465,20 @@ const ui = {
 		}
 
     function renameFolder() {
-			let selection = getSelected(selectedFile[0]);
-	      	modal.prompt('Rename', selection.title, '', helper.getFileNameLength(selection.title)).then(async (name) => {
-	        	if (!name || name === selection.title) 
-	        		return;
-	        
-			      let folder = await fileManager.get({fid: selection.id, type: 'folders'});
-		        folder.name = name;
-		        folder.modifiedTime = new Date().toISOString();
-            await fileManager.update(folder, 'folders');
-	        
-		        commit({
-		          fid: folder.fid,
-		          action: 'update',
-		          metadata: ['name'],
-		          type: 'folders'
-		        });
-		        ui.tree.renameFolder(folder);
 
-	      	});
+        if (activeWorkspace == 2) {
+          alert('Renaming folder in file system mode is not yet supported.');
+          return;
+        }
+
+			  let selection = getSelected(selectedFile[0]);
+        modal.prompt('Rename', selection.title, '', helper.getFileNameLength(selection.title)).then(async (name) => {
+          if (!name || name === selection.title) return;
+        
+            let folder = await fileManager.RenameFolder(selection.id, name);
+            ui.tree.renameFolder(folder);
+
+        });
 	    }
 	    function renameFile() {
 	    	let selection = getSelected(selectedFile[0]);
@@ -492,15 +487,7 @@ const ui = {
 	        	if (!name || name == selection.title) 
 	        		return;
 
-		      	let file = await fileManager.get({fid, type:'files'});
-		        file.name = name;
-            await fileManager.update(file, 'files');
-		        commit({
-		          fid: fid,
-		          action: 'update',
-		          metadata: ['name'],
-		          type: 'files'
-		        });
+            let file = await fileManager.RenameFile(fid, name);
 		        ui.tree.renameFile(file);
 
 		        if (activeFile) {
