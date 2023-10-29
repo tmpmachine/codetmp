@@ -58,6 +58,9 @@
         isLoaded: true,
         isSync: false,
         isTemp: false,
+
+        directoryHandle: null,
+        parentDirectoryHandle: null,
       },
       files: {
         fid: 0,

@@ -30,7 +30,9 @@ let DOMEvents = {
 		'sign-out' : signOut,
 		'grant-firebase-access': () => auth2.grant('https://www.googleapis.com/auth/firebase'),
 
-		'change-workspace': ui.changeWorkspace,
+		'change-workspace': (evt) => {
+			ui.changeWorkspace(evt.target.closest('[data-storage]'));
+		},
 		'change-file-list-view': ui.changeFileListView,
 
 	    'btn-menu-template': function() { toggleInsertSnippet(); },

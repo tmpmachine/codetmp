@@ -531,9 +531,10 @@ const fileReaderModule = (function() {
           if (entry.name.startsWith('.git')) {
             continue;
           }
-          
+		  
           folder = await fileManager.newFolder({
   			    parentId: (folderFid === '' ? activeFolder : folderFid),
+				parentDirectoryHandle: dirHandle,
   			    name: entry.name,
 		  });
     	  ui.tree.appendFolder(folder);

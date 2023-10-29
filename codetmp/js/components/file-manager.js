@@ -4,8 +4,9 @@ let fileManager = (function() {
     TaskInitIDBStorage,
     TaskOnStorageReady,
 
-    newFile,
-    newFolder,
+    get: TaskGetFile,
+    newFile: CreateFile,
+    newFolder: CreateFolder,
     TaskClearStorage,
     OpenFolder,
     UnloadItem,
@@ -60,7 +61,7 @@ let fileManager = (function() {
     });
   }
 
-  async function CreateFile(data, workspaceId) {
+  async function CreateFile(data = {}, workspaceId = activeWorkspace) {
     
     let temp = activeWorkspace;
     activeWorkspace = workspaceId;
@@ -93,15 +94,45 @@ let fileManager = (function() {
       let fid = await window.idbStorage.put('files', file);
       file.fid = fid;
     } else {
+      
+      if (activeWorkspace == 2) {
+        let currentDir = await TaskGetFile({fid:activeFolder, type: 'folders'});
+        if (currentDir) {
+          try {
+            let dirHandle = currentDir.directoryHandle;
+            if (dirHandle == null) {
+              dirHandle = await currentDir.parentDirectoryHandle.getDirectoryHandle(currentDir.name);
+              currentDir.directoryHandle = dirHandle;
+            }
+
+            let fileHandle = await dirHandle.getFileHandle(file.name, { create: true });
+            if (file.fileRef) {
+              const writable = await fileHandle.createWritable();
+              await writable.write(file.fileRef);
+              await writable.close();
+            }
+            let fileRef = await fileHandle.getFile();
+            fileRef.entry = fileHandle;
+            file.fileRef = fileRef;
+            
+          } catch (error) {
+            // no directory handler found with such name
+            console.error(error);
+          }
+          
+        }
+      }
+
       fileStorage.data.files.push(file);
       fileStorage.data.counter.files++;
+
     }
 
     activeWorkspace = temp;
     return file;
   }
 
-  async function CreateFolder(data, workspaceId) {
+  async function CreateFolder(data = {}, workspaceId = activeWorkspace) {
     
     let temp = activeWorkspace;
     activeWorkspace = workspaceId;
@@ -113,6 +144,9 @@ let fileManager = (function() {
       name: 'New Folder',
       parentId: activeFolder,
       modifiedTime: new Date().toISOString(),
+
+      directoryHandle: null,
+      parentDirectoryHandle: null,
     };
     
     for (let key in predefinedData) {
@@ -131,21 +165,36 @@ let fileManager = (function() {
       let fid = await window.idbStorage.put('folders', file);
       file.fid = fid;
     } else {
+      
+      // todo: WIP - handle creating new file on file system
+      if (activeWorkspace == 2) {
+        let currentDir = await TaskGetFile({fid:activeFolder, type: 'folders'});
+        if (currentDir) {
+          try {
+            let dirHandle = currentDir.directoryHandle;
+            if (dirHandle == null) {
+              dirHandle = await currentDir.parentDirectoryHandle.getDirectoryHandle(currentDir.name);
+              currentDir.directoryHandle = dirHandle;
+            }
+
+            let newDirHandle = await dirHandle.getDirectoryHandle(file.name, { create: true });
+            file.directoryHandle = newDirHandle;
+          } catch (error) {
+            // no directory handler found with such name
+            console.error(error);
+          }
+          
+        }
+      }
+
       fileStorage.data.counter.folders++;
       fileStorage.data.folders.push(file);
       fileStorage.save();
+
     }
 
     activeWorkspace = temp;
     return file;
-  }
-  
-  async function newFile(data = {}, workspaceId = activeWorkspace) {
-    return await CreateFile(data, workspaceId);
-  }
-  
-  async function newFolder(data = {}, workspaceId = activeWorkspace) {
-    return await CreateFolder(data, workspaceId);
   }
 
   async function taskWriteToDisk() {
@@ -157,7 +206,7 @@ let fileManager = (function() {
 	    let currentFile = fileTab[activeTab].file;
       let hasDivlessFile = false;
       if (currentFile) {
-        let parent = await fileManager.get({fid: currentFile.parentId, type: 'folders'});
+        let parent = await TaskGetFile({fid: currentFile.parentId, type: 'folders'});
         if (parent && parent.name == '.divless' && parent.trashed == false) {
           let targetFile = currentFile.divlessTarget;
           if (!currentFile.divlessTarget) {
@@ -474,7 +523,7 @@ let fileManager = (function() {
 
   async function saveExistingFile() {
     let fid = activeFile.fid;
-    let file = await fileManager.get({fid, type: 'files'});
+    let file = await TaskGetFile({fid, type: 'files'});
     file.content = fileTab[activeTab].editor.env.editor.getValue();
     file.modifiedTime = (new Date()).toISOString();
     fileManager.sync({
@@ -542,7 +591,7 @@ let fileManager = (function() {
     })
   }
   
-  SELF.get = async function(data, workspaceId = activeWorkspace) {
+  async function TaskGetFile(data, workspaceId = activeWorkspace) {
     let haystack;
 
     if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
@@ -557,14 +606,17 @@ let fileManager = (function() {
       else if (data.fid !== undefined)
         return await store.get(parseInt(data.fid));
     } else {
-      if (workspaceId === 0)
+      if (workspaceId === 0) {
         haystack = (data.type == 'files') ? mainStorage.data.files : mainStorage.data.folders;
-      else
+      } else {
         haystack = (data.type == 'files') ? fileStorage.data.files : fileStorage.data.folders;
-        if (data.id !== undefined)
-          return odin.dataOf(data.id, haystack, 'id')
-        else if (data.fid !== undefined)
-          return odin.dataOf(data.fid, haystack, 'fid')
+      }
+      
+      if (data.id !== undefined) {
+        return odin.dataOf(data.id, haystack, 'id')
+      } else if (data.fid !== undefined) {
+        return odin.dataOf(data.fid, haystack, 'fid')
+      }
     }
   }
 
@@ -604,7 +656,7 @@ let fileManager = (function() {
   }
 
   SELF.open = async function(fid) {
-    let f = await fileManager.get({fid, type: 'files'});
+    let f = await TaskGetFile({fid, type: 'files'});
     let mimeType = helper.getMimeType(f.name);
 
     new Promise(function(resolve, reject) {
@@ -706,7 +758,7 @@ let fileManager = (function() {
     if (activeFolder == -1) {
       breadcrumbs.splice(1);
     } else {
-      let folder = await fileManager.get({fid: folderId, type: 'folders'});
+      let folder = await TaskGetFile({fid: folderId, type: 'folders'});
       let title = folder.name;
       breadcrumbs.push({folderId:activeFolder, title})
     }
@@ -766,7 +818,7 @@ let fileManager = (function() {
     breadcrumbs.length = 0;
     let folderId = activeFolder;
     while (folderId != -1) {
-      let folder = await fileManager.get({fid: folderId, type: 'folders'});
+      let folder = await TaskGetFile({fid: folderId, type: 'folders'});
       breadcrumbs.push({folderId:folder.fid, title: folder.name})
       folderId = folder.parentId;
     }
@@ -776,10 +828,24 @@ let fileManager = (function() {
   }
 
   async function TaskDeleteFolder(fid) {
-    let data = await SELF.get({fid, type: 'folders'});
+    let data = await TaskGetFile({fid, type: 'folders'});
     data.trashed = true;
     await SELF.update(data, 'folders');
     
+    // delete the folder in file system mode
+    if (activeWorkspace == 2) {
+      try {
+        let parentDirectoryHandle = data.parentDirectoryHandle;
+        if (parentDirectoryHandle == null) {
+          let parentDir = await TaskGetFile({fid: data.parentId, type: 'folders'});
+          parentDirectoryHandle = parentDir.directoryHandle;
+        }
+        await parentDirectoryHandle.removeEntry(data.name, { recursive: true });
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
     commit({
       fid: data.fid,
       action: 'update',
@@ -796,6 +862,18 @@ let fileManager = (function() {
     data.trashed = true;
     await SELF.update(data, 'files');;
   
+    // delete the file in file system mode
+    if (activeWorkspace == 2) {
+      if (data.fileRef) {
+        try {
+          let fileHandle = data.fileRef.entry;
+          await fileHandle.remove();  
+        } catch (error) {
+          console.error(error);
+        }
+      } 
+    }
+
     for (let sync of fileStorage.data.sync) {
       if (sync.action === 52 && sync.copyId === fid) {
         sync.action = 12;

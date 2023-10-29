@@ -250,18 +250,23 @@ const ui = {
 			ft.reload();
 		});
 	},
-	changeWorkspace: async function() {
-	  if (this.dataset.target != $('#workspace-title').textContent) {
+	changeWorkspace: async function(targetEl) {
+
+    let dataTarget = targetEl.dataset.target;
+    let dataStorage = targetEl.dataset.storage;
+    let dataIndex = targetEl.dataset.index;
+
+	  if (dataTarget != $('#workspace-title').textContent) {
 	    for (let node of $('.workspace .Btn')) {
 	      node.classList.toggle('active', false);
-	      if (this == node) {
+	      if (targetEl == node) {
 	        node.classList.toggle('active', true);
 	      }
 	    }
-	    $('#workspace-title').textContent = this.dataset.target;
-	    let index = parseInt(this.dataset.index);
+	    $('#workspace-title').textContent = dataTarget;
+	    let index = parseInt(dataIndex);
       document.body.stateList.toggle('fs-mode', (index == 2));
-      ui.states.storage = STORAGE_STATE[this.dataset.storage];
+      ui.states.storage = STORAGE_STATE[dataStorage];
       activeWorkspace = index;
 	    await fileManager.list();
 	    tabManager.list();
@@ -274,6 +279,7 @@ const ui = {
 				app.fileTree.reset();
 			});
 	  }
+
 	},
   newFile: function() {
     if (!$('#btn-menu-my-files').classList.contains('active')) {
