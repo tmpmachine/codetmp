@@ -83,7 +83,7 @@ let DOMEvents = {
 		'open-in-explorer': () => deferFeature1.openFileDirectory(),
 		'new-file': ui.newFile,
 		'new-file-on-disk': ui.newDiskFile,
-		'open-disk-folder': () => window.ux.OpenDiskFile(),
+		'open-disk-folder': () => ux.OpenDiskFile(),
 		'new-folder': ui.fileManager.newFolder,
 		'save': fileManager.save,
 		'preview': () => previewHandler.previewPath(),
@@ -143,5 +143,15 @@ let DOMEvents = {
 				previewHandler.previewPathAtPWA();
 			}
 		},
+		'Ctrl+O': function(evt) {
+			evt.preventDefault();
+			// check if is file system mode
+			if (activeWorkspace == 2) {
+				ux.OpenDiskFile();
+			} else {
+				alert('Feature not implemented. Try dragging and dropping the file into the editor.')
+			}
+		},
 	},
+
 };

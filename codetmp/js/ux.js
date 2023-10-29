@@ -168,7 +168,7 @@ const modalWindowManager = (function() {
 
 })();
 
-window.ux = (function() {
+let ux = (function() {
   
   let SELF = {
     OpenDiskFile,
