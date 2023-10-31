@@ -1,6 +1,6 @@
 {
   "ace": [
-    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/ace.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/ace.min.js",
     "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/theme-github.js",
     "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/mode-html.js",
     "https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/mode-json.js",
