@@ -158,22 +158,37 @@ const fileReaderModule = (function() {
 				fileRef.entry = item.entry;
 			let existingItem = await fileManager.TaskGetExistingItem(item.name, item.parentId);
 			if (existingItem) {
-      	modal.confirm(`Item with the same name already exists. Overwrite? (${truncate(item.name)})`).then(() => {
-					existingItem.fileRef = fileRef;
-					delete existingItem.blob;
-					existingItem.loaded = true;
-			    fileManager.sync({
-			    	fid: existingItem.fid, 
-			        action: 'update',
-			        metadata: ['media'], 
-			        type: 'files',
-		          	isTemp: true,
-			    });
-			    delayResolve(resolve, item);
-		    }).catch(() => {
-			    delayResolve(resolve, item);
-		    });
+
+      			modal.confirm(`Item with the same name already exists. Overwrite? (${truncate(item.name)})`).then(async () => {
+
+					  if (activeWorkspace == 2) {
+						// rewrite the content of existing file
+						if (helper.hasFileReference(existingItem.fileRef)) {
+							let fileHandle = await existingItem.fileRef.entry;
+							const writable = await fileHandle.createWritable();
+							await writable.write(fileRef);
+							await writable.close();
+						}
+					} else {
+						existingItem.fileRef = fileRef;
+						delete existingItem.blob;
+						existingItem.loaded = true;
+						fileManager.sync({
+							fid: existingItem.fid, 
+							action: 'update',
+							metadata: ['media'], 
+							type: 'files',
+							isTemp: true,
+						});
+					}
+					delayResolve(resolve, item);
+
+				}).catch(() => {
+					delayResolve(resolve, item);
+				});
+
 			} else {
+
 				let file = await fileManager.newFile({
 				    fileRef,
 				    content: null,
