@@ -271,7 +271,7 @@ let fileManager = (function() {
           let targetFile = currentFile.divlessTarget;
           if (!currentFile.divlessTarget) {
             let files = await TaskListFiles(parent.parentId);
-            targetFile = files.find(file => file.name == currentFile.name.replace('.divless.html', '.html') && !file.trashed);
+            targetFile = files.find(file => file.name == currentFile.name && !file.trashed);
           }
           if (targetFile) {
             hasDivlessFile = true;
@@ -280,7 +280,7 @@ let fileManager = (function() {
           }
         } 
       }
-      
+
     }
     await writable.write(content);
     await writable.close();
