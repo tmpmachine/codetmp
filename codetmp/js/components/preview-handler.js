@@ -268,12 +268,28 @@ function PreviewHandler() {
       if (file.isTemp && helper.hasFileReference(file.fileRef) && file.content === null) {    
         let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
         if (file.fileRef.entry) {
-          if (tabIdx >= 0) {
-            content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
-            if (settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/)) {
+          if (settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/)) {
+            if (tabIdx >= 0) {
+              content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
               content = divless.replace(content);
+              return content;
+            } else {
+
+              let blob = await file.fileRef.entry.getFile();
+              content = await new Promise(resolve => {
+              
+                let r = new FileReader();
+                r.onload = async function() {
+                  content = divless.replace(r.result);
+                  resolve(content)
+                }
+                r.readAsText(blob);   
+
+              })
+              
+              return content;
+              
             }
-            return content;
           }
           return await file.fileRef.entry.getFile();
         }
