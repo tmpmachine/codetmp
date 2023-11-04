@@ -41,7 +41,7 @@
       <section>
         <h6 style="font-weight:bold;">Preview</h6>
         <p>
-          <label><input data-name="divlessHTMLEnabled" class="autofocus w3-check input-settings" type="checkbox"/> Replace Divless-HTML format (.html file only)</label>
+          <label><input data-name="divlessHTMLEnabled" class="autofocus w3-check input-settings" type="checkbox"/> Convert Divless HTML format (.html files only)</label>
         </p>
         <p>
           <label><input data-name="minifyJs" class="autofocus w3-check input-settings" type="checkbox"/> Try to minify JavaScript files</label>
@@ -52,9 +52,9 @@
       </section>
       <hr/>
       <section>
-        <h6 style="font-weight:bold;">File System API</h6>
+        <h6 style="font-weight:bold;">File Manager</h6>
         <p>
-          <label><input data-name="divlessHTMLFSEnabled" class="autofocus w3-check input-settings" type="checkbox"/> Replace Divless-HTML format on file save (.html file only)</label>
+          <label><input data-name="divlessHTMLFSEnabled" class="autofocus w3-check input-settings" type="checkbox"/> Convert Divless HTML format on file save (.html files only)</label>
         </p>
       </section>
       <hr/>
@@ -185,7 +185,7 @@
         <h6 style="font-weight:bold;">Download options</h6>
         <form class="submittable preventDefault" data-callback="confirm-download">
           <p>
-            <label class="no-select"><input class="w3-check" name="replaceDivless" type="checkbox"/> Replace Divless-HTML tag</label>
+            <label class="no-select"><input class="w3-check" name="replaceDivless" type="checkbox"/> Convert Divless-HTML tag</label>
           </p>
           <p class="no-select">
           <!-- <p class="no-select _in-replaceFileTemplate"> -->
@@ -214,7 +214,7 @@
         <h6 style="font-weight:bold;">File options</h6>
         <form onsubmit="event.preventDefault()">
           <p>
-            <label class="no-select"><input class="w3-check" name="replaceDivless" type="checkbox"/> Replace Divless-HTML tag</label>
+            <label class="no-select"><input class="w3-check" name="replaceDivless" type="checkbox"/> Convert Divless HTML format</label>
           </p>
           <p>
             <label class="no-select"><input class="w3-check" name="minifyJs" type="checkbox"/> Try to minify JavaScript files</label>
