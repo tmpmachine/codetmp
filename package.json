@@ -1,7 +1,6 @@
 {
   "scripts": {
     "dev": "firebase serve --only hosting:codetmp --config firebase.dev.json",
-    "dev-all": "firebase serve --config firebase.dev.json",
     "deploy": "firebase deploy --only hosting:codetmp  --config firebase.prod.json",
     "build": "node build"
   },

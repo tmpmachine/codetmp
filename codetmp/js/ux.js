@@ -897,13 +897,6 @@ function initUI() {
 	});
 	// initNavMenus();
 	// attachMouseListener();
-  runFileSystemAccessTest();
-}
-
-function runFileSystemAccessTest() {
-  // open file system mode
-  ui.toggleMyFiles();
-  ui.changeWorkspace( $('[data-callback="change-workspace"][data-target="File System"]')[0] );
 }
 
 function initFileHandler() {
