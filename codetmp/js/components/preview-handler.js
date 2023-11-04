@@ -260,64 +260,130 @@ function PreviewHandler() {
     }
 
     let content = '<404></404>';
-    let filePath = await getFileAtPath(src);
-    let file = filePath.file;
-    let parentId = filePath.parentId;
+    let filePathData = await getFileAtPath(src);
+    let file = filePathData.file;
+    let parentId = filePathData.parentId;
+    
+    if (file === null) return content;
 
-    if (file !== null) {
-      if (file.isTemp && helper.hasFileReference(file.fileRef) && file.content === null) {    
-        let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
-        if (file.fileRef.entry) {
-          if (settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/)) {
-            if (tabIdx >= 0) {
-              content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
-              content = divless.replace(content);
-              return content;
-            } else {
+    if (!file.loaded) {
+      aww.pop('Downloading required file : '+file.name);
+      fileManager.downloadMedia(file);
+      return '';
+    } 
 
-              let blob = await file.fileRef.entry.getFile();
-              content = await new Promise(resolve => {
-              
-                let r = new FileReader();
-                r.onload = async function() {
-                  content = divless.replace(r.result);
-                  resolve(content)
+    if (file.isTemp && helper.hasFileReference(file.fileRef) && file.content === null) { 
+
+      let targetTab = fileTab.find(item => item.fid == file.fid);
+      if (activeFile && activeFile.fid === file.fid) {
+        targetTab = fileTab[activeTab];
+      }
+
+      let isConvertDivless = ( settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/) );
+
+      // search .divless/* reference files in opened tabs
+      try {
+        
+        if (isConvertDivless) {
+
+          let targetFid = file.fid;
+          
+          let findTargetTab = fileTab.find(item => item.divlessConvertFileTargetFid == targetFid);
+          if (findTargetTab) {
+            // cache divless target tab
+            targetTab = findTargetTab;
+          } else {
+
+            // loop through opened tab, search for .divless/* reference of requested file
+            for (let tabData of fileTab) {
+    
+              if (!tabData.file) continue;
+
+              // check if tab is HTML
+              if (!helper.getMimeType(tabData.file.name).match(/text\/html|text\/xml/)) continue;
+    
+              let currentFile = tabData.file;
+    
+              // todo: this block was taken from filemanager, create utility function instead.
+              {
+                let parent = await fileManager.TaskGetFile({fid: currentFile.parentId, type: 'folders'});
+                if (parent && parent.name == '.divless' && parent.trashed == false) {
+                  let targetDivlessFile = currentFile.divlessTarget;
+                  if (!currentFile.divlessTarget) {
+                    let files = await fileManager.TaskListFiles(parent.parentId);
+                    targetDivlessFile = files.find(file => file.name == currentFile.name && !file.trashed);
+                  }
+                  if (targetDivlessFile && targetDivlessFile.fid == targetFid) {
+                    // set to read content from opened tab
+                    targetTab = tabData;
+                    tabData.divlessConvertFileTargetFid = targetFid;
+                    break;
+                  }
                 }
-                r.readAsText(blob);   
+              }
+    
+            }
 
-              })
-              
-              return content;
-              
-            }
           }
-          return await file.fileRef.entry.getFile();
+
         }
-        if (tabIdx >= 0) {
-            content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
-            if (settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/)) {
-              content = divless.replace(content);
-            }
-            return content;
-        }
-        return file.fileRef;
-      } else if (!file.loaded) {
-        aww.pop('Downloading required file : '+file.name);
-        fileManager.downloadMedia(file);
-	        content = '';
+
+      } catch (error) {
+        console.error(error);
+      }
+      // end search
+
+      if (targetTab) {
+
+          content = targetTab.editor.env.editor.getValue();
+          if (isConvertDivless) {
+            content = divless.replace(content);
+          }
+          return content;
+
       } else {
-        let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
-        if (tabIdx >= 0)
-          content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
-        else
-          content = file.content;
+
+        if (file.fileRef.entry) {
+
+          if (!isConvertDivless) {
+            return await file.fileRef.entry.getFile();
+          }
+
+          // convert divless
+          let blob = await file.fileRef.entry.getFile();
+          content = await new Promise(resolve => {
+            let r = new FileReader();
+            r.onload = async function() {
+              content = divless.replace(r.result);
+              resolve(content)
+            }
+            r.readAsText(blob);   
+          })
+          return content;
+
+        }
+
       }
-      content = await replaceTemplate(content, parentId)
-      if (settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/)) {
-        content = divless.replace(content);
-      }
+
+      return file.fileRef;
+
+    } else {
+
+      let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
+      if (tabIdx >= 0)
+        content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
+      else
+        content = file.content;
+
     }
+    
+    content = await replaceTemplate(content, parentId)
+    if (settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/)) {
+      content = divless.replace(content);
+    }
+
     return content;
+
   }
 
   this.getFrameName = function() {
