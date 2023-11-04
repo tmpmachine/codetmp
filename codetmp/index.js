@@ -1,7 +1,7 @@
 const ACE_CDN_BASEPATH = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6';
 let activeWorkspace = 0;
 let environment = {
-  previewUrl: 'https://preview.codetmp7.dev/',
+  previewUrl: 'https://glorious-space-robot-v6jp7v6g5wxcxw5-5000.app.github.dev/',
   previewUrlPWA: 'https://pwa.codetmp7.dev/',
 };
 
