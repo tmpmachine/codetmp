@@ -18,6 +18,7 @@ let fileManager = (function() {
     TaskDeleteFile,
     TaskDeleteFolder,
     
+    TaskGetFile,
     TaskListFiles,
     TaskListFolders,
     TaskGetAllFolders,
