@@ -280,9 +280,7 @@ let fileManager = (function() {
           }
         } 
       }
-      if (!hasDivlessFile) {
-        content = divless.replace(content);
-      }
+      
     }
     await writable.write(content);
     await writable.close();
