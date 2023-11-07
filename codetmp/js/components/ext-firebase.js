@@ -156,7 +156,20 @@ const fire = (() => {
                 getHashTree(tree, files).then(resolve);
               })
             }
-            r.readAsArrayBuffer(fileData.file);
+            
+            if (activeWorkspace == 2 && helper.hasFileReference(fileData.file)) {
+              try {
+                let fileHandle = fileData.file.entry;
+                fileHandle.getFile().then(file => {
+                  r.readAsArrayBuffer(file);
+                });
+              } catch (error) {
+                console.error(error)
+              }
+            } else {
+              r.readAsArrayBuffer(fileData.file);
+            }
+
           });
         }
       }) 
