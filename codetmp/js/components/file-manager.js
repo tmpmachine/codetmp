@@ -548,7 +548,7 @@ let fileManager = (function() {
       if (!name) 
       	return;
       
-      let file = await newFile({
+      let file = await CreateFile({
         name,
       });
       fileManager.sync({
