@@ -2,7 +2,7 @@
   increase below number to trigger service worker update/reactivation
   to deliver latest updates for all users automatically on page visit
   
-  unique numer : 10010
+  unique numer : 10011
 */
 
 let cacheName = 'codetmp-MTE0MDc5NjU';
