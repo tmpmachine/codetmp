@@ -84,7 +84,7 @@ const drive = (function() {
       return newBranch;
     
     let {id, name, modifiedTime, trashed, parents, isLoaded} = folders[0];
-    let f = await fileManager.get({id, type: 'folders'}, 0);
+    let f = await fileManager.TaskGetFile({id, type: 'folders'}, 0);
 
     if (parents) {
       
@@ -101,7 +101,7 @@ const drive = (function() {
         await fileManager.update(f, 'folders');
       } else {
         if (parentFolderId > -2) {
-          let folder = await fileManager.newFolder({
+          let folder = await fileManager.CreateFolder({
             id,
             name,
             modifiedTime,
@@ -133,7 +133,7 @@ const drive = (function() {
       return;
     
     let {id, name, modifiedTime, trashed, parents} = files[0];
-    let f = await fileManager.get({id, type: 'files'}, 0);
+    let f = await fileManager.TaskGetFile({id, type: 'files'}, 0);
     let mimeType = helper.getMimeType(name);
 
     if (parents) {
@@ -172,7 +172,7 @@ const drive = (function() {
             loaded: false,
             parentId: parentFolderId,
           };
-          let file  = await fileManager.newFile(data, 0);
+          let file  = await fileManager.CreateFile(data, 0);
           if (!file.trashed) {
             ui.tree.appendFile(file);
           }
@@ -299,7 +299,7 @@ const drive = (function() {
           syncFromDrive(parents, dirLevel, json.nextPageToken, newBranch);
         } else {
           for (let parentId of parents) {
-            let folder = await fileManager.get({id: parentId, type: 'folders'}, 0);
+            let folder = await fileManager.TaskGetFile({id: parentId, type: 'folders'}, 0);
             if (folder) {
               folder.isSync = true;
               await fileManager.update(folder, 'folders');
@@ -401,7 +401,7 @@ const drive = (function() {
           for (let parentId of parents) {
           	let index = dirSyncQueue.indexOf(parentId);
           	dirSyncQueue.splice(index, 1);
-            let folder = await fileManager.get({id: parentId, type: 'folders'}, 0);
+            let folder = await fileManager.TaskGetFile({id: parentId, type: 'folders'}, 0);
             if (folder) {
               folder.isSync = true;
               folder.isLoaded = true;
@@ -430,7 +430,7 @@ const drive = (function() {
     let fileBlob;
     
     if (action === 'create' || action === 'copy') {
-      ({ id, name, trashed, modifiedTime, parentId, content, fileRef } = await fileManager.get({fid, type}, 0));
+      ({ id, name, trashed, modifiedTime, parentId, content, fileRef } = await fileManager.TaskGetFile({fid, type}, 0));
       method = 'POST';
       metaHeader = {
         modifiedTime,
@@ -447,7 +447,7 @@ const drive = (function() {
       
     } else if (action === 'update') {
       
-      ({ id, name, trashed, modifiedTime, parentId, content, fileRef } = await fileManager.get({fid, type}, 0));
+      ({ id, name, trashed, modifiedTime, parentId, content, fileRef } = await fileManager.TaskGetFile({fid, type}, 0));
 
       fetchUrl = apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id';
       method = 'PATCH';
@@ -623,7 +623,7 @@ const drive = (function() {
     mainStorage.data.sync[0].isSyncInProgress = true;
     syncFile(sync).then(async (json) => {
       if (json.action === 'create' || json.action === 'copy') {
-        let file = await fileManager.get({fid: mainStorage.data.sync[0].fid, type: json.type}, 0);
+        let file = await fileManager.TaskGetFile({fid: mainStorage.data.sync[0].fid, type: json.type}, 0);
         file.id = json.id;
         if (json.type == 'files') {
           await fileManager.update(file, 'files');
@@ -769,14 +769,14 @@ const drive = (function() {
     if (parseInt(parentId) === -1)
       return { id: mainStorage.data.rootId} ;
       
-    return await fileManager.get({fid: parentId, type: 'folders'}, 0);
+    return await fileManager.TaskGetFile({fid: parentId, type: 'folders'}, 0);
   }
 
   async function getParentId(id) {
     if (id === mainStorage.data.rootId)
       return -1;
       
-    let data = await fileManager.get({id, type:'folders'}, 0);
+    let data = await fileManager.TaskGetFile({id, type:'folders'}, 0);
     if (data)
       return data.fid;
     else

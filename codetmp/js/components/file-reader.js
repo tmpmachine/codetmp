@@ -189,7 +189,7 @@ const fileReaderModule = (function() {
 
 			} else {
 
-				let file = await fileManager.newFile({
+				let file = await fileManager.CreateFile({
 				    fileRef,
 				    content: null,
 				    name: item.name,
@@ -212,7 +212,7 @@ const fileReaderModule = (function() {
 	async function handleItemDirectory(item) {
 		let folder = await fileManager.TaskGetExistingItem(item.name, item.parentId, 'folder');
 		if (folder === null) {
-			folder = await fileManager.newFolder({
+			folder = await fileManager.CreateFolder({
 			    parentId: item.parentId,
 			    name: item.name,
 			});
@@ -494,7 +494,7 @@ const fileReaderModule = (function() {
 
 	async function uploadFile(self) {
 		let f = self.files[0];
-		let file = await fileManager.newFile({
+		let file = await fileManager.CreateFile({
 		    fileRef: f,
 		    content: null,
 		    name: f.name,
@@ -531,7 +531,7 @@ const fileReaderModule = (function() {
 
 		// create the root directory
 		if (parentFolderFid == -1 && !dirHandle.name.startsWith('.git')) {
-			let folder = await fileManager.newFolder({
+			let folder = await fileManager.CreateFolder({
 				parentId: parentFolderFid,
 				name: dirHandle.name,
 				directoryHandle: dirHandle,
@@ -549,7 +549,7 @@ const fileReaderModule = (function() {
 
 				  let fileRef = await entry.getFile();
 				  fileRef.entry = entry;
-				  let file = await fileManager.newFile({
+				  let file = await fileManager.CreateFile({
 				    fileRef,
 				    content: null,
 				    name: entry.name,
@@ -564,7 +564,7 @@ const fileReaderModule = (function() {
             continue;
           }
 		  
-          let folder = await fileManager.newFolder({
+          let folder = await fileManager.CreateFolder({
   			    parentId: parentFolderFid,
 				parentDirectoryHandle: dirHandle,
   			    name: entry.name,

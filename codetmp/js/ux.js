@@ -513,7 +513,7 @@ const ui = {
 		        if (!name) 
 		        	return;
 
-		        let folder = await fileManager.newFolder({
+		        let folder = await fileManager.CreateFolder({
                 name: await fileManager.getDuplicateName(activeFolder, name, 'folder'),
 		          	modifiedTime: new Date().toISOString(),
 		          	parentId: activeFolder,
@@ -538,7 +538,7 @@ const ui = {
           modal.prompt('File name', 'Untitled').then(async (name) => {
             if (!name) 
               return;
-            let file = await fileManager.newFile({
+            let file = await fileManager.CreateFile({
                 name: await fileManager.getDuplicateName(activeFolder, name),
                 modifiedTime: new Date().toISOString(),
                 content: '',
