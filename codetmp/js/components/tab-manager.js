@@ -163,7 +163,7 @@ const tabManager = (function() {
     let stack = [];
     let parentId = fid;
     while (parentId != -1) {
-      let folder = await fileManager.get({fid: parentId, type: 'folders'});
+      let folder = await fileManager.TaskGetFile({fid: parentId, type: 'folders'});
       breadcrumbs.splice(1, 0, {folderId:folder.fid, title: folder.name});
       parentId = folder.parentId;
     }

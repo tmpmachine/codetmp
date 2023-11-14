@@ -4,11 +4,10 @@ let fileManager = (function() {
     TaskInitIDBStorage,
     TaskOnStorageReady,
 
-    get: TaskGetFile,
     update: TaskUpdate,
 
-    newFile: CreateFile,
-    newFolder: CreateFolder,
+    CreateFile,
+    CreateFolder,
     RenameFile,
     RenameFolder,
     TaskClearStorage,
@@ -19,6 +18,8 @@ let fileManager = (function() {
     TaskDeleteFolder,
     
     TaskGetFile,
+    TaskUpdate,
+    TaskMoveFile,
     TaskListFiles,
     TaskListFolders,
     TaskGetAllFolders,
@@ -95,15 +96,20 @@ let fileManager = (function() {
     
     // store data
     if (STORAGE_TYPE == 'idb'  && activeWorkspace == 0) {
+      
       delete file.fid;
       let fid = await window.idbStorage.put('files', file);
       file.fid = fid;
+
     } else {
       
       if (activeWorkspace == 2) {
-        let currentDir = await TaskGetFile({fid:activeFolder, type: 'folders'});
+
+        let currentDir = await TaskGetFile({fid:file.parentId, type: 'folders'});
         if (currentDir) {
+
           try {
+
             let dirHandle = currentDir.directoryHandle;
             if (dirHandle == null) {
               dirHandle = await currentDir.parentDirectoryHandle.getDirectoryHandle(currentDir.name);
@@ -126,6 +132,7 @@ let fileManager = (function() {
           }
           
         }
+
       }
 
       fileStorage.data.files.push(file);
@@ -228,7 +235,7 @@ let fileManager = (function() {
 
   // not yet supported, keep for later
   async function RenameFolder(fid, newFileName) {
-    let folder = await fileManager.get({fid, type: 'folders'});
+    let folder = await fileManager.TaskGetFile({fid, type: 'folders'});
 
     let oldFileName = folder.name;
     folder.name = newFileName;
@@ -548,7 +555,7 @@ let fileManager = (function() {
       if (!name) 
       	return;
       
-      let file = await newFile({
+      let file = await CreateFile({
         name,
       });
       fileManager.sync({
@@ -622,6 +629,40 @@ let fileManager = (function() {
         await window.idbStorage.put('folders', data);
       }
     }
+  }
+
+  async function TaskMoveFile(data, targetFolderFid, fileType) {
+
+    // handle file system move file
+    if (activeWorkspace == 2) {
+
+      let currentDir = await TaskGetFile({fid:targetFolderFid, type: 'folders'});
+      if (currentDir) {
+
+        try {
+
+          let dirHandle = currentDir.directoryHandle;
+          if (dirHandle == null) {
+            dirHandle = await currentDir.parentDirectoryHandle.getDirectoryHandle(currentDir.name);
+            currentDir.directoryHandle = dirHandle;
+          }
+
+          let fileHandle = getFileHandle(data);
+          if (fileHandle !== null) {
+            await fileHandle.move(dirHandle);
+          }
+          
+        } catch (error) {
+          // no directory handler found with such name
+          console.error(error);
+        }
+        
+      }
+
+    }
+
+    data.parentId = targetFolderFid;
+    await TaskUpdate(data, fileType);
   }
   
   SELF.list = async function() {
@@ -917,7 +958,7 @@ let fileManager = (function() {
   }
 
   async function TaskDeleteFile(fid) {
-    let data = await SELF.get({fid, type: 'files'});
+    let data = await TaskGetFile({fid, type: 'files'});
     data.trashed = true;
     await TaskUpdate(data, 'files');;
   
@@ -952,7 +993,7 @@ let fileManager = (function() {
   }
 
   async function UnloadItem(fid, type) {
-    let data = await SELF.get({fid, type: type});
+    let data = await TaskGetFile({fid, type: type});
     if (type == 'folders') {
       data.isLoaded = false;
     } else if (type == 'files') {

@@ -15,11 +15,11 @@
 
          for (let file of selectedFile) {
             if (file.dataset.type == 'folder') {
-              let f = await fileManager.get({fid: Number(file.getAttribute('data')), type: 'folders'})
+              let f = await fileManager.TaskGetFile({fid: Number(file.getAttribute('data')), type: 'folders'})
               let folder = zip.folder(f.name);
               await insertTreeToBundle(f, folder, fileRequests, options);
             } else if (file.dataset.type == 'file') {
-              let f = await fileManager.get({fid: Number(file.getAttribute('data')), type: 'files'});
+              let f = await fileManager.TaskGetFile({fid: Number(file.getAttribute('data')), type: 'files'});
               if (f.trashed)
                 continue;
               fileRequests.push({f, folder: zip, options});
@@ -39,7 +39,7 @@
     function downloadSingle(file, options) {
       return new Promise(async (resolve) => {
 
-          let f = await fileManager.get({fid: Number(file.getAttribute('data')), type: 'files'})
+          let f = await fileManager.TaskGetFile({fid: Number(file.getAttribute('data')), type: 'files'})
           SELF.getReqFileContent(f, options).then(fileData => {
             
             let blob = fileData.file;

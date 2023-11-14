@@ -54,7 +54,7 @@ const fileClipBoard = (function() {
     let files = [];
     let folders = [];
     // let folders = await fileManager.TaskListFolders(fid, 'fid');
-    let parentFolder = await fileManager.get({fid, type: 'folders'});
+    let parentFolder = await fileManager.TaskGetFile({fid, type: 'folders'});
     if (parentFolder !== undefined) {
       folders.push(parentFolder);
     }
@@ -102,7 +102,7 @@ const fileClipBoard = (function() {
   
   async function copySingleFile({ id, fid, name, content, loaded, isTemp, fileRef }, modifiedTime) {
     let action = (loaded) ? 'create' : 'copy';
-    let file = await fileManager.newFile({
+    let file = await fileManager.CreateFile({
       id,
       isTemp,
       fileRef,
@@ -112,6 +112,7 @@ const fileClipBoard = (function() {
       loaded,
       parentId: activeFolder,
     });
+    
     fileManager.sync({
       fid: file.fid, 
       action, 
@@ -125,13 +126,13 @@ const fileClipBoard = (function() {
     if (fileIds.length === 0) return;
     
     activeWorkspace = sourceWorkspaceId;
-    ({ id, fid, name, parentId, content, loaded, trashed, fileRef } = await fileManager.get({fid: fileIds[0], type: 'files'}));
+    ({ id, fid, name, parentId, content, loaded, trashed, fileRef } = await fileManager.TaskGetFile({fid: fileIds[0], type: 'files'}));
     activeWorkspace = targetWorkspaceId;
     
     if (!trashed) {
       let idx = odin.idxOf(parentId, road, 0);
       let action = (loaded) ? 'create' : 'copy';
-      let file = await fileManager.newFile({
+      let file = await fileManager.CreateFile({
         id,
         fileRef,
         name: await fileManager.getDuplicateName(pasteParentFolderId, name),
@@ -158,12 +159,12 @@ const fileClipBoard = (function() {
     let folderId = folderIds[0];
     
     activeWorkspace = sourceWorkspaceId;
-    ({ name, modifiedTime, parentId, trashed } = await fileManager.get({fid: folderId, type: 'folders'}));
+    ({ name, modifiedTime, parentId, trashed } = await fileManager.TaskGetFile({fid: folderId, type: 'folders'}));
     activeWorkspace = targetWorkspaceId;
 
     if (!trashed) {
       let idx = odin.idxOf(parentId, road, 0);
-      let folder = await fileManager.newFolder({
+      let folder = await fileManager.CreateFolder({
         name: await fileManager.getDuplicateName(pasteParentFolderId, name, 'folder'),
         modifiedTime,
         parentId: (idx < 0) ? activeFolder : road[idx][1],
@@ -198,8 +199,7 @@ const fileClipBoard = (function() {
       let type = (fileType == 'files') ? 'file' : 'folder';
       fileTree.moveItemFrom(type, data, activeFolder);
     });
-    data.parentId = activeFolder;
-    await fileManager.update(data, fileType);
+    await fileManager.TaskMoveFile(data, activeFolder, fileType);
   }
   
   function isBreadcrumb(folderId) {
@@ -226,7 +226,7 @@ const fileClipBoard = (function() {
       
       if (type === 'file') {
         activeWorkspace = sourceWorkspaceId;
-        data = await fileManager.get({fid, type:'files'});
+        data = await fileManager.TaskGetFile({fid, type:'files'});
         activeWorkspace = targetWorkspaceId;
         if (pasteMode === 'copy') {
           await copySingleFile(data, modifiedTime);
@@ -255,7 +255,7 @@ const fileClipBoard = (function() {
             let road = await copyBranchFolder(branch.folderIds, modifiedTime);
             await copyBranchFile(branch.fileIds, road, modifiedTime);
           } else {
-            data = await fileManager.get({fid, type: 'folders'});
+            data = await fileManager.TaskGetFile({fid, type: 'folders'});
             if (isBreadcrumb(fid)) {
               aww.pop("Cannot move folder within it's own directory.");
             } else {

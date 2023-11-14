@@ -49,7 +49,7 @@ const git = (function() {
   };
 
   const registerFile = async function(_file, parentId) {
-    let file = await fileManager.newFile({
+    let file = await fileManager.CreateFile({
       parentId,
       loaded: false,
       name: _file.name,
@@ -69,7 +69,7 @@ const git = (function() {
   };
     
   const registerDir = async function(repo, _folder, parentId) {
-    let folder = await fileManager.newFolder({
+    let folder = await fileManager.CreateFolder({
       parentId,
       name: _folder.name,
     });
@@ -148,7 +148,7 @@ const git = (function() {
           timeout: 5000,
         });
       } else {
-        let folder = await fileManager.newFolder({
+        let folder = await fileManager.CreateFolder({
           parentId: activeFolder,
           name: repo.name,
         });

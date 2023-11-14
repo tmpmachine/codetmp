@@ -244,7 +244,7 @@
       if (parseInt(fid) < 0)
         return;
 
-      let file = await fileManager.get({fid, type: 'files'});
+      let file = await fileManager.TaskGetFile({fid, type: 'files'});
       let temp = [];
       let flaggedNode;
 
@@ -257,7 +257,7 @@
         } else {
           if (file.parentId == -1)
             break;
-          file = await fileManager.get({fid: file.parentId, type: 'folders'})
+          file = await fileManager.TaskGetFile({fid: file.parentId, type: 'folders'})
           temp.push(file.fid);
         }
       }
@@ -486,7 +486,7 @@
         SELF.changeWorkspace(folderId);
         return;
       }
-      let folder = await fileManager.get({fid: folderId, type: 'folders'});
+      let folder = await fileManager.TaskGetFile({fid: folderId, type: 'folders'});
       let treeData = {
         fid: folderId,
         parentId: folder.parentId,

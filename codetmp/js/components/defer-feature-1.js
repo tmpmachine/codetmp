@@ -7,7 +7,7 @@ let deferFeature1 = {
     let stack = [];
     let parentId = activeFile.parentId;
     while (parentId != -1) {
-      folder = await fileManager.get({fid: parentId, type: 'folders'});
+      folder = await fileManager.TaskGetFile({fid: parentId, type: 'folders'});
       breadcrumbs.splice(1, 0, {folderId:folder.fid, title: folder.name});
       parentId = folder.parentId;
     }

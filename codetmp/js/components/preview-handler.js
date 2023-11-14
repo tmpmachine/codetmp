@@ -412,7 +412,7 @@ function PreviewHandler() {
       } else if (dirName === '..' || dirName === '.') {
         
         // folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
-        folder = await fileManager.get({fid: parentId, type: 'folders'});
+        folder = await fileManager.TaskGetFile({fid: parentId, type: 'folders'});
         if (folder === undefined) {
           break;
         }
@@ -461,7 +461,7 @@ function PreviewHandler() {
   	
     while (parentId >= 0) {
   		// let folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
-  		folder = await fileManager.get({fid: parentId, type: 'folders'});
+  		folder = await fileManager.TaskGetFile({fid: parentId, type: 'folders'});
   		path.push(folder.name);
   		parentId = parseInt(folder.parentId);
   	}
