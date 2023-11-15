@@ -118,14 +118,17 @@ let fileManager = (function() {
             }
 
             let fileHandle = await dirHandle.getFileHandle(file.name, { create: true });
+            const writable = await fileHandle.createWritable();
             if (helper.hasFileReference(file.fileRef)) {
-              const writable = await fileHandle.createWritable();
               await writable.write(file.fileRef);
-              await writable.close();
+            } else {
+              await writable.write(file.content);
             }
+            await writable.close();
             let fileRef = await fileHandle.getFile();
             fileRef.entry = fileHandle;
             file.fileRef = fileRef;
+            file.content = null;
             
           } catch (error) {
             // no directory handler found with such name
@@ -552,9 +555,9 @@ let fileManager = (function() {
   function saveAsNewFile() {
   	let fileName = $('.file-name')[activeTab].textContent;
     modal.prompt('File name', fileName, '', helper.getFileNameLength(fileName)).then(async (name) => {
-      if (!name) 
-      	return;
+      if (!name) return;
       
+      let isCreatedFromFileTab = true;
       let file = await CreateFile({
         name,
       });
@@ -573,14 +576,21 @@ let fileManager = (function() {
       
       ui.tree.appendFile(file);
 
+      fileContent = file.content;
+      if (activeWorkspace == 2) {
+        fileContent = fileTab[activeTab].editor.env.editor.getValue();
+      }
+
       confirmCloseTab(false);
-      newTab(activeTab, {
+      let tabData = {
         fid: file.fid,
         name: file.name,
         fiber: 'close',
         file: file,
-        editor: initEditor(file.content, scrollTop, row, col),
-      });
+        fileHandle: ( (activeWorkspace == 2 && file.fileRef && file.fileRef.entry) ? file.fileRef.entry : null ),
+        editor: initEditor(fileContent, scrollTop, row, col),
+      };
+      tabManager.newTab(activeTab, tabData);
 
     }).catch((err) => {
       fileTab[activeTab].editor.env.editor.focus();

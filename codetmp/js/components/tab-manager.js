@@ -26,10 +26,12 @@ const tabManager = (function() {
           fiber: 'close'
         })
       });
-      if (data.file)
+      if (data.file) {
         $('.file-tab', el)[0].dataset.parentId = data.file.parentId;
-      if (data.fileHandle === undefined)
+      }
+      if (data.fileHandle === undefined) {
         data.fileHandle = null;
+      }
     } else {
       fid = '-' + (new Date).getTime();
       el = o.element('div', {
