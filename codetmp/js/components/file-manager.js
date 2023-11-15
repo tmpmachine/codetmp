@@ -82,6 +82,7 @@ let fileManager = (function() {
       parentId: activeFolder,
       modifiedTime: new Date().toISOString(),
     };
+    fileStorage.data.counter.files += 1;
     
     for (let key in predefinedData) {
       if (file.hasOwnProperty(key)) {
@@ -136,7 +137,6 @@ let fileManager = (function() {
       }
 
       fileStorage.data.files.push(file);
-      fileStorage.data.counter.files++;
 
     }
 
@@ -160,6 +160,7 @@ let fileManager = (function() {
       directoryHandle: null,
       parentDirectoryHandle: null,
     };
+    fileStorage.data.counter.folders += 1;
     
     for (let key in predefinedData) {
       if (file.hasOwnProperty(key))
@@ -199,7 +200,6 @@ let fileManager = (function() {
         }
       }
 
-      fileStorage.data.counter.folders++;
       fileStorage.data.folders.push(file);
       fileStorage.save();
 
