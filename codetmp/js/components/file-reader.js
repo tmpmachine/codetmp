@@ -547,16 +547,20 @@ const fileReaderModule = (function() {
       for await (const entry of dirHandle.values()) {
           if (entry.kind === "file") {
 
-				  let fileRef = await entry.getFile();
-				  fileRef.entry = entry;
-				  let file = await fileManager.CreateFile({
-				    fileRef,
-				    content: null,
-				    name: entry.name,
-				    parentId: parentFolderFid,
-				    isTemp: true,
-				  });
-    			ui.tree.appendFile(file);
+			let isStoreWriteable = false;
+
+			let fileRef = await entry.getFile();
+			fileRef.entry = entry;
+			
+			let file = await fileManager.CreateFile({
+				fileRef,
+				content: null,
+				name: entry.name,
+				parentId: parentFolderFid,
+				isTemp: true,
+			}, activeWorkspace, isStoreWriteable);
+			
+			ui.tree.appendFile(file);
           
         } else if (entry.kind === "directory") {
           

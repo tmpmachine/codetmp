@@ -67,7 +67,7 @@ let fileManager = (function() {
     });
   }
 
-  async function CreateFile(data = {}, workspaceId = activeWorkspace) {
+  async function CreateFile(data = {}, workspaceId = activeWorkspace, isStoreWriteable = true) {
     
     let temp = activeWorkspace;
     activeWorkspace = workspaceId;
@@ -118,13 +118,18 @@ let fileManager = (function() {
             }
 
             let fileHandle = await dirHandle.getFileHandle(file.name, { create: true });
-            const writable = await fileHandle.createWritable();
-            if (helper.hasFileReference(file.fileRef)) {
-              await writable.write(file.fileRef);
-            } else {
-              await writable.write(file.content);
+            
+            if (isStoreWriteable) {
+              
+              const writable = await fileHandle.createWritable();
+              if (helper.hasFileReference(file.fileRef)) {
+                await writable.write(file.fileRef); // write stream from copied file
+              } else {
+                await writable.write(file.content); // write stream from editor
+              }
+              await writable.close();
             }
-            await writable.close();
+            
             let fileRef = await fileHandle.getFile();
             fileRef.entry = fileHandle;
             file.fileRef = fileRef;
