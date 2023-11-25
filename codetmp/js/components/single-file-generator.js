@@ -67,14 +67,36 @@ function SingleFileGeneratorComponent() {
       aww.pop('Required file not found : '+src);
     } else {
       let content = '';
+      
       if (!file.loaded) {
+      
         fileManager.downloadMedia(file);
+      
       } else {
+
         let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
-        if (tabIdx >= 0)
+        if (tabIdx >= 0) {
           content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
-        else
+        } else {
           content = file.content;
+
+          if (file.isTemp && helper.hasFileReference(file.fileRef) && file.content === null) {
+        
+            if (file.fileRef.entry) {
+              let fileResult = await file.fileRef.entry.getFile();
+              content = await new Promise(resolve => {
+                let reader = new FileReader();
+                reader.onload = async function(evt) {
+                  resolve(reader.result)
+                }
+                reader.readAsText(fileResult);
+              })
+            }
+    
+          }
+
+
+        }
 
         if (typeof Terser != 'undefied' && helper.isMediaTypeJavascript(file.name) && options.minifyJs) {
           try {
@@ -158,10 +180,26 @@ function SingleFileGeneratorComponent() {
 
         if (file.loaded) {
           let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
-          if (tabIdx >= 0)
+          if (tabIdx >= 0) {  
             content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
-          else
+          } else {
             content = file.content;
+
+            if (file.isTemp && helper.hasFileReference(file.fileRef) && file.content === null) {
+        
+              if (file.fileRef.entry) {
+                let fileResult = await file.fileRef.entry.getFile();
+                content = await new Promise(resolve => {
+                  let reader = new FileReader();
+                  reader.onload = async function(evt) {
+                    resolve(reader.result)
+                  }
+                  reader.readAsText(fileResult);
+                })
+              }
+      
+            }
+          }
           
           if (typeof Terser != 'undefied' && helper.isMediaTypeJavascript(file.name) && options.minifyJs) {
             try {
