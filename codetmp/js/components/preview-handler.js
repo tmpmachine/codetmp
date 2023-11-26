@@ -336,10 +336,6 @@ function PreviewHandler() {
       if (targetTab) {
 
           content = targetTab.editor.env.editor.getValue();
-          if (isConvertDivless) {
-            content = divless.replace(content);
-          }
-          return content;
 
       } else {
 
@@ -359,13 +355,12 @@ function PreviewHandler() {
             }
             r.readAsText(blob);   
           })
-          return content;
 
+        } else {
+          return file.fileRef;
         }
 
       }
-
-      return file.fileRef;
 
     } else {
 
