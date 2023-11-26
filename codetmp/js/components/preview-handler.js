@@ -496,10 +496,26 @@ function PreviewHandler() {
         fileManager.downloadMedia(file);
       } else {
         let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
-        if (tabIdx >= 0)
+        if (tabIdx >= 0) {
           content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
-        else
+        } else {
           content = file.content;
+
+          if (file.isTemp && helper.hasFileReference(file.fileRef) && file.content === null) {
+        
+            if (file.fileRef.entry) {
+              let fileResult = await file.fileRef.entry.getFile();
+              content = await new Promise(resolve => {
+                let reader = new FileReader();
+                reader.onload = async function(evt) {
+                  resolve(reader.result)
+                }
+                reader.readAsText(fileResult);
+              })
+            }
+    
+          }
+        }
       }
       let swap = await replaceTemplate(content, parentId, path);
       body = body.replace(new RegExp(match[0]), swap);
