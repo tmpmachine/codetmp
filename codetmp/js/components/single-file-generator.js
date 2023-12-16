@@ -17,7 +17,7 @@ function SingleFileGeneratorComponent() {
       minifyJs: form.minifyJs.checked,
     };
     let content = await getSingleFileContent(options);
-    copyToClipboard(content, form);
+    copyToClipboard(content);
   }
 
   async function getSingleFileContent(options) {
@@ -231,15 +231,14 @@ function SingleFileGeneratorComponent() {
     a.remove()
   }
 
-  function copyToClipboard(content, form) {
-    let copyText = document.createElement('textarea');
-    copyText.setAttribute('style', 'heigh:1px;position:absolute;opacity:0');
-    copyText.value = content;
-    form.append(copyText);
-    copyText.select();
-    copyText.setSelectionRange(0, content.length+1);
+  function copyToClipboard(content) {
+    let node  = document.createElement('textarea');
+    node.value = content;
+    document.body.append(node);
+    node.select();
+    node.setSelectionRange(0, node.value.length);
     document.execCommand("copy");
-    copyText.remove();
+    node.remove();
     aww.pop('Copied to clipboard.')
   }
 
