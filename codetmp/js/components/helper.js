@@ -1,5 +1,34 @@
 const helper = (function () {
 
+  let SELF = {
+    getFileNameLength,
+    generateRemoteDataContent,
+    getRemoteDataContent,
+    isHasSource,
+    getMimeType,
+    isMediaTypeText,
+    isMediaTypeHTML,
+    isMediaTypeStream,
+    isMediaTypeMultimedia,
+    isMediaTypeImage,
+    isMediaTypeAV,
+    isMediaTypeJavascript,
+    getFileIconColor,
+    redirectWarning,
+    hasFileReference,
+    FileReaderReadAsText,
+  };
+
+  async function FileReaderReadAsText(fileRef) {
+    return new Promise(resolve => {
+      let reader = new FileReader();
+      reader.onload = async function(evt) {
+          resolve(reader.result)
+      }
+      reader.readAsText(fileRef);
+    });
+  }
+
   function getFileNameLength(fileName) {
     let arr = fileName.split('.');
     if (arr.length > 1)
@@ -139,22 +168,6 @@ const helper = (function () {
     return !(typeof(fileRef.name) == 'undefined');
   }
 
-  return {
-    getFileNameLength,
-    generateRemoteDataContent,
-    getRemoteDataContent,
-    isHasSource,
-    getMimeType,
-    isMediaTypeText,
-    isMediaTypeHTML,
-    isMediaTypeStream,
-    isMediaTypeMultimedia,
-    isMediaTypeImage,
-    isMediaTypeAV,
-    isMediaTypeJavascript,
-    getFileIconColor,
-    redirectWarning,
-    hasFileReference,
-  };
+  return SELF;
 
 })();

@@ -160,11 +160,41 @@
         let isMultimedia = helper.isMediaTypeMultimedia(mimeType);
         
         if (f.isTemp && helper.hasFileReference(f.fileRef) && f.content === null) {
+
+          let content = null;
+          if (needReplaceFileTag(f, options) || needConvertDivless(f, options)) {
+            content = await helper.FileReaderReadAsText(f.fileRef);
+            content = await applyExportOptionToContent(content, options, f.parentId);
+          }
+
+          if (needMinifyJs(f, options)) {
+            try {
+              if (!content) {
+                content = await helper.FileReaderReadAsText(f.fileRef);
+              }
+              let result = await Terser.minify(content, { sourceMap: false });
+              content = result.code;
+            } catch (e) {
+              console.log(e)
+            }
+          }
+
+          if (content) {
+            let blob = new Blob([content], {type: mimeType});
+            resolve({
+              file: blob, 
+              isMarkedBinary: false,
+            });
+            return;
+          }
+
           resolve({
             file: f.fileRef, 
             isMarkedBinary: true,
           });
-          return
+          
+          return;
+
         } else if (isMultimedia && typeof(f.blob) != 'undefined') {
           resolve({
             file: f.blob, 
