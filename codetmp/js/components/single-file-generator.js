@@ -131,9 +131,19 @@ function SingleFileGeneratorComponent() {
     
     if (match[0].includes('<script')) {
       src = match[0].match(/src=['|"].*?['|"]/)[0];
+
+      // keep element attributes
+      let attrStr = '';
+      try {
+        attrStr = match[0].replace(src,'').match(/<script.*?>/)[0].replace('<script', '');
+        attrStr = attrStr.substring(0, attrStr.length-1);
+      } catch (error) {
+        console.error(error);        
+      }
+
       src = src.substring(5, src.length - 1);
       isScriptOrLink = true;
-      tagName = 'script';
+      tagName = `script ${attrStr}`.trim();
     } else if (match[0].includes('<link')) {
       src = match[0].match(/href=['|"].*?['|"]/)[0];
       src = src.substring(6, src.length - 1);
