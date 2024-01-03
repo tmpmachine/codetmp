@@ -1,5 +1,23 @@
 const drive = (function() {
 
+  let SELF = {
+    // read-only properties
+    // will overwritten by defineProperty below
+    apiUrl: null,
+
+    setToken,
+    readAppData,
+    syncToDrive,
+    syncFromDrive,
+    syncFromDrivePartial,
+    getWebContentLink,
+    downloadDependencies,
+  };
+
+  Object.defineProperty(SELF, 'apiUrl', {
+    get: () => apiUrl,
+  });
+
   let apiUrl = 'https://www.googleapis.com/drive/v3/';
   let apiUrlUpload = 'https://www.googleapis.com/upload/drive/v3/';
   let appFolderName = 'Codetmp';
@@ -98,7 +116,7 @@ const drive = (function() {
           f.modifiedTime = modifiedTime;
         }
         
-        await fileManager.update(f, 'folders');
+        await fileManager.TaskUpdate(f, 'folders');
       } else {
         if (parentFolderId > -2) {
           let folder = await fileManager.CreateFolder({
@@ -152,15 +170,15 @@ const drive = (function() {
           if (f.loaded) {
 	          downloadDependencies(f).then(async (content) => {
 	          	f.content = content;
-	          	await fileManager.update(f, 'files');
+	          	await fileManager.TaskUpdate(f, 'files');
 	          	mainStorage.save();
 	          	ui.reloadOpenTab(f.fid, f.content);
 	          });
           } else {
-            await fileManager.update(f, 'files');
+            await fileManager.TaskUpdate(f, 'files');
           }
         } else {
-      	  await fileManager.update(f, 'files');
+      	  await fileManager.TaskUpdate(f, 'files');
         }
       } else {
         if (parentFolderId > -2) {
@@ -302,7 +320,7 @@ const drive = (function() {
             let folder = await fileManager.TaskGetFile({id: parentId, type: 'folders'}, 0);
             if (folder) {
               folder.isSync = true;
-              await fileManager.update(folder, 'folders');
+              await fileManager.TaskUpdate(folder, 'folders');
             }
           }
           mainStorage.save();
@@ -406,7 +424,7 @@ const drive = (function() {
               folder.isSync = true;
               folder.isLoaded = true;
             }
-            await fileManager.update(folder, 'folders');
+            await fileManager.TaskUpdate(folder, 'folders');
           }
           mainStorage.save();
           if (dirLevel < 2) {
@@ -626,9 +644,9 @@ const drive = (function() {
         let file = await fileManager.TaskGetFile({fid: mainStorage.data.sync[0].fid, type: json.type}, 0);
         file.id = json.id;
         if (json.type == 'files') {
-          await fileManager.update(file, 'files');
+          await fileManager.TaskUpdate(file, 'files');
         } else if (json.type == 'folders') {
-          await fileManager.update(file, 'folders');
+          await fileManager.TaskUpdate(file, 'folders');
         }
       }
       mainStorage.data.sync.splice(0, 1);
@@ -822,14 +840,6 @@ const drive = (function() {
   	})
   }
 
-  return {
-    apiUrl,
-    setToken,
-    readAppData,
-    syncToDrive,
-    syncFromDrive,
-    syncFromDrivePartial,
-    getWebContentLink,
-    downloadDependencies,
-  };
+  return SELF;
+
 })();

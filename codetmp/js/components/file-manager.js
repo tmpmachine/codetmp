@@ -4,8 +4,6 @@ let fileManager = (function() {
     TaskInitIDBStorage,
     TaskOnStorageReady,
 
-    update: TaskUpdate,
-
     CreateFile,
     CreateFolder,
     RenameFile,

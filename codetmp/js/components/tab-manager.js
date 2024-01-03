@@ -106,7 +106,7 @@ const tabManager = (function() {
     editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
     editor.setFontSize(editorManager.fontSize);
     activeFile = (String(fid)[0] == '-') ? null : fileTab[activeTab].file;
-    setEditorMode(fileTab[activeTab].name);  
+    ui.setEditorMode(fileTab[activeTab].name);  
     
     editor.focus();
 

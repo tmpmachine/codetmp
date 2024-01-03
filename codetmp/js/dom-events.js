@@ -83,7 +83,7 @@ let DOMEvents = {
 		'open-in-explorer': () => deferFeature1.openFileDirectory(),
 		'new-file': ui.newFile,
 		'new-file-on-disk': ui.newDiskFile,
-		'open-disk-folder': () => ux.OpenDiskFile(),
+		'open-disk-folder': () => ui.OpenDiskFile(),
 		'new-folder': ui.fileManager.newFolder,
 		'save': fileManager.save,
 		'preview': () => previewHandler.previewPath(),
@@ -117,7 +117,7 @@ let DOMEvents = {
 			document.body.classList.toggle('--tree-explorer');
 			settings.data.explorer.tree = document.body.classList.contains('--tree-explorer');
 	    	settings.save();
-			window.ui.resizeEditor();
+			ui.resizeEditor();
 		},
 		'Alt+W': () => confirmCloseTab(),
 		'Alt+O': () => deferFeature1.openFileDirectory(),
@@ -147,7 +147,7 @@ let DOMEvents = {
 			evt.preventDefault();
 			// check if is file system mode
 			if (activeWorkspace == 2) {
-				ux.OpenDiskFile();
+				ui.OpenDiskFile();
 			} else {
 				alert('Feature not implemented. Try dragging and dropping the file into the editor.')
 			}

@@ -1,57 +1,50 @@
-let previewHandler = new PreviewHandler();
-
-function PreviewHandler() {
-
-  this.portResolver = null;
-  this.previewMode = 'normal';
-  let driveAccessToken = '';
-  let targetPreviewDomain = 'preview'; // preview or pwa
-  let previewFrame1 = window.open(environment.previewUrl, 'PreviewFrame');
-  let previewFrame2 = window.open(environment.previewUrlPWA, 'PreviewFramePWA');
-
-  function removeParam(url) {
-    var oldURL = url;
-    var index = 0;
-    var newURL = oldURL;
-    index = oldURL.indexOf('?');
-    if(index == -1){
-        index = oldURL.indexOf('#');
-    }
-    if(index != -1){
-        newURL = oldURL.substring(0, index);
-    }
-    return newURL;
+let previewHandler = (function () {
+  
+  let SELF = {
+    previewMode: 'normal',
+    previewPathAtPWA,
+    getDirectory,
+    setToken,
+    replaceFile,
+    previewPath,
+    Init,
+  };
+  
+  let local = {
+    driveAccessToken: '',
+    targetPreviewDomain: 'preview', // preview or pwa
+    isPortOpened: false,
+    resolvePort: null,
+    messageChannel1: null, 
+    messageChannel2: null,
+    previewFrame1: window.open(environment.previewUrl, 'PreviewFrame'),
+    previewFrame2: window.open(environment.previewUrlPWA, 'PreviewFramePWA'),
   }
 
-  let messageChannel1, messageChannel2;
-  let resolvePort;
-  let SELF = {};
-  
   async function delayWindowFocus() {
     return new Promise(resolve => window.setTimeout(resolve, 1));
   }
 
-  this.previewPathAtPWA = function() {
+  function previewPathAtPWA() {
     let targetPreviewDomain = 'pwa';
-    SELF.previewPath(null, targetPreviewDomain);
+    previewPath(null, targetPreviewDomain);
   }
 
-  let isPortOpened = false;
-  SELF.previewPath = this.previewPath = async function(requestPath, _targetPreviewDomain = 'preview') {
-    targetPreviewDomain = _targetPreviewDomain;
+  async function previewPath(requestPath, _targetPreviewDomain = 'preview') {
+    local.targetPreviewDomain = _targetPreviewDomain;
     if (!requestPath) {
-      requestPath = await previewHandler.getPath();
+      requestPath = await getPath();
     }
     let frameName = '';
     if (settings.data.editor.linkPreviewWindowProcess) {
-      frameName = previewHandler.getFrameName();
+      frameName = getFrameName();
     }
     let url = environment.previewUrl + requestPath;
-    if (targetPreviewDomain == 'pwa') {
+    if (local.targetPreviewDomain == 'pwa') {
       url = environment.previewUrlPWA + requestPath;
   
     }
-    if (isPortOpened) {
+    if (local.isPortOpened) {
 
       testConnection(_targetPreviewDomain)
       .then(async () => {
@@ -63,17 +56,17 @@ function PreviewHandler() {
         }
       })
       .catch(() => {
-        isPortOpened = false;
-        SELF.previewPath(requestPath, _targetPreviewDomain);
+        local.isPortOpened = false;
+        previewPath(requestPath, _targetPreviewDomain);
       });
 
     } else {
       
       new Promise(resolve => {
-        resolvePort = resolve;
+        local.resolvePort = resolve;
       }).then(async () => {
-        isPortOpened = true;
-        resolvePort = null;
+        local.isPortOpened = true;
+        local.resolvePort = null;
         await delayWindowFocus();
         if (frameName) {
           window.open(url, frameName);
@@ -92,13 +85,13 @@ function PreviewHandler() {
 
   function createMessageChannel(channelName) {
     if (channelName == 'preview') {
-      messageChannel1 = new MessageChannel();
-      messageChannel1.port1.onmessage = previewHandler.fileResponseHandler;
-      return messageChannel1;
+      local.messageChannel1 = new MessageChannel();
+      local.messageChannel1.port1.onmessage = fileResponseHandler;
+      return local.messageChannel1;
     } else if (channelName == 'pwa') {
-      messageChannel2 = new MessageChannel();
-      messageChannel2.port1.onmessage = previewHandler.fileResponseHandler;
-      return messageChannel2;
+      local.messageChannel2 = new MessageChannel();
+      local.messageChannel2.port1.onmessage = fileResponseHandler;
+      return local.messageChannel2;
     }
   }
   
@@ -159,7 +152,7 @@ function PreviewHandler() {
           data.source = 'git';
         } else {
           await auth2.init();
-          data.accessToken = driveAccessToken;
+          data.accessToken = local.driveAccessToken;
         }
 
         getMessageChannel(channelName).port1.postMessage({
@@ -174,7 +167,7 @@ function PreviewHandler() {
   }
 
   async function responseAsText(event, path, mimeType, channelName) {
-  	let content = await previewHandler.getContent(path, mimeType);
+  	let content = await getContent(path, mimeType);
     if (typeof Terser != 'undefied' && mimeType == "text/javascript; charset=UTF-8" && settings.data.editor.minifyJs) {
       try {
         let result = await Terser.minify(content, { sourceMap: false });
@@ -191,7 +184,7 @@ function PreviewHandler() {
   	});
   }
 
-	this.fileResponseHandler = async function (e) {
+	async function fileResponseHandler(e) {
 	  
     let channelName = 'preview'; // default
     if (e.data.channelName) {
@@ -218,12 +211,12 @@ function PreviewHandler() {
         resolveTestConnection(channelName);
 	      break;
 	    case 'message-port-opened':
-        if (resolvePort) {
-          resolvePort();
+        if (local.resolvePort) {
+          local.resolvePort();
         }
         break;
 	  }
-  };
+  }
 
   function resolveTestConnection(channelName) {
     let resolver = getTestConnectionResolver(channelName);
@@ -236,7 +229,7 @@ function PreviewHandler() {
     let preParent = activeFolder;
     let relativeParent = preParent;
     let path = ['root'];
-    let parentId = await previewHandler.getDirectory(src, relativeParent, path);
+    let parentId = await getDirectory(src, relativeParent, path);
     let files = await fileManager.TaskListFiles(parentId);
     let name = src.replace(/.*?\//g,'');
     let isFileFound = false;
@@ -250,7 +243,7 @@ function PreviewHandler() {
     return { file, parentId };
   }
 
-	this.getContent = async function(src, mimeType) {
+	async function getContent(src, mimeType) {
 
     if (src == '/untitled.html') {
     	let content = await replaceTemplate(fileTab[activeTab].editor.env.editor.getValue());
@@ -381,7 +374,7 @@ function PreviewHandler() {
 
   }
 
-  this.getFrameName = function() {
+  function getFrameName() {
     let file = activeFile;
     let name = 'preview';
     if (file !== null)
@@ -389,7 +382,7 @@ function PreviewHandler() {
     return name;
   }
 
-  this.getDirectory = async function(source, parentId, path) {
+  async function getDirectory(source, parentId, path) {
     source = decodeURI(source);
     while (source.match('//')) {
       source = source.replace('//','/');
@@ -439,7 +432,7 @@ function PreviewHandler() {
     return parentId;
   };
 
-  this.getPath = async function() {
+  async function getPath() {
 
     let file;
 
@@ -462,16 +455,16 @@ function PreviewHandler() {
   	}
   	return path.reverse().join('/');
 
-  };
+  }
 
-  this.setToken = function(token) {
-    driveAccessToken = token;
-  };
+  function setToken(token) {
+    local.driveAccessToken = token;
+  }
 
   async function replaceFile(match, body, preParent, path) {
     let src = match[0].substring(11, match[0].length-9);
     let relativeParent = preParent;
-    let parentId = await previewHandler.getDirectory(src, relativeParent, path);
+    let parentId = await getDirectory(src, relativeParent, path);
     let files = await fileManager.TaskListFiles(parentId);
     let name = src.replace(/.*?\//g,'');
     let file = null;
@@ -518,8 +511,6 @@ function PreviewHandler() {
     return body;
   }
 
-  this.replaceFile = replaceFile;
-
   async function replaceTemplate(body, preParent = -1, path = ['root']) {
     let match = getMatchTemplate(body);
     while (match !== null) {
@@ -535,15 +526,15 @@ function PreviewHandler() {
   }
 
   function getPreviewFrame(channelName) {
-    return (channelName == 'pwa') ? previewFrame2 : previewFrame1;
+    return (channelName == 'pwa') ? local.previewFrame2 : local.previewFrame1;
   }
 
   function getMessageChannel(channelName) {
-    return (channelName == 'pwa') ? messageChannel2 : messageChannel1;
+    return (channelName == 'pwa') ? local.messageChannel2 : local.messageChannel1;
   }
 
   function getMessageChannelName() {
-    return targetPreviewDomain;
+    return local.targetPreviewDomain;
   }
 
   function setTestConnectionResolver(channelName, resolver) {
@@ -562,22 +553,44 @@ function PreviewHandler() {
     }
   }
 
-  window.addEventListener('message', function(e) {
-    if (e.data.message) {
-      let channel;
-      switch (e.data.message) {
-        case 'port-missing':
-          channel = createMessageChannel(e.data.channelName);
-          getPreviewFrame(e.data.channelName).postMessage({ message: 'reinit-message-port' }, '*', [channel.port2]);
-          break;
-        case 'preview-frame-isReady':
-          channel = createMessageChannel(e.data.channelName);
-          getPreviewFrame(e.data.channelName).postMessage({ message: 'init-message-port' }, '*', [channel.port2]);
-          break;
-      }
+  function removeParam(url) {
+    var oldURL = url;
+    var index = 0;
+    var newURL = oldURL;
+    index = oldURL.indexOf('?');
+    if(index == -1){
+        index = oldURL.indexOf('#');
     }
+    if(index != -1){
+        newURL = oldURL.substring(0, index);
+    }
+    return newURL;
+  }
 
-  }, false);
+  function Init() {
+    attachPortListeners();
+  }
 
-  return this;
-}
+  function attachPortListeners() {
+    window.addEventListener('message', function(e) {
+
+      if (e.data.message) {
+        let channel;
+        switch (e.data.message) {
+          case 'port-missing':
+            channel = createMessageChannel(e.data.channelName);
+            getPreviewFrame(e.data.channelName).postMessage({ message: 'reinit-message-port' }, '*', [channel.port2]);
+            break;
+          case 'preview-frame-isReady':
+            channel = createMessageChannel(e.data.channelName);
+            getPreviewFrame(e.data.channelName).postMessage({ message: 'init-message-port' }, '*', [channel.port2]);
+            break;
+        }
+      }
+  
+    }, false);
+  }
+
+  return SELF;
+
+})();

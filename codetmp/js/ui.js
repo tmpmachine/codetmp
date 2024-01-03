@@ -168,155 +168,350 @@ const modalWindowManager = (function() {
 
 })();
 
-let ux = (function() {
+let ui = (function() {
   
   let SELF = {
     OpenDiskFile,
+    states: {
+      storage: STORAGE_STATE.default,
+    },
+    tab: {
+      openDirectory: function(self) {
+        if (self.dataset.parentId != '' && self.classList.contains('isActive')) {
+          let parentId = parseInt(self.dataset.parentId);
+          tabManager.openDirectory(parentId);
+        }
+        event.preventDefault();
+      },
+    },
+    fileGenerator: {
+      generate: function() {
+        let form = this.form;
+        window.app.getComponent('single-file-generator').then(sfg => {
+          sfg.generate(form);
+        }).catch((e) => {
+          aww.pop('Component is not ready yet.')
+        });
+      },
+      copy: function() {
+        let form = this.form;
+        window.app.getComponent('single-file-generator').then(sfg => {
+          sfg.copy(form);
+        }).catch((e) => {
+          aww.pop('Component is not ready yet.')
+        });
+      },
+    },
+    tree: {
+      renameFolder: function(folder) {
+        window.app.getComponent('fileTree').then(fileTree => {
+          fileTree.renameItem(folder, 'folder');
+        });
+      },
+      renameFile: function(file) {
+        window.app.getComponent('fileTree').then(fileTree => {
+          fileTree.renameItem(file, 'file');
+        });
+      },
+      appendFile: function(file) {
+        window.app.getComponent('fileTree').then(ft => {
+          ft.appendFile(file);
+        });
+      },
+      appendFolder: function(folder) {
+        window.app.getComponent('fileTree').then(ft => {
+          ft.appendFolder(folder);
+        });
+      },
+      createWorkspace: function() {
+        window.app.getComponent('fileTree').then(ft => {
+          ft.createWorkspace(activeFolder);
+        });
+      },
+    },
+    
+    highlightTree,
+    reloadFileTree,
+    myFiles,
+    trash,
+    toggleTheme,
+    toggleInFrame,
+    setFontSize,
+    changeFileListView,
+    reloadOpenTab,
+    toggleFileDownload,
+    toggleGenerateSingleFile,
+    previewMedia,
+    closeMediaPreview,
+    enableJSZip,
+    toggleMyFiles,
+    toggleFileActionButton,
+    setGitToken,
+  
+    fileManager: (function() {
+  
+      function commit(data) {
+        fileManager.sync(data);
+        drive.syncToDrive();
+        fileStorage.save();
+        fileManager.list();
+      }
+  
+      function getSelected(el) {
+        return {
+          title: el.getAttribute('title'),
+          id: Number(el.getAttribute('data')),
+        };
+      }
+  
+      function renameFolder() {
+  
+          if (activeWorkspace == 2) {
+            alert('Renaming folder in file system mode is not yet supported.');
+            return;
+          }
+  
+          let selection = getSelected(selectedFile[0]);
+          modal.prompt('Rename', selection.title, '', helper.getFileNameLength(selection.title)).then(async (name) => {
+            if (!name || name === selection.title) return;
+          
+              let folder = await fileManager.RenameFolder(selection.id, name);
+              ui.tree.renameFolder(folder);
+  
+          });
+        }
+        function renameFile() {
+          let selection = getSelected(selectedFile[0]);
+          let fid = selection.id;
+            modal.prompt('Rename', selection.title, '', helper.getFileNameLength(selection.title)).then(async (name) => {
+              if (!name || name == selection.title) 
+                return;
+  
+              let file = await fileManager.RenameFile(fid, name);
+              ui.tree.renameFile(file);
+  
+              if (activeFile) {
+                if (fid === activeFile.fid)
+                  setEditorMode(file.name);
+                
+                let index = 0
+                for (let tab of fileTab) {
+                  if (tab.fid == fid) {
+                    $('.file-name')[index].textContent = file.name;
+                    break;
+                  }
+                  index++;
+                }
+              }
+            });
+        }
+        function newFolder() {
+            if (!$('#in-my-files').classList.contains('active'))
+              return;
+            
+            modal.prompt('Folder name', 'New Folder').then(async (name) => {
+              if (!name) 
+                return;
+  
+              let folder = await fileManager.CreateFolder({
+                  name: await fileManager.getDuplicateName(activeFolder, name, 'folder'),
+                  modifiedTime: new Date().toISOString(),
+                  parentId: activeFolder,
+              });
+              commit({
+                fid: folder.fid,
+                action: 'create',
+                type: 'folders',
+              });
+              clearSelection();
+              ui.tree.appendFolder(folder);
+  
+            });
+        }
+  
+        function newFile() {
+            if (!$('#in-my-files').classList.contains('active')) {
+              ui.openNewTab();
+              return;
+            }
+            
+            modal.prompt('File name', 'Untitled').then(async (name) => {
+              if (!name) 
+                return;
+              let file = await fileManager.CreateFile({
+                  name: await fileManager.getDuplicateName(activeFolder, name),
+                  modifiedTime: new Date().toISOString(),
+                  content: '',
+              });
+              commit({
+                fid: file.fid,
+                action: 'create',
+                type: 'files',
+              });
+              clearSelection();
+              ui.tree.appendFile(file);
+  
+            });
+        }
+        
+        function confirmDeletion(message) {
+          return new Promise(resolve => {
+            modal.confirm(message).then(() => {
+              resolve();
+            })
+          })
+        }
+  
+        async function deleteFolder(selectedFile) {
+          let selection = getSelected(selectedFile);
+          let fid = selection.id;
+          await fileManager.TaskDeleteFolder(fid);
+        }
+  
+        async function deleteFile(selectedFile) {
+          let selection = getSelected(selectedFile);
+          let fid = selection.id;
+          await fileManager.TaskDeleteFile(fid);
+  
+          if (activeFile && parseInt(fid) == parseInt(activeFile.fid)) {
+            activeFile = null;
+            fileTab[activeTab].fiber = 'fiber_manual_record';
+            $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
+          }
+        }
+  
+        async function unloadSelection(selectedFile, type) {
+          let selection = getSelected(selectedFile);
+          let fid = selection.id;
+          await fileManager.UnloadItem(fid, type);
+        }
+  
+        function deleteSelected() {
+          if (selectedFile.length === 1) {
+            confirmDeletion('Move selected item to trash?').then(async () => {
+              if (selectedFile[0].getAttribute('data-type') === 'folder')
+                deleteFolder(selectedFile[0]);
+              else if (selectedFile[0].getAttribute('data-type') === 'file')
+                deleteFile(selectedFile[0]);
+              clearSelection();
+            })
+          } else if (selectedFile.length > 1) {
+            confirmDeletion('Move selected items to trash?').then(async () => {
+              while (selectedFile.length > 0) {
+                let selection = selectedFile[0];
+                if (selection.getAttribute('data-type') === 'folder')
+                  await deleteFolder(selection);
+                else if (selection.getAttribute('data-type') === 'file')
+                  await deleteFile(selection);  
+              }
+              clearSelection();
+            });
+          }
+        }
+  
+        function UnloadSelected() {
+          if (selectedFile.length === 1) {
+            confirmDeletion('Unload selected item?').then(async () => {
+              if (selectedFile[0].getAttribute('data-type') === 'folder')
+                unloadSelection(selectedFile[0], 'folders');
+              else if (selectedFile[0].getAttribute('data-type') === 'file')
+                unloadSelection(selectedFile[0], 'files');
+              clearSelection();
+            })
+          } else if (selectedFile.length > 1) {
+            alert('Multiple unload currently not suppoerted')
+          }
+        }
+  
+      return {
+        renameFolder,
+        renameFile,
+        newFolder,
+        newFile,
+        deleteSelected,
+        getSelected,
+        UnloadSelected,
+      };
+  
+    })(), // end of ui.fileManager
+  
+    Init,
+    hidePalette,
+    setEditorMode,
+    toggleBreakPoint,
+    initEditorSmartBookmark,
+    newFile,
+    newDiskFile,
+    resizeEditor,
+    fileDownload,
+    alert,
+    cloneRepo,
+    confirmClearData,
+    switchTab,
+    openNewTab,
+    toggleAutoSync,
+    toggleSaveToken,
+    toggleHomepage,
+    toggleMenu,
+    toggleActionMenu,
+    changeWorkspace,
+    uploadFile,
   };
-  
-  function OpenDiskFile() {
-    fileReaderModule.OpenDirectory();
-  }
-  
-  return SELF;
-  
-})();
 
-const ui = {
-  states: {
-    storage: STORAGE_STATE.default,
-  },
-	tab: {
-		openDirectory: function(self) {
-			if (self.dataset.parentId != '' && self.classList.contains('isActive')) {
-				let parentId = parseInt(self.dataset.parentId);
-				tabManager.openDirectory(parentId);
-			}
-			event.preventDefault();
-		},
-	},
-	fileGenerator: {
-		generate: function() {
-			let form = this.form;
-			window.app.getComponent('single-file-generator').then(sfg => {
-				sfg.generate(form);
-			}).catch((e) => {
-				aww.pop('Component is not ready yet.')
-			});
-		},
-		copy: function() {
-			let form = this.form;
-			window.app.getComponent('single-file-generator').then(sfg => {
-				sfg.copy(form);
-			}).catch((e) => {
-				aww.pop('Component is not ready yet.')
-			});
-		},
-	},
-	tree: {
-		renameFolder: function(folder) {
-			window.app.getComponent('fileTree').then(fileTree => {
-    		fileTree.renameItem(folder, 'folder');
-    	});
-		},
-		renameFile: function(file) {
-			window.app.getComponent('fileTree').then(fileTree => {
-    		fileTree.renameItem(file, 'file');
-    	});
-		},
-		appendFile: function(file) {
-			window.app.getComponent('fileTree').then(ft => {
-	      ft.appendFile(file);
-	    });
-		},
-		appendFolder: function(folder) {
-			window.app.getComponent('fileTree').then(ft => {
-	      ft.appendFolder(folder);
-	    });
-		},
-		createWorkspace: function() {
-			window.app.getComponent('fileTree').then(ft => {
-	      ft.createWorkspace(activeFolder);
-	    });
-		},
-	},
-	highlightTree: function(fid, isRevealFileTree = true) {
-		window.app.getComponent('fileTree').then(ft => {
+  function highlightTree(fid, isRevealFileTree = true) {
+    window.app.getComponent('fileTree').then(ft => {
       ft.highlightTree(fid, isRevealFileTree);
     });
-	},
-	reloadFileTree: function() {
-		window.app.getComponent('fileTree').then(ft => {
-			ft.reload();
-		});
-	},
-	changeWorkspace: async function(targetEl) {
+  }
+
+  function reloadFileTree() {
+    window.app.getComponent('fileTree').then(ft => {
+      ft.reload();
+    });
+  }
+
+  async function changeWorkspace(targetEl) {
 
     let dataTarget = targetEl.dataset.target;
     let dataStorage = targetEl.dataset.storage;
     let dataIndex = targetEl.dataset.index;
 
-	  if (dataTarget != $('#workspace-title').textContent) {
-	    for (let node of $('.workspace .Btn')) {
-	      node.classList.toggle('active', false);
-	      if (targetEl == node) {
-	        node.classList.toggle('active', true);
-	      }
-	    }
-	    $('#workspace-title').textContent = dataTarget;
-	    let index = parseInt(dataIndex);
+    if (dataTarget != $('#workspace-title').textContent) {
+      for (let node of $('.workspace .Btn')) {
+        node.classList.toggle('active', false);
+        if (targetEl == node) {
+          node.classList.toggle('active', true);
+        }
+      }
+      $('#workspace-title').textContent = dataTarget;
+      let index = parseInt(dataIndex);
       document.body.stateList.toggle('fs-mode', (index == 2));
       ui.states.storage = STORAGE_STATE[dataStorage];
       activeWorkspace = index;
-	    await fileManager.list();
-	    tabManager.list();
-	    if (fileTab.length === 0) {
-	      newTab();
-	    }
-	    focusTab(fileTab[activeTab].fid);
-	    loadBreadCrumbs();
-	    window.app.getComponent('fileTree').then(ft => {
-				app.fileTree.reset();
-			});
-	  }
-
-	},
-  newFile: function() {
-    if (!$('#btn-menu-my-files').classList.contains('active')) {
-      ui.openNewTab();
-    }
-  },
-  newDiskFile: function() {
-    if (!$('#btn-menu-my-files').classList.contains('active')) {
-      window.showSaveFilePicker({
-        types: [
-          {
-            description: 'HTML (.html)',
-            accept: {
-              'text/javascript': ['.html'],
-            },
-          },
-        ],
-      }).then(fileHandle => {
-        let tabData = {
-          fileHandle,
-          content: '',
-          fid: '-' + (new Date).getTime(),
-          name: fileHandle.name,
-          editor: initEditor(),
-        };
-        newTab(-1, tabData);
+      await fileManager.list();
+      tabManager.list();
+      if (fileTab.length === 0) {
+        newTab();
+      }
+      focusTab(fileTab[activeTab].fid);
+      loadBreadCrumbs();
+      window.app.getComponent('fileTree').then(ft => {
+        app.fileTree.reset();
       });
     }
-  },
-  myFiles: function() {
+
+  }
+
+  function myFiles() {
     $('#btn-menu-my-files').click();
-  },
-  trash: function() {
+  }
+
+  function trash() {
     if (!$('#in-trash').classList.contains('active'))
       $('#btn-menu-trash').click();
-  },
-  toggleTheme: function() {
+  }
+
+  function toggleTheme() {
     let editor = fileTab[activeTab].editor.env.editor;
     if (editor.getTheme().includes('codetmp')) {
       editor.setTheme('ace/theme/github');
@@ -325,14 +520,16 @@ const ui = {
       editor.setTheme('ace/theme/codetmp');
       ace.config.set('basePath', ACE_CDN_BASEPATH);
     }
-  },
-  toggleInFrame: function() {
+  }
+
+  function toggleInFrame() {
     $('#main-layout').classList.toggle('inframe-mode');
     $('#main-layout').classList.toggle('normal-mode');
     previewHandler.previewMode = (previewHandler.previewMode == 'normal') ? 'inframe' : 'normal';
     fileTab[activeTab].editor.env.editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
-  },
-  setFontSize: function() {
+  }
+
+  function setFontSize() {
     modal.prompt('Editor Font Size', 16).then(size => {
       size = parseInt(size);
       if (size) {
@@ -341,32 +538,33 @@ const ui = {
         }
       }
     });
-  },
-  changeFileListView: function() {
+  }
+
+  function changeFileListView() {
     changeExplorerView(this.dataset.type);
-  },
+  }
 
-	uploadFile: async function(self) {
+  async function uploadFile(self) {
     $('#file-upload').click();
-	},
+  }
 
-  reloadOpenTab: function(fid, content) {
+  function reloadOpenTab(fid, content) {
     for (let tab of fileTab) {
       if (tab.fid == fid) {
         tab.editor.env.editor.setValue(content);
       }
     }
-  },
+  }
 
-  toggleFileDownload: function() {
+  function toggleFileDownload() {
     toggleModal('file-download');
-  },
+  }
 
-  toggleGenerateSingleFile: function() {
+  function toggleGenerateSingleFile() {
     toggleModal('generate-single-file');
-  },
+  }
 
-  previewMedia: function(file, mimeType) {
+  function previewMedia(file, mimeType) {
     toggleModal('media-preview');
 
     let media;
@@ -400,21 +598,21 @@ const ui = {
     }).catch(() => {
       aww.pop('Failed to preview media.');
     });
-  },
+  }
 
-  closeMediaPreview: function() {
+  function closeMediaPreview() {
     let src = $('.media-preview .Media')[0].src;
     $('.media-preview .Title')[0].textContent = '';
     $('.media-preview .Download')[0].onclick = null;
     $('.media-preview .Medial-el')[0].remove();
     URL.revokeObjectURL(src);
-  },
+  }
 
-  enableJSZip: function() {
+  function enableJSZip() {
     $('.clickable[data-callback="file-download"]')[0].classList.toggle('hide', false);
-  },
+  }
 
-  toggleMyFiles: function() {
+  function toggleMyFiles() {
     if (stateManager.isState(1)) return;
     
     $('#btn-menu-my-files').click()
@@ -426,19 +624,19 @@ const ui = {
       // fileClipBoard.clipBoard.length = 0;
       stateManager.popState([1]);
       setTimeout(() => { 
-        window.ui.resizeEditor();
+        ui.resizeEditor();
         fileTab[activeTab].editor.env.editor.focus(); 
         
       }, 1);
     }
-  },
+  }
 
-	toggleFileActionButton: function() {
+  function toggleFileActionButton() {
     let isHide = (selectedFile.length === 0);
     o.classList.toggle($('.btn-file-action'), 'w3-hide', isHide);
-	},
+  }
 
-  setGitToken: function() {
+  function setGitToken() {
     toggleModal('settings');
     modal.prompt('Personal access token').then(token => {
       if (token !== null) {
@@ -446,203 +644,16 @@ const ui = {
         aww.pop('Personal access token has been set.');
       }
     });
-  },
-
-	fileManager: (function() {
-
-		function commit(data) {
-			fileManager.sync(data);
-			drive.syncToDrive();
-      fileStorage.save();
-      fileManager.list();
-		}
-
-		function getSelected(el) {
-			return {
-				title: el.getAttribute('title'),
-				id: Number(el.getAttribute('data')),
-			};
-		}
-
-    function renameFolder() {
-
-        if (activeWorkspace == 2) {
-          alert('Renaming folder in file system mode is not yet supported.');
-          return;
-        }
-
-			  let selection = getSelected(selectedFile[0]);
-        modal.prompt('Rename', selection.title, '', helper.getFileNameLength(selection.title)).then(async (name) => {
-          if (!name || name === selection.title) return;
-        
-            let folder = await fileManager.RenameFolder(selection.id, name);
-            ui.tree.renameFolder(folder);
-
-        });
-	    }
-	    function renameFile() {
-	    	let selection = getSelected(selectedFile[0]);
-	    	let fid = selection.id;
-	      	modal.prompt('Rename', selection.title, '', helper.getFileNameLength(selection.title)).then(async (name) => {
-	        	if (!name || name == selection.title) 
-	        		return;
-
-            let file = await fileManager.RenameFile(fid, name);
-		        ui.tree.renameFile(file);
-
-		        if (activeFile) {
-		          if (fid === activeFile.fid)
-		            setEditorMode(file.name);
-		          
-		          let index = 0
-		          for (let tab of fileTab) {
-		            if (tab.fid == fid) {
-		              $('.file-name')[index].textContent = file.name;
-		              break;
-		            }
-		            index++;
-		          }
-		        }
-	      	});
-	    }
-	    function newFolder() {
-	      	if (!$('#in-my-files').classList.contains('active'))
-	      		return;
-	      	
-          modal.prompt('Folder name', 'New Folder').then(async (name) => {
-		        if (!name) 
-		        	return;
-
-		        let folder = await fileManager.CreateFolder({
-                name: await fileManager.getDuplicateName(activeFolder, name, 'folder'),
-		          	modifiedTime: new Date().toISOString(),
-		          	parentId: activeFolder,
-		        });
-		        commit({
-		        	fid: folder.fid,
-		        	action: 'create',
-		        	type: 'folders',
-	        	});
-	        	clearSelection();
-	        	ui.tree.appendFolder(folder);
-
-	      	});
-	    }
-
-      function newFile() {
-          if (!$('#in-my-files').classList.contains('active')) {
-						ui.openNewTab();
-            return;
-          }
-          
-          modal.prompt('File name', 'Untitled').then(async (name) => {
-            if (!name) 
-              return;
-            let file = await fileManager.CreateFile({
-                name: await fileManager.getDuplicateName(activeFolder, name),
-                modifiedTime: new Date().toISOString(),
-                content: '',
-            });
-            commit({
-              fid: file.fid,
-              action: 'create',
-              type: 'files',
-            });
-            clearSelection();
-            ui.tree.appendFile(file);
-
-          });
-      }
-      
-      function confirmDeletion(message) {
-        return new Promise(resolve => {
-          modal.confirm(message).then(() => {
-            resolve();
-          })
-        })
-      }
-
-	    async function deleteFolder(selectedFile) {
-	    	let selection = getSelected(selectedFile);
-        let fid = selection.id;
-      	await fileManager.TaskDeleteFolder(fid);
-	    }
-
-	    async function deleteFile(selectedFile) {
-	    	let selection = getSelected(selectedFile);
-	    	let fid = selection.id;
-      	await fileManager.TaskDeleteFile(fid);
-
-        if (activeFile && parseInt(fid) == parseInt(activeFile.fid)) {
-          activeFile = null;
-          fileTab[activeTab].fiber = 'fiber_manual_record';
-          $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
-        }
-	    }
-
-      async function unloadSelection(selectedFile, type) {
-	    	let selection = getSelected(selectedFile);
-        let fid = selection.id;
-      	await fileManager.UnloadItem(fid, type);
-	    }
-
-	    function deleteSelected() {
-		    if (selectedFile.length === 1) {
-          confirmDeletion('Move selected item to trash?').then(async () => {
-  		      if (selectedFile[0].getAttribute('data-type') === 'folder')
-  		        deleteFolder(selectedFile[0]);
-  		      else if (selectedFile[0].getAttribute('data-type') === 'file')
-  		        deleteFile(selectedFile[0]);
-            clearSelection();
-          })
-		    } else if (selectedFile.length > 1) {
-          confirmDeletion('Move selected items to trash?').then(async () => {
-            while (selectedFile.length > 0) {
-              let selection = selectedFile[0];
-              if (selection.getAttribute('data-type') === 'folder')
-                await deleteFolder(selection);
-              else if (selection.getAttribute('data-type') === 'file')
-                await deleteFile(selection);  
-            }
-            clearSelection();
-		    	});
-		    }
-		  }
-
-      function UnloadSelected() {
-		    if (selectedFile.length === 1) {
-          confirmDeletion('Unload selected item?').then(async () => {
-  		      if (selectedFile[0].getAttribute('data-type') === 'folder')
-              unloadSelection(selectedFile[0], 'folders');
-  		      else if (selectedFile[0].getAttribute('data-type') === 'file')
-              unloadSelection(selectedFile[0], 'files');
-            clearSelection();
-          })
-		    } else if (selectedFile.length > 1) {
-          alert('Multiple unload currently not suppoerted')
-		    }
-		  }
-
-    return {
-			renameFolder,
-			renameFile,
-			newFolder,
-      newFile,
-			deleteSelected,
-			getSelected,
-      UnloadSelected,
-    };
-
-	})(), // end of ui.fileManager
-
-  toggleMenu: function() {
+  }
+  
+  function toggleMenu() {
     let targetId = this.getAttribute('target');
     let useCallback = true;
     let targetNode = this;
     ui.toggleActionMenu(targetId, useCallback, targetNode);
-  },
+  }
   
-  toggleActionMenu: function(targetId, useCallback, targetNode) {
+  function toggleActionMenu(targetId, useCallback, targetNode) {
     let target;
     if (targetId)
       target = $('#'+targetId);
@@ -701,35 +712,35 @@ const ui = {
      
     menu.classList.toggle('active');
     if (typeof(block) != 'undefined')
-    	block.classList.toggle('active');
+      block.classList.toggle('active');
     
     if (!menu.classList.contains('active')) {
       selectedFile = [];
     }
 
     if ($('#in-my-files').classList.contains('active')) {
-  		$('#btn-menu-save-wrapper').classList.toggle('hide', true);
-	  	$('#btn-menu-preview-wrapper').classList.toggle('hide', true);
-	  	$('#btn-menu-template').classList.toggle('hide', true);
+      $('#btn-menu-save-wrapper').classList.toggle('hide', true);
+      $('#btn-menu-preview-wrapper').classList.toggle('hide', true);
+      $('#btn-menu-template').classList.toggle('hide', true);
 
-	  	$('#btn-home-wrapper').classList.toggle('hide', false);
-	  	$('#btn-account-wrapper').classList.toggle('hide', false);
-  		$('#btn-undo').classList.toggle('hide', true);
-  		$('#btn-redo').classList.toggle('hide', true);
-  		stateManager.pushState([1]);
+      $('#btn-home-wrapper').classList.toggle('hide', false);
+      $('#btn-account-wrapper').classList.toggle('hide', false);
+      $('#btn-undo').classList.toggle('hide', true);
+      $('#btn-redo').classList.toggle('hide', true);
+      stateManager.pushState([1]);
     } else {
-	    $('#btn-menu-save-wrapper').classList.toggle('hide', false);
-	  	$('#btn-menu-preview-wrapper').classList.toggle('hide', false);
-	  	$('#btn-menu-template').classList.toggle('hide', false);
-	  	$('#btn-home-wrapper').classList.toggle('hide', true);
-	  	$('#btn-account-wrapper').classList.toggle('hide', true);
-	  	$('#btn-undo').classList.toggle('hide', false);
-		  $('#btn-redo').classList.toggle('hide', false);
-		  stateManager.popState([1]);
+      $('#btn-menu-save-wrapper').classList.toggle('hide', false);
+      $('#btn-menu-preview-wrapper').classList.toggle('hide', false);
+      $('#btn-menu-template').classList.toggle('hide', false);
+      $('#btn-home-wrapper').classList.toggle('hide', true);
+      $('#btn-account-wrapper').classList.toggle('hide', true);
+      $('#btn-undo').classList.toggle('hide', false);
+      $('#btn-redo').classList.toggle('hide', false);
+      stateManager.popState([1]);
     }
-  },
-  
-  switchTab: function(direction = 1) {
+  }
+
+  function switchTab(direction = 1) {
     if ($('#in-my-files').classList.contains('active') || fileTab.length == 1) 
       return;
     let fid;
@@ -738,31 +749,31 @@ const ui = {
     else
       fid = (activeTab + direction == -1) ? fileTab[fileTab.length - 1].fid : fileTab[0].fid;
     focusTab(fid);
-  },
+  }
   
-  openNewTab: function() {
+  function openNewTab() {
     newTab();
-  },
+  }
   
-  toggleAutoSync: function() {
+  function toggleAutoSync() {
     settings.data.autoSync = !settings.data.autoSync;
     settings.save();
     $('#check-auto-sync').checked = settings.data.autoSync ? true : false;
-  },
+  }
 
-  toggleSaveToken: function() {
+  function toggleSaveToken() {
     settings.data.saveGitToken = !settings.data.saveGitToken;
     settings.save();
     $('#check-save-token').checked = settings.data.saveGitToken ? true : false;
-  },
+  }
 
-  toggleHomepage: function() {
+  function toggleHomepage() {
     settings.data.showHomepage = !settings.data.showHomepage;
     settings.save();
     $('#check-show-homepage').checked = settings.data.showHomepage ? true : false;
-  },
-
-  cloneRepo: function() {
+  }
+  
+  function cloneRepo() {
     let message = $('#msg-git-rate-limit').content.cloneNode(true).firstElementChild;
     $('.Rate', message)[0].textContent = git.rateLimit;
     modal.prompt('Repository web URL', 'https://github.com/username/repository', message.innerHTML).then(url => {
@@ -771,36 +782,318 @@ const ui = {
       ui.alert({text:'Cloning repository...'});
       git.clone(url);
     });
-  },
+  }
 
-  confirmClearData: function() {
+  function confirmClearData() {
     modal.confirm('This will delete all Codetmp saved files & folders on current browser. Continue?', false).then(async () => {
       await fileManager.TaskClearStorage();
       location.reload();
     });
-  },
-
-  alert: function({text, isPersistent = false, timeout}) {
+  }
+  
+  function alert({text, isPersistent = false, timeout}) {
     aww.pop(text, isPersistent, timeout);
-  },
+  }
+  
+  function fileDownload(self) {
+    window.app.getComponent('fileBundler').then(fb => {
+      fb.fileDownload(self);
+    }).catch((e) => {
+      console.log(e);
+      aww.pop('Component is not ready. Try again later.');
+    });
+  }
 
-  fileDownload: function(self) {
-  	window.app.getComponent('fileBundler').then(fb => {
-  		fb.fileDownload(self);
-  	}).catch((e) => {
-  		L(e);
-  		aww.pop('Component is not ready. Try again later.');
-  	});
-  },
-
-  resizeEditor: function() {
+  function resizeEditor() {
     let editor = fileTab[activeTab].editor;
     editor.env.editor.resize()
-  },
+  }
 
-}; // end of ui
+  function newFile() {
+    if (!$('#btn-menu-my-files').classList.contains('active')) {
+      ui.openNewTab();
+    }
+  }
+  
+  function newDiskFile() {
+    if (!$('#btn-menu-my-files').classList.contains('active')) {
+      window.showSaveFilePicker({
+        types: [
+          {
+            description: 'HTML (.html)',
+            accept: {
+              'text/javascript': ['.html'],
+            },
+          },
+        ],
+      }).then(fileHandle => {
+        let tabData = {
+          fileHandle,
+          content: '',
+          fid: '-' + (new Date).getTime(),
+          name: fileHandle.name,
+          editor: initEditor(),
+        };
+        newTab(-1, tabData);
+      });
+    }
+  }
+  
+  function OpenDiskFile() {
+    fileReaderModule.OpenDirectory();
+  }
 
-window.ui = ui;
+  // init
+  function Init() {
+    
+    attachListeners();
+
+    notif = Notifier($('#tmp-notif'), $('#notif-list'));
+    // initInframeLayout();
+    fileManager.TaskOnStorageReady().then(() => {
+      fileManager.list();
+    });
+    preferences.loadSettings();
+    newTab();
+    initTabFocusHandler();
+    window.setTimeout(() => { 
+      ui.resizeEditor();
+    }, 350)
+    
+    // initMenuBar();
+    changeExplorerView(settings.data.explorer.view);
+
+    for (let modal of $('.modal-window')) {
+      modal.classList.toggle('transition-enabled', true);
+      $('.Overlay',modal)[0].addEventListener('click', toggleModalByClick);
+      $('.Btn-close',modal)[0].addEventListener('click', toggleModalByClick);
+    }
+    
+    function preventDefault(event) {
+      event.preventDefault();
+    }
+    
+    function blur() {
+      document.activeElement.blur();
+    }
+    
+    attachSubmitable('.submittable', DOMEvents.submittable);
+    attachClickable('.clickable', DOMEvents.clickable);
+    attachInputable('.inputable', DOMEvents.inputable);
+
+    function attachSubmitable(selector, callback) {
+      for (let node of document.querySelectorAll(selector)) {
+        if (node.classList.contains('preventDefault'))
+          node.addEventListener('submit', preventDefault);
+        node.addEventListener('submit', callback[node.dataset.callback]);
+      }
+    }
+
+    function attachClickable(selector, callback) {
+      for (let element of document.querySelectorAll(selector)) {
+        element.addEventListener('click', callback[element.dataset.callback]);
+        element.addEventListener('click', blur);
+      }
+    }
+
+    function attachInputable(selector, callback) {
+      for (let element of document.querySelectorAll(selector))
+        element.addEventListener('input', callback[element.dataset.callback]);
+    }
+
+    o.listen({
+      '.btn-material': ui.toggleMenu,
+    });
+    // initNavMenus();
+    // attachMouseListener();
+  }
+
+  function changeExplorerView(type) {
+    if (!['list', 'grid'].includes(type))
+      return;
+  
+    settings.data.explorer.view = type;
+    settings.save();
+    $('#file-list').classList.toggle('list-view', (type == 'list'));
+    for (let node of $('.Btn[data-callback="change-file-list-view"]')) {
+      node.classList.toggle('active', false);
+      if (node.dataset.type == type) {
+        node.classList.toggle('active', true);
+        $('#view-type-icon').innerHTML = $('.material-icons', node)[0].innerHTML;
+      }
+    }
+  }
+
+  function attachListeners() {
+    window.addEventListener('online', autoSync);
+    window.addEventListener('cut', (evt) => fileClipBoard.handler(evt));
+    window.addEventListener('copy', (evt) => fileClipBoard.handler(evt));
+    window.addEventListener('paste', (evt) => fileClipBoard.handler(evt));
+    window.onbeforeunload = function(evt) {
+      return helper.redirectWarning(evt);
+    };
+  }
+
+  async function hidePalette(event) {
+    await delayMs(10);
+    let el = $('.search-box')[0];
+    el.classList.toggle('w3-hide', true);
+    $('#search-input').value = '';
+    $('#search-input').removeEventListener('blur', ui.hidePalette);
+  }
+
+  function delayMs(timeout) {
+    return new Promise(resolve => window.setTimeout(resolve, timeout));
+  }
+
+  function setEditorMode(fileName = '') {
+    let editor = fileTab[activeTab].editor.env.editor;
+    let themeMd =  false;
+  
+    if (fileName.endsWith('.txt'))
+      editor.session.setMode();
+    else if (fileName.endsWith('.css'))
+      editor.session.setMode("ace/mode/css");
+    else if (fileName.endsWith('.js'))
+      editor.session.setMode("ace/mode/javascript");
+    else if (fileName.endsWith('.md')) {
+      editor.session.setMode("ace/mode/markdown");
+      themeMd =  true;
+    }
+    else if (fileName.endsWith('.json'))
+      editor.session.setMode("ace/mode/json");
+    else
+      editor.session.setMode("ace/mode/html");
+  
+    if (themeMd) {
+      ace.config.set('basePath', 'assets/ace');
+      editor.setTheme('ace/theme/codetmp-markdown');
+      ace.config.set('basePath', ACE_CDN_BASEPATH);
+    } else {
+      ace.config.set('basePath', 'assets/ace');
+      editor.setTheme('ace/theme/codetmp');
+      ace.config.set('basePath', ACE_CDN_BASEPATH);
+    }
+  }
+
+  function toggleBreakPoint(editor) {
+    let row = editor.selection.getCursor().row;
+    if(editor.session.getBreakpoints()[row] ) {
+      editor.session.clearBreakpoint(row);
+    } else {
+      editor.session.setBreakpoint(row);
+    }
+  }
+
+  function initEditorSmartBookmark(editor) {
+    
+    editor.commands.addCommand({
+      name: "custom-bookmark",
+      bindKey: {win: "Alt-K Alt-K"},
+      exec: function(editor) {
+        ui.toggleBreakPoint(editor);
+      }
+    });
+    
+    editor.session.doc.on('change', updateDataOnDocChange.bind(editor.session));
+    
+    function updateDataOnDocChange(e) {
+      let delta = e;
+      let range = e;
+      let len, firstRow, f1;
+              
+      if (range.end.row == range.start.row)
+        return;
+                  
+      if (delta.action == 'insert') {
+        len = range.end.row - range.start.row;
+        firstRow = range.start.row;
+      } else if (delta.action == 'remove') {
+        len = range.start.row - range.end.row;
+        firstRow = range.start.row;
+      }
+      if (len > 0) {
+        args = Array(len);
+        args.unshift(firstRow, 0)
+        this.$breakpoints.splice.apply(this.$breakpoints, args);
+      } else if (len < 0) {
+        let rem = this.$breakpoints.splice(firstRow + 1, -len);
+        if(!this.$breakpoints[firstRow]){
+          for (let oldBP in rem) {
+            if (rem[oldBP]) {
+              this.$breakpoints[firstRow] = rem[oldBP]
+              break 
+            }
+          }
+        }
+      }
+    }
+    
+    editor.commands.addCommand({
+      name: "custom-clear-bookmark",
+      bindKey: {win: "Alt-K Alt-L"},
+      exec: function(editor) {
+        if (window.confirm('Clear all bookmark?')) {
+          editor.session.clearBreakpoints();
+        }
+      }
+    });
+    
+    editor.commands.addCommand({
+      name: "custom-next-bookmark",
+      bindKey: {win: "Ctrl-Alt-."},
+      exec: function(editor) {
+        let row = editor.selection.getCursor().row+1;
+        
+        let found = false;
+        
+        for (let i=row; i<editor.session.$breakpoints.length; i++) {
+          if (editor.session.$breakpoints[i] !== undefined) {
+            editor.gotoLine(i+1)
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+        for (let i=0; i<row; i++) {
+            if (editor.session.$breakpoints[i] !== undefined) {
+              editor.gotoLine(i+1)
+              break;
+            }
+          } 
+        }
+      }
+  
+    });
+    
+    editor.commands.addCommand({
+      name: "custom-previous-bookmark",
+      bindKey: {win: "Ctrl-Alt-,"},
+      exec: function(editor) {
+        let row = editor.selection.getCursor().row+1;
+        let found = false;
+        for (let i=row-2; i>=0; i--) {
+          if (editor.session.$breakpoints[i] !== undefined) {
+            editor.gotoLine(i+1)
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+        for (let i=editor.session.$breakpoints.length; i>row; i--) {
+            if (editor.session.$breakpoints[i] !== undefined) {
+              editor.gotoLine(i+1)
+              break;
+            }
+          } 
+        }
+      }
+    });
+  }
+
+  return SELF;
+  
+})();
 
 // modal
 
@@ -813,18 +1106,6 @@ function toggleModal(name) {
 	modal.addEventListener('onclose', onclosemodal);
 	modal.toggle();
   stateManager.pushState([0]);
-  
-  switch (name) {
-    case 'snippet-manager':
-      listSnippets();
-      break;
-    default:
-      break;
-  }
-}
-
-function listSnippets() {
-  L(123)
 }
 
 function onclosemodal(event) {
@@ -834,69 +1115,6 @@ function onclosemodal(event) {
   window.setTimeout(() => {
     stateManager.popState([0]);
   }, 50)
-}
-
-// init
-function initUI() {
-  
-	notif = Notifier($('#tmp-notif'), $('#notif-list'));
-  // initInframeLayout();
-  fileManager.TaskOnStorageReady().then(() => {
-    fileManager.list();
-  });
-  preferences.loadSettings();
-  newTab();
-  initTabFocusHandler();
-  window.setTimeout(() => { 
-    window.ui.resizeEditor();
-  }, 350)
-  
-  // initMenuBar();
-  changeExplorerView(settings.data.explorer.view);
-
-  for (let modal of $('.modal-window')) {
-    modal.classList.toggle('transition-enabled', true);
-    $('.Overlay',modal)[0].addEventListener('click', toggleModalByClick);
-    $('.Btn-close',modal)[0].addEventListener('click', toggleModalByClick);
-  }
-  
-  function preventDefault(event) {
-    event.preventDefault();
-  }
-  
-  function blur() {
-    document.activeElement.blur();
-  }
-  
-  attachSubmitable('.submittable', DOMEvents.submittable);
-  attachClickable('.clickable', DOMEvents.clickable);
-  attachInputable('.inputable', DOMEvents.inputable);
-
-  function attachSubmitable(selector, callback) {
-    for (let node of document.querySelectorAll(selector)) {
-      if (node.classList.contains('preventDefault'))
-        node.addEventListener('submit', preventDefault);
-      node.addEventListener('submit', callback[node.dataset.callback]);
-    }
-  }
-
-  function attachClickable(selector, callback) {
-    for (let element of document.querySelectorAll(selector)) {
-      element.addEventListener('click', callback[element.dataset.callback]);
-      element.addEventListener('click', blur);
-    }
-  }
-
-  function attachInputable(selector, callback) {
-    for (let element of document.querySelectorAll(selector))
-      element.addEventListener('input', callback[element.dataset.callback]);
-  }
-
-	o.listen({
-    '.btn-material': ui.toggleMenu,
-	});
-	// initNavMenus();
-	// attachMouseListener();
 }
 
 function initFileHandler() {
@@ -929,17 +1147,6 @@ function initFileHandler() {
 
 // DOM events
 
-async function hidePalette(event) {
-  await delayMs(10);
-  let el = $('.search-box')[0];
-  el.classList.toggle('w3-hide', true);
-  $('#search-input').value = '';
-  $('#search-input').removeEventListener('blur', hidePalette);
-}
-
-function delayMs(timeout) {
-  return new Promise(resolve => window.setTimeout(resolve, timeout));
-}
 
 function toggleInsertSnippet(persistent) {
   if ($('#in-my-files').classList.contains('active')) return
@@ -950,7 +1157,7 @@ function toggleInsertSnippet(persistent) {
   else
     el.classList.toggle('w3-hide', !persistent);
 
-  $('#search-input').addEventListener('blur', hidePalette);
+  $('#search-input').addEventListener('blur', ui.hidePalette);
 
   if (!el.classList.contains('w3-hide')) {
     $('#search-input').value = '';
@@ -964,35 +1171,7 @@ function toggleInsertSnippet(persistent) {
   }
 }
 
-function setEditorMode(fileName = '') {
-  let editor = fileTab[activeTab].editor.env.editor;
-  let themeMd =  false;
 
-  if (fileName.endsWith('.txt'))
-    editor.session.setMode();
-  else if (fileName.endsWith('.css'))
-    editor.session.setMode("ace/mode/css");
-  else if (fileName.endsWith('.js'))
-    editor.session.setMode("ace/mode/javascript");
-  else if (fileName.endsWith('.md')) {
-    editor.session.setMode("ace/mode/markdown");
-    themeMd =  true;
-  }
-  else if (fileName.endsWith('.json'))
-    editor.session.setMode("ace/mode/json");
-  else
-    editor.session.setMode("ace/mode/html");
-
-  if (themeMd) {
-    ace.config.set('basePath', 'assets/ace');
-    editor.setTheme('ace/theme/codetmp-markdown');
-    ace.config.set('basePath', ACE_CDN_BASEPATH);
-  } else {
-    ace.config.set('basePath', 'assets/ace');
-    editor.setTheme('ace/theme/codetmp');
-    ace.config.set('basePath', ACE_CDN_BASEPATH);
-  }
-}
 
 function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   let editorElement = document.createElement('div');
@@ -1136,7 +1315,7 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
     },
   });
 
-  initEditorSmartBookmark(editor);
+  ui.initEditorSmartBookmark(editor);
 
   let undoMgr = new ace.UndoManager();
   editor.setValue(content)
@@ -1173,120 +1352,9 @@ function initEditor(content = '', scrollTop = 0, row = 0, col = 0) {
   return editorElement;
 }
 
-function toggleBreakPoint(editor) {
-  let row = editor.selection.getCursor().row;
-  if(editor.session.getBreakpoints()[row] ) {
-    editor.session.clearBreakpoint(row);
-  } else {
-    editor.session.setBreakpoint(row);
-  }
-}
 
-function initEditorSmartBookmark(editor) {
-    
-  editor.commands.addCommand({
-    name: "custom-bookmark",
-    bindKey: {win: "Alt-K Alt-K"},
-    exec: function(editor) {
-      toggleBreakPoint(editor);
-    }
-  });
-  
-  editor.session.doc.on('change', updateDataOnDocChange.bind(editor.session));
-  
-  function updateDataOnDocChange(e) {
-		let delta = e;
-		let range = e;
-		let len, firstRow, f1;
-            
-    if (range.end.row == range.start.row)
-      return;
-                
-    if (delta.action == 'insert') {
-    	len = range.end.row - range.start.row;
-    	firstRow = range.start.row;
-    } else if (delta.action == 'remove') {
-      len = range.start.row - range.end.row;
-			firstRow = range.start.row;
-    }
-		if (len > 0) {
-			args = Array(len);
-			args.unshift(firstRow, 0)
-			this.$breakpoints.splice.apply(this.$breakpoints, args);
-    } else if (len < 0) {
-      let rem = this.$breakpoints.splice(firstRow + 1, -len);
-      if(!this.$breakpoints[firstRow]){
-			  for (let oldBP in rem) {
-				  if (rem[oldBP]) {
-					  this.$breakpoints[firstRow] = rem[oldBP]
-					  break 
-				  }
-        }
-		  }
-		}
-	}
-  
-  editor.commands.addCommand({
-    name: "custom-clear-bookmark",
-    bindKey: {win: "Alt-K Alt-L"},
-    exec: function(editor) {
-      if (window.confirm('Clear all bookmark?')) {
-    	  editor.session.clearBreakpoints();
-      }
-    }
-  });
-  
-  editor.commands.addCommand({
-    name: "custom-next-bookmark",
-    bindKey: {win: "Ctrl-Alt-."},
-    exec: function(editor) {
-      let row = editor.selection.getCursor().row+1;
-      
-      let found = false;
-      
-      for (let i=row; i<editor.session.$breakpoints.length; i++) {
-        if (editor.session.$breakpoints[i] !== undefined) {
-          editor.gotoLine(i+1)
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-      for (let i=0; i<row; i++) {
-          if (editor.session.$breakpoints[i] !== undefined) {
-            editor.gotoLine(i+1)
-            break;
-          }
-        } 
-      }
-    }
 
-  });
-  
-  editor.commands.addCommand({
-    name: "custom-previous-bookmark",
-    bindKey: {win: "Ctrl-Alt-,"},
-    exec: function(editor) {
-      let row = editor.selection.getCursor().row+1;
-      let found = false;
-      for (let i=row-2; i>=0; i--) {
-        if (editor.session.$breakpoints[i] !== undefined) {
-          editor.gotoLine(i+1)
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-      for (let i=editor.session.$breakpoints.length; i>row; i--) {
-          if (editor.session.$breakpoints[i] !== undefined) {
-            editor.gotoLine(i+1)
-            break;
-          }
-        } 
-      }
-    }
-  });
-}
+
 
 
 // tab
@@ -1375,7 +1443,7 @@ function initTabFocusHandler() {
 
 // explorer, DOM events
 
-(function() {
+let navigationHandler = (function() {
   
   function navigateHorizontal(target) {
     let last = selectedFile[selectedFile.length-1];
@@ -1476,7 +1544,7 @@ function initTabFocusHandler() {
     }
   }
 
-  window.navigationHandler = navigationHandler;
+  return navigationHandler;
   
 })();
 
@@ -1504,6 +1572,7 @@ function authReady() {
   let uid = gapi.auth2.getAuthInstance().currentUser.get().getId();
   support.check('firebase');
 }
+
 async function authLogout() {
   await fileManager.TaskClearStorage();
   settings.reset();
@@ -1559,22 +1628,6 @@ function renameFile() {
     ui.fileManager.renameFile();
 }
 
-function changeExplorerView(type) {
-  if (!['list', 'grid'].includes(type))
-    return;
-
-  settings.data.explorer.view = type;
-  settings.save();
-  $('#file-list').classList.toggle('list-view', (type == 'list'));
-  for (let node of $('.Btn[data-callback="change-file-list-view"]')) {
-    node.classList.toggle('active', false);
-    if (node.dataset.type == type) {
-      node.classList.toggle('active', true);
-      $('#view-type-icon').innerHTML = $('.material-icons', node)[0].innerHTML;
-    }
-  }
-}
-
 function loadBreadCrumbs() {
   $('#breadcrumbs').innerHTML = '';
   let i = 0;
@@ -1608,8 +1661,11 @@ async function openBread() {
 }
 
 function openFileConfirm(el) {
+
   let index = selectedFile.indexOf(el);
+
   if (pressedKeys.shiftKey || pressedKeys.ctrlKey) {
+
     fileExplorerManager.doubleClick = false;
     if (index < 0) {
       if (pressedKeys.shiftKey) {
@@ -1698,7 +1754,9 @@ function openFileConfirm(el) {
     }
     toggleFileHighlight(fileExplorerManager.lastClickEl, false);
   }
+  
   ui.toggleFileActionButton();
+
 }
 
 function navScrollUp() {
@@ -1802,10 +1860,5 @@ function selectFileByName(key) {
       }
     }
   }
-}
 
-window.addEventListener('online', autoSync);
-window.addEventListener('cut', fileClipBoard.handler);
-window.addEventListener('copy', fileClipBoard.handler);
-window.addEventListener('paste', fileClipBoard.handler);
-window.onbeforeunload = helper.redirectWarning;
+}

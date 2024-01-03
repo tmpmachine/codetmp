@@ -56,13 +56,14 @@ window.app.loadFiles([
       'js/require/odin.js',
       'js/components/preview-handler.js',
       'js/components/file-manager.js',
-      'js/ux.js',
+      'js/ui.js',
       'js/components/notifier.js',
       // 'assets/ace/ace.js',
       `${ACE_CDN_BASEPATH}/ace.min.js`,
       'js/components/tab-manager.js',
     ],
     callback: function() {
+      previewHandler.Init(),
       ace.config.set('basePath', `${ACE_CDN_BASEPATH}`);
       fileManager.TaskInitIDBStorage();
     },
@@ -74,7 +75,7 @@ window.app.loadFiles([
       'js/components/file-tree.js',
     ],
     callback: function() {
-      initUI();
+      ui.Init();
     },
   },
   {
