@@ -15,6 +15,8 @@ function SingleFileGeneratorComponent() {
     let options = {
       replaceDivless: form.replaceDivless.checked,
       minifyJs: form.minifyJs.checked,
+      minifyCss: form.minifyCss.checked,
+      transformCss: form.transformCss.checked,
     };
     let content = await getSingleFileContent(options);
     copyToClipboard(content);
@@ -49,12 +51,14 @@ function SingleFileGeneratorComponent() {
   }
 
   async function replaceFile(match, body, preParent, path, options) {
+
     let src = match[0].substring(11, match[0].length-9);
     let relativeParent = preParent;
     let parentId = await previewHandler.getDirectory(src, relativeParent, path);
     let files = await fileManager.TaskListFiles(parentId);
     let name = src.replace(/.*?\//g,'');
     let file = null;
+
     for (let i=0; i<files.length; i++) {
       if (files[i].trashed) {
         continue;
@@ -62,10 +66,12 @@ function SingleFileGeneratorComponent() {
         file = files[i];
       }
     }
+
     if (file === null) {
       body = body.replace(match[0], '');
       aww.pop('Required file not found : '+src);
     } else {
+
       let content = '';
       
       if (!file.loaded) {
@@ -105,7 +111,27 @@ function SingleFileGeneratorComponent() {
           } catch (e) {
             console.log(e)
           } 
+        } else if (typeof(window.lightingCss) != 'undefined' && helper.isMediaTypeCSS(file.name) && ( options.minifyCss || options.transformCss ) ) {
+          try {
+
+            let targets = {}
+            if (options.transformCss) {
+              targets = { chrome: 95, };
+            }
+
+            let { code, map } = lightingCss.transform({
+              // filename: 'style.css',
+              targets,
+              code: new TextEncoder().encode(content),
+              minify: options.minifyCss,
+            });
+            content = new TextDecoder().decode(code);
+          
+          } catch (e) {
+            console.log(e)
+          } 
         }
+
       }
       let swap = await replaceTemplate(content, parentId, path, options);
       body = body.replace(new RegExp(match[0]), swap);
@@ -215,6 +241,25 @@ function SingleFileGeneratorComponent() {
             try {
               let result = await Terser.minify(content, { sourceMap: false });
               content = result.code;
+            } catch (e) {
+              console.log(e)
+            } 
+          } else if (typeof(window.lightingCss) != 'undefined' && helper.isMediaTypeCSS(file.name) && ( options.minifyCss || options.transformCss ) ) {
+            try {
+
+              let targets = {}
+              if (options.transformCss) {
+                targets = { chrome: 95, };
+              }
+
+              let { code, map } = lightingCss.transform({
+                // filename: 'style.css',
+                targets,
+                code: new TextEncoder().encode(content),
+                minify: options.minifyCss,
+              });
+              content = new TextDecoder().decode(code);
+            
             } catch (e) {
               console.log(e)
             } 

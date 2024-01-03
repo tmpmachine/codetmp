@@ -13,6 +13,8 @@
 .ml-2{margin-left:var(--spacing-2)}
 .mr-auto{margin-right:auto}
 
+.pb-half{padding-bottom:0.5rem}
+
 .material-icons {
   font-family: 'Material Icons Round';
   font-weight: normal;

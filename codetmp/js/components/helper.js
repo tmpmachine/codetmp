@@ -1,4 +1,4 @@
-const helper = (function () {
+let helper = (function () {
 
   let SELF = {
     getFileNameLength,
@@ -13,6 +13,7 @@ const helper = (function () {
     isMediaTypeImage,
     isMediaTypeAV,
     isMediaTypeJavascript,
+    isMediaTypeCSS,
     getFileIconColor,
     redirectWarning,
     hasFileReference,
@@ -117,6 +118,10 @@ const helper = (function () {
 
   function isMediaTypeJavascript(name) {
     return getMimeType(name).match(/(text\/javascript)/);
+  }
+
+  function isMediaTypeCSS(name) {
+    return getMimeType(name).match(/(text\/css)/);
   }
 
   function isMediaTypeMultimedia(mimeType) {

@@ -44,11 +44,12 @@
           <label><input data-name="divlessHTMLEnabled" class="autofocus w3-check input-settings" type="checkbox"/> Convert Divless HTML format (.html files only)</label>
         </p>
         <p>
-          <label><input data-name="minifyJs" class="autofocus w3-check input-settings" type="checkbox"/> Try to minify JavaScript files</label>
-        </p>
-        <p>
           <label><input data-name="linkPreviewWindowProcess" class="autofocus w3-check input-settings" type="checkbox"/> Link preview window process (might freeze editor while in debug mode)</label>
         </p>
+        [small 'JavaScript (Terser) : ']
+        [p
+          <label><input data-name="minifyJs" class="autofocus w3-check input-settings" type="checkbox"/> Minify</label>
+        ]
       </section>
       <hr/>
       <section>
@@ -60,9 +61,10 @@
       <hr/>
       <section>
         <h6 style="font-weight:bold;">Firebase Hosting</h6>
-        <p>
-          <label><input data-name="minifyJsFirebase" class="autofocus w3-check input-settings" type="checkbox"/> Try to minify JavaScript files</label>
-        </p>
+        [small 'JavaScript (Terser) : ']
+        [p
+          <label><input data-name="minifyJsFirebase" class="autofocus w3-check input-settings" type="checkbox"/> Minify</label>
+        ]
       </section>
       <hr/>
       <section>
@@ -212,18 +214,45 @@
     <div class="Content">
       <section>
         <h6 style="font-weight:bold;">File options</h6>
+
         <form onsubmit="event.preventDefault()">
-          <p>
-            <label class="no-select"><input class="w3-check" name="replaceDivless" type="checkbox"/> Convert Divless HTML format</label>
-          </p>
-          <p>
-            <label class="no-select"><input class="w3-check" name="minifyJs" type="checkbox"/> Try to minify JavaScript files</label>
-          </p>
+        
+          [
+            [l class="no-select"
+              <input class="w3-check" name="replaceDivless" type="checkbox"/> Convert Divless HTML format
+            ]
+          ]
+          [ .pb-half]
+          [small 'JavaScript (Terser) : ']
+          [p
+            <label><input name="minifyJs" class="autofocus w3-check input-settings" type="checkbox"/> Minify</label>
+          ]
+          [small 'CSS (Lighting CSS, transform target : Chrome 95) : ']
+          <mark class="w3-round w3-tiny" style="padding:0 2px 2px ;">Beta</mark>
+          [p
+            [l
+              <input name="minifyCss" class="autofocus w3-check input-settings" type="checkbox"/> 
+              Minify
+            ]
+            [l
+              <input name="transformCss" class="autofocus w3-check input-settings" type="checkbox"/> 
+              Transform
+            ]
+          ]
+
           <div class="d-flex justify-content-end mt-1">
-            <button class="btn-style-1 clickable toggler" data-callback="generate-single-file" name="submit" style="width:auto">Generate</button>
-            <button class="btn-style-1 ml-2 clickable toggler autofocus" data-callback="copy-generated-file" name="submit" style="width:auto"><i class="material-icons" style="color:white">content_paste</i> <span class="ml-1">Copy</span></button>
+            <button class="btn-style-1 clickable toggler autofocus" data-callback="copy-generated-file" name="submit" style="width:auto">
+              <i class="material-icons" style="color:white">content_paste</i> 
+              <span class="ml-1">Copy</span>
+            </button>
+            <button class="btn-style-1 ml-2 clickable toggler" data-callback="generate-single-file" name="submit" style="width:auto">
+              <i class="material-icons" style="color:white">download</i> 
+              <span class="ml-1">Download</span>
+            </button>
           </div>
+
         </form>
+
       </section>
     </div>
   </div>

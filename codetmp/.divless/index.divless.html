@@ -784,5 +784,16 @@
   <script src="js/core/app.js"></script>
   <script src="index.js"></script>
   <script src="pwa.js"></script>
+  
+  <script type="module">
+    import init, { transform, } from 'https://esm.sh/lightningcss-wasm@1.22.1';
+  
+    await init();
+    
+    window.lightingCss = {
+      transform,
+    };
+  </script>
+
 </body>
 </html>

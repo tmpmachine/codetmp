@@ -20,6 +20,12 @@
     "/assets/ace/theme-codetmp-markdown.js",
     "/assets/ace/theme-codetmp.js"
   ],
+  "lighting-css": [
+    "https://esm.sh/lightningcss-wasm@1.22.1",
+    "https://esm.sh/v135/napi-wasm@1.1.0/es2022/napi-wasm.mjs",
+    "https://esm.sh/v135/lightningcss-wasm@1.22.1/es2022/lightningcss-wasm.mjs",
+    "https://esm.sh/v135/node_fs.js"
+  ],
   "library": [
     "assets/js/source-map@0.7.3/source-map.js",
     "assets/js/terser/bundle.min.js",

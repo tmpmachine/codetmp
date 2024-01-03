@@ -12,9 +12,13 @@
         divlessHTMLEnabled: true,
         divlessHTMLFSEnabled: true,
         wordWrapEnabled: true,
-        minifyJs: false,
         linkPreviewWindowProcess: false,
+
+        // JS & CSS minifier
+        minifyJs: false,
         minifyJsFirebase: false,
+        minifyCssFirebase: false,
+        transformCssFirebase: false,
       },
       explorer: {
         view: 'grid',
