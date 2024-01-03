@@ -1,25 +1,29 @@
-window.app.registerComponent('single-file-generator', new SingleFileGeneratorComponent());
+let singleFileGenerator = (function() {
 
-function SingleFileGeneratorComponent() {
+  let SELF = {
+    generate,
+    copy,
+  };
 
-  this.generate = async function(form) {
-    let options = {
-      replaceDivless: form.replaceDivless.checked,
-      minifyJs: form.minifyJs.checked,
-    };
+  async function generate(form) {
+    let options = getFormOptions(form);
     let content = await getSingleFileContent(options);
     downloadFile(content);
   };
 
-  this.copy = async function(form) {
-    let options = {
+  async function copy(form) {
+    let options = getFormOptions(form);
+    let content = await getSingleFileContent(options);
+    copyToClipboard(content);
+  }
+
+  function getFormOptions(form) {
+    return {
       replaceDivless: form.replaceDivless.checked,
       minifyJs: form.minifyJs.checked,
       minifyCss: form.minifyCss.checked,
       transformCss: form.transformCss.checked,
     };
-    let content = await getSingleFileContent(options);
-    copyToClipboard(content);
   }
 
   async function getSingleFileContent(options) {
@@ -101,42 +105,57 @@ function SingleFileGeneratorComponent() {
     
           }
 
-
         }
 
-        if (typeof Terser != 'undefied' && helper.isMediaTypeJavascript(file.name) && options.minifyJs) {
-          try {
-            let result = await Terser.minify(content, { sourceMap: false });
-            content = result.code;
-          } catch (e) {
-            console.log(e)
-          } 
-        } else if (typeof(window.lightingCss) != 'undefined' && helper.isMediaTypeCSS(file.name) && ( options.minifyCss || options.transformCss ) ) {
-          try {
-
-            let targets = {}
-            if (options.transformCss) {
-              targets = { chrome: 95, };
-            }
-
-            let { code, map } = lightingCss.transform({
-              // filename: 'style.css',
-              targets,
-              code: new TextEncoder().encode(content),
-              minify: options.minifyCss,
-            });
-            content = new TextDecoder().decode(code);
-          
-          } catch (e) {
-            console.log(e)
-          } 
-        }
+        content = await taskApplyFilePreprocessing(content, file.name, options);
 
       }
+
       let swap = await replaceTemplate(content, parentId, path, options);
       body = body.replace(new RegExp(match[0]), swap);
+
     }
+    
     return body;
+
+  }
+
+  async function taskApplyFilePreprocessing(content, fileName, options) {
+
+    try {
+      
+      // terser preprocessing
+      if (typeof Terser != 'undefied' && helper.isMediaTypeJavascript(fileName) && options.minifyJs) {
+        
+        let result = await Terser.minify(content, { sourceMap: false });
+        content = result.code;
+
+      } 
+
+      // lighting CSS preprocessing
+      else if (typeof(window.lightingCss) != 'undefined' && helper.isMediaTypeCSS(fileName) && ( options.minifyCss || options.transformCss ) ) {
+  
+        let targets = {}
+        if (options.transformCss) {
+          targets = { chrome: 95, };
+        }
+
+        let { code, map } = lightingCss.transform({
+          targets,
+          code: new TextEncoder().encode(content),
+          minify: options.minifyCss,
+        });
+
+        content = new TextDecoder().decode(code);
+
+      }
+
+    } catch (error) {
+      console.error(error);
+    }
+
+    return content;
+
   }
 
   function getMatchTemplate(content) {
@@ -237,33 +256,7 @@ function SingleFileGeneratorComponent() {
             }
           }
           
-          if (typeof Terser != 'undefied' && helper.isMediaTypeJavascript(file.name) && options.minifyJs) {
-            try {
-              let result = await Terser.minify(content, { sourceMap: false });
-              content = result.code;
-            } catch (e) {
-              console.log(e)
-            } 
-          } else if (typeof(window.lightingCss) != 'undefined' && helper.isMediaTypeCSS(file.name) && ( options.minifyCss || options.transformCss ) ) {
-            try {
-
-              let targets = {}
-              if (options.transformCss) {
-                targets = { chrome: 95, };
-              }
-
-              let { code, map } = lightingCss.transform({
-                // filename: 'style.css',
-                targets,
-                code: new TextEncoder().encode(content),
-                minify: options.minifyCss,
-              });
-              content = new TextDecoder().decode(code);
-            
-            } catch (e) {
-              console.log(e)
-            } 
-          }
+          content = await taskApplyFilePreprocessing(content, file.name, options);
           
         } else {
           fileManager.downloadMedia(file);
@@ -297,4 +290,6 @@ function SingleFileGeneratorComponent() {
     aww.pop('Copied to clipboard.')
   }
 
-}
+  return SELF;
+
+})();

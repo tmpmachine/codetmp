@@ -167,6 +167,7 @@ let previewHandler = (function () {
   }
 
   async function responseAsText(event, path, mimeType, channelName) {
+
   	let content = await getContent(path, mimeType);
     if (typeof Terser != 'undefied' && mimeType == "text/javascript; charset=UTF-8" && settings.data.editor.minifyJs) {
       try {
@@ -176,12 +177,14 @@ let previewHandler = (function () {
         console.log(e)
       }
     }
+    
     getMessageChannel(channelName).port1.postMessage({
   		message: 'response-file', 
   		mime: mimeType,
   		content: content,
   		resolverUID: event.data.resolverUID,
   	});
+
   }
 
 	async function fileResponseHandler(e) {

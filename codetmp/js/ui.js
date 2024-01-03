@@ -187,19 +187,11 @@ let ui = (function() {
     fileGenerator: {
       generate: function() {
         let form = this.form;
-        window.app.getComponent('single-file-generator').then(sfg => {
-          sfg.generate(form);
-        }).catch((e) => {
-          aww.pop('Component is not ready yet.')
-        });
+        singleFileGenerator.generate(form);
       },
       copy: function() {
         let form = this.form;
-        window.app.getComponent('single-file-generator').then(sfg => {
-          sfg.copy(form);
-        }).catch((e) => {
-          aww.pop('Component is not ready yet.')
-        });
+        singleFileGenerator.copy(form);
       },
     },
     tree: {
