@@ -23,6 +23,7 @@ let singleFileGenerator = (function() {
       minifyJs: form.minifyJs.checked,
       minifyCss: form.minifyCss.checked,
       transformCss: form.transformCss.checked,
+      wrapCdata: form.wrapCdata.checked,
     };
   }
 
@@ -133,20 +134,33 @@ let singleFileGenerator = (function() {
       } 
 
       // lighting CSS preprocessing
-      else if (typeof(window.lightingCss) != 'undefined' && helper.isMediaTypeCSS(fileName) && ( options.minifyCss || options.transformCss ) ) {
-  
-        let targets = {}
-        if (options.transformCss) {
-          targets = { chrome: 95, };
+      else if (helper.isMediaTypeCSS(fileName) ) {
+        
+        if (typeof(window.lightingCss) != 'undefined' && (options.minifyCss || options.transformCss) ) {
+
+          let targets = {}
+          if (options.transformCss) {
+            targets = { chrome: 95, };
+          }
+          
+          let { code, map } = lightingCss.transform({
+            targets,
+            code: new TextEncoder().encode(content),
+            minify: options.minifyCss,
+          });
+          
+          content = new TextDecoder().decode(code);
         }
 
-        let { code, map } = lightingCss.transform({
-          targets,
-          code: new TextEncoder().encode(content),
-          minify: options.minifyCss,
-        });
-
-        content = new TextDecoder().decode(code);
+        if (options.wrapCdata) {
+          if (content.startsWith('/*! <![CDATA[ *//* !!! */')) {
+            content = content.replace('/*! <![CDATA[ *//* !!! */', '')
+          }
+          if (content.endsWith('/*! ]]> *//* !!! */')) {
+            content = content.replace('/*! ]]> *//* !!! */', '')
+          }
+          content = `/*! <![CDATA[ *//* !!! */\n${content}\n/*! ]]> *//* !!! */`
+        }
 
       }
 
