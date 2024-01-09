@@ -251,7 +251,7 @@ const drive = (function() {
       if (json.nextPageToken) {
         listChanges(json.nextPageToken);
       } else {
-        notif.update(notifId, {content:'Your files is up to date'}, true);
+        compoNotif.GetInstance().update(notifId, {content:'Your files is up to date'}, true);
       }
       
       if (syncFromDrive.refresh) {
@@ -573,14 +573,14 @@ const drive = (function() {
 
           request.addEventListener('load', function(e) {
             if (request.status === 200) {
-              notif.update(notifId, {content: 'finished'}, true);
+              compoNotif.GetInstance().update(notifId, {content: 'finished'}, true);
               let json = JSON.parse(e.target.responseText);
               resolve({...json, ...{action, type}});
             } else if (request.status === 404) {
-              notif.update(notifId, {content: `Failed. File not found on Google Drive. Relog your account.`}, true);
+              compoNotif.GetInstance().update(notifId, {content: `Failed. File not found on Google Drive. Relog your account.`}, true);
               reject(e);
             } else {
-              notif.update(notifId, {content: `Failed. Error ${request.status}`}, true);
+              compoNotif.GetInstance().update(notifId, {content: `Failed. Error ${request.status}`}, true);
               reject(e);
             }
           });
@@ -608,13 +608,13 @@ const drive = (function() {
         body: chunk.blob
       }).then(response => {
         if (response.status == 308) {
-          notif.update(notifId, {content: `${Math.floor((chunk.start+size)/total*100)}%`}, true);
+          compoNotif.GetInstance().update(notifId, {content: `${Math.floor((chunk.start+size)/total*100)}%`}, true);
           if (chunks.length > 0)
             resumeUpload(loc, chunks, total, resolve, reject, action, type, headers, notifId)
           else
             reject('Missing upload part.')
         } else if (response.status === 200) {
-          notif.update(notifId, {content: `${Math.floor((chunk.start+size)/total*100)}% (complete)`}, true);
+          compoNotif.GetInstance().update(notifId, {content: `${Math.floor((chunk.start+size)/total*100)}% (complete)`}, true);
           response.json().then(json => {
             resolve({...json, ...{action, type}});
           });
@@ -622,7 +622,7 @@ const drive = (function() {
           return reject(response.status);
         }
       }).catch(status => {
-        notif.update(notifId, {content: `Failed. Error ${status}`}, true);
+        compoNotif.GetInstance().update(notifId, {content: `Failed. Error ${status}`}, true);
         reject(status);
       })
   }

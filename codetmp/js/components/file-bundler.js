@@ -28,9 +28,9 @@
 
         let countError = 0;
         handleRequestChunks(fileRequests, () => {
-          notif.update(notifId, {}, true);        
+          compoNotif.GetInstance().update(notifId, {}, true);        
           notifId = compoNotif.Add({title: 'Downloading your files ...'});
-          notif.update(notifId, {}, true);        
+          compoNotif.GetInstance().update(notifId, {}, true);        
           resolve();
         }, countError);
       });
@@ -93,7 +93,7 @@
         let notifId = compoNotif.Add({title:'Downloading '+request.f.name, content: 'In progress'});
         SELF.getReqFileContent(request.f, request.options).then(async fileData => {
           requests.shift();
-          notif.update(notifId, {content:'Done'}, true);
+          compoNotif.GetInstance().update(notifId, {content:'Done'}, true);
           let file = fileData.file;
           let zipFileOpt = null;
           if (fileData.isMarkedBinary) {
@@ -104,7 +104,7 @@
           handleRequestChunks(requests, resolveZip, countError);
         }).catch(() => {
           requests.shift();
-          notif.update(notifId, {content:'Failed'}, true);
+          compoNotif.GetInstance().update(notifId, {content:'Failed'}, true);
           handleRequestChunks(requests, resolveZip, countError+1);
         });
       } else {

@@ -336,11 +336,11 @@ let fileManager = (function() {
     $('#file-list').appendChild(docFrag);
 
     if (downloadQueue.length > 0) {
-      let notifId = notif.add({
+      let notifId = compoNotif.Addd({
         title: 'Loading directory',
       });
       drive.syncFromDrivePartial(downloadQueue).then(() => {
-        notif.update(notifId, {content:'Done'}, true);
+        compoNotif.GetInstance().update(notifId, {content:'Done'}, true);
       });
     }
   }
@@ -361,11 +361,11 @@ let fileManager = (function() {
     }
 
     if (downloadQueue.length > 0) {
-      let notifId = notif.add({
+      let notifId = compoNotif.Add({
         title: 'Loading directory',
       });
       drive.syncFromDrivePartial(downloadQueue).then(() => {
-        notif.update(notifId, {content:'Done'}, true);
+        compoNotif.GetInstance().update(notifId, {content:'Done'}, true);
       });
     }
     return result;
@@ -482,7 +482,7 @@ let fileManager = (function() {
   SELF.downloadMedia = function(file) {
     return new Promise(resolve => {
       
-      let notifId = notif.add({
+      let notifId = compoNotif.Add({
         title: 'Downloading media',
         content: `file: ${file.name}`,
       });
@@ -514,16 +514,16 @@ let fileManager = (function() {
 
         if (helper.isHasSource(content)) {
           fileManager.downloadMedia(file).then(() => {
-            notif.update(notifId,{content:`file: ${file.name} (done)`}, true);
+            compoNotif.GetInstance().update(notifId,{content:`file: ${file.name} (done)`}, true);
             resolve();
           });
         } else {
           aww.pop('Successfully download required file: '+file.name);
-          notif.update(notifId,{content:`file: ${file.name} (done)`}, true);
+          compoNotif.GetInstance().update(notifId,{content:`file: ${file.name} (done)`}, true);
           resolve();
         }
       }).catch(errMsg => {
-        notif.update(notifId, {
+        compoNotif.GetInstance().update(notifId, {
           title: 'Downloading failed',
           content: `file: ${file.name}.<br>Error : ${errMsg}`,
         }, true);
@@ -794,8 +794,8 @@ let fileManager = (function() {
       }
     }).catch(function(error) {
       if (error === 404) {
-	      let notifId = notif.add({title: 'Failed to open file', content: 'Missing file link : '+f.name});
-	      setTimeout(() => notif.update(notifId, {}, true), 3000);
+	      let notifId = compoNotif.Add({title: 'Failed to open file', content: 'Missing file link : '+f.name});
+	      setTimeout(() => compoNotif.GetInstance().update(notifId, {}, true), 3000);
       } else {
       	aww.pop('Could not download file');
       }
