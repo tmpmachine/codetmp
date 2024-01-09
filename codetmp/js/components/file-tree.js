@@ -4,7 +4,7 @@
   // TODO: remove local query selector after updating all components that use
   let $ = function(selector, node=document) { return node.querySelectorAll(selector) };
 
-  window.app.registerComponent('fileTree', FileTreeComponent());
+  app.registerComponent('fileTree', FileTreeComponent());
 
   function FileTreeComponent() {
 
@@ -462,7 +462,7 @@
         } 
       }
 
-      loadBreadCrumbs();
+      uiExplorer.LoadBreadCrumbs();
       
       if (breadcrumbs.length > 1)
         breadcrumbs.pop();
@@ -528,7 +528,7 @@
   }
 
 
-  window.app.getComponent('fileTree').then(async (ft) => {
+  app.getComponent('fileTree').then(async (ft) => {
     await fileManager.TaskOnStorageReady();
     await ft.reload();
     ft.attachListener();

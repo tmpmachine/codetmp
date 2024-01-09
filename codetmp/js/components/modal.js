@@ -32,14 +32,14 @@ const modal = (function() {
   function closeHandler() {
     // delay to handle global key listener
     window.setTimeout(() => {
-      stateManager.popState([0]);
+      compoStateManager.popState([0]);
     }, 50);
   }
 
   function confirm(message = '') {
     _modal = confirmModal.toggle();
     type = 'confirm';
-    stateManager.pushState([0]);
+    compoStateManager.pushState([0]);
     $('.message', _modal)[0].innerHTML = message;
     return getResolver();
   }
@@ -48,7 +48,7 @@ const modal = (function() {
     _modal = promptModal.toggle();
     input = $('input', _modal)[0];
     type = 'prompt';
-    stateManager.pushState([0]);
+    compoStateManager.pushState([0]);
     $('.title', _modal)[0].innerHTML = promptText;
     input.value = defaultValue;
     $('.notes', _modal)[0].innerHTML = notes;

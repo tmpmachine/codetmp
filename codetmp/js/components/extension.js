@@ -45,7 +45,7 @@ const extension = (function() {
 
   function load(name) {
     let ext = getModule(name);
-    window.app.loadFiles([{
+    app.loadFiles([{
       urls: ext.files,
       callback: ext.callback,
     }]);

@@ -543,10 +543,10 @@ let fileManager = (function() {
       let [entry] = await window.showOpenFilePicker();
   		entry.getFile().then(r => {
   			r.text().then(r => {
-  				newTab(-1, {
+  				ui.openNewTab(-1, {
   					fid: '-' + (new Date).getTime(),
   					name: entry.name,
-  					editor: initEditor(r),
+  					editor: compoEditor.Init(r),
   					content: r,
   					fileHandle: entry,
   				});
@@ -584,14 +584,14 @@ let fileManager = (function() {
         fileContent = fileTab[activeTab].editor.env.editor.getValue();
       }
 
-      confirmCloseTab(false);
+      tabManager.ConfirmCloseTab(false);
       let tabData = {
         fid: file.fid,
         name: file.name,
         fiber: 'close',
         file: file,
         fileHandle: ( (activeWorkspace == 2 && file.fileRef && file.fileRef.entry) ? file.fileRef.entry : null ),
-        editor: initEditor(fileContent, scrollTop, row, col),
+        editor: compoEditor.Init(fileContent, scrollTop, row, col),
       };
       tabManager.newTab(activeTab, tabData);
 
@@ -683,7 +683,7 @@ let fileManager = (function() {
     await TaskDisplayListFolders();
     $('#file-list').appendChild(o.element('div', { style: 'flex: 0 0 100%', class: 'separator w3-padding-small' }));
     await TaskDisplayListFiles();
-    loadBreadCrumbs();
+    uiExplorer.LoadBreadCrumbs();
     selectedFile.splice(0, 1);
     ui.toggleFileActionButton();
   };
@@ -744,15 +744,16 @@ let fileManager = (function() {
 
   function openOnEditor(f) {
     activeFile = f;
-    if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-')
-      confirmCloseTab(false);
+    if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-') {
+      tabManager.ConfirmCloseTab(false);
+    }
 
     getFileContent(f).then(content => {
       let idx = odin.idxOf(f.fid, fileTab, 'fid')
       if (idx < 0) {
-        newTab(fileTab.length, {
+        ui.openNewTab(fileTab.length, {
           fid: f.fid,
-          editor: initEditor(content),
+          editor: compoEditor.Init(content),
           name: f.name,
           fiber: 'close',
           file: f,
@@ -760,7 +761,7 @@ let fileManager = (function() {
         });
       } else {
         fileTab[activeTab].content = fileTab[activeTab].editor.env.editor.getValue();
-        focusTab(f.fid, false);
+        tabManager.focusTab(f.fid, false);
       }
       
     if ($('#btn-menu-my-files').classList.contains('active'))
@@ -937,7 +938,7 @@ let fileManager = (function() {
     }
     breadcrumbs.push({folderId:-1, title: 'My Files'});
     breadcrumbs.reverse();
-    loadBreadCrumbs();
+    uiExplorer.LoadBreadCrumbs();
   }
 
   async function TaskDeleteFolder(fid) {
@@ -965,7 +966,7 @@ let fileManager = (function() {
       metadata: ['trashed'],
       type: 'folders'
     });
-    window.app.getComponent('fileTree').then(fileTree => {
+    app.getComponent('fileTree').then(fileTree => {
       fileTree.removeFolder(data);
     });
   }
@@ -1000,7 +1001,7 @@ let fileManager = (function() {
         type: 'files'
     });
 
-    window.app.getComponent('fileTree').then(fileTree => {
+    app.getComponent('fileTree').then(fileTree => {
       fileTree.removeFile(data);
     });
   }

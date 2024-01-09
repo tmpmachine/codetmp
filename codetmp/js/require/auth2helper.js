@@ -73,7 +73,7 @@
         function(success) {
           aww.pop('Access granted.');
           storeAuthData(success);
-          authReady();
+          app.AuthReady();
         },
         function(fail){
           aww.pop('Grant access failed. Check console.');

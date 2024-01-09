@@ -108,7 +108,7 @@
   function logWarningMessage() {
     let cssRule = "color:rgb(249,162,34);font-size:60px;font-weight:bold";
     setTimeout(console.log.bind(console, "%cATTENTION", cssRule), 0); 
-    setTimeout(console.log.bind(console, "This window is intended for developers and someone might be tyring to steal your data by asking you to enter malicious code from here."), 0); 
+    setTimeout(console.log.bind(console, "This window is intended for developers. Someone might be tyring to steal your data by asking you to enter malicious code from here."), 0); 
     setTimeout(console.log.bind(console, "Ignore this message if you're well aware of what you're going to do."), 0); 
   }
 
@@ -120,9 +120,9 @@
       }
     }, {passive:false});
     function wheel(delta) {
-      if (pressedKeys.ctrlKey) {
-      let value = (delta < 0) ? -1 : +1;
-      editorManager.changeFontIndex(value);
+      if (compoKeyInput.pressedKeys.ctrlKey) {
+        let value = (delta < 0) ? -1 : +1;
+        compoEditor.editorManager.changeFontIndex(value);
       }
     }
   }

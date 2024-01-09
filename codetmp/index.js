@@ -5,7 +5,7 @@ let environment = {
   previewUrlPWA: 'https://pwa.codetmp7.dev/',
 };
 
-window.app.loadFiles([
+app.loadFiles([
   {
     urls: [
       'views/modals.html',
@@ -23,6 +23,8 @@ window.app.loadFiles([
   },
   {
     urls: [
+      "js/components/modal-window-component.js",
+      "js/components/state-manager-component.js",
       'js/components/support.js',
       'js/components/helper.js',
       'js/components/extension.js',
@@ -45,22 +47,26 @@ window.app.loadFiles([
   },
   {
     urls: [
-      'js/core/app-data.js',
+      "js/constant.js",
+      "js/app-data.js",
       "assets/js/statelist-utility@v1.0.2/statelist.min.js",
     ],
   },
   {
     urls: [
-      'js/require/o.js',
-      'js/require/keyboard.js',
-      'js/require/odin.js',
-      'js/components/preview-handler.js',
-      'js/components/file-manager.js',
-      'js/ui.js',
-      'js/components/notifier.js',
-      // 'assets/ace/ace.js',
+      "js/components/editor-component.js",
+      "js/require/o.js",
+      "js/require/keyboard.js",
+      "js/require/odin.js",
+      "js/components/preview-handler.js",
+      "js/components/file-manager.js",
+      "js/ui.js",
+      "js/uis/explorer-ui.js",
+      "js/components/notif-component.js",
+      "js/components/notifier.js",
+      // "assets/ace/ace.js",
       `${ACE_CDN_BASEPATH}/ace.min.js`,
-      'js/components/tab-manager.js',
+      "js/components/tab-manager.js",
     ],
     callback: function() {
       previewHandler.Init(),
@@ -70,9 +76,9 @@ window.app.loadFiles([
   },
   {
     urls: [
-      'js/dom-events.js',
-      'css/file-tree.css',
-      'js/components/file-tree.js',
+      "js/dom-events.js",
+      "css/file-tree.css",
+      "js/components/file-tree.js",
     ],
     callback: function() {
       ui.Init();
@@ -80,38 +86,38 @@ window.app.loadFiles([
   },
   {
     urls: [
-      'js/components/keyboard-handler.js',
-      'js/components/file-reader.js',
-      'js/components/snippet-manager.js',
+      "js/components/key-input-component.js",
+      "js/components/file-reader.js",
+      "js/components/snippet-manager.js",
       "assets/js/divless-html@v1.0.1/divless.min.js",
     ],
     callback: function() {
       fileReaderModule.init();
-      keyboardHandler.init();
-      initFileHandler();
+      compoKeyInput.Init();
+      ui.InitFileHandler();
     },
   },
   {
     urls: [
-      'js/require/aww.js',
-      'js/components/auth2helper.js',
-      'js/components/drive.js',
-      'js/components/defer-feature-1.js',
-      'js/components/defer-feature-2.js',
+      "js/require/aww.js",
+      "js/components/auth2helper.js",
+      "js/components/drive.js",
+      "js/components/defer-feature-1.js",
+      "js/components/defer-feature-2.js",
     ],
   },
   {
     urls: [
-      'https://apis.google.com/js/platform.js?onload=renderSignInButton',
+      "https://apis.google.com/js/platform.js?onload=app.RenderSignInButton",
     ],
   },
   {
     urls: [
-      'js/components/git.js',
-      'js/components/environment-manager.js',
-      'js/components/single-file-generator.js',
-      'js/components/file-bundler.js',
-      'js/require/jszip.min.js',
+      "js/components/git.js",
+      "js/components/environment-manager.js",
+      "js/components/single-file-generator.js",
+      "js/components/file-bundler.js",
+      "js/require/jszip.min.js",
     ],
     callback: function() {
       support.check('JSZip');

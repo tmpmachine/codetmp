@@ -109,10 +109,10 @@ const fileReaderModule = (function() {
 			content,
 			fid: '-' + (new Date).getTime(),
 			name: data.name,
-			editor: initEditor(content),
+			editor: compoEditor.Init(content),
 			fileHandle: data.isPressedCtrlKey ? data.entry : null,
 		};
-		newTab(-1, tabData);
+		ui.openNewTab(-1, tabData);
 	}
 
 	function proceedNextQueueItem(item) {
@@ -466,7 +466,7 @@ const fileReaderModule = (function() {
 		dragZone.addEventListener('dragenter', () => {
 			isDragging = true;
 			// isPressedCtrlKey = false;
-			isPressedCtrlKey = (ui.states.storage == STORAGE_STATE.fileSystem);
+			isPressedCtrlKey = (ui.states.storage == constant.STORAGE_STATE.FileSystem);
 			activeDropZone = dropZone;
 			showDropZone(dropZone);
 		});

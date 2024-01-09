@@ -60,7 +60,7 @@ const preferences = (function() {
     $('#check-save-token').checked = settings.data.saveGitToken ? true : false;
 
     if (!$('#check-show-homepage').checked) {
-      toggleHomepage();
+      ui.ToggleHomepage();
     }
   };
 

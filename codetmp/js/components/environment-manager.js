@@ -6,7 +6,7 @@
 
   };
 
-  let component = window.app.registerComponent('environmentManager', new function() {
+  let component = app.registerComponent('environmentManager', new function() {
     
   });
 

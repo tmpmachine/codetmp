@@ -10,7 +10,7 @@
     function createBundle(selectedFile, zip, options) {
       return new Promise(async (resolve) => {
 
-        let notifId = notif.add({title: 'Bundling files ...'});
+        let notifId = compoNotif.Add({title: 'Bundling files ...'});
         let fileRequests = [];
 
          for (let file of selectedFile) {
@@ -29,7 +29,7 @@
         let countError = 0;
         handleRequestChunks(fileRequests, () => {
           notif.update(notifId, {}, true);        
-          notifId = notif.add({title: 'Downloading your files ...'});
+          notifId = compoNotif.Add({title: 'Downloading your files ...'});
           notif.update(notifId, {}, true);        
           resolve();
         }, countError);
@@ -90,7 +90,7 @@
     function handleRequestChunks(requests, resolveZip, countError) {
       if (requests.length > 0) {
         let request = requests[0];
-        let notifId = notif.add({title:'Downloading '+request.f.name, content: 'In progress'});
+        let notifId = compoNotif.Add({title:'Downloading '+request.f.name, content: 'In progress'});
         SELF.getReqFileContent(request.f, request.options).then(async fileData => {
           requests.shift();
           notif.update(notifId, {content:'Done'}, true);
@@ -430,7 +430,7 @@
   }
 
   let fileBundler = new FileBundlerComponent();
-  window.app.registerComponent('fileBundler', fileBundler);
+  app.registerComponent('fileBundler', fileBundler);
   fileBundler.init(); 
 
 })();

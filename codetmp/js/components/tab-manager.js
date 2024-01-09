@@ -9,9 +9,51 @@ const tabManager = (function() {
     openDirectory,
 
     newTab: NewTab,
+    ConfirmCloseTab,
+    FileClose,
+    InitTabFocusHandler,
   };
 
   let lastOpenTabIndex = 0;
+
+  function InitTabFocusHandler() {
+
+    function tabFocusHandler(e) {
+      if (e.keyCode === 9) {
+        document.body.classList.add('tab-focused');
+        window.removeEventListener('keydown', tabFocusHandler);
+        window.addEventListener('mousedown', disableTabFocus);
+      }
+    }
+  
+    function disableTabFocus() {
+      document.body.classList.remove('tab-focused');
+      window.removeEventListener('mousedown', disableTabFocus);
+      window.addEventListener('keydown', tabFocusHandler);
+    }
+  
+    window.addEventListener('keydown', tabFocusHandler);
+  }
+
+  function FileClose(fid) {
+    let idx;
+    if (fid)
+      idx = odin.idxOf(String(fid), fileTab, 'fid')
+    else
+      idx = activeTab
+    
+    if (activeTab == idx) {
+      activeTab = idx
+      tabManager.ConfirmCloseTab()
+    } else {
+      let tmp = activeTab;
+      activeTab = idx;
+      if (idx < tmp)
+        tabManager.ConfirmCloseTab(true, tmp-1)
+      else
+        tabManager.ConfirmCloseTab(true, tmp)
+    }
+  }
 
   function NewTab(position, data) {
     
@@ -59,7 +101,7 @@ const tabManager = (function() {
       let tabData = {
         name,
         fid,
-        editor: initEditor(),
+        editor: compoEditor.Init(),
         fiber: 'close',
         fileHandle: null,
       };
@@ -104,9 +146,9 @@ const tabManager = (function() {
     
     let editor = fileTab[idx].editor.env.editor;
     editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
-    editor.setFontSize(editorManager.fontSize);
+    editor.setFontSize(compoEditor.editorManager.fontSize);
     activeFile = (String(fid)[0] == '-') ? null : fileTab[activeTab].file;
-    ui.setEditorMode(fileTab[activeTab].name);  
+    compoEditor.SetMode(fileTab[activeTab].name);  
     
     editor.focus();
 
@@ -144,10 +186,41 @@ const tabManager = (function() {
     }
   }
 
+  
+  function ConfirmCloseTab(focus = true, comeback) {
+    if (focus) {
+      if ($('.file-tab')[activeTab].querySelector('.icon-rename').textContent.trim() != 'close') {
+          modal.confirm('Changes you made will be lost.').then(() => {
+            changeFocusTab(focus, comeback);
+          }).catch(() => fileTab[activeTab].editor.env.editor.focus())
+        } else {
+          changeFocusTab(focus, comeback);
+        } 
+    } else {
+      closeActiveTab()
+    }
+  }
+
+  function closeActiveTab() {
+    let fid = parseInt(fileTab[activeTab].fid); 
+    app.getComponent('fileTree').then(fileTree => {
+      fileTree.removeOpenIndicator(fid);
+    });
+    $('#file-title').removeChild($('.file-tab')[activeTab]);
+    fileTab.splice(activeTab, 1);
+  }
+
+  function getTabWidth() {
+    let width = 0;
+    for (let tab of $('.file-tab'))
+      width += tab.offsetWidth;
+    return width;
+  }
+
   function changeFocusTab(focus, comeback) {
     closeActiveTab()
     if (fileTab.length == 0) {
-      newTab()
+      ui.openNewTab()
       activeFile = null;
     } else {
       if (comeback === undefined) {
@@ -169,7 +242,7 @@ const tabManager = (function() {
       breadcrumbs.splice(1, 0, {folderId:folder.fid, title: folder.name});
       parentId = folder.parentId;
     }
-    loadBreadCrumbs();
+    uiExplorer.LoadBreadCrumbs();
     $('#btn-menu-my-files').click();
     if (breadcrumbs.length > 1)
       breadcrumbs.pop();

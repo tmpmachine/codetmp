@@ -42,7 +42,7 @@
                 <li>Mobile friendly</li>
               </ul>
               <p>
-                <input id="check-show-homepage" class="w3-check" type="checkbox" checked oninput="ui.toggleHomepage()"/> <label for="check-show-homepage">Show homepage first</label>
+                <input id="check-show-homepage" class="w3-check" type="checkbox" checked oninput="ui.ToggleHomepageSetting()"/> <label for="check-show-homepage">Show homepage first</label>
               </p>
                 <div class="w3-button w3-border w3-block clickable" data-callback="toggle-homepage" style="text-align: center;background: dodgerblue;color:#fff;max-width: 300px">
                   <div class="w3-small w3-padding-small" style="font-weight:bold;">Start Coding</div>
@@ -253,84 +253,98 @@
         <div class="in-window d-grid ov-hidden h-100">
           <div class="relative h-100 d-grid" style="grid-template-rows:auto auto 1fr;">
             
-            <div id="nav-bar" class="no-select w3-small relative d-flex w-100">
-              <div class="menu-bar">
-                <button class="tree-explorer-btn-expand clickable d-none" title="File Tree Explorer (Alt + Q)" data-callback="expand-tree-explorer" style="border: 0;cursor: pointer;color: #97bcc1;border-right: 1px solid hsl(214deg 14% 13%);">
-                  <i class="material-icons i-btn-in">chevron_right</i>
-                </button>
-                <div class="drop-menu">
-	        		<a href="#" class="Root w3-padding">File</a>
-                  <div class="Submenu">
-                    <a href="#" class="w3-padding Items menu-link" data-callback='save' data-shortcut="Ctrl + S"> Save </a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback='new-file' data-shortcut="Alt + N"> New File </a>
-                    <a href="#" class="w3-padding Items menu-link hide" data-callback='new-file-on-disk'>New File on Disk</a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback='new-folder' data-shortcut="Alt + Shift + N"> New Folder </a>
-                    <a href="#" class="w3-padding Items menu-link feature-fs" data-callback='open-disk-folder' data-shortcut="Ctrl + O"> Open Folder from Disk </a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback='preview' data-shortcut="Ctrl + Enter"> Preview </a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback='preview-at-pwa' data-shortcut="Ctrl + Shift + Enter">Preview PWAs</a>
+            <div id="nav-bar" class="no-select w3-small w-100">
+
+              [ .relative .d-flex .justify-content-between
+
+                <div class="menu-bar">
+                  
+                  <button class="tree-explorer-btn-expand clickable d-none" title="File Tree Explorer (Alt + Q)" data-callback="expand-tree-explorer" style="border: 0;cursor: pointer;color: #97bcc1;border-right: 1px solid hsl(214deg 14% 13%);">
+                    <i class="material-icons i-btn-in">chevron_right</i>
+                  </button>
+                  <div class="drop-menu">
+                <a href="#" class="Root w3-padding">File</a>
+                    <div class="Submenu">
+                      <a href="#" class="w3-padding Items menu-link" data-callback='save' data-shortcut="Ctrl + S"> Save </a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback='new-file' data-shortcut="Alt + N"> New File </a>
+                      <a href="#" class="w3-padding Items menu-link hide" data-callback='new-file-on-disk'>New File on Disk</a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback='new-folder' data-shortcut="Alt + Shift + N"> New Folder </a>
+                      <a href="#" class="w3-padding Items menu-link feature-fs" data-callback='open-disk-folder' data-shortcut="Ctrl + O"> Open Folder from Disk </a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback='preview' data-shortcut="Ctrl + Enter"> Preview </a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback='preview-at-pwa' data-shortcut="Ctrl + Shift + Enter">Preview PWAs</a>
+                    </div>
                   </div>
-                </div>
-                <div class="drop-menu">
-	        		<a href="#" class="Root w3-padding">Explorer</a>
-                  <div class="Submenu">
-                    <a href="#" class="w3-padding Items menu-link" data-callback="my-files" data-shortcut="Alt + M"> My Files </a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback="open-in-explorer" data-shortcut="Alt + O"> Open File in Explorer </a>
-                    <a href="#" class="w3-padding Items menu-link w3-hide" data-callback="trash"> Trash </a>
+                  <div class="drop-menu">
+                <a href="#" class="Root w3-padding">Explorer</a>
+                    <div class="Submenu">
+                      <a href="#" class="w3-padding Items menu-link" data-callback="my-files" data-shortcut="Alt + M"> My Files </a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback="open-in-explorer" data-shortcut="Alt + O"> Open File in Explorer </a>
+                      <a href="#" class="w3-padding Items menu-link w3-hide" data-callback="trash"> Trash </a>
+                    </div>
                   </div>
-                </div>
-                <!-- view menu -->
-                <div class="drop-menu">
-                  <a href="#" class="Root w3-padding">View</a>
-                  <div class="Submenu">
-                    <a href="#" class="w3-padding Items menu-link" data-callback="command-palette" data-shortcut="Ctrl + Shift + P"> Command Palette </a>
+                  <!-- view menu -->
+                  <div class="drop-menu">
+                    <a href="#" class="Root w3-padding">View</a>
+                    <div class="Submenu">
+                      <a href="#" class="w3-padding Items menu-link" data-callback="command-palette" data-shortcut="Ctrl + Shift + P"> Command Palette </a>
+                    </div>
                   </div>
+
+                  <div class="drop-menu">
+                <a href="#" class="Root w3-padding">Editor</a>
+                    <div class="Submenu">
+                      <a href="#" class="w3-padding Items menu-link" data-callback="set-font-size"> Set Font Size </a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback="toggle-editor-theme"> Toggle Light Theme </a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback="toggle-word-wrap"> Toggle Word Wrap </a>
+                      <!-- <a href="#" class="w3-padding Items menu-link" data-callback="toggle-in-frame"> Toggle In-frame Preview </a> -->
+                      <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + K, K"> Toggle Bookmark</a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + K, L"> Clear Bookmark</a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + ,"> Go To Previous Bookmark</a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + ."> Go To Next Bookmark</a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + ,"> Previous Tab</a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + ."> Next Tab</a>
+                    </div>
+                  </div>
+                  <div class="drop-menu">
+                <a href="#" class="Root w3-padding">Publish</a>
+                    <div class="Submenu">
+                      <a href="#" class="w3-padding Items menu-link authorized" data-callback="modal" data-target="deploy-firebase">Deploy to Firebase Hosting</a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback="generate-single-file" data-shortcut="Alt + P">Generate Single File</a>
+                    </div>
+                  </div>
+                  <div class="drop-menu">
+                <a href="#" class="Root w3-padding">Help</a>
+                    <div class="Submenu">
+                      <a href="pages/PP.html" class="w3-padding Items">Privacy Policy</a>
+                      <a href="pages/TOS.html" class="w3-padding Items">Terms of Service</a>
+                      <a href="#" class="w3-padding Items menu-link" data-callback="about">About Codetmp</a>
+                    </div>
+                  </div>
+
                 </div>
 
-                <div class="drop-menu">
-	        		<a href="#" class="Root w3-padding">Editor</a>
-                  <div class="Submenu">
-                    <a href="#" class="w3-padding Items menu-link" data-callback="set-font-size"> Set Font Size </a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback="toggle-editor-theme"> Toggle Light Theme </a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback="toggle-word-wrap"> Toggle Word Wrap </a>
-                    <!-- <a href="#" class="w3-padding Items menu-link" data-callback="toggle-in-frame"> Toggle In-frame Preview </a> -->
-                    <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + K, K"> Toggle Bookmark</a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + K, L"> Clear Bookmark</a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + ,"> Go To Previous Bookmark</a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + ."> Go To Next Bookmark</a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + ,"> Previous Tab</a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + ."> Next Tab</a>
+                <div class="menu-bar">
+
+                  <div class="drop-menu">
+                  <a href="#" class="Root w3-padding menu-link" data-callback="modal" data-target="settings">Settings</a>
                   </div>
-                </div>
-                <div class="drop-menu">
-	        	  <a href="#" class="Root w3-padding">Publish</a>
-                  <div class="Submenu">
-                  	<a href="#" class="w3-padding Items menu-link authorized" data-callback="modal" data-target="deploy-firebase">Deploy to Firebase Hosting</a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback="generate-single-file" data-shortcut="Alt + P">Generate Single File</a>
+                  <div class="drop-menu unauthorized">
+                <a href="#" class="Root w3-padding menu-link" data-callback="modal" data-target="account">Sign in</a>
                   </div>
-                </div>
-                <div class="drop-menu">
-	        		<a href="#" class="Root w3-padding">Help</a>
-                  <div class="Submenu">
-                    <a href="pages/PP.html" class="w3-padding Items">Privacy Policy</a>
-                    <a href="pages/TOS.html" class="w3-padding Items">Terms of Service</a>
-                    <a href="#" class="w3-padding Items menu-link" data-callback="about">About Codetmp</a>
+                  <div class="drop-menu authorized">
+                <a href="#" class="Root w3-padding">My Account</a>
+                    <div class="Submenu" style="right:0">
+                      <a href="#" class="w3-padding Items menu-link" data-callback="sign-out">Sign out</a>
+                    </div>
                   </div>
+
                 </div>
-              </div>
-              <div class="menu-bar">
-                <div class="drop-menu">
-	        		   <a href="#" class="Root w3-padding menu-link" data-callback="modal" data-target="settings">Settings</a>
-                </div>
-                <div class="drop-menu unauthorized">
-	        		<a href="#" class="Root w3-padding menu-link" data-callback="modal" data-target="account">Sign in</a>
-                </div>
-                <div class="drop-menu authorized">
-	        		<a href="#" class="Root w3-padding">My Account</a>
-                  <div class="Submenu" style="right:0">
-                    <a href="#" class="w3-padding Items menu-link" data-callback="sign-out">Sign out</a>
-                  </div>
-                </div>
-              </div>
+
+              ]
+
+              <!-- # navbar line -->
+              [ {border-top:1px solid #3b3b3b}]
+
             </div>
             
             <div class="d-grid relative file-tab-container">
@@ -356,9 +370,8 @@
       </div>
       <div id="sidebar" class="w3-animate-left w3-card-4 HIDE ov-auto">
         
-        <!-- SIDEBAR MENU -->
-        <!--  -->
-        <div class="Inner">
+        <!-- # sidebar -->
+        <div class="Inner sidebar-inner h-100">
           <div id="btn-menu-my-files" class="btn-material no-select" menu="in-my-files">
             <i class="material-icons i-btn-in">folder</i>
             <label class="l-btn-in">My Files</label>
@@ -506,6 +519,7 @@
       position: relative;
       overflow: hidden;
       max-height: 100%;
+      outline: 1px solid  #2e2e2e;
     }
     .window.hide .modal {
       transform: scale(0.95);
@@ -781,7 +795,7 @@
     });
   </script>
 
-  <script src="js/core/app.js"></script>
+  <script src="js/app.js"></script>
   <script src="index.js"></script>
   <script src="pwa.js"></script>
   

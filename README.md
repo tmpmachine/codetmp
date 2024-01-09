@@ -82,7 +82,7 @@ Due to recent policy updates on browser storage partitioning, this communication
 `codetmp/js/file-manager.js` and `codetmp/js/ux.js` is probably all you care about.
 
 #### ACE Editor
-See `initEditor()` method on `codetmp/js/ux.js`. Ace editor by Ajax.org Cloud9 Editor.
+See `compoEditor.Init()`. Ace editor by Ajax.org Cloud9 Editor.
 
 
 ## Aknowledgements

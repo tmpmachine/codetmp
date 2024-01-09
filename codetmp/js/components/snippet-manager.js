@@ -279,7 +279,7 @@ function resetSearch(self, bypass) {
     let index = this.dataset.index;
     let data = snippets[index];
     $('#search-result').innerHTML = '';
-    toggleInsertSnippet();
+    ui.toggleInsertSnippet();
     if (data.callback) {
       data.callback();
     } else {

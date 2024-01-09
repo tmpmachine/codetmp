@@ -223,7 +223,7 @@ const drive = (function() {
 
   async function listChanges(pageToken = settings.data.drive.startPageToken) {
     await auth2.init();
-    let notifId = notif.add({
+    let notifId = compoNotif.Add({
       title: 'Checking for file changes ...',
     });
     fetch(apiUrl+'changes?pageToken='+pageToken+'&fields=nextPageToken,newStartPageToken,changes(file(name,id,trashed,parents,mimeType,modifiedTime))', {
@@ -525,7 +525,7 @@ const drive = (function() {
 
         if (typeof(fileBlob) != 'undefined' && fileBlob.size > 5000000) {
 
-          let notifId = notif.add({
+          let notifId = compoNotif.Add({
             title: `(Syncing) ${name}`,
             content: '0%',
           })
@@ -564,7 +564,7 @@ const drive = (function() {
 
         } else {
 
-          let notifId = notif.add({
+          let notifId = compoNotif.Add({
             title: `(Syncing) ${name}`,
             content: 'in progress',
           })

@@ -11,7 +11,7 @@ let deferFeature1 = {
       breadcrumbs.splice(1, 0, {folderId:folder.fid, title: folder.name});
       parentId = folder.parentId;
     }
-    loadBreadCrumbs();
+    uiExplorer.LoadBreadCrumbs();
     let targetMenuId;
     let useCallback = false;
     ui.toggleActionMenu(targetMenuId, useCallback, $('#btn-menu-my-files'));
@@ -24,11 +24,11 @@ let deferFeature1 = {
   toggleWrapMode: function() {
     settings.data.wrapMode = !settings.data.wrapMode;
     settings.save();
-    focusTab(fileTab[activeTab].fid);
+    tabManager.focusTab(fileTab[activeTab].fid);
   },
 
   handlePasteRow: function() {
-    if (editorManager.isPasteRow) {
+    if (compoEditor.editorManager.isPasteRow) {
       let editor = fileTab[activeTab].editor.env.editor;
       let selection = editor.getSelectionRange();
       let row = selection.start.row;

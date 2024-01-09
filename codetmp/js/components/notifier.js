@@ -25,15 +25,15 @@ function Notifier(templateNode, wrapperNode) {
       let wrapper = document.createDocumentFragment();
       let count = 0;
       for (let i=pool.length-1; i>=0; i--) {
-        let notif = pool[i];
-        if (notif.isRemoved) {
+        let notifInstance = pool[i];
+        if (notifInstance.isRemoved) {
           pool.splice(i,1)
           i++;
         } else {
           let node = templateNode.content.cloneNode(true);
-          $('.Timestamp', node)[0].innerHTML = notif.timestamp;
-          $('.Title', node)[0].innerHTML = notif.title;
-          $('.Content', node)[0].innerHTML = notif.content;
+          $('.Timestamp', node)[0].innerHTML = notifInstance.timestamp;
+          $('.Title', node)[0].innerHTML = notifInstance.title;
+          $('.Content', node)[0].innerHTML = notifInstance.content;
           wrapper.append(node);
         }
         count++;
@@ -62,32 +62,32 @@ function Notifier(templateNode, wrapperNode) {
     }
 
     function add(data = {}) {
-      let notif = Notif();
-      for (let key in notif) {
+      let notifInstance = Notif();
+      for (let key in notifInstance) {
         if (typeof(data[key]) != 'undefined') {
-          notif[key] = data[key];
+          notifInstance[key] = data[key];
         }
       }
-      notif.id = uidCounter;
+      notifInstance.id = uidCounter;
       uidCounter++;
       activeNotif++;
-      pool.push(notif);
+      pool.push(notifInstance);
       list();
-      return notif.id;
+      return notifInstance.id;
     }
     
     function update(uid, data, isDone) {
       let isUpdated = false;
       for (let i=pool.length-1; i>=0; i--) {
-        let notif = pool[i];
-        if (notif.id === uid) {
-          for (let key in notif) {
+        let notifInstance = pool[i];
+        if (notifInstance.id === uid) {
+          for (let key in notifInstance) {
             if (typeof(data[key]) != 'undefined') {
-              notif[key] = data[key];
+              notifInstance[key] = data[key];
             }
           }
-          if ((isDone && !notif.isDone) || notif.isRemoved) {
-            notif.isDone = true;
+          if ((isDone && !notifInstance.isDone) || notifInstance.isRemoved) {
+            notifInstance.isDone = true;
             activeNotif--;
           }
           isUpdated = true;

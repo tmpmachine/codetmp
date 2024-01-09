@@ -195,7 +195,7 @@ const fileClipBoard = (function() {
       type: fileType,
       source: data.parentId
     });
-    window.app.getComponent('fileTree').then(fileTree => {
+    app.getComponent('fileTree').then(fileTree => {
       let type = (fileType == 'files') ? 'file' : 'folder';
       fileTree.moveItemFrom(type, data, activeFolder);
     });
@@ -285,7 +285,7 @@ const fileClipBoard = (function() {
   }
   
   function handler(e) {
-    if (stateManager.isState(0)) {
+    if (compoStateManager.isState(0)) {
       switch (e.type) {
         case 'cut': cut(); break;
         case 'copy': copy(); break;

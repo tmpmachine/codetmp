@@ -1,8 +1,8 @@
-"use strict"; 
+let app = (function() {
 
-(function() {
+  'use strict'; 
 
-  window.app = {
+  let SELF = {
     get getComponent() {
       return getComponent;
     },
@@ -12,7 +12,73 @@
     get loadFiles() {
       return fileLoader;
     },
+    AutoSync,
+    SignOut,
+    AuthReady,
+    RenderSignInButton,
   };
+
+  function RenderSignInButton() {
+    gapi.signin2.render('g-signin2', {
+      'scope': 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive'+auth2.additionalScopes,
+      'width': 240,
+      'height': 50,
+      'longtitle': true,
+      'theme': 'dark',
+      'onsuccess': (googleUser) => {
+        auth2.onSignIn(googleUser);
+        AuthReady();
+      },
+    });
+  }
+
+  function SignOut() {
+    auth2.signOut();
+    authLogout();
+    gapi.auth2.getAuthInstance().signOut().then(function() {
+      console.log('User signed out.');
+    });
+  }
+
+  function AuthReady() {
+    $('body')[0].classList.toggle('is-authorized', true);
+    if (fileStorage.data.rootId === '') {
+      drive.readAppData();
+    } else {
+      drive.syncFromDrive();
+      drive.syncToDrive();
+    }
+    let uid = gapi.auth2.getAuthInstance().currentUser.get().getId();
+    support.check('firebase');
+  }
+
+  async function authLogout() {
+    await fileManager.TaskClearStorage();
+    settings.reset();
+    compoNotif.Reset();
+    ui.reloadFileTree();
+  
+    $('body')[0].classList.toggle('is-authorized', false);
+    support.check('firebase');
+    
+    activeFolder = -1;
+    while (breadcrumbs.length > 1) {
+      breadcrumbs.splice(1,1);    
+    }
+    uiExplorer.LoadBreadCrumbs();
+    fileManager.list();
+  }
+
+  // drive sync
+  function AutoSync() {
+    let isOnline = navigator.onLine ? true : false;
+    if (isOnline) {
+      if (fileStorage.data.rootId !== '') {
+        drive.syncFromDrive();
+        drive.syncToDrive();
+      }
+    }
+  }
 
   function getComponent(name) {
     return new Promise((resolve, reject) => {
@@ -117,5 +183,7 @@
     return loadFiles;
 
   })();
+
+  return SELF;
 
 })();
