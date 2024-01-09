@@ -15,22 +15,8 @@ let app = (function() {
     AutoSync,
     SignOut,
     AuthReady,
-    RenderSignInButton,
   };
 
-  function RenderSignInButton() {
-    gapi.signin2.render('g-signin2', {
-      'scope': 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive'+auth2.additionalScopes,
-      'width': 240,
-      'height': 50,
-      'longtitle': true,
-      'theme': 'dark',
-      'onsuccess': (googleUser) => {
-        auth2.onSignIn(googleUser);
-        AuthReady();
-      },
-    });
-  }
 
   function SignOut() {
     auth2.signOut();
