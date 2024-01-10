@@ -16,7 +16,7 @@ let compoNotif = (function() {
   }
 
   function Add(options) {
-    local.notifInstance.add({
+    return local.notifInstance.add({
       title: options.title,
       content: options.content,
     })
