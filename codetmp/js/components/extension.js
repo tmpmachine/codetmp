@@ -26,15 +26,15 @@ const extension = (function() {
       case 'emmet':
         files = [
           'assets/ace/emmet-core/emmet.js',
-          'assets/ace/ext-emmet.js',
+          `${ACE_CDN_BASEPATH}/ext-emmet.js`,
         ];
         callback = initEmmet;
         break;
       case 'autocomplete':
         files = [
-          'assets/ace/ext-language_tools.js',
-          'assets/ace/snippets/javascript.js',
-          'assets/ace/snippets/html.js',
+          `${ACE_CDN_BASEPATH}/ext-language_tools.min.js`,
+          `${ACE_CDN_BASEPATH}/snippets/javascript.min.js`,
+          `${ACE_CDN_BASEPATH}/snippets/html.min.js`,
         ];
         callback = initAutocomplete;
         break;

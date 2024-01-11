@@ -265,7 +265,6 @@ function resetSearch(self, bypass) {
 
 ;(function() {
   
-  ace.config.set('basePath', ACE_CDN_BASEPATH);
   const snippetManager = ace.require('ace/snippets').snippetManager;
   
   // temporary snippet
