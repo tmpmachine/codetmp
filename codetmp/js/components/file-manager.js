@@ -336,7 +336,7 @@ let fileManager = (function() {
     $('#file-list').appendChild(docFrag);
 
     if (downloadQueue.length > 0) {
-      let notifId = compoNotif.Addd({
+      let notifId = compoNotif.Add({
         title: 'Loading directory',
       });
       drive.syncFromDrivePartial(downloadQueue).then(() => {
