@@ -282,7 +282,7 @@ let ui = (function() {
     uploadFile,
 
     ToggleModalByClick,
-    toggleModal,
+    ToggleModal,
     InitFileHandler,
   };
 
@@ -315,10 +315,10 @@ let ui = (function() {
   }
 
   function ToggleModalByClick() {
-    toggleModal(this.dataset.target);
+    ToggleModal(this.dataset.target);
   }
 
-  function toggleModal(name) {
+  function ToggleModal(name) {
     let modal = $(`.modal-component[data-name="${name}"]`)[0];
     modal.addEventListener('onclose', onclosemodal);
     modal.toggle();
@@ -433,15 +433,15 @@ let ui = (function() {
   }
 
   function toggleFileDownload() {
-    toggleModal('file-download');
+    ToggleModal('file-download');
   }
 
   function toggleGenerateSingleFile() {
-    toggleModal('generate-single-file');
+    ToggleModal('generate-single-file');
   }
 
   function previewMedia(file, mimeType) {
-    toggleModal('media-preview');
+    ToggleModal('media-preview');
 
     let media;
     if (mimeType.includes('audio')) 
@@ -513,7 +513,7 @@ let ui = (function() {
   }
 
   function setGitToken() {
-    toggleModal('settings');
+    ToggleModal('settings');
     modal.prompt('Personal access token').then(token => {
       if (token !== null) {
         git.setToken(token);
