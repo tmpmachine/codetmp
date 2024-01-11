@@ -392,9 +392,7 @@ let ui = (function() {
     if (editor.getTheme().includes('codetmp')) {
       editor.setTheme('ace/theme/github');
     } else {
-      ace.config.set('basePath', 'assets/ace');
       editor.setTheme('ace/theme/codetmp');
-      ace.config.set('basePath', ACE_CDN_BASEPATH);
     }
   }
 

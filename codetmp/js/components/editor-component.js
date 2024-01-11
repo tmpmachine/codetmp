@@ -30,13 +30,9 @@ let compoEditor = (function() {
         editor.session.setMode("ace/mode/html");
     
         if (themeMd) {
-        ace.config.set('basePath', 'assets/ace');
-        editor.setTheme('ace/theme/codetmp-markdown');
-        ace.config.set('basePath', ACE_CDN_BASEPATH);
+            editor.setTheme('ace/theme/codetmp-markdown');
         } else {
-        ace.config.set('basePath', 'assets/ace');
-        editor.setTheme('ace/theme/codetmp');
-        ace.config.set('basePath', ACE_CDN_BASEPATH);
+            editor.setTheme('ace/theme/codetmp');
         }
     }
     
@@ -56,11 +52,9 @@ let compoEditor = (function() {
             }
         });
         
-        ace.config.set('basePath', 'assets/ace');
         editor.setTheme("ace/theme/codetmp", () => {
             editorElement.style.opacity = '1';
         });
-        ace.config.set('basePath', ACE_CDN_BASEPATH);
         editor.session.setMode("ace/mode/html");
         editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
         editor.setOption("scrollPastEnd", 1);

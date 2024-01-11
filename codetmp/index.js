@@ -1,4 +1,4 @@
-const ACE_CDN_BASEPATH = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6';
+const ACE_CDN_BASEPATH = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3';
 let activeWorkspace = 0;
 let environment = {
   previewUrl: 'https://preview.codetmp7.dev/',
@@ -64,13 +64,16 @@ app.loadFiles([
       "js/uis/explorer-ui.js",
       "js/components/notif-component.js",
       "js/components/notifier.js",
-      // "assets/ace/ace.js",
       `${ACE_CDN_BASEPATH}/ace.min.js`,
       "js/components/tab-manager.js",
     ],
     callback: function() {
       previewHandler.Init(),
+
       ace.config.set('basePath', `${ACE_CDN_BASEPATH}`);
+      ace.config.setModuleUrl("ace/theme/codetmp", "/assets/ace/theme-codetmp.js");
+      ace.config.setModuleUrl("ace/theme/codetmp-markdown", "/assets/ace/theme-codetmp-markdown.js");
+
       fileManager.TaskInitIDBStorage();
     },
   },
