@@ -1,57 +1,11 @@
 let ui = (function() {
   
   let SELF = {
-    OpenDiskFile,
     states: {
       storage: constant.STORAGE_STATE.Default,
     },
-    tab: {
-      openDirectory: function(self) {
-        if (self.dataset.parentId != '' && self.classList.contains('isActive')) {
-          let parentId = parseInt(self.dataset.parentId);
-          tabManager.openDirectory(parentId);
-        }
-        event.preventDefault();
-      },
-    },
-    fileGenerator: {
-      generate: function() {
-        let form = this.form;
-        singleFileGenerator.generate(form);
-      },
-      copy: function() {
-        let form = this.form;
-        singleFileGenerator.copy(form);
-      },
-    },
-    tree: {
-      renameFolder: function(folder) {
-        app.getComponent('fileTree').then(fileTree => {
-          fileTree.renameItem(folder, 'folder');
-        });
-      },
-      renameFile: function(file) {
-        app.getComponent('fileTree').then(fileTree => {
-          fileTree.renameItem(file, 'file');
-        });
-      },
-      appendFile: function(file) {
-        app.getComponent('fileTree').then(ft => {
-          ft.appendFile(file);
-        });
-      },
-      appendFolder: function(folder) {
-        app.getComponent('fileTree').then(ft => {
-          ft.appendFolder(folder);
-        });
-      },
-      createWorkspace: function() {
-        app.getComponent('fileTree').then(ft => {
-          ft.createWorkspace(activeFolder);
-        });
-      },
-    },
-    
+    OpenDiskFile,
+    OpenTabInExplorer,
     highlightTree,
     reloadFileTree,
     myFiles,
@@ -69,199 +23,9 @@ let ui = (function() {
     toggleMyFiles,
     toggleFileActionButton,
     setGitToken,
-  
-    fileManager: (function() {
-  
-      function commit(data) {
-        fileManager.sync(data);
-        drive.syncToDrive();
-        fileStorage.save();
-        fileManager.list();
-      }
-  
-      function getSelected(el) {
-        return {
-          title: el.getAttribute('title'),
-          id: Number(el.getAttribute('data')),
-        };
-      }
-  
-      function renameFolder() {
-  
-          if (activeWorkspace == 2) {
-            alert('Renaming folder in file system mode is not yet supported.');
-            return;
-          }
-  
-          let selection = getSelected(selectedFile[0]);
-          modal.prompt('Rename', selection.title, '', helper.getFileNameLength(selection.title)).then(async (name) => {
-            if (!name || name === selection.title) return;
-          
-              let folder = await fileManager.RenameFolder(selection.id, name);
-              ui.tree.renameFolder(folder);
-  
-          });
-        }
-        
-        function renameFile() {
-          let selection = getSelected(selectedFile[0]);
-          let fid = selection.id;
-            modal.prompt('Rename', selection.title, '', helper.getFileNameLength(selection.title)).then(async (name) => {
-              if (!name || name == selection.title) 
-                return;
-  
-              let file = await fileManager.RenameFile(fid, name);
-              ui.tree.renameFile(file);
-  
-              if (activeFile) {
-                if (fid === activeFile.fid)
-                  compoEditor.SetMode(file.name);
-                
-                let index = 0
-                for (let tab of fileTab) {
-                  if (tab.fid == fid) {
-                    $('.file-name')[index].textContent = file.name;
-                    break;
-                  }
-                  index++;
-                }
-              }
-            });
-        }
-        function newFolder() {
-            if (!$('#in-my-files').classList.contains('active'))
-              return;
-            
-            modal.prompt('Folder name', 'New Folder').then(async (name) => {
-              if (!name) 
-                return;
-  
-              let folder = await fileManager.CreateFolder({
-                  name: await fileManager.getDuplicateName(activeFolder, name, 'folder'),
-                  modifiedTime: new Date().toISOString(),
-                  parentId: activeFolder,
-              });
-              commit({
-                fid: folder.fid,
-                action: 'create',
-                type: 'folders',
-              });
-              uiExplorer.ClearFileSelection();
-              ui.tree.appendFolder(folder);
-  
-            });
-        }
-  
-        function newFile() {
-            if (!$('#in-my-files').classList.contains('active')) {
-              ui.openNewTab();
-              return;
-            }
-            
-            modal.prompt('File name', 'Untitled').then(async (name) => {
-              if (!name) 
-                return;
-              let file = await fileManager.CreateFile({
-                  name: await fileManager.getDuplicateName(activeFolder, name),
-                  modifiedTime: new Date().toISOString(),
-                  content: '',
-              });
-              commit({
-                fid: file.fid,
-                action: 'create',
-                type: 'files',
-              });
-              uiExplorer.ClearFileSelection();
-              ui.tree.appendFile(file);
-  
-            });
-        }
-        
-        function confirmDeletion(message) {
-          return new Promise(resolve => {
-            modal.confirm(message).then(() => {
-              resolve();
-            })
-          })
-        }
-  
-        async function deleteFolder(selectedFile) {
-          let selection = getSelected(selectedFile);
-          let fid = selection.id;
-          await fileManager.TaskDeleteFolder(fid);
-        }
-  
-        async function deleteFile(selectedFile) {
-          let selection = getSelected(selectedFile);
-          let fid = selection.id;
-          await fileManager.TaskDeleteFile(fid);
-  
-          if (activeFile && parseInt(fid) == parseInt(activeFile.fid)) {
-            activeFile = null;
-            fileTab[activeTab].fiber = 'fiber_manual_record';
-            $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
-          }
-        }
-  
-        async function unloadSelection(selectedFile, type) {
-          let selection = getSelected(selectedFile);
-          let fid = selection.id;
-          await fileManager.UnloadItem(fid, type);
-        }
-  
-        function deleteSelected() {
-          if (selectedFile.length === 1) {
-            confirmDeletion('Move selected item to trash?').then(async () => {
-              if (selectedFile[0].getAttribute('data-type') === 'folder')
-                deleteFolder(selectedFile[0]);
-              else if (selectedFile[0].getAttribute('data-type') === 'file')
-                deleteFile(selectedFile[0]);
-              uiExplorer.ClearFileSelection();
-            })
-          } else if (selectedFile.length > 1) {
-            confirmDeletion('Move selected items to trash?').then(async () => {
-              while (selectedFile.length > 0) {
-                let selection = selectedFile[0];
-                if (selection.getAttribute('data-type') === 'folder')
-                  await deleteFolder(selection);
-                else if (selection.getAttribute('data-type') === 'file')
-                  await deleteFile(selection);  
-              }
-              uiExplorer.ClearFileSelection();
-            });
-          }
-        }
-  
-        function UnloadSelected() {
-          if (selectedFile.length === 1) {
-            confirmDeletion('Unload selected item?').then(async () => {
-              if (selectedFile[0].getAttribute('data-type') === 'folder')
-                unloadSelection(selectedFile[0], 'folders');
-              else if (selectedFile[0].getAttribute('data-type') === 'file')
-                unloadSelection(selectedFile[0], 'files');
-              uiExplorer.ClearFileSelection();
-            })
-          } else if (selectedFile.length > 1) {
-            alert('Multiple unload currently not suppoerted')
-          }
-        }
-  
-      return {
-        renameFolder,
-        renameFile,
-        newFolder,
-        newFile,
-        deleteSelected,
-        getSelected,
-        UnloadSelected,
-      };
-  
-    })(), // end of ui.fileManager
-  
     Init,
     hidePalette,
     toggleBreakPoint,
-    initEditorSmartBookmark,
     newFile,
     newDiskFile,
     resizeEditor,
@@ -284,6 +48,17 @@ let ui = (function() {
     ToggleModalByClick,
     ToggleModal,
     InitFileHandler,
+    
+    fileGenerator: {
+      generate: function() {
+        let form = this.form;
+        singleFileGenerator.generate(form);
+      },
+      copy: function() {
+        let form = this.form;
+        singleFileGenerator.copy(form);
+      },
+    },
   };
 
   // init workspace data
@@ -312,6 +87,14 @@ let ui = (function() {
       })
     }
 
+  }
+
+  function OpenTabInExplorer(self) {
+    if (self.dataset.parentId != '' && self.classList.contains('isActive')) {
+      let parentId = parseInt(self.dataset.parentId);
+      tabManager.openDirectory(parentId);
+    }
+    event.preventDefault();
   }
 
   function ToggleModalByClick() {
@@ -370,7 +153,7 @@ let ui = (function() {
         ui.openNewTab();
       }
       tabManager.focusTab(fileTab[activeTab].fid);
-      uiExplorer.LoadBreadCrumbs();
+      uiFileExplorer.LoadBreadCrumbs();
       app.getComponent('fileTree').then(ft => {
         app.fileTree.reset();
       });
@@ -777,7 +560,54 @@ let ui = (function() {
     
   }
 
-  // init
+  function changeExplorerView(type) {
+    if (!['list', 'grid'].includes(type))
+      return;
+  
+    settings.data.explorer.view = type;
+    settings.save();
+    $('#file-list').classList.toggle('list-view', (type == 'list'));
+    for (let node of $('.Btn[data-callback="change-file-list-view"]')) {
+      node.classList.toggle('active', false);
+      if (node.dataset.type == type) {
+        node.classList.toggle('active', true);
+        $('#view-type-icon').innerHTML = $('.material-icons', node)[0].innerHTML;
+      }
+    }
+  }
+
+  function attachListeners() {
+    window.addEventListener('online', () => app.AutoSync());
+    window.addEventListener('cut', (evt) => fileClipBoard.handler(evt));
+    window.addEventListener('copy', (evt) => fileClipBoard.handler(evt));
+    window.addEventListener('paste', (evt) => fileClipBoard.handler(evt));
+    window.onbeforeunload = function(evt) {
+      return helper.redirectWarning(evt);
+    };
+  }
+
+  async function hidePalette(event) {
+    await delayMs(10);
+    let el = $('.search-box')[0];
+    el.classList.toggle('w3-hide', true);
+    $('#search-input').value = '';
+    $('#search-input').removeEventListener('blur', ui.hidePalette);
+  }
+
+  function delayMs(timeout) {
+    return new Promise(resolve => window.setTimeout(resolve, timeout));
+  }
+
+
+  function toggleBreakPoint(editor) {
+    let row = editor.selection.getCursor().row;
+    if(editor.session.getBreakpoints()[row] ) {
+      editor.session.clearBreakpoint(row);
+    } else {
+      editor.session.setBreakpoint(row);
+    }
+  }
+
   function Init() {
     
     attachListeners();
@@ -841,160 +671,6 @@ let ui = (function() {
     });
     // initNavMenus();
     // attachMouseListener();
-  }
-
-  function changeExplorerView(type) {
-    if (!['list', 'grid'].includes(type))
-      return;
-  
-    settings.data.explorer.view = type;
-    settings.save();
-    $('#file-list').classList.toggle('list-view', (type == 'list'));
-    for (let node of $('.Btn[data-callback="change-file-list-view"]')) {
-      node.classList.toggle('active', false);
-      if (node.dataset.type == type) {
-        node.classList.toggle('active', true);
-        $('#view-type-icon').innerHTML = $('.material-icons', node)[0].innerHTML;
-      }
-    }
-  }
-
-  function attachListeners() {
-    window.addEventListener('online', () => app.AutoSync());
-    window.addEventListener('cut', (evt) => fileClipBoard.handler(evt));
-    window.addEventListener('copy', (evt) => fileClipBoard.handler(evt));
-    window.addEventListener('paste', (evt) => fileClipBoard.handler(evt));
-    window.onbeforeunload = function(evt) {
-      return helper.redirectWarning(evt);
-    };
-  }
-
-  async function hidePalette(event) {
-    await delayMs(10);
-    let el = $('.search-box')[0];
-    el.classList.toggle('w3-hide', true);
-    $('#search-input').value = '';
-    $('#search-input').removeEventListener('blur', ui.hidePalette);
-  }
-
-  function delayMs(timeout) {
-    return new Promise(resolve => window.setTimeout(resolve, timeout));
-  }
-
-
-  function toggleBreakPoint(editor) {
-    let row = editor.selection.getCursor().row;
-    if(editor.session.getBreakpoints()[row] ) {
-      editor.session.clearBreakpoint(row);
-    } else {
-      editor.session.setBreakpoint(row);
-    }
-  }
-
-  function initEditorSmartBookmark(editor) {
-    
-    editor.commands.addCommand({
-      name: "custom-bookmark",
-      bindKey: {win: "Alt-K Alt-K"},
-      exec: function(editor) {
-        ui.toggleBreakPoint(editor);
-      }
-    });
-    
-    editor.session.doc.on('change', updateDataOnDocChange.bind(editor.session));
-    
-    function updateDataOnDocChange(e) {
-      let delta = e;
-      let range = e;
-      let len, firstRow, f1;
-              
-      if (range.end.row == range.start.row)
-        return;
-                  
-      if (delta.action == 'insert') {
-        len = range.end.row - range.start.row;
-        firstRow = range.start.row;
-      } else if (delta.action == 'remove') {
-        len = range.start.row - range.end.row;
-        firstRow = range.start.row;
-      }
-      if (len > 0) {
-        args = Array(len);
-        args.unshift(firstRow, 0)
-        this.$breakpoints.splice.apply(this.$breakpoints, args);
-      } else if (len < 0) {
-        let rem = this.$breakpoints.splice(firstRow + 1, -len);
-        if(!this.$breakpoints[firstRow]){
-          for (let oldBP in rem) {
-            if (rem[oldBP]) {
-              this.$breakpoints[firstRow] = rem[oldBP]
-              break 
-            }
-          }
-        }
-      }
-    }
-    
-    editor.commands.addCommand({
-      name: "custom-clear-bookmark",
-      bindKey: {win: "Alt-K Alt-L"},
-      exec: function(editor) {
-        if (window.confirm('Clear all bookmark?')) {
-          editor.session.clearBreakpoints();
-        }
-      }
-    });
-    
-    editor.commands.addCommand({
-      name: "custom-next-bookmark",
-      bindKey: {win: "Ctrl-Alt-."},
-      exec: function(editor) {
-        let row = editor.selection.getCursor().row+1;
-        
-        let found = false;
-        
-        for (let i=row; i<editor.session.$breakpoints.length; i++) {
-          if (editor.session.$breakpoints[i] !== undefined) {
-            editor.gotoLine(i+1)
-            found = true;
-            break;
-          }
-        }
-        if (!found) {
-        for (let i=0; i<row; i++) {
-            if (editor.session.$breakpoints[i] !== undefined) {
-              editor.gotoLine(i+1)
-              break;
-            }
-          } 
-        }
-      }
-  
-    });
-    
-    editor.commands.addCommand({
-      name: "custom-previous-bookmark",
-      bindKey: {win: "Ctrl-Alt-,"},
-      exec: function(editor) {
-        let row = editor.selection.getCursor().row+1;
-        let found = false;
-        for (let i=row-2; i>=0; i--) {
-          if (editor.session.$breakpoints[i] !== undefined) {
-            editor.gotoLine(i+1)
-            found = true;
-            break;
-          }
-        }
-        if (!found) {
-        for (let i=editor.session.$breakpoints.length; i>row; i--) {
-            if (editor.session.$breakpoints[i] !== undefined) {
-              editor.gotoLine(i+1)
-              break;
-            }
-          } 
-        }
-      }
-    });
   }
 
   return SELF;

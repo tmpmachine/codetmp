@@ -11,7 +11,7 @@ let deferFeature1 = {
       breadcrumbs.splice(1, 0, {folderId:folder.fid, title: folder.name});
       parentId = folder.parentId;
     }
-    uiExplorer.LoadBreadCrumbs();
+    uiFileExplorer.LoadBreadCrumbs();
     let targetMenuId;
     let useCallback = false;
     ui.toggleActionMenu(targetMenuId, useCallback, $('#btn-menu-my-files'));

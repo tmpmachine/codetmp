@@ -129,7 +129,7 @@ const drive = (function() {
           }, 0);
           newBranch.push(id);
           if (!folder.trashed) {
-            ui.tree.appendFolder(folder);
+            uiTreeExplorer.AppendFolder(folder);
           }
         }
       }
@@ -192,7 +192,7 @@ const drive = (function() {
           };
           let file  = await fileManager.CreateFile(data, 0);
           if (!file.trashed) {
-            ui.tree.appendFile(file);
+            uiTreeExplorer.AppendFile(file);
           }
         }
       }

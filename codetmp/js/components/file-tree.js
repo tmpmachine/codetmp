@@ -462,7 +462,7 @@
         } 
       }
 
-      uiExplorer.LoadBreadCrumbs();
+      uiFileExplorer.LoadBreadCrumbs();
       
       if (breadcrumbs.length > 1)
         breadcrumbs.pop();

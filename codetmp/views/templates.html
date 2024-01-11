@@ -34,7 +34,7 @@
   <div class="w3-padding w3-button breadcrumbs Button"></div>
 </template>
 <template id="tmp-file-list" class="Export">
-  <div class="file-list bg2 files pointer no-select Clicker" onclick='uiExplorer.OpenFileConfirm(this)' title="" data-type="file" data-fid="" data="" style="position: relative;">
+  <div class="file-list bg2 files pointer no-select Clicker" onclick='uiFileExplorer.OpenFileConfirm(this)' title="" data-type="file" data-fid="" data="" style="position: relative;">
     <div class="w3-center Area" style="padding:32px 0">
       <i class="material-icons Preview-icon" style="font-size:36px">insert_drive_file</i>
       <span class="Label"></span>
@@ -50,7 +50,7 @@
   </div>
 </template>
 <template id="tmp-folder-list" class="Export">
-  <div class="folder-list bg2 folders pointer no-select Clicker inner" onclick='uiExplorer.OpenFileConfirm(this)' title="" data-type="folder" data="">
+  <div class="folder-list bg2 folders pointer no-select Clicker inner" onclick='uiFileExplorer.OpenFileConfirm(this)' title="" data-type="folder" data="">
     <i class="icons material-icons w3-medium w3-left" style="padding:2px 0">folder</i>
     <small class="relative ov-hidden" style="font-weight:bold">
       <div class="h-100 d-grid absolute">
@@ -92,7 +92,7 @@
 </template>
 <template id="tmp-file-tab" class="Export">
   <!-- # file tab -->
-  <div class="w3-left file-tab relative" data-title="__name__" oncontextmenu="ui.tab.openDirectory(this)" data-parent-id="">
+  <div class="w3-left file-tab relative" data-title="__name__" oncontextmenu="ui.OpenTabInExplorer(this)" data-parent-id="">
     <div class="Indicator"></div>
     <div>
       <div class="w3-right" style="padding:6px 10px;">

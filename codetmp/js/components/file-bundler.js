@@ -386,7 +386,7 @@
 
       let form = self.target;
       let zip = new JSZip();
-      let zipName = ui.fileManager.getSelected(selectedFile[0]).title+'.zip';
+      let zipName = uiFileExplorer.getSelected(selectedFile[0]).title+'.zip';
       let isCompressed = ( selectedFile.length > 1 || (selectedFile.length === 1 && (selectedFile[0].dataset.type == 'folder')) );
       let options = {
         replaceDivless: form.replaceDivless.checked,
@@ -413,7 +413,7 @@
             return
           let a = document.createElement('a');
           a.href = URL.createObjectURL(blob);
-          a.download = ui.fileManager.getSelected(selectedFile[0]).title;
+          a.download = uiFileExplorer.getSelected(selectedFile[0]).title;
           $('#limbo').appendChild(a);
           a.click();
           $('#limbo').removeChild(a);

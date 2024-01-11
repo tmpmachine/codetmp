@@ -9,9 +9,9 @@ let DOMEvents = {
 	*/
 	clickable: {
 		'upload-file': ui.uploadFile,
-		'file-rename': () => uiExplorer.RenameFile(),
-		'file-delete': ui.fileManager.deleteSelected,
-		'file-unload': (evt) => ui.fileManager.UnloadSelected(evt.target),
+		'file-rename': () => uiFileExplorer.RenameFile(),
+		'file-delete': uiFileExplorer.deleteSelected,
+		'file-unload': (evt) => uiFileExplorer.UnloadSelected(evt.target),
 		'file-download': ui.toggleFileDownload,
 		'copy': fileClipBoard.copy,
 		'move': fileClipBoard.cut,
@@ -25,8 +25,8 @@ let DOMEvents = {
 		'toggle-homepage': () => ui.ToggleHomepage(),
 		'toggle-settings': () => ui.ToggleModal('settings'),
 		'toggle-account': () => ui.ToggleModal('account'),
-		'new-folder': ui.fileManager.newFolder,
-		'new-file': ui.fileManager.newFile,
+		'new-folder': uiFileExplorer.newFolder,
+		'new-file': uiFileExplorer.newFile,
 		'sign-out': () => app.SignOut(),
 		'grant-firebase-access': () => auth2.grant('https://www.googleapis.com/auth/firebase'),
 
@@ -57,7 +57,7 @@ let DOMEvents = {
 	    'reload-file-tree': ui.reloadFileTree,
 	    'generate-single-file': ui.fileGenerator.generate,
 		'copy-generated-file': ui.fileGenerator.copy,
-	    'create-workspace': ui.tree.createWorkspace,
+	    'create-workspace': uiTreeExplorer.CreateWorkspace,
 	},
 
 	submittable: {
@@ -84,7 +84,7 @@ let DOMEvents = {
 		'new-file': ui.newFile,
 		'new-file-on-disk': ui.newDiskFile,
 		'open-disk-folder': () => ui.OpenDiskFile(),
-		'new-folder': ui.fileManager.newFolder,
+		'new-folder': uiFileExplorer.newFolder,
 		'save': fileManager.save,
 		'preview': () => previewHandler.previewPath(),
 		'preview-at-pwa': () => previewHandler.previewPathAtPWA(),
@@ -103,7 +103,7 @@ let DOMEvents = {
 
 	/* ----- */
 	keyboardShortcuts: {
-		'Alt+Shift+N': ui.fileManager.newFolder,
+		'Alt+Shift+N': uiFileExplorer.newFolder,
 		'Alt+<': () => ui.switchTab(-1),
 		'Alt+>': () => ui.switchTab(1),
 		'Alt+P': ui.toggleGenerateSingleFile,
@@ -112,7 +112,7 @@ let DOMEvents = {
 		    	ui.toggleMyFiles();
 		},
 		'Alt+R': () => deferFeature1.toggleWrapMode(),
-		'Alt+N': ui.fileManager.newFile,
+		'Alt+N': uiFileExplorer.newFile,
 		'Alt+Q': () => {
 			document.body.classList.toggle('--tree-explorer');
 			settings.data.explorer.tree = document.body.classList.contains('--tree-explorer');
@@ -122,8 +122,8 @@ let DOMEvents = {
 		'Alt+W': () => tabManager.ConfirmCloseTab(),
 		'Alt+O': () => deferFeature1.openFileDirectory(),
 		'Ctrl+S': () => { event.preventDefault(); fileManager.save(); },
-		'Ctrl+D': () => { event.preventDefault(); ui.fileManager.deleteSelected(); },
-		'Ctrl+A': () => uiExplorer.SelectAllFiles(),
+		'Ctrl+D': () => { event.preventDefault(); uiFileExplorer.deleteSelected(); },
+		'Ctrl+A': () => uiFileExplorer.SelectAllFiles(),
 		'Ctrl+V': () => deferFeature1.handlePasteRow(),
 		'Ctrl+O': () => { fileManager.TaskOpenLocal(event); },
 		'Alt+D': () => {
@@ -133,7 +133,7 @@ let DOMEvents = {
 		'Ctrl+Enter': function() {
 		  if ($('#btn-menu-my-files').classList.contains('active')) {
 		  	if (selectedFile.length > 0) {
-				uiExplorer.RenameFile();
+				uiFileExplorer.RenameFile();
 			}
 		  } else {
 		    previewHandler.previewPath();

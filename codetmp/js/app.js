@@ -51,7 +51,7 @@ let app = (function() {
     while (breadcrumbs.length > 1) {
       breadcrumbs.splice(1,1);    
     }
-    uiExplorer.LoadBreadCrumbs();
+    uiFileExplorer.LoadBreadCrumbs();
     fileManager.list();
   }
 

@@ -577,7 +577,7 @@ let fileManager = (function() {
       let row = fileTab[activeTab].editor.env.editor.getCursorPosition().row;
       let col = fileTab[activeTab].editor.env.editor.getCursorPosition().column;
       
-      ui.tree.appendFile(file);
+      uiTreeExplorer.AppendFile(file);
 
       fileContent = file.content;
       if (activeWorkspace == 2) {
@@ -683,7 +683,7 @@ let fileManager = (function() {
     await TaskDisplayListFolders();
     $('#file-list').appendChild(o.element('div', { style: 'flex: 0 0 100%', class: 'separator w3-padding-small' }));
     await TaskDisplayListFiles();
-    uiExplorer.LoadBreadCrumbs();
+    uiFileExplorer.LoadBreadCrumbs();
     selectedFile.splice(0, 1);
     ui.toggleFileActionButton();
   };
@@ -938,7 +938,7 @@ let fileManager = (function() {
     }
     breadcrumbs.push({folderId:-1, title: 'My Files'});
     breadcrumbs.reverse();
-    uiExplorer.LoadBreadCrumbs();
+    uiFileExplorer.LoadBreadCrumbs();
   }
 
   async function TaskDeleteFolder(fid) {

@@ -196,7 +196,7 @@ const fileReaderModule = (function() {
 				    parentId: item.parentId,
 				    isTemp: true,
 				});
-				ui.tree.appendFile(file);
+				uiTreeExplorer.AppendFile(file);
 				fileManager.sync({
 					fid: file.fid, 
 				    action: 'create', 
@@ -216,7 +216,7 @@ const fileReaderModule = (function() {
 			    parentId: item.parentId,
 			    name: item.name,
 			});
-			ui.tree.appendFolder(folder);
+			uiTreeExplorer.AppendFolder(folder);
 			fileManager.sync({
 				fid: folder.fid, 
 			    action: 'create', 
@@ -501,7 +501,7 @@ const fileReaderModule = (function() {
 		    parentId: activeFolder,
 		    isTemp: true,
 		});
-		ui.tree.appendFile(file);
+		uiTreeExplorer.AppendFile(file);
 
 		fileManager.sync({
 			fid: file.fid, 
@@ -536,7 +536,7 @@ const fileReaderModule = (function() {
 				name: dirHandle.name,
 				directoryHandle: dirHandle,
 			});
-			ui.tree.appendFolder(folder);
+			uiTreeExplorer.AppendFolder(folder);
 			parentFolderFid = folder.fid;
 
 			dirs.push(folder);
@@ -560,7 +560,7 @@ const fileReaderModule = (function() {
 				isTemp: true,
 			}, activeWorkspace, isStoreWriteable);
 			
-			ui.tree.appendFile(file);
+			uiTreeExplorer.AppendFile(file);
           
         } else if (entry.kind === "directory") {
           
@@ -573,7 +573,7 @@ const fileReaderModule = (function() {
 				parentDirectoryHandle: dirHandle,
   			    name: entry.name,
 		  });
-    	  ui.tree.appendFolder(folder);
+    	  uiTreeExplorer.AppendFolder(folder);
           
           dirs.push(getFiles(entry, folder.fid));
         } 

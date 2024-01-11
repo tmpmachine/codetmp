@@ -118,7 +118,7 @@ const fileClipBoard = (function() {
       action, 
       type: 'files',
     });
-    ui.tree.appendFile(file);
+    uiTreeExplorer.AppendFile(file);
   }
   
   async function copyBranchFile(fileIds, road, modifiedTime) {
@@ -177,7 +177,7 @@ const fileClipBoard = (function() {
         type: 'folders',
       });
       if (road.length == 1) {
-        ui.tree.appendFolder(folder);
+        uiTreeExplorer.AppendFolder(folder);
       }
     }
     

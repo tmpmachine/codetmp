@@ -242,7 +242,7 @@ const tabManager = (function() {
       breadcrumbs.splice(1, 0, {folderId:folder.fid, title: folder.name});
       parentId = folder.parentId;
     }
-    uiExplorer.LoadBreadCrumbs();
+    uiFileExplorer.LoadBreadCrumbs();
     $('#btn-menu-my-files').click();
     if (breadcrumbs.length > 1)
       breadcrumbs.pop();

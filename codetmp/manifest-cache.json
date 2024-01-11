@@ -63,7 +63,8 @@
     "js/components/environment-manager.js"
   ],
   "uis": [
-    "js/uis/explorer-ui.js"
+    "js/uis/tree-explorer-ui.js",
+    "js/uis/file-explorer-ui.js"
   ],
   "root": [
     "./",

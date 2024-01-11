@@ -23,9 +23,9 @@ const compoKeyInput = (function() {
     if ($('#btn-menu-my-files').classList.contains('active')) {
       if (selectedFile.length > 0) {
         for (let el of selectedFile) {
-          uiExplorer.ToggleFileHighlight(el, false);
+          uiFileExplorer.ToggleFileHighlight(el, false);
         }
-        uiExplorer.SetState('doubleClick', false);
+        uiFileExplorer.SetState('doubleClick', false);
         selectedFile.length = 0;
         ui.toggleFileActionButton();
       } else {
@@ -68,29 +68,29 @@ const compoKeyInput = (function() {
 
     if (!e.ctrlKey && !e.altKey && $('#btn-menu-my-files').classList.contains('active')) {
       if (('_-.abcdefghijklmnopqrstuvwxyz1234567890'.includes(e.key))) {
-        uiExplorer.SelectFileByName(e.key);
+        uiFileExplorer.SelectFileByName(e.key);
       } else {
 
         switch (event.key) {
           case 'Backspace': 
-            uiExplorer.PreviousFolder(); 
+            uiFileExplorer.PreviousFolder(); 
             break;
           case 'Escape':
             this.keyEscape();
             break;
           case 'Delete': 
-            ui.fileManager.deleteSelected(); 
+            uiFileExplorer.deleteSelected(); 
             break;
           case 'ArrowLeft': 
           case 'ArrowDown': 
           case 'ArrowRight': 
           case 'ArrowUp': 
-            uiExplorer.NavigationHandler(event);
+            uiFileExplorer.NavigationHandler(event);
             break;
           case 'Enter': 
             if ($('#btn-menu-my-files').classList.contains('active') && selectedFile.length > 0) {
               event.preventDefault();
-              uiExplorer.DoubleClickOnFile();
+              uiFileExplorer.DoubleClickOnFile();
             }
           break;
         }
