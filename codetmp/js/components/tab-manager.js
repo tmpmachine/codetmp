@@ -7,6 +7,8 @@ const tabManager = (function() {
     focusTab,
     changeFocusTab,
     openDirectory,
+    GetByFid,
+    GetIndexByFid,
 
     newTab: NewTab,
     ConfirmCloseTab,
@@ -15,6 +17,18 @@ const tabManager = (function() {
   };
 
   let lastOpenTabIndex = 0;
+
+  function GetByFid(fid) {
+    let item = fileTab.find(tab => tab.fid == fid);
+    if (item) {
+      return item;
+    }
+    return null;
+  }
+
+  function GetIndexByFid(fid) {
+    return fileTab.findIndex(tab => tab.fid == fid);
+  }
 
   function InitTabFocusHandler() {
 

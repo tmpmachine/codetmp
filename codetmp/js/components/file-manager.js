@@ -25,6 +25,7 @@ let fileManager = (function() {
     TaskGetExistingItem,
     
     TaskGetPreviewLink,
+    save,
   };
 
   let STORAGE_TYPE = 'localStorage'; 
@@ -105,6 +106,7 @@ let fileManager = (function() {
       if (activeWorkspace == 2) {
 
         let currentDir = await TaskGetFile({fid:file.parentId, type: 'folders'});
+        
         if (currentDir) {
 
           try {
@@ -271,13 +273,14 @@ let fileManager = (function() {
   }
 
 
-  async function taskWriteToDisk() {
-    let writable = await fileTab[activeTab].fileHandle.createWritable();
-    let content = fileTab[activeTab].editor.env.editor.getValue();
-	  if (helper.isMediaTypeHTML(fileTab[activeTab].name) && settings.data.editor.divlessHTMLFSEnabled) {
+  async function taskWriteToDisk(fileHandle, editorContent, tabFileName, tabFile) {
+    
+    let writable = await fileHandle.createWritable();
+    let content = editorContent;
+	  if (helper.isMediaTypeHTML(tabFileName) && settings.data.editor.divlessHTMLFSEnabled) {
 
 	    // check for divless directory
-	    let currentFile = fileTab[activeTab].file;
+	    let currentFile = tabFile;
       let hasDivlessFile = false;
       if (currentFile) {
         let parent = await TaskGetFile({fid: currentFile.parentId, type: 'folders'});
@@ -296,10 +299,10 @@ let fileManager = (function() {
       }
 
     }
+
     await writable.write(content);
     await writable.close();
-    fileTab[activeTab].fiber = 'close';
-    $('.icon-rename')[activeTab].textContent = 'close';
+
   }
   
   async function writeToDiskFile(content, file) {
@@ -622,17 +625,40 @@ let fileManager = (function() {
     $('.icon-rename')[activeTab].textContent = 'close';
   }
 
-  SELF.save = function() {
+  async function save() {
+
     if (fileTab[activeTab].fileHandle !== null) {
-      taskWriteToDisk();
+
+      let sourceTab = fileTab[activeTab]; 
+      let tabFid = sourceTab.fid;
+
+      let fileHandle = sourceTab.fileHandle;
+      let editorContent = sourceTab.editor.env.editor.getValue();
+      let tabFileName = sourceTab.name;
+      let tabFile = sourceTab.file;
+      
+      await taskWriteToDisk(fileHandle, editorContent, tabFileName, tabFile);
+
+      // user may have close or change active tab, check the tab again
+      {
+        let tabIndex = tabManager.GetIndexByFid(tabFid);
+        if (tabIndex >= 0) {
+          fileTab[tabIndex].fiber = 'close';
+          $('.icon-rename')[tabIndex].textContent = 'close';
+        }
+      }
+
     } else {
+      
       if (activeFile === null) {
       	saveAsNewFile();
       } else {
         saveExistingFile();
       }
+
     }
-  };
+
+  }
 
   async function TaskUpdate(data, type) {
     if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
