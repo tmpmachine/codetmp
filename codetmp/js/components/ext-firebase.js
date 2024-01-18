@@ -169,7 +169,7 @@ const fire = (() => {
                 filename: file.name,
               });
               let gzipFile = new Blob([gzipped], {type:'application/gzip'})
-              getHash(file.name, gzipFile).then(hash => {
+              getHash(gzipFile).then(hash => {
                 tree.push({
                   hash,
                   gzipFile,
