@@ -65,9 +65,14 @@ You will need local server to test file preview and accessing 3rd party APIs (Go
 Developing `/cpreview` requires both projects to run on the same host or domain. The communication is done through iframes by claiming service worker registration client.
 
 ### Running and Building The Project
-1. Install dependencies.
+1. Initial setup.
 ```
+# install dependencies
 npm install
+
+# clone ace editor build files to codetmp/assets/js/ace-builds@version
+# You may need to adjust the versioning in codetmp/index.js (see ACE_CDN_BASEPATH), also in codetmp/manifest-cache.json for offline mode caching.
+npm run setup-dev
 ```
 2. Serving the projects. I use `firebase-tools`, but you can use any local web server just fine. Open `firebase.dev.json` for firebase hosting configuration.
 ```
@@ -81,7 +86,7 @@ npm run deploy
 #### Minimized Build
 To build minimized files for `/codetmp` project, run :
 ```
-node build
+npm run build
 ```
 Minimized files are stored in `codetmp/deploy`.
 
