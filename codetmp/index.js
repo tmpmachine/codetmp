@@ -15,9 +15,10 @@ app.loadFiles([
   {
     urls: [
       "assets/js/idb@7/umd.js",
-      'js/components/ext-firebase.js',
-      'assets/js/fflate.js',
-      'assets/js/sha256.js',
+      "js/components/ext-firebase.js",
+      "assets/js/fflate.js",
+      "assets/js/sha256.js",
+      "assets/js/templateslot@1.0.2.min.js",
       ],
       isConnectionRequired: true,
   },

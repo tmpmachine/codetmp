@@ -304,18 +304,19 @@ let ui = (function() {
   }
   
   function toggleMenu() {
-    let targetId = this.getAttribute('target');
+    let self = this;
     let useCallback = true;
-    let targetNode = this;
-    ui.toggleActionMenu(targetId, useCallback, targetNode);
+    let targetId = null;
+    ui.toggleActionMenu(targetId, useCallback, self);
   }
   
   function toggleActionMenu(targetId, useCallback, targetNode) {
     let target;
-    if (targetId)
+    if (targetId) {
       target = $('#'+targetId);
-    else
+    } else {
       target = targetNode;
+    }
 
     target.classList.toggle('active');
     

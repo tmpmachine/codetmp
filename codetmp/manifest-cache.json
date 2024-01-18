@@ -76,6 +76,7 @@
     
     "assets/js/fflate.js",
     "assets/js/sha256.js",
+    "assets/js/templateslot@1.0.2.min.js",
     
     "assets/icons/folder_open.svg",
     "assets/icons/folder_close.svg",

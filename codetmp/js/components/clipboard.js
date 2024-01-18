@@ -219,18 +219,24 @@ const fileClipBoard = (function() {
     targetWorkspaceId = activeWorkspace;
 
     while (clipBoard.length > 0) {
+
       let data;
       let fid = clipBoard[0].fid;
       let type = clipBoard[0].type;
       let modifiedTime = new Date().toISOString();
       
       if (type === 'file') {
+
         activeWorkspace = sourceWorkspaceId;
         data = await fileManager.TaskGetFile({fid, type:'files'});
         activeWorkspace = targetWorkspaceId;
+        
         if (pasteMode === 'copy') {
+
           await copySingleFile(data, modifiedTime);
+
         } else {
+
           if (targetWorkspaceId !== sourceWorkspaceId) {
             aww.pop('Cannot move files between workspaces. Files copied instead.', false, 5000);
             await copySingleFile(data, modifiedTime);
@@ -238,14 +244,19 @@ const fileClipBoard = (function() {
             if (data.parentId !== activeFolder)
               await fileMove(data, 'files');
           }
+
         }
+
       } else {
+
         if (pasteMode === 'copy') {
+          
           activeWorkspace = sourceWorkspaceId;
           let branch = await getAllBranch(fid);
           activeWorkspace = targetWorkspaceId;
           let road = await copyBranchFolder(branch.folderIds, modifiedTime);
           await copyBranchFile(branch.fileIds, road, modifiedTime);
+
         } else {
           if (targetWorkspaceId !== sourceWorkspaceId) {
             aww.pop('Cannot move files between workspaces. Files copied instead.', false, 5000);
@@ -263,6 +274,7 @@ const fileClipBoard = (function() {
             }
           }
         }
+
       }
       
       clipBoard.splice(0, 1);

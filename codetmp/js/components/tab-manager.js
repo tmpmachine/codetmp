@@ -75,6 +75,7 @@ const tabManager = (function() {
     let name = 'untitled.html';
     if (data) {
       fid = data.fid
+
       el = o.element('div', {
         innerHTML: o.template('tmp-file-tab', {
           fid,
@@ -82,6 +83,7 @@ const tabManager = (function() {
           fiber: 'close'
         })
       });
+
       if (data.file) {
         $('.file-tab', el)[0].dataset.parentId = data.file.parentId;
       }
@@ -90,6 +92,7 @@ const tabManager = (function() {
       }
     } else {
       fid = '-' + (new Date).getTime();
+
       el = o.element('div', {
         innerHTML: o.template('tmp-file-tab', {
           fid,
@@ -97,6 +100,7 @@ const tabManager = (function() {
           fiber: 'close',
         })
       })
+      
     }
     
     if (position >= 0) {
