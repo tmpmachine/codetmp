@@ -21,12 +21,18 @@ let helper = (function () {
   };
 
   async function FileReaderReadAsText(fileRef) {
+    
+    let file = fileRef;
+    if (fileRef.entry) {
+      file = await fileRef.entry.getFile();
+    }
+    
     return new Promise(resolve => {
       let reader = new FileReader();
       reader.onload = async function(evt) {
           resolve(reader.result)
       }
-      reader.readAsText(fileRef);
+      reader.readAsText(file);
     });
   }
 

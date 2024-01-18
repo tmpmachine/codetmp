@@ -1,5 +1,13 @@
 const fire = (() => {
 
+  let SELF = {
+    init,
+    setToken,
+    selectProject,
+    selectSite,
+    deploy,
+  };
+
   let projectId = '';
   let siteID = '';
   let ver = '';
@@ -61,34 +69,41 @@ const fire = (() => {
   }
 
   function getHash(file) {
+
     return new Promise(resolve => {
+
       let reader = new FileReader();
-        var batch = 1024 * 1024 * 2;
-        var start = 0;
-        var total = file.size;
-        let method = sha256;
-        reader.onload = function (event) {
-          try {
-            method = method.update(event.target.result);
-            asyncUpdate();
-          } catch(e) {
-            L(e);
-          }
-        };
-        var asyncUpdate = function () {
-          if (start < total) {
-            log('Hashing...' + (start / total * 100).toFixed(2) + '%')
-            var end = Math.min(start + batch, total);
-            reader.readAsArrayBuffer(file.slice(start, end));
-            start = end;
-          } else {
-            let hash = method.hex()
-            resolve(hash);
-          }
-        };
-        asyncUpdate();
+      var batch = 1024 * 1024 * 2;
+      var start = 0;
+      var total = file.size;
+      let method = sha256;
+
+      reader.onload = function (event) {
+        try {
+          method = method.update(event.target.result);
+          asyncUpdate();
+        } catch(e) {
+          console.error(e);
+        }
+      };
+
+      let asyncUpdate = function () {
+
+        if (start < total) {
+          let end = Math.min(start + batch, total);
+          reader.readAsArrayBuffer(file.slice(start, end));
+          start = end;
+        } else {
+          let hash = method.hex()
+          resolve(hash);
+        }
+
+      };
+
+      asyncUpdate();
       
-    })
+    });
+
   }
 
   function log(txt, isInline = false) {
@@ -97,10 +112,12 @@ const fire = (() => {
     logger.scrollTo(0, logger.scrollHeight);
   }
   
-    function step1() {
+    async function step1() {
       log('Logs :\n\n')
       log('Preparing files for upload. Avoid changing files before the upload process starts.\n\n')
+      
       return new Promise(resolve => {
+      
         log('Creating new site version... ')
         fetch(`https://firebasehosting.googleapis.com/v1beta1/sites/${siteID}/versions`,{
         method:'POST',
@@ -120,6 +137,7 @@ const fire = (() => {
           log('(Done)', true)
           resolve();
         })
+
       })
     }
 
@@ -139,22 +157,27 @@ const fire = (() => {
             minifyJs: settings.data.editor.minifyJsFirebase,
           };
 
+          log(`Hashing file... ${file.name}`);
+
           app.fileBundler.getReqFileContent(file, options).then(fileData => {
 
             let r = new FileReader();
+
             r.onload = function() {
+
               const gzipped = fflate.gzipSync( new Uint8Array(r.result), {
                 filename: file.name,
               });
               let gzipFile = new Blob([gzipped], {type:'application/gzip'})
-              getHash(gzipFile).then(hash => {
+              getHash(file.name, gzipFile).then(hash => {
                 tree.push({
                   hash,
                   gzipFile,
                   path: data.path+file.name,
                 });
                 getHashTree(tree, files).then(resolve);
-              })
+              });
+
             }
             
             if (activeWorkspace == 2 && helper.hasFileReference(fileData.file)) {
@@ -171,11 +194,12 @@ const fire = (() => {
             }
 
           });
+
         }
       }) 
     }
 
-  function step2(files) {
+  async function step2(files) {
     
     return new Promise(async resolve => {
 
@@ -184,6 +208,7 @@ const fire = (() => {
       log('Compressing files... ')
 
       await getHashTree(gzipFiles, files)
+
       log('(Done)', true);
       for (let i=0; i<gzipFiles.length; i++)
         hashTree[gzipFiles[i].path] = gzipFiles[i].hash;
@@ -248,8 +273,9 @@ const fire = (() => {
   async function populateQueue(queue, parentId, path) {
     let files = await fileManager.TaskListFiles(parentId);
     for (let i=0; i<files.length; i++) {
-      if (files[i].trashed)
-        continue;
+      
+      if (files[i].trashed) continue;
+      
       queue.push({
         path,
         file: files[i],
@@ -258,11 +284,15 @@ const fire = (() => {
 
     let folders = await fileManager.TaskListFolders(parentId);
     for (let i=0; i<folders.length; i++) {
-      if (folders[i].trashed)
-        continue;
-      if (folders[i].id.length > 0 && !folders[i].isLoaded)
+      
+      if (folders[i].trashed) continue;
+
+      if (folders[i].id.length > 0 && !folders[i].isLoaded) {
         await drive.syncFromDrivePartial([folders[i].id]);
+      }
+      
       await populateQueue(queue, folders[i].fid, path+folders[i].name+'/');
+
     }
   }
 
@@ -275,6 +305,7 @@ const fire = (() => {
   }
 
   async function deploy(e) {
+
     let form = e.target;
     let files = await populateFiles();
     _cacheControl = parseInt(form.cacheControl.value);
@@ -287,22 +318,23 @@ const fire = (() => {
     }
 
     $('#deploy-logs').textContent = '';
-    modal.confirm('This will deploy current opened directory to selected Firebase project site. Continue?').then(() => {
-      step1()
-      .then(() => {
-        step2(files)
-        .then(gzFiles => {
-          log('\n\n***\n\nUploading files... It is now safe to make changes to files.\n');
+    modal.confirm('This will deploy current opened directory to selected Firebase project site. Continue?').then(async () => {
 
-          uploadFile(gzFiles, gzFiles.length)
-          .then(step4)
-          .then(step5)
-        })
-      })
-    })
+      await step1()
+
+      let gzFiles = await step2(files);
+      log('\n\n***\n\nUploading files... It is now safe to make changes to files.\n');
+
+      uploadFile(gzFiles, gzFiles.length)
+        .then(step4)
+        .then(step5)
+
+    });
+
   }
 
-  function queueUpload(file,uploader) {
+  function queueUpload(file, uploader, total) {
+
     waitFreeQueue().then(() => {
 
         let r = new FileReader();
@@ -314,7 +346,7 @@ const fire = (() => {
           };
           opt.headers['Content-Type'] = 'application/octet-stream'
            uploader.uploadCount++;
-           log('Uploading ('+uploader.uploadCount+'/'+uploader.totalUpload+') '+file.path+'... ');
+           log('Uploading ('+uploader.uploadCount+'/'+total+') '+file.path+'... ');
            fetch(`https://upload-firebasehosting.googleapis.com/upload/sites/${siteID}/versions/${ver}/files/${file.hash}` ,opt)
            .then(() => {
               running--;
@@ -331,52 +363,27 @@ const fire = (() => {
                 uploader.resolve();
            });
         };
+
         r.readAsArrayBuffer(file.gzipFile);
 
-
-
     });
+
   }
 
-  let totalUpload = 0;
-  let currentUpload = 0;
-  let uploadResolver = null;
-
   function uploadFile(gzFiles, total) {
-    
-
     return new Promise(resolve => {
+      
       let uploader = {
         resolve,
         totalUpload: total,
         uploadCount: 0,
       }
-      for (let f of gzFiles) {
-        queueUpload(f, uploader);
-      }
-      // if (gzFiles.length === 0) {
-      //   resolve()
-      // } else {
-      //   let file = gzFiles.shift();
-      //   let r = new FileReader();
-      //   r.onload = function() {
-      //     let opt = {
-      //       method:'POST',
-      //       headers,
-      //       body: r.result
-      //     };
-      //     opt.headers['Content-Type'] = 'application/octet-stream'
-      //      log('Uploading ('+(total-gzFiles.length)+'/'+total+') '+file.path+'... ');
-      //      fetch(`https://upload-firebasehosting.googleapis.com/upload/sites/${siteID}/versions/${ver}/files/${file.hash}` ,opt)
-      //      .then(() => {
-      //         log('(Done)', true);
-      //         uploadFile(gzFiles, total).then(resolve);
-      //      })
-      //   }
-      //   r.readAsArrayBuffer(file.gzipFile);
-      // }
 
-    })
+      for (let f of gzFiles) {
+        queueUpload(f, uploader, total);
+      }
+
+    });
   }
 
 
@@ -391,9 +398,6 @@ const fire = (() => {
         let r = q.shift();
         r();
       }
-       // else {
-        // result.textContent += "queue limi exceeded\n";
-      // }
     }
   }
   
@@ -404,11 +408,6 @@ const fire = (() => {
     })
   }
   
-  return {
-    init,
-    setToken,
-    selectProject,
-    selectSite,
-    deploy,
-  };
+  return SELF;
+
 })();
