@@ -1,4 +1,4 @@
-const ACE_CDN_BASEPATH = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3';
+const ACE_CDN_BASEPATH = '/assets/js/ace-builds@1.32.3/src-min-noconflict';
 let activeWorkspace = 0;
 let environment = {
   previewUrl: 'https://preview.codetmp7.dev/',
@@ -66,7 +66,7 @@ app.loadFiles([
       "js/uis/tree-explorer-ui.js",
       "js/components/notif-component.js",
       "js/components/notifier.js",
-      `${ACE_CDN_BASEPATH}/ace.min.js`,
+      `${ACE_CDN_BASEPATH}/ace.js`,
       "js/components/tab-manager.js",
     ],
     callback: function() {

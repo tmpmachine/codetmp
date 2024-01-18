@@ -1,10 +1,13 @@
 {
   "scripts": {
-    "dev": "firebase serve --only hosting:codetmp --config firebase.dev.json",
+    "setup-dev": "mkdir -p codetmp/assets/js/ace-builds@$(node -p \"require('ace-builds/package.json').version\") && cp -r node_modules/ace-builds/src-min-noconflict codetmp/assets/js/ace-builds@$(node -p \"require('ace-builds/package.json').version\")",
+    "dev": "firebase serve --config firebase.dev.json",
     "deploy": "firebase deploy --only hosting:codetmp  --config firebase.prod.json",
+    "deploy-dev": "firebase deploy --only hosting:codetmp  --config firebase.dev.json",
     "build": "node build"
   },
   "dependencies": {
+    "ace-builds": "^1.32.3",
     "fs": "0.0.1-security",
     "fs-extra": "^9.1.0",
     "html-minifier": "^4.0.0",

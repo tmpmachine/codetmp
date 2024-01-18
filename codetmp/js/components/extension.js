@@ -32,9 +32,9 @@ const extension = (function() {
         break;
       case 'autocomplete':
         files = [
-          `${ACE_CDN_BASEPATH}/ext-language_tools.min.js`,
-          `${ACE_CDN_BASEPATH}/snippets/javascript.min.js`,
-          `${ACE_CDN_BASEPATH}/snippets/html.min.js`,
+          `${ACE_CDN_BASEPATH}/ext-language_tools.js`,
+          `${ACE_CDN_BASEPATH}/snippets/javascript.js`,
+          `${ACE_CDN_BASEPATH}/snippets/html.js`,
         ];
         callback = initAutocomplete;
         break;
