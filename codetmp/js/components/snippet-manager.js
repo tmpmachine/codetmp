@@ -263,10 +263,26 @@ function resetSearch(self, bypass) {
   }
 }
 
-;(function() {
+;(async function() {
   
+  function waitUntil(stateCheckCallback, delay = 100) {
+    return new Promise(resolve => {
+        let interval = window.setInterval(() => {
+        let shouldResolve = stateCheckCallback();
+        if (shouldResolve) {
+            window.clearInterval(interval);
+            resolve();
+        }
+        }, delay);
+    });
+  }
+
+  await waitUntil(() => {
+    return typeof(ace.require('ace/snippets').snippetManager == 'object')
+  }, 200)
+
   const snippetManager = ace.require('ace/snippets').snippetManager;
-  
+
   // temporary snippet
   {
     let snippetText = "snippet asd\n\tconsole.log($1)";
