@@ -7,6 +7,9 @@ let DOMEvents = {
 			data-callback-attribute: callbackFunction
 		}
 	*/
+	onclick: {
+		'create-session': () => ui.CreateSession(),
+	},
 	clickable: {
 		'upload-file': ui.uploadFile,
 		'file-rename': () => uiFileExplorer.RenameFile(),
@@ -30,34 +33,32 @@ let DOMEvents = {
 		'sign-out': () => app.SignOut(),
 		'grant-firebase-access': () => auth2.grant('https://www.googleapis.com/auth/firebase'),
 
-		'change-workspace': (evt) => {
-			ui.changeWorkspace(evt.target.closest('[data-storage]'));
-		},
+		'change-workspace': (evt) => ui.changeWorkspace(evt.target.closest('[data-kind="item"]')),
 		'change-file-list-view': ui.changeFileListView,
 
-	    'btn-menu-template': function() { ui.toggleInsertSnippet(); },
-	    'btn-menu-save': fileManager.save,
-	    'btn-menu-preview': async function() { 
-	      previewHandler.previewPath(); 
-	    },
-	    'btn-undo': () => { fileTab[activeTab].editor.env.editor.undo(); fileTab[activeTab].editor.env.editor.focus(); },
-	    'btn-redo': () => { fileTab[activeTab].editor.env.editor.redo(); fileTab[activeTab].editor.env.editor.focus(); },
-	    'more-tab': function() { ui.switchTab(1); },
-	    
-	    'expand-tree-explorer': function() { 
-	    	settings.data.explorer.tree = true;
-	    	settings.save();
-	    	document.body.classList.toggle('--tree-explorer', true) ;
-	    },
-	    'collapse-tree-explorer': function() {
-	    	settings.data.explorer.tree = false;
-	    	settings.save();
-	     	document.body.classList.toggle('--tree-explorer', false);
-	 	},
-	    'reload-file-tree': ui.reloadFileTree,
-	    'generate-single-file': ui.fileGenerator.generate,
+		'btn-menu-template': function () { ui.toggleInsertSnippet(); },
+		'btn-menu-save': fileManager.save,
+		'btn-menu-preview': async function () {
+			previewHandler.previewPath();
+		},
+		'btn-undo': () => { fileTab[activeTab].editor.env.editor.undo(); fileTab[activeTab].editor.env.editor.focus(); },
+		'btn-redo': () => { fileTab[activeTab].editor.env.editor.redo(); fileTab[activeTab].editor.env.editor.focus(); },
+		'more-tab': function () { ui.switchTab(1); },
+
+		'expand-tree-explorer': function () {
+			settings.data.explorer.tree = true;
+			settings.save();
+			document.body.classList.toggle('--tree-explorer', true);
+		},
+		'collapse-tree-explorer': function () {
+			settings.data.explorer.tree = false;
+			settings.save();
+			document.body.classList.toggle('--tree-explorer', false);
+		},
+		'reload-file-tree': ui.reloadFileTree,
+		'generate-single-file': ui.fileGenerator.generate,
 		'copy-generated-file': ui.fileGenerator.copy,
-	    'create-workspace': uiTreeExplorer.CreateWorkspace,
+		'create-workspace': uiTreeExplorer.CreateWorkspace,
 	},
 
 	submittable: {
@@ -66,8 +67,8 @@ let DOMEvents = {
 	},
 
 	inputable: {
-		'select-project': function() { fire.selectProject(this.value) },
-		'select-site': function() { fire.selectSite(this.value) },
+		'select-project': function () { fire.selectProject(this.value) },
+		'select-site': function () { fire.selectSite(this.value) },
 	},
 
 
@@ -109,14 +110,14 @@ let DOMEvents = {
 		'Alt+P': ui.toggleGenerateSingleFile,
 		'Alt+M': () => {
 			if (!$('#in-home').classList.contains('active'))
-		    	ui.toggleMyFiles();
+				ui.toggleMyFiles();
 		},
 		'Alt+R': () => deferFeature1.toggleWrapMode(),
 		'Alt+N': uiFileExplorer.newFile,
 		'Alt+Q': () => {
 			document.body.classList.toggle('--tree-explorer');
 			settings.data.explorer.tree = document.body.classList.contains('--tree-explorer');
-	    	settings.save();
+			settings.save();
 			ui.resizeEditor();
 		},
 		'Alt+W': () => tabManager.ConfirmCloseTab(),
@@ -130,21 +131,21 @@ let DOMEvents = {
 			event.preventDefault();
 			deferFeature1.toggleTemplate();
 		},
-		'Ctrl+Enter': function() {
-		  if ($('#btn-menu-my-files').classList.contains('active')) {
-		  	if (selectedFile.length > 0) {
-				uiFileExplorer.RenameFile();
+		'Ctrl+Enter': function () {
+			if ($('#btn-menu-my-files').classList.contains('active')) {
+				if (selectedFile.length > 0) {
+					uiFileExplorer.RenameFile();
+				}
+			} else {
+				previewHandler.previewPath();
 			}
-		  } else {
-		    previewHandler.previewPath();
-		  }
 		},
-		'Ctrl+Shift+Enter': function() {
+		'Ctrl+Shift+Enter': function () {
 			if (!$('#btn-menu-my-files').classList.contains('active')) {
 				previewHandler.previewPathAtPWA();
 			}
 		},
-		'Ctrl+O': function(evt) {
+		'Ctrl+O': function (evt) {
 			evt.preventDefault();
 			// check if is file system mode
 			if (activeWorkspace == 2) {
@@ -156,3 +157,13 @@ let DOMEvents = {
 	},
 
 };
+
+; (function () {
+	window.listening = function (selector, dataKey, eventType, callbacks) {
+		let elements = document.querySelectorAll(selector);
+		for (let el of elements) {
+			let callbackFunc = callbacks[el.dataset[dataKey]];
+			el.addEventListener(eventType, callbackFunc);
+		}
+	};
+})();

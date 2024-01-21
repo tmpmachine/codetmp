@@ -16,6 +16,7 @@
     // component interface 
     const SELF = {
       workspaceId: -1, // folder FID
+      reset: Reset,
     };
 
     SELF.appendFolder = function(file) {
@@ -303,9 +304,10 @@
       await listTree();
     };
 
-    SELF.reset = async function() {
+    async function Reset() {
       SELF.workspaceId = -1;
       SELF.changeWorkspace(SELF.workspaceId); 
+      
       await SELF.reload();
     };
 
@@ -529,8 +531,8 @@
 
 
   app.getComponent('fileTree').then(async (ft) => {
-    await fileManager.TaskOnStorageReady();
-    await ft.reload();
+    // await fileManager.TaskOnStorageReady();
+    // await ft.reload();
     ft.attachListener();
     ft.listLocalWorktree();
     if (settings.data.explorer.tree) {

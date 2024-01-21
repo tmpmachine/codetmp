@@ -34,6 +34,7 @@
     "assets/js/idb@7/umd.js"
   ],
   "components": [
+    "js/components/session-manager-component.js",
     "js/components/modal-window-component.js",
     "js/components/state-manager-component.js",
     "js/components/ext-firebase.js",

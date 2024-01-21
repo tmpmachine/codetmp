@@ -1,6 +1,9 @@
 let ui = (function() {
   
   let SELF = {
+    SetActiveWorkspace,
+    GetActiveWorkspace,
+    TaskChangeWorkspaceByIndex,
     states: {
       storage: constant.STORAGE_STATE.Default,
     },
@@ -59,6 +62,7 @@ let ui = (function() {
         singleFileGenerator.copy(form);
       },
     },
+    CreateSession,
   };
 
   // init workspace data
@@ -87,6 +91,23 @@ let ui = (function() {
       })
     }
 
+  }
+
+  function SetActiveWorkspace(index) {
+    activeWorkspace = index;
+  }
+
+  function GetActiveWorkspace() {
+    return activeWorkspace;
+  }
+
+  function CreateSession() {
+    let userVal = window.prompt('Session name');
+    if (!userVal) return;
+
+    let sessionId = userVal;
+    compoSessionManager.CreateSession(sessionId);
+    alert('Session created. Save this URL for later.')
   }
 
   function OpenTabInExplorer(self) {
@@ -132,32 +153,55 @@ let ui = (function() {
   async function changeWorkspace(targetEl) {
 
     let dataTarget = targetEl.dataset.target;
-    let dataStorage = targetEl.dataset.storage;
     let dataIndex = targetEl.dataset.index;
 
-    if (dataTarget != $('#workspace-title').textContent) {
-      for (let node of $('.workspace .Btn')) {
-        node.classList.toggle('active', false);
-        if (targetEl == node) {
-          node.classList.toggle('active', true);
-        }
-      }
-      $('#workspace-title').textContent = dataTarget;
-      let index = parseInt(dataIndex);
-      document.body.stateList.toggle('fs-mode', (index == 2));
-      ui.states.storage = constant.STORAGE_STATE[dataStorage];
-      activeWorkspace = index;
-      await fileManager.list();
-      tabManager.list();
-      if (fileTab.length === 0) {
-        ui.openNewTab();
-      }
-      tabManager.focusTab(fileTab[activeTab].fid);
-      uiFileExplorer.LoadBreadCrumbs();
-      app.getComponent('fileTree').then(ft => {
-        app.fileTree.reset();
-      });
+    if (dataTarget == $('#workspace-title').textContent) return;
+
+    let index = parseInt(dataIndex);
+    
+    SetActiveWorkspace(index);
+    await TaskChangeWorkspaceByIndex(index);
+  }
+
+  async function TaskChangeWorkspaceByIndex(index) {
+    reloadActiveWorkspaceUiStatesByIndex(index);
+    await taskReloadActiveWorkspaceEnvStates();
+  }
+
+  async function taskReloadActiveWorkspaceEnvStates() {
+    await fileManager.list();
+
+    tabManager.list();
+    if (fileTab.length === 0) {
+      ui.openNewTab();
     }
+    tabManager.focusTab(fileTab[activeTab].fid);
+    
+    uiFileExplorer.LoadBreadCrumbs();
+    
+    await app.getComponent('fileTree');
+    app.fileTree.reset();
+  }
+
+  function reloadActiveWorkspaceUiStatesByIndex(workspaceIndex) {
+    
+    for (let node of $('.workspace .Btn')) {
+      node.classList.toggle('active', false);
+      if (node.dataset.index == workspaceIndex) {
+        node.classList.toggle('active', true);
+        $('#workspace-title').textContent = node.dataset.target;
+      }
+    }
+
+    document.body.stateList.toggle('fs-mode', (workspaceIndex == 2));
+    
+    let dataStorage = 'main';
+    if (workspaceIndex == 1) {
+      dataStorage = 'playground'
+    } else if (workspaceIndex == 2) {
+      dataStorage = 'fileSystem'
+    }
+    ui.states.storage = constant.STORAGE_STATE[dataStorage];
 
   }
 
@@ -616,9 +660,7 @@ let ui = (function() {
     compoNotif.Init();
 
     // initInframeLayout();
-    fileManager.TaskOnStorageReady().then(() => {
-      fileManager.list();
-    });
+    
     preferences.loadSettings();
     ui.openNewTab();
     tabManager.InitTabFocusHandler();
@@ -628,6 +670,20 @@ let ui = (function() {
     
     // initMenuBar();
     changeExplorerView(settings.data.explorer.view);
+
+    fileManager.TaskOnStorageReady().then(async () => {
+      let sessionData = await compoSessionManager.TaskRestoreSession();
+      if (sessionData && sessionData.activeWorkspace == 2) {
+        ui.SetActiveWorkspace(sessionData.activeWorkspace);
+      }
+
+      let activeWorkspace = GetActiveWorkspace();
+      await ui.TaskChangeWorkspaceByIndex(activeWorkspace)
+
+      if (sessionData) {
+        await compoSessionManager.TaskRestoreOpenFileHandlers(sessionData);
+      }
+    });
 
     for (let modal of $('.modal-window')) {
       modal.classList.toggle('transition-enabled', true);
@@ -646,6 +702,8 @@ let ui = (function() {
     attachSubmitable('.submittable', DOMEvents.submittable);
     attachClickable('.clickable', DOMEvents.clickable);
     attachInputable('.inputable', DOMEvents.inputable);
+
+    listening('[data-onclick]', 'onclick', 'click', DOMEvents.onclick);
 
     function attachSubmitable(selector, callback) {
       for (let node of document.querySelectorAll(selector)) {

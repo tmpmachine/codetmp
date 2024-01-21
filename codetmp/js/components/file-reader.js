@@ -1,10 +1,11 @@
-const fileReaderModule = (function() {
+const fileReaderModule = (function () {
 
-  let self = {
+	let self = {
 		init,
 		readSingleUploadItem,
 		uploadFile,
 		OpenDirectory,
+		TaskPopulateFiles,
 	};
 
 	let activeDropZone;
@@ -34,23 +35,23 @@ const fileReaderModule = (function() {
 	});
 
 	function readSingleUploadItem(item) {
-			HANDLER_TYPE = 'getAsFileSystemHandle';
-			let parentId = activeFolder;
-			let isPressedCtrlKey = false
-			let queue = {
-					items: [],
-					isReading: false,
-				};
-				readQueue.push(queue);
+		HANDLER_TYPE = 'getAsFileSystemHandle';
+		let parentId = activeFolder;
+		let isPressedCtrlKey = false
+		let queue = {
+			items: [],
+			isReading: false,
+		};
+		readQueue.push(queue);
 
-			saveToStorage({
-				queue,
-				parentId,
-				isPressedCtrlKey,
-				entry: item,
-	 			name: item.name,
-				type: item.kind,
-			});
+		saveToStorage({
+			queue,
+			parentId,
+			isPressedCtrlKey,
+			entry: item,
+			name: item.name,
+			type: item.kind,
+		});
 	}
 
 	function checkFileSystemHandleSupport(item) {
@@ -67,20 +68,20 @@ const fileReaderModule = (function() {
 		return new Promise((resolve, reject) => {
 
 			function resolver() {
-		 		resolve('webkitGetAsEntry');
+				resolve('webkitGetAsEntry');
 			}
 
 			function errorHandler() {
-	    		reject('default');
+				reject('default');
 			}
 
 			if ('webkitGetAsEntry' in item) {
 				entry = item.webkitGetAsEntry();
 				if (entry.isDirectory) {
-				    let directoryReader = entry.createReader();
+					let directoryReader = entry.createReader();
 					directoryReader.readEntries(resolver, errorHandler);
-			 	} else {
-			 		entry.file(resolver, errorHandler);
+				} else {
+					entry.file(resolver, errorHandler);
 				}
 			} else {
 				errorHandler();
@@ -117,7 +118,7 @@ const fileReaderModule = (function() {
 
 	function proceedNextQueueItem(item) {
 		let queue = item.queue;
-		
+
 		fileStorage.save();
 		drive.syncToDrive();
 		fileManager.list();
@@ -151,7 +152,7 @@ const fileReaderModule = (function() {
 
 	function handleItemFile(item) {
 
-		new Promise (async resolve => {
+		new Promise(async resolve => {
 
 			let fileRef = await getFileRef(item.entry);
 			if (item.isPressedCtrlKey)
@@ -159,9 +160,9 @@ const fileReaderModule = (function() {
 			let existingItem = await fileManager.TaskGetExistingItem(item.name, item.parentId);
 			if (existingItem) {
 
-      			modal.confirm(`Item with the same name already exists. Overwrite? (${truncate(item.name)})`).then(async () => {
+				modal.confirm(`Item with the same name already exists. Overwrite? (${truncate(item.name)})`).then(async () => {
 
-					  if (activeWorkspace == 2) {
+					if (activeWorkspace == 2) {
 						// rewrite the content of existing file
 						if (helper.hasFileReference(existingItem.fileRef)) {
 							let fileHandle = await existingItem.fileRef.entry;
@@ -174,9 +175,9 @@ const fileReaderModule = (function() {
 						delete existingItem.blob;
 						existingItem.loaded = true;
 						fileManager.sync({
-							fid: existingItem.fid, 
+							fid: existingItem.fid,
 							action: 'update',
-							metadata: ['media'], 
+							metadata: ['media'],
 							type: 'files',
 							isTemp: true,
 						});
@@ -190,18 +191,18 @@ const fileReaderModule = (function() {
 			} else {
 
 				let file = await fileManager.CreateFile({
-				    fileRef,
-				    content: null,
-				    name: item.name,
-				    parentId: item.parentId,
-				    isTemp: true,
+					fileRef,
+					content: null,
+					name: item.name,
+					parentId: item.parentId,
+					isTemp: true,
 				});
 				uiTreeExplorer.AppendFile(file);
 				fileManager.sync({
-					fid: file.fid, 
-				    action: 'create', 
-				    type: 'files',
-				    isTemp: true,
+					fid: file.fid,
+					action: 'create',
+					type: 'files',
+					isTemp: true,
 				});
 				resolve(item);
 			}
@@ -213,14 +214,14 @@ const fileReaderModule = (function() {
 		let folder = await fileManager.TaskGetExistingItem(item.name, item.parentId, 'folder');
 		if (folder === null) {
 			folder = await fileManager.CreateFolder({
-			    parentId: item.parentId,
-			    name: item.name,
+				parentId: item.parentId,
+				name: item.name,
 			});
 			uiTreeExplorer.AppendFolder(folder);
 			fileManager.sync({
-				fid: folder.fid, 
-			    action: 'create', 
-			    type: 'folders',
+				fid: folder.fid,
+				action: 'create',
+				type: 'folders',
 			});
 		}
 
@@ -232,25 +233,25 @@ const fileReaderModule = (function() {
 	}
 
 	async function readEntries(entry, parentId, queue, isPressedCtrlKey, resolve) {
-	  	let item = await entry.next();
-	  	if (!item.done) {
-	  		item.value[1].isPressedCtrlKey = isPressedCtrlKey;
-			  getFileContent(item.value[1], parentId, queue, false).then(saveToStorage);
-	    	readEntries(entry, parentId, queue, isPressedCtrlKey, resolve);
-	  	} else {
-	  		resolve();
-	  	}
+		let item = await entry.next();
+		if (!item.done) {
+			item.value[1].isPressedCtrlKey = isPressedCtrlKey;
+			getFileContent(item.value[1], parentId, queue, false).then(saveToStorage);
+			readEntries(entry, parentId, queue, isPressedCtrlKey, resolve);
+		} else {
+			resolve();
+		}
 	}
 
 	function scanDirEntries(entry, parentId, queue, isPressedCtrlKey, resolve) {
 		let directoryReader = entry.createReader();
 		directoryReader.readEntries(entries => {
-	    	for (let i=0; i<entries.length; i++) {
-	    		entries[i].isPressedCtrlKey = isPressedCtrlKey;
-		  		getEntryContent(entries[i], parentId, queue, false).then(saveToStorage);
-	    	}
-	    	resolve();
-	    });
+			for (let i = 0; i < entries.length; i++) {
+				entries[i].isPressedCtrlKey = isPressedCtrlKey;
+				getEntryContent(entries[i], parentId, queue, false).then(saveToStorage);
+			}
+			resolve();
+		});
 	}
 
 	async function readDirectoryEntries(entry, parentId, queue, isPressedCtrlKey, resolve) {
@@ -282,20 +283,20 @@ const fileReaderModule = (function() {
 	}
 
 	function getFileContent(item, parentId, queue, isDataTransferItem = true) {
-  	return new Promise(async resolve => {
-  		let entry = item;
-  		if (isDataTransferItem) {
-	  		entry = await item.getAsFileSystemHandle();
-  		}
+		return new Promise(async resolve => {
+			let entry = item;
+			if (isDataTransferItem) {
+				entry = await item.getAsFileSystemHandle();
+			}
 			resolve({
 				queue,
 				parentId,
 				entry,
-	 			name: entry.name,
+				name: entry.name,
 				type: entry.kind,
 				isPressedCtrlKey: item.isPressedCtrlKey,
-			});	
-  	})
+			});
+		})
 	}
 
 	function getEntryContent(item, parentId, queue, isDataTransferItem = true) {
@@ -307,8 +308,8 @@ const fileReaderModule = (function() {
 			resolve({
 				queue,
 				parentId,
-				entry, 
-	 			name: entry.name,
+				entry,
+				name: entry.name,
 				type: entry.isFile ? 'file' : 'directory',
 				isPressedCtrlKey: item.isPressedCtrlKey,
 			});
@@ -319,7 +320,7 @@ const fileReaderModule = (function() {
 		for (let item of items) {
 			if (item.kind == 'file') {
 				item.isPressedCtrlKey = isPressedCtrlKey;
-		  		getEntryContent(item, parentId, queue).then(callback);
+				getEntryContent(item, parentId, queue).then(callback);
 			}
 		}
 	}
@@ -328,24 +329,24 @@ const fileReaderModule = (function() {
 		for (let item of items) {
 			if (item.kind == 'file') {
 				item.isPressedCtrlKey = isPressedCtrlKey;
-	  		getFileContent(item, parentId, queue).then(callback);
-	  	}
+				getFileContent(item, parentId, queue).then(callback);
+			}
 		}
 	}
 
 	function setSupportedFileHandler(items) {
 		return new Promise(resolve => {
-		  if (HANDLER_TYPE === -1) {
-		  	checkFileSystemHandleSupport(items[0])
-		  	.then(resolve)
-		  	.catch(() => {
-			  	checkGetAsEntrySupport(items[0])
-			  	.then(resolve)
-			  	.catch(resolve);
-		  	});
-		  } else {
-		  	resolve();
-		  }
+			if (HANDLER_TYPE === -1) {
+				checkFileSystemHandleSupport(items[0])
+					.then(resolve)
+					.catch(() => {
+						checkGetAsEntrySupport(items[0])
+							.then(resolve)
+							.catch(resolve);
+					});
+			} else {
+				resolve();
+			}
 		});
 	}
 
@@ -357,11 +358,11 @@ const fileReaderModule = (function() {
 		if (items[0].kind != 'file')
 			return;
 
-	  	setSupportedFileHandler(items).then(type => {
-	  		if (type !== undefined)
+		setSupportedFileHandler(items).then(type => {
+			if (type !== undefined)
 				HANDLER_TYPE = type;
 			let parentId = activeFolder;
-			
+
 			let callback = (dropTarget == 'editor') ? openOnEditor : saveToStorage;
 			let queue;
 
@@ -372,17 +373,17 @@ const fileReaderModule = (function() {
 				};
 				readQueue.push(queue);
 			}
-			
-  		switch (HANDLER_TYPE) {
-    		case 1: 
-    		  getAsEntry(items, callback, parentId, queue, isPressedCtrlKey);
-    		  break;
-    		case 2: 
-    		  getAsFileSystemHandle(items, callback, parentId, queue, isPressedCtrlKey);
-    		  break;
-    		default:
-    		  getAsDropItems(items, callback, parentId, queue, isPressedCtrlKey);
-    	}
+
+			switch (HANDLER_TYPE) {
+				case 1:
+					getAsEntry(items, callback, parentId, queue, isPressedCtrlKey);
+					break;
+				case 2:
+					getAsFileSystemHandle(items, callback, parentId, queue, isPressedCtrlKey);
+					break;
+				default:
+					getAsDropItems(items, callback, parentId, queue, isPressedCtrlKey);
+			}
 		});
 	}
 
@@ -425,18 +426,18 @@ const fileReaderModule = (function() {
 		changeDropMessage()
 		dropZone.classList.toggle('w3-hide', false);
 		// if (isSupportSaveFile) {
-			// window.addEventListener('keydown', keyHandler);
-			// window.addEventListener('keyup', keyHandler);
-			// $('.Helpnote', dropZone)[0].classList.toggle('w3-opacity', !document.hasFocus());
-			// $('.Helpnote', dropZone)[1].classList.toggle('w3-hide', document.hasFocus());
+		// window.addEventListener('keydown', keyHandler);
+		// window.addEventListener('keyup', keyHandler);
+		// $('.Helpnote', dropZone)[0].classList.toggle('w3-opacity', !document.hasFocus());
+		// $('.Helpnote', dropZone)[1].classList.toggle('w3-hide', document.hasFocus());
 		// }
 	}
 
 	function hideDropZone(dropZone) {
 		dropZone.classList.toggle('w3-hide', true);
 		// if (isSupportSaveFile) {
-			// window.removeEventListener('keydown', keyHandler);
-			// window.removeEventListener('keyup', keyHandler);
+		// window.removeEventListener('keydown', keyHandler);
+		// window.removeEventListener('keyup', keyHandler);
 		// }
 	}
 
@@ -444,18 +445,18 @@ const fileReaderModule = (function() {
 		readTransferItems(e.dataTransfer.items, target, isPressedCtrlKey);
 	}
 
-  function truncate(name) {
-    if (name.length > 30)
-      name = name.slice(0, 30) + '...';
-    return name;
-  }
+	function truncate(name) {
+		if (name.length > 30)
+			name = name.slice(0, 30) + '...';
+		return name;
+	}
 
-  function preventDefault(e) {
-  	e.preventDefault();
-  }
+	function preventDefault(e) {
+		e.preventDefault();
+	}
 
 	function initDragDropZone(target, dragZone) {
-		let dropZone = $('.drop-zone[data-target="'+target+'"]')[0];
+		let dropZone = $('.drop-zone[data-target="' + target + '"]')[0];
 		if (isSupportSaveFile)
 			dropZone.append($('#msg-drop-zone').content.cloneNode(true));
 		else
@@ -495,19 +496,19 @@ const fileReaderModule = (function() {
 	async function uploadFile(self) {
 		let f = self.files[0];
 		let file = await fileManager.CreateFile({
-		    fileRef: f,
-		    content: null,
-		    name: f.name,
-		    parentId: activeFolder,
-		    isTemp: true,
+			fileRef: f,
+			content: null,
+			name: f.name,
+			parentId: activeFolder,
+			isTemp: true,
 		});
 		uiTreeExplorer.AppendFile(file);
 
 		fileManager.sync({
-			fid: file.fid, 
-		    action: 'create', 
-		    type: 'files',
-		    isTemp: true,
+			fid: file.fid,
+			action: 'create',
+			type: 'files',
+			isTemp: true,
 		});
 		fileStorage.save();
 		drive.syncToDrive();
@@ -518,16 +519,36 @@ const fileReaderModule = (function() {
 	Object.defineProperty(self, 'isDragging', {
 		get: () => isDragging,
 	});
-	
-	async function OpenDirectory(mode = "read") {
-	  
-    let directoryStructure;
 
-    // Recursive function that walks the directory structure.
-    const getFiles = async (dirHandle, parentFolderFid) => {
-		
-      const dirs = [];
-      const files = [];
+	async function OpenDirectory(mode = "read") {
+
+		try {
+			// Open the directory.
+			const dirHandle = await showDirectoryPicker({
+				mode,
+			});
+
+			await compoSessionManager.UpdateSessionDirHandle(dirHandle);
+
+			// Get the directory structure.
+			let parentFolderId = -1; // root
+			await TaskPopulateFiles(dirHandle, parentFolderId);
+			fileManager.list();
+		} catch (err) {
+			if (err.name !== "AbortError") {
+				logStackTrace(err);
+				// console.error(err.name, err.message);
+			}
+		}
+
+	}
+
+
+	// Recursive function that walks the directory structure.
+	async function TaskPopulateFiles(dirHandle, parentFolderFid) {
+
+		const dirs = [];
+		const files = [];
 
 		// create the root directory
 		if (parentFolderFid == -1 && !dirHandle.name.startsWith('.git')) {
@@ -541,84 +562,66 @@ const fileReaderModule = (function() {
 
 			dirs.push(folder);
 		}
-		
-		
+
+
 		// iterate through subdirectories and files
-      for await (const entry of dirHandle.values()) {
-          if (entry.kind === "file") {
+		for await (const entry of dirHandle.values()) {
+			if (entry.kind === "file") {
 
-			let isStoreWriteable = false;
+				let isStoreWriteable = false;
 
-			let fileRef = await entry.getFile();
-			fileRef.entry = entry;
-			
-			let file = await fileManager.CreateFile({
-				fileRef,
-				content: null,
-				name: entry.name,
-				parentId: parentFolderFid,
-				isTemp: true,
-			}, activeWorkspace, isStoreWriteable);
-			
-			uiTreeExplorer.AppendFile(file);
-          
-        } else if (entry.kind === "directory") {
-          
-          if (entry.name.startsWith('.git')) {
-            continue;
-          }
-		  
-          let folder = await fileManager.CreateFolder({
-  			    parentId: parentFolderFid,
-				parentDirectoryHandle: dirHandle,
-  			    name: entry.name,
-		  });
-    	  uiTreeExplorer.AppendFolder(folder);
-          
-          dirs.push(getFiles(entry, folder.fid));
-        } 
-      }
-      return [
-        ...(await Promise.all(dirs)).flat(),
-        ...(await Promise.all(files)),
-      ];
-    };
+				let fileRef = await entry.getFile();
+				fileRef.entry = entry;
 
-    try {
-      // Open the directory.
-      const handle = await showDirectoryPicker({
-        mode,
-      });
-      // Get the directory structure.
-	  let parentFolderId = -1; // root
-      directoryStructure = await getFiles(handle, parentFolderId);
-      fileManager.list();
-    } catch (err) {
-      if (err.name !== "AbortError") {
-        logStackTrace(err);
-        // console.error(err.name, err.message);
-      }
-    }
-    
-  }
-  
-  function logStackTrace(error) {
-    if (error && error.stack) {
-      const stackLines = error.stack.split('\n').slice(1);
-      const formattedStack = stackLines.map((line) => {
-        const matches = line.match(/((?:http|https):\/\/[^\s]+)/);
-        if (matches && matches.length > 0) {
-          const url = matches[0];
-          const path = url.replace(window.location.origin, '');
-          return `at ${path}`;
-        }
-        return line;
-      });
-  
-      console.log('StackTrace:');
-      console.log(formattedStack.join('\n'));
-    }
-  }
+				let file = await fileManager.CreateFile({
+					fileRef,
+					content: null,
+					name: entry.name,
+					parentId: parentFolderFid,
+					isTemp: true,
+				}, activeWorkspace, isStoreWriteable);
+
+				uiTreeExplorer.AppendFile(file);
+
+			} else if (entry.kind === "directory") {
+
+				if (entry.name.startsWith('.git')) {
+					continue;
+				}
+
+				let folder = await fileManager.CreateFolder({
+					parentId: parentFolderFid,
+					parentDirectoryHandle: dirHandle,
+					name: entry.name,
+				});
+				uiTreeExplorer.AppendFolder(folder);
+
+				dirs.push(TaskPopulateFiles(entry, folder.fid));
+			}
+		}
+		return [
+			...(await Promise.all(dirs)).flat(),
+			...(await Promise.all(files)),
+		];
+	};
+
+	function logStackTrace(error) {
+		if (error && error.stack) {
+			const stackLines = error.stack.split('\n').slice(1);
+			const formattedStack = stackLines.map((line) => {
+				const matches = line.match(/((?:http|https):\/\/[^\s]+)/);
+				if (matches && matches.length > 0) {
+					const url = matches[0];
+					const path = url.replace(window.location.origin, '');
+					return `at ${path}`;
+				}
+				return line;
+			});
+
+			console.log('StackTrace:');
+			console.log(formattedStack.join('\n'));
+		}
+	}
 
 	return self;
 
