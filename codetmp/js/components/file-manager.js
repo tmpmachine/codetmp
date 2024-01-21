@@ -41,8 +41,14 @@ let fileManager = (function() {
   }
 
   async function TaskInitIDBStorage() {
+    await taskInitFileStorage();
+    await taskInitFileSystemSessionStorage();
+  }
+
+  async function taskInitFileStorage() {
     let dbName = 'codetmp';
     let dbVersion = 1;
+    
     window.idbStorage = await idb.openDB(dbName, dbVersion, {
       upgrade(db, oldVersion, newVersion, transaction, event) {
         let fileStore = db.createObjectStore('files', { keyPath: 'fid', autoIncrement: true });
@@ -51,6 +57,17 @@ let fileManager = (function() {
         fileStore.createIndex('parentId', 'parentId', { unique: false });
         folderStore.createIndex('id', 'id', { unique: false });
         folderStore.createIndex('parentId', 'parentId', { unique: false });
+      },
+    });
+  }
+
+  async function taskInitFileSystemSessionStorage() {
+    let dbName = 'file-system-session';
+    let dbVersion = 1;
+    
+    window.idbEditorSessionStorage = await idb.openDB(dbName, dbVersion, {
+      upgrade(db, oldVersion, newVersion, transaction, event) {
+        db.createObjectStore('sessions', { keyPath: 'sessionId' });
       },
     });
   }

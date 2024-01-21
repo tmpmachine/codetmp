@@ -81,6 +81,7 @@ app.loadFiles([
   },
   {
     urls: [
+      "js/components/session-manager-component.js",
       "js/dom-events.js",
       "css/file-tree.css",
       "js/components/file-tree.js",

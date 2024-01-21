@@ -85,21 +85,21 @@
                   </div>
                   <div class="uid-A workspace no-select" onmousedown="event.preventDefault ? event.preventDefault() : event.returnValue = false" style="right:initial;left:0">
                     <div>
-                      <div class="Btn w3-padding clickable active" data-callback="change-workspace" data-index="0" data-target="Main" data-storage="main" style="grid-template-columns: 1fr auto">
+                      <div class="Btn w3-padding clickable active" data-kind="item" data-callback="change-workspace" data-index="0" data-target="Main" style="grid-template-columns: 1fr auto">
                         <div class="w3-small w3-padding-small" title="Default workspace">
                           <b>Main</b>
                           <div style="opacity: 0.8;font-size: 0.7rem">Files stored in browser storage</div>
                         </div>
                         <i class="material-icons">done_outline</i>
                       </div>
-                      <div class="Btn w3-padding clickable" data-callback="change-workspace" data-index="1" data-target="Playground" data-storage="playground" style="grid-template-columns: 1fr auto;align-items: center">
+                      <div class="Btn w3-padding clickable" data-kind="item" data-callback="change-workspace" data-index="1" data-target="Playground" style="grid-template-columns: 1fr auto;align-items: center">
                         <span class="w3-small w3-padding-small" title="Secondary workspace">
                           <b>Playground</b>
                           <div style="opacity: 0.8;font-size: 0.7rem">Files cleared on application close</div>
                         </span>
                         <i class="material-icons">done_outline</i>
                       </div>
-                      <div class="Btn w3-padding clickable" data-callback="change-workspace" data-index="2" data-target="File System" data-storage="fileSystem" style="grid-template-columns: 1fr auto;align-items: center">
+                      <div class="Btn w3-padding clickable" data-kind="item" data-callback="change-workspace" data-index="2" data-target="File System" style="grid-template-columns: 1fr auto;align-items: center">
                         <span class="w3-small w3-padding-small" title="Local system workspace">
                           <b>File System</b>
                           <div style="opacity: 0.8;font-size: 0.7rem">Create, read, or modify local system files</div>
@@ -295,6 +295,7 @@
                     <div class="Submenu">
                       <a href="#" class="w3-padding Items menu-link" data-callback="my-files" data-shortcut="Alt + M"> My Files </a>
                       <a href="#" class="w3-padding Items menu-link" data-callback="open-in-explorer" data-shortcut="Alt + O"> Open File in Explorer </a>
+                      [a 'Create a new session' href="#" .w3-padding data-onclick="create-session"]
                       <a href="#" class="w3-padding Items menu-link w3-hide" data-callback="trash"> Trash </a>
                     </div>
                   </div>
