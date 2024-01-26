@@ -1,5 +1,5 @@
 let asd = L = console.log;
-let cacheVersion = '9';
+let cacheVersion = '10';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
@@ -232,7 +232,8 @@ function responseByFetch(e, resolve) {
 
 self.addEventListener('fetch', function(e) {
 
-  if (e.request.url == location.origin+'/') {
+  let reqUrl = new URL(e.request.url);
+  if (reqUrl.pathName == '/') {
     e.respondWith(
       caches.match(e.request).then(function(resp) {
         if (resp) {
