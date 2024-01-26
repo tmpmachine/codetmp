@@ -59,6 +59,7 @@ let fileManager = (function() {
         folderStore.createIndex('parentId', 'parentId', { unique: false });
       },
     });
+    
   }
 
   async function taskInitFileSystemSessionStorage() {
@@ -70,6 +71,14 @@ let fileManager = (function() {
         db.createObjectStore('sessions', { keyPath: 'sessionId' });
       },
     });
+
+    helper.TaskWaitUntil(() => typeof(fileReaderModule) == 'object')
+      .then(() => {
+
+        compoSessionManager.LoadAll();
+
+    });
+    
   }
 
   async function TaskOnStorageReady() {

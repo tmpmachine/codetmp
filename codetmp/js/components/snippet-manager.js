@@ -14,9 +14,16 @@ let snippets = [
 let customSnippetsCounter = 0;
 let index = 0;
 for (let snippet of snippets) {
+  appendIDESnippet(snippet)
+}
+
+function appendIDESnippet(snippet) {
+  // snippets.push(snippet);
+
   snippet.index = index;
-  if (snippet.snippet)
-  	snippet.snippet = snippet.snippet.replace(/\t/g, '  ');
+  if (snippet.snippet) {
+    snippet.snippet = snippet.snippet.replace(/\t/g, '  ');
+  }
   index++;
 }
 
@@ -296,7 +303,7 @@ function resetSearch(self, bypass) {
     $('#search-result').innerHTML = '';
     ui.toggleInsertSnippet();
     if (data.callback) {
-      data.callback();
+      data.callback(data);
     } else {
       let editor = fileTab[activeTab].editor.env.editor;
       snippetManager.insertSnippet(editor, data.snippet);

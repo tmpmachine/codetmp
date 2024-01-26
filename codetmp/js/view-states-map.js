@@ -1,0 +1,8 @@
+let viewStatesMap = [
+  {
+    group: '',
+    states: [
+      '',
+    ],
+  },
+];
