@@ -10,7 +10,12 @@ app.loadFiles([
     urls: [
       'views/modals.html',
       'views/templates.html',
+      "assets/js/view-state-util.js",
+      "js/view-states-map.js",
     ],
+    callback: function() {
+      viewStateUtil.Init(viewStatesMap);
+    },
   },
   {
     urls: [

@@ -1,8 +1,23 @@
-window.pwa = (function() {
+let pwaCacher = (function() {
   
   let cacheName = 'codetmp-MTE0MDc5NjU';
 
-  let SELF = {};
+  let SELF = {
+    CacheUrls,
+  };
+
+  function CacheUrls(urls) {
+    caches.open(cacheName)
+    .then(function(cache) {
+      return Promise.all(
+        urls.map(function(url) {
+          return cache.add(url).catch(function(error) {
+            console.error('Failed to cache URL:', url, error);
+          });
+        })
+      );
+    })
+  }
   
   function extractUrlsFromJson(json) {
     let urls = [];
