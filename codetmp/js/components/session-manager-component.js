@@ -50,7 +50,7 @@ let compoSessionManager = (function () {
 
           for (let data of dataArray) {
             let snip = {
-              title: `>${data.sessionId}`, 
+              title: `:>${data.sessionId}`, 
               sessionId: data.sessionId,
               snippet: "", 
               callback: openSession,
@@ -102,12 +102,14 @@ let compoSessionManager = (function () {
   }
 
   async function CreateSession(sessionId) {
-    SetSidParameter(sessionId);
+    let url = SetSidParameter(sessionId);
     let sessionData = {
       sessionId,
       activeWorkspace, // from global
     }
     let fid = await window.idbEditorSessionStorage.put('sessions', sessionData);
+
+    pwaCacher.CacheUrls([url]);
   }
 
   async function UpdateSessionDirHandle(dirHandle) {
@@ -184,6 +186,7 @@ let compoSessionManager = (function () {
 
     // Update the URL with the new search parameters
     window.history.replaceState({}, '', `${window.location.pathname}?${urlSearchParams.toString()}${window.location.hash}`);
+    return location.href;
   }
 
   function GetSidParameter() {

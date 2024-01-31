@@ -27,6 +27,7 @@
     "https://esm.sh/v135/node_fs.js"
   ],
   "library": [
+    "assets/js/view-state-util.js",
     "assets/js/source-map@0.7.3/source-map.js",
     "assets/js/terser/bundle.min.js",
     "assets/js/statelist-utility@v1.0.2/statelist.min.js",
@@ -62,6 +63,9 @@
     "js/components/defer-feature-2.js",
     "js/components/single-file-generator.js",
     "js/components/environment-manager.js"
+  ],
+  "app": [
+    "js/view-states-map.js"
   ],
   "uis": [
     "js/uis/tree-explorer-ui.js",
