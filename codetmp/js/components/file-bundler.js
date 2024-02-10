@@ -4,7 +4,7 @@
   function FileBundlerComponent() {
 
     const SELF = {
-      
+      getReqFileContent: GetReqFileContent,
     };
 
     function createBundle(selectedFile, zip, options) {
@@ -40,7 +40,7 @@
       return new Promise(async (resolve) => {
 
           let f = await fileManager.TaskGetFile({fid: Number(file.getAttribute('data')), type: 'files'})
-          SELF.getReqFileContent(f, options).then(fileData => {
+          GetReqFileContent(f, options).then(fileData => {
             
             let blob = fileData.file;
             let firstBytes = blob.slice(0, 12);
@@ -91,7 +91,7 @@
       if (requests.length > 0) {
         let request = requests[0];
         let notifId = compoNotif.Add({title:'Downloading '+request.f.name, content: 'In progress'});
-        SELF.getReqFileContent(request.f, request.options).then(async fileData => {
+        GetReqFileContent(request.f, request.options).then(async fileData => {
           requests.shift();
           compoNotif.GetInstance().update(notifId, {content:'Done'}, true);
           let file = fileData.file;
@@ -153,7 +153,8 @@
       });
     }
 
-    SELF.getReqFileContent = function(f, options) {
+    function GetReqFileContent(f, options) {
+
       return new Promise(async (resolve) => {
 
         let mimeType = helper.getMimeType(f.name);
@@ -167,17 +168,16 @@
             content = await applyExportOptionToContent(content, options, f.parentId);
           }
 
-          if (needMinifyJs(f, options)) {
-            try {
-              if (!content) {
-                content = await helper.FileReaderReadAsText(f.fileRef);
-              }
-              let result = await Terser.minify(content, { sourceMap: false });
-              content = result.code;
-            } catch (e) {
-              console.log(e)
+          try {
+            if (!content) {
+              content = await helper.FileReaderReadAsText(f.fileRef);
             }
+          } catch (e) {
+            console.log(e)
           }
+
+          // preprocess file content
+          content = await taskApplyFilePreprocessing(content, f.name, options);
 
           if (content) {
             let blob = new Blob([content], {type: mimeType});
@@ -208,14 +208,10 @@
           if (needReplaceFileTag(f, options) || needConvertDivless(f, options)) {
             content = await applyExportOptionToContent(content, options, f.parentId);
           }
-          if (needMinifyJs(f, options)) {
-            try {
-              let result = await Terser.minify(content, { sourceMap: false });
-              content = result.code;
-            } catch (e) {
-              console.log(e)
-            }
-          }
+
+          // preprocess file content
+          content = await taskApplyFilePreprocessing(content, f.name, options);
+
           let blob = new Blob([content], {type: mimeType});
           resolve({
             file: blob, 
@@ -310,10 +306,45 @@
       return false;
     }
 
-    function needMinifyJs(f, options) {
-      if (typeof Terser != 'undefied' && helper.isMediaTypeJavascript(f.name) && options.minifyJs)
-        return true;
-      return false;
+    async function taskApplyFilePreprocessing(content, fileName, options) {
+
+      try {
+        
+        // terser preprocessing
+        if (typeof Terser != 'undefied' && helper.isMediaTypeJavascript(fileName) && options.minifyJs) {
+          
+          let result = await Terser.minify(content, { sourceMap: false });
+          content = result.code;
+  
+        } 
+  
+        // lighting CSS preprocessing
+        else if (helper.isMediaTypeCSS(fileName) ) {
+          
+          if (typeof(window.lightingCss) != 'undefined' && (options.minifyCss || options.transformCss) ) {
+  
+            let targets = {}
+            if (options.transformCss) {
+              targets = { chrome: 95, };
+            }
+            
+            let { code, map } = lightingCss.transform({
+              targets,
+              code: new TextEncoder().encode(content),
+              minify: options.minifyCss,
+            });
+            
+            content = new TextDecoder().decode(code);
+          }
+  
+        }
+  
+      } catch (error) {
+        console.error(error);
+      }
+  
+      return content;
+  
     }
 
     async function replaceFileTag(content, parentId) {
@@ -376,6 +407,7 @@
     }
 
     SELF.fileDownload = function(self) {
+      
       if (selectedFile.length === 0)
         return;
 

@@ -141,7 +141,7 @@ const fire = (() => {
       })
     }
 
-    function getHashTree(tree, files) {
+    function getHashTree(tree, files, fileExportOptions) {
 
       return new Promise(resolve => {
 
@@ -151,15 +151,10 @@ const fire = (() => {
 
           let data = files.pop();
           let file = data.file;
-          let options = {
-            replaceFileTag: true,
-            replaceDivless: settings.data.editor.divlessHTMLEnabled,
-            minifyJs: settings.data.editor.minifyJsFirebase,
-          };
 
           log(`Hashing file... ${file.name}`);
 
-          app.fileBundler.getReqFileContent(file, options).then(fileData => {
+          app.fileBundler.getReqFileContent(file, fileExportOptions).then(fileData => {
 
             let r = new FileReader();
 
@@ -175,7 +170,7 @@ const fire = (() => {
                   gzipFile,
                   path: data.path+file.name,
                 });
-                getHashTree(tree, files).then(resolve);
+                getHashTree(tree, files, fileExportOptions).then(resolve);
               });
 
             }
@@ -199,7 +194,7 @@ const fire = (() => {
       }) 
     }
 
-  async function step2(files) {
+  async function step2(files, fileExportOptions) {
     
     return new Promise(async resolve => {
 
@@ -207,7 +202,7 @@ const fire = (() => {
       let hashTree = {};
       log('Compressing files... ')
 
-      await getHashTree(gzipFiles, files)
+      await getHashTree(gzipFiles, files, fileExportOptions)
 
       log('(Done)', true);
       for (let i=0; i<gzipFiles.length; i++)
@@ -306,30 +301,46 @@ const fire = (() => {
 
   async function deploy(e) {
 
-    let form = e.target;
-    let files = await populateFiles();
-    _cacheControl = parseInt(form.cacheControl.value);
-    
-    if (files.length > 50) {
-      if (!window.confirm('Upload cap limit exceeded. You are about to upload more than 50 files. This will take a long time. Continue?')) {
-        aww.pop('Deploy cancelled');
-        return;
+    try {
+     
+      let form = e.target;
+      let files = await populateFiles();
+      _cacheControl = parseInt(form.cacheControl.value);
+      
+      console.log(form)
+      
+      let fileExportOptions = {
+        replaceFileTag: true,
+        replaceDivless: settings.data.editor.divlessHTMLEnabled,
+        minifyJs: form.minifyJs.checked,
+        minifyCss: form.minifyCss.checked,
+        transformCss: form.transformCss.checked,
+      };
+
+      if (files.length > 50) {
+        if (!window.confirm('Upload cap limit exceeded. You are about to upload more than 50 files. This will take a long time. Continue?')) {
+          aww.pop('Deploy cancelled');
+          return;
+        }
       }
+
+      $('#deploy-logs').textContent = '';
+      modal.confirm('This will deploy current opened directory to selected Firebase project site. Continue?').then(async () => {
+
+        await step1()
+
+        let gzFiles = await step2(files, fileExportOptions);
+        log('\n\n***\n\nUploading files... It is now safe to make changes to files.\n');
+
+        uploadFile(gzFiles, gzFiles.length)
+          .then(step4)
+          .then(step5)
+
+      });
+
+    } catch (error) {
+      console.error(error);
     }
-
-    $('#deploy-logs').textContent = '';
-    modal.confirm('This will deploy current opened directory to selected Firebase project site. Continue?').then(async () => {
-
-      await step1()
-
-      let gzFiles = await step2(files);
-      log('\n\n***\n\nUploading files... It is now safe to make changes to files.\n');
-
-      uploadFile(gzFiles, gzFiles.length)
-        .then(step4)
-        .then(step5)
-
-    });
 
   }
 

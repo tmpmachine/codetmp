@@ -60,14 +60,6 @@
       </section>
       <hr/>
       <section>
-        <h6 style="font-weight:bold;">Firebase Hosting</h6>
-        [small 'JavaScript (Terser) : ']
-        [p
-          <label><input data-name="minifyJsFirebase" class="autofocus w3-check input-settings" type="checkbox"/> Minify</label>
-        ]
-      </section>
-      <hr/>
-      <section>
         <h6 style="font-weight:bold;">Editor</h6>
         <p>
           <label><input data-name="emmetEnabled" class="w3-check input-settings" type="checkbox"/> Emmet Support</label>
@@ -163,7 +155,35 @@
           <div class="w3-tiny">
             <span class="if-post">Cache-Control</span>
           </div>
-          <input type="number" value="1800" name="cacheControl"/> seconds
+          <input type="number" value="0" name="cacheControl"/> seconds
+
+          <!-- deploy options -->
+          <div>
+
+            [h4 'Deploy options' {fw:bold}]
+            
+            <!-- firebase js options -->
+            [small 'JavaScript (Terser) : ']
+            [p
+              [l
+                [in name="minifyJs" .autofocus .w3-check .input-settings type="checkbox"] 
+                Minify
+              ]
+            ]
+            [small 'CSS (Lighting CSS, transform target : Chrome 95) : ']
+            <mark class="w3-round w3-tiny" style="padding:0 2px 2px ;">Beta</mark>
+            [p
+              [l
+                <input name="minifyCss" class="autofocus w3-check input-settings" type="checkbox"/> 
+                Minify
+              ]
+              [l
+                <input name="transformCss" class="autofocus w3-check input-settings" type="checkbox"/> 
+                Transform
+              ]
+            ]
+
+          </div>
 
           <div style="height:1em"></div>
           <button class="btn-style-1">Deploy</button>
