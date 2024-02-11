@@ -493,7 +493,9 @@ const drive = (function() {
     } else {
       form.append('metadata', new Blob([JSON.stringify(metaHeader)], { type: 'application/json' }));
       if ((action === 'create' || metadata.includes('media')) && type === 'files') {
-        if (isTemp && helper.hasFileReference(fileRef) && content === null) {
+        if (content === null && helper.hasFileReference(fileRef)) {
+          // upload File objecty if a custom content has not been created
+
           fileBlob = fileRef
           form.append('file', fileBlob);
         } else {
