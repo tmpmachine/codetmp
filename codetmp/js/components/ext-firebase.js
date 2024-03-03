@@ -307,8 +307,6 @@ const fire = (() => {
       let files = await populateFiles();
       _cacheControl = parseInt(form.cacheControl.value);
       
-      console.log(form)
-      
       let fileExportOptions = {
         replaceFileTag: true,
         replaceDivless: settings.data.editor.divlessHTMLEnabled,

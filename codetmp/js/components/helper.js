@@ -189,7 +189,7 @@ let helper = (function () {
   }
 
   function hasFileReference(fileRef) {
-    return !(typeof(fileRef.name) == 'undefined');
+    return (typeof fileRef.name == 'string' && typeof fileRef.size == 'number' && typeof fileRef.type == 'string');
   }
 
   return SELF;

@@ -160,7 +160,26 @@
         let mimeType = helper.getMimeType(f.name);
         let isMultimedia = helper.isMediaTypeMultimedia(mimeType);
         
-        if (f.isTemp && helper.hasFileReference(f.fileRef) && f.content === null) {
+        // check for multimedia file must done first
+        if (isMultimedia && (helper.hasFileReference(f.fileRef) || typeof(f.blob) != 'undefined')) {
+          
+          // this seems obsoletes, need more check
+          if (typeof(f.blob) != 'undefined') {
+            
+            resolve({
+              file: f.blob, 
+              isMarkedBinary: true,
+            });
+            return
+
+          }
+          
+          resolve({
+            file: f.fileRef, 
+            isMarkedBinary: true,
+          });
+
+        } else if (f.isTemp && helper.hasFileReference(f.fileRef) && f.content === null) {
 
           let content = null;
           if (needReplaceFileTag(f, options) || needConvertDivless(f, options)) {
@@ -195,12 +214,6 @@
           
           return;
 
-        } else if (isMultimedia && typeof(f.blob) != 'undefined') {
-          resolve({
-            file: f.blob, 
-            isMarkedBinary: true,
-          });
-          return
         }
           
         if (f.loaded) {

@@ -26,6 +26,7 @@ let fileManager = (function() {
     
     TaskGetPreviewLink,
     save,
+    TaskSaveAll,
   };
 
   let STORAGE_TYPE = 'localStorage'; 
@@ -585,6 +586,7 @@ let fileManager = (function() {
   }
   
   function saveAsNewFile() {
+
   	let fileName = $('.file-name')[activeTab].textContent;
     modal.prompt('File name', fileName, '', helper.getFileNameLength(fileName)).then(async (name) => {
       if (!name) return;
@@ -629,10 +631,10 @@ let fileManager = (function() {
     });
   }
 
-  async function saveExistingFile() {
-    let fid = activeFile.fid;
+  async function saveExistingFile(tab, tabIndex) {
+    let fid = tab.fid;
     let file = await TaskGetFile({fid, type: 'files'});
-    file.content = fileTab[activeTab].editor.env.editor.getValue();
+    file.content = tab.editor.env.editor.getValue();
     file.modifiedTime = (new Date()).toISOString();
     fileManager.sync({
       fid,
@@ -647,8 +649,46 @@ let fileManager = (function() {
     fileStorage.save();
     drive.syncToDrive();
 
-    fileTab[activeTab].fiber = 'close';
-    $('.icon-rename')[activeTab].textContent = 'close';
+    tab.fiber = 'close';
+    $('.icon-rename')[tabIndex].textContent = 'close';
+  }
+
+  async function TaskSaveAll() {
+
+    for (let item of fileTab) {
+
+      if (activeFile === null) continue;
+
+      if (item.fileHandle === null) {
+
+        let tabIndex = tabManager.GetIndexByFid(item.fid);
+        saveExistingFile(item, tabIndex);
+
+      } else {
+
+        let sourceTab = item; 
+        let tabFid = sourceTab.fid;
+  
+        let fileHandle = sourceTab.fileHandle;
+        let editorContent = sourceTab.editor.env.editor.getValue();
+        let tabFileName = sourceTab.name;
+        let tabFile = sourceTab.file;
+        
+        await taskWriteToDisk(fileHandle, editorContent, tabFileName, tabFile);
+  
+        // user may have close or change active tab, check the tab again
+        {
+          let tabIndex = tabManager.GetIndexByFid(tabFid);
+          if (tabIndex >= 0) {
+            fileTab[tabIndex].fiber = 'close';
+            $('.icon-rename')[tabIndex].textContent = 'close';
+          }
+        }
+
+      }
+
+    }
+
   }
 
   async function save() {
@@ -679,7 +719,7 @@ let fileManager = (function() {
       if (activeFile === null) {
       	saveAsNewFile();
       } else {
-        saveExistingFile();
+        saveExistingFile(fileTab[activeTab]);
       }
 
     }
