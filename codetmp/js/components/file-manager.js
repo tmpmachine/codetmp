@@ -719,7 +719,7 @@ let fileManager = (function() {
       if (activeFile === null) {
       	saveAsNewFile();
       } else {
-        saveExistingFile(fileTab[activeTab]);
+        saveExistingFile(fileTab[activeTab], activeTab);
       }
 
     }
