@@ -5,6 +5,12 @@ let environment = {
   previewUrlPWA: 'https://pwa.codetmp7.dev/',
 };
 
+// URL for cpreview. development-only.
+/* environment = {
+  previewUrl: 'https://glorious-space-robot-v6jp7v6g5wxcxw5-5000.app.github.dev/',
+  previewUrlPWA: 'https://glorious-space-robot-v6jp7v6g5wxcxw5-5000.app.github.dev/',
+}; */
+
 app.loadFiles([
   {
     urls: [
