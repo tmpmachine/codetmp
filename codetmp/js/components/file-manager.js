@@ -149,8 +149,10 @@ let fileManager = (function() {
             if (isStoreWriteable) {
               
               const writable = await fileHandle.createWritable();
-              if (helper.hasFileReference(file.fileRef)) {
-                await writable.write(file.fileRef); // write stream from copied file
+
+              let fileRef = await file.fileRef?.entry?.getFile();
+              if (fileRef) {
+                await writable.write(fileRef); // write stream from copied file
               } else {
                 await writable.write(file.content); // write stream from editor
               }
