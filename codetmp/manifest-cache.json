@@ -52,7 +52,7 @@
     "js/components/notifier.js",
     "js/components/snippet-manager.js",
     "js/components/preview-handler.js",
-    "js/components/clipboard.js",
+    "js/components/clipboard-component.js",
     "js/components/file-manager.js",
     "js/components/editor-component.js",
     "js/components/file-tree.js",

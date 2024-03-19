@@ -322,7 +322,6 @@ let ui = (function() {
       compoStateManager.pushState([1]);
       setTimeout(() => { document.activeElement.blur() }, 1);
     } else {
-      // fileClipBoard.clipBoard.length = 0;
       compoStateManager.popState([1]);
       setTimeout(() => { 
         ui.resizeEditor();
@@ -623,9 +622,9 @@ let ui = (function() {
 
   function attachListeners() {
     window.addEventListener('online', () => app.AutoSync());
-    window.addEventListener('cut', (evt) => fileClipBoard.handler(evt));
-    window.addEventListener('copy', (evt) => fileClipBoard.handler(evt));
-    window.addEventListener('paste', (evt) => fileClipBoard.handler(evt));
+    window.addEventListener('cut', (evt) => compoClipboard.handler(evt));
+    window.addEventListener('copy', (evt) => compoClipboard.handler(evt));
+    window.addEventListener('paste', (evt) => compoClipboard.handler(evt));
     window.onbeforeunload = function(evt) {
       return helper.redirectWarning(evt);
     };

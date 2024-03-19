@@ -1,4 +1,4 @@
-const fileClipBoard = (function() {
+const compoClipboard = (function() {
   
   let clipBoard = [];
   let pasteParentFolderId = -1;
