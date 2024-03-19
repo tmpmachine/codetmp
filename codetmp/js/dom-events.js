@@ -16,9 +16,9 @@ let DOMEvents = {
 		'file-delete': uiFileExplorer.deleteSelected,
 		'file-unload': (evt) => uiFileExplorer.UnloadSelected(evt.target),
 		'file-download': ui.toggleFileDownload,
-		'copy': fileClipBoard.copy,
-		'move': fileClipBoard.cut,
-		'paste': fileClipBoard.paste,
+		'copy': () => compoClipboard.copy(),
+		'move': () => compoClipboard.cut(),
+		'paste': () => compoClipboard.paste(),
 
 		'sync-from-drive': () => drive.syncFromDrive(),
 

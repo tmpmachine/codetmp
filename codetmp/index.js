@@ -5,6 +5,12 @@ let environment = {
   previewUrlPWA: 'https://pwa.codetmp7.dev/',
 };
 
+// URL for cpreview. development-only.
+/* environment = {
+  previewUrl: 'https://glorious-space-robot-v6jp7v6g5wxcxw5-5000.app.github.dev/',
+  previewUrlPWA: 'https://glorious-space-robot-v6jp7v6g5wxcxw5-5000.app.github.dev/',
+}; */
+
 app.loadFiles([
   {
     urls: [
@@ -24,20 +30,20 @@ app.loadFiles([
       "assets/js/fflate.js",
       "assets/js/sha256.js",
       "assets/js/templateslot@1.0.2.min.js",
-      ],
-      isConnectionRequired: true,
+    ],
+    isConnectionRequired: true,
   },
   {
     urls: [
       "js/components/modal-window-component.js",
       "js/components/state-manager-component.js",
-      'js/components/support.js',
-      'js/components/helper.js',
-      'js/components/extension.js',
-      'js/components/preferences.js',
-      'js/components/modal.js',
-      'js/components/clipboard.js',
-      'js/require/lsdb.js',
+      "js/components/support.js",
+      "js/components/helper.js",
+      "js/components/extension.js",
+      "js/components/preferences.js",
+      "js/components/modal.js",
+      "js/components/clipboard-component.js",
+      "js/require/lsdb.js",
     ],
     callback: function() {
       navigator.serviceWorker.addEventListener('message', e => {
