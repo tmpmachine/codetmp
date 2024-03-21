@@ -6,7 +6,7 @@ let environment = {
 };
 
 // URL for cpreview. development-only.
-/* environment = {
+/* let environment = {
   previewUrl: 'https://glorious-space-robot-v6jp7v6g5wxcxw5-5000.app.github.dev/',
   previewUrlPWA: 'https://glorious-space-robot-v6jp7v6g5wxcxw5-5000.app.github.dev/',
 }; */
