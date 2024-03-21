@@ -31,7 +31,7 @@ const fire = (() => {
   }
 
   function listProject() {
-    fetch('https://firebase.googleapis.com/v1beta1/projects?fields=results(projectId)',{
+    fetch('https://content-firebase.googleapis.com/v1beta1/projects?fields=results(projectId)',{
       headers,
     }).then(r=>r.json()).then(json => {
       $('#project-list').innerHTML = '';
