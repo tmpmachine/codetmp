@@ -505,7 +505,7 @@ let fileManager = (function() {
   SELF.downloadDependencies = function(file, source) {
     return new Promise((resolve, reject) => {
       if (source.origin == 'git')
-        git.downloadFile(source.downloadUrl).then(resolve);
+        gitRest.downloadFile(source.downloadUrl).then(resolve);
       else
         drive.downloadDependencies(file).then(resolve).catch(reject);
     });

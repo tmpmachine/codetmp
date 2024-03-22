@@ -1,7 +1,7 @@
 import { GetEnv } from './environment.js';
 
 let environment = GetEnv();
-let ACE_CDN_BASEPATH = '/assets/js/ace-builds/src-min-noconflict';
+let ACE_CDN_BASEPATH = '/assets/js/node_modules/ace-builds/src-min-noconflict';
 let activeWorkspace = 0;
 
 // use window while migrating script to module
@@ -77,6 +77,8 @@ app.loadFiles([
       "js/components/notifier.js",
       `${ACE_CDN_BASEPATH}/ace.js`,
       "js/components/tab-manager.js",
+      "assets/js/node_modules/@isomorphic-git/lightning-fs/lightning-fs.min.js",
+      "assets/js/node_modules/isomorphic-git/index.umd.min.js",
     ],
     callback: function() {
       previewHandler.Init(),

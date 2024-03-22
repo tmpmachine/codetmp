@@ -502,7 +502,7 @@ const drive = (function() {
         // if (fileRef.name === undefined) {
       		if (helper.isHasSource(content)) {
 	        	let source = helper.getRemoteDataContent(content);
-	        	let fileData = await git.downloadFileData(source.downloadUrl);
+	        	let fileData = await gitRest.downloadFileData(source.downloadUrl);
           		form.append('file', fileData);
               fileBlob = fileData; 
 	      	} else {

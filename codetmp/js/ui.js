@@ -340,7 +340,7 @@ let ui = (function() {
     ToggleModal('settings');
     modal.prompt('Personal access token').then(token => {
       if (token !== null) {
-        git.setToken(token);
+        gitRest.setToken(token);
         aww.pop('Personal access token has been set.');
       }
     });
@@ -508,12 +508,12 @@ let ui = (function() {
   
   function cloneRepo() {
     let message = $('#msg-git-rate-limit').content.cloneNode(true).firstElementChild;
-    $('.Rate', message)[0].textContent = git.rateLimit;
+    $('.Rate', message)[0].textContent = gitRest.rateLimit;
     modal.prompt('Repository web URL', 'https://github.com/username/repository', message.innerHTML).then(url => {
       if (!url) 
         return;
       ui.alert({text:'Cloning repository...'});
-      git.clone(url);
+      gitRest.clone(url);
     });
   }
 

@@ -1,21 +1,21 @@
 {
   "ace": [
-    "/assets/js/ace-builds/src-min-noconflict/ace.js",
-    "/assets/js/ace-builds/src-min-noconflict/theme-github.js",
-    "/assets/js/ace-builds/src-min-noconflict/mode-html.js",
-    "/assets/js/ace-builds/src-min-noconflict/mode-json.js",
-    "/assets/js/ace-builds/src-min-noconflict/mode-css.js",
-    "/assets/js/ace-builds/src-min-noconflict/mode-javascript.js",
-    "/assets/js/ace-builds/src-min-noconflict/worker-html.js",
-    "/assets/js/ace-builds/src-min-noconflict/worker-json.js",
-    "/assets/js/ace-builds/src-min-noconflict/worker-css.js",
-    "/assets/js/ace-builds/src-min-noconflict/worker-javascript.js",
-    "/assets/js/ace-builds/src-min-noconflict/ext-searchbox.js",
-    "/assets/js/ace-builds/src-min-noconflict/ext-prompt.js",
-    "/assets/js/ace-builds/src-min-noconflict/ext-language_tools.js",
-    "/assets/js/ace-builds/src-min-noconflict/snippets/javascript.js",
-    "/assets/js/ace-builds/src-min-noconflict/snippets/html.js",
-    "/assets/js/ace-builds/src-min-noconflict/snippets/markdown.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/ace.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/theme-github.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/mode-html.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/mode-json.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/mode-css.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/mode-javascript.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/worker-html.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/worker-json.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/worker-css.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/worker-javascript.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/ext-searchbox.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/ext-prompt.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/ext-language_tools.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/snippets/javascript.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/snippets/html.js",
+    "/assets/js/node_modules/ace-builds/src-min-noconflict/snippets/markdown.js",
     
     "/assets/ace/theme-codetmp-markdown.js",
     "/assets/ace/theme-codetmp.js"
@@ -26,7 +26,9 @@
     "https://esm.sh/v135/lightningcss-wasm@1.22.1/es2022/lightningcss-wasm.mjs",
     "https://esm.sh/v135/node_fs.js"
   ],
-  "library": [
+  "libraries": [
+    "assets/js/node_modules/@isomorphic-git/lightning-fs/lightning-fs.min.js",
+    "assets/js/node_modules/isomorphic-git/index.umd.min.js",
     "assets/js/view-state-util.js",
     "assets/js/source-map@0.7.3/source-map.js",
     "assets/js/terser/bundle.min.js",

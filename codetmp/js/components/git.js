@@ -1,4 +1,4 @@
-const git = (function() {
+const gitRest = (function() {
 
   let activeSha;
   let branch = '';
