@@ -56,12 +56,10 @@ Both classes and inline styles will be concatenated into single attribute (class
 Read more at https://github.com/tmpmachine/divless-html.
 
 ## Development
-This project is developed using plain JavaScript, so you might have a hard time to navigate around the codebase. I don't plan to change this into TS or anything, sorry! I want to see how far can this project go with plain JavaScript.
-
 There are two main directories : `/codetmp` for the IDE, and `/cpreview` for file preview (works like file hosting).
 
 ### Building and Running The Project
-I host the project on firebase hosting, but you can run the project just fine without installing [firebase-tools](https://www.npmjs.com/package/firebase-tools). I've prepared a server setup using [express](https://www.npmjs.com/package/express).
+I host the project in firebase hosting, but you can run the project just fine without installing [firebase-tools](https://www.npmjs.com/package/firebase-tools). I've prepared a server setup using [express](https://www.npmjs.com/package/express).
 
 Run below commands for initial setup and running the servers :
 ```
@@ -77,7 +75,7 @@ codetmp: http://localhost:8000/
 cpreview: http://localhost:8001/
 cpreview: http://localhost:8002/
 ```
-
+The second cpreview server is used to preview files with a different domain. This helps with Progressive Web App (PWA) development where you may want to install the PWA in one host - meaning caching the files for offline access - while at the same time keep it available for development.
 
 ### Publishing The Project
 
