@@ -1,5 +1,4 @@
-let asd = L = console.log;
-let cacheVersion = '10';
+let cacheVersion = '11';
 let cacheItem = 'cpreview-'+cacheVersion;
 let messagePort;
 let resolverQueue = {};
@@ -8,17 +7,6 @@ let catchedBlob = {};
 let isRelinkingMessagePort = false;
 
 let channelName = 'preview';
-try {
-  channelName = location.hostname.split('.')[0]; // get sub domain name
-  // dev port settings
-  if (location.hostname.includes(':')) {
-    if (channelName.includes('5002')) {
-      channelName = 'preview';
-    } else {
-      channelName = 'pwa';
-    }
-  }
-} catch (e) { }
 
 function portMessageHandler(e) {
   switch (e.data.message) {
@@ -80,11 +68,13 @@ self.addEventListener('message', async function(e) {
       self.skipWaiting();
     break;
     case 'reinit-message-port':
+      channelName = e.data.channelName;
       messagePort = e.ports[0];
       messagePort.onmessage = portMessageHandler;
       isRelinkingMessagePort = false;
     break;
     case 'init-message-port':
+      channelName = e.data.channelName;
       messagePort = e.ports[0];
       messagePort.onmessage = portMessageHandler;
       messagePort.postMessage({ message: 'message-port-opened' });
@@ -165,7 +155,7 @@ function relinkMissingPort() {
     return relinkingPromise;
   }
 
-  relinkingPromise =new Promise((resolve, reject) => {
+  relinkingPromise = new Promise((resolve, reject) => {
 
     self.clients.matchAll({
       includeUncontrolled: true,
@@ -233,7 +223,7 @@ function responseByFetch(e, resolve) {
 self.addEventListener('fetch', function(e) {
 
   let reqUrl = new URL(e.request.url);
-  if (reqUrl.pathName == '/') {
+  if (reqUrl.pathname == '/') {
     e.respondWith(
       caches.match(e.request).then(function(resp) {
         if (resp) {

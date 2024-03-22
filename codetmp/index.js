@@ -1,15 +1,13 @@
-const ACE_CDN_BASEPATH = '/assets/js/ace-builds@1.32.3/src-min-noconflict';
-let activeWorkspace = 0;
-let environment = {
-  previewUrl: 'https://preview.codetmp7.dev/',
-  previewUrlPWA: 'https://pwa.codetmp7.dev/',
-};
+import { GetEnv } from './environment.js';
 
-// URL for cpreview. development-only.
-/* let environment = {
-  previewUrl: 'https://glorious-space-robot-v6jp7v6g5wxcxw5-5000.app.github.dev/',
-  previewUrlPWA: 'https://glorious-space-robot-v6jp7v6g5wxcxw5-5000.app.github.dev/',
-}; */
+let environment = GetEnv();
+let ACE_CDN_BASEPATH = '/assets/js/ace-builds/src-min-noconflict';
+let activeWorkspace = 0;
+
+// use window while migrating script to module
+window.environment = environment;
+window.activeWorkspace = activeWorkspace;
+window.ACE_CDN_BASEPATH = ACE_CDN_BASEPATH;
 
 app.loadFiles([
   {

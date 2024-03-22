@@ -56,55 +56,68 @@ Both classes and inline styles will be concatenated into single attribute (class
 Read more at https://github.com/tmpmachine/divless-html.
 
 ## Development
+This project is developed using plain JavaScript, so you might have a hard time to navigate around the codebase. I don't plan to change this into TS or anything, sorry! I want to see how far can this project go with plain JavaScript.
+
 There are two main directories : `/codetmp` for the IDE, and `/cpreview` for file preview (works like file hosting).
 
-For editor-only development (`/codetmp`), simply grab a clone of this repo and open `codetmp/index.html` without local server. 
+### Building and Running The Project
+I host the project on firebase hosting, but you can run the project just fine without installing [firebase-tools](https://www.npmjs.com/package/firebase-tools). I've prepared a server setup using [express](https://www.npmjs.com/package/express).
 
-You will need local server to test file preview and accessing 3rd party APIs (Google Drive sync, deploy Firebase Hosting, Git clone). 
-
-Developing `/cpreview` requires both projects to run on the same host or domain. The communication is done through iframes by claiming service worker registration client.
-
-### Running and Building The Project
-1. Initial setup.
+Run below commands for initial setup and running the servers :
 ```
-# install dependencies
-npm install
-
-# clone ace editor build files to codetmp/assets/js/ace-builds@version
-# You may need to adjust the versioning in codetmp/index.js (see ACE_CDN_BASEPATH), also in codetmp/manifest-cache.json for offline mode caching.
-npm run setup-dev
-```
-2. Serving the projects. I use `firebase-tools`, but you can use any local web server just fine. Open `firebase.dev.json` for firebase hosting configuration.
-```
+npm i
+npm run setup
 npm run dev
 ```
-3. Deploying the projects to firebase (see configuration at `firebase.prod.json`) :
+
+You should get the following:
 ```
-npm run deploy
+Servers running at:
+codetmp: http://localhost:8000/
+cpreview: http://localhost:8001/
+cpreview: http://localhost:8002/
 ```
 
-#### Minimized Build
-To build minimized files for `/codetmp` project, run :
+
+### Publishing The Project
+
+Both **codetmp** and **cpreview** utilize service worker to enable offline access. You'll need to update the cache counter on both service workers to trigger application update on end user, otherwise they'll need to manually clear the app cache.
+
+1. codetmp/sw.js : increase **unique numer** counter by +1 on each update on codetmp.
+2. cpreview/sw.js : increase `cacheVersion` by +1 on each update on cpreview.
+
+> Notes : Codetmp7 editor has an option to clear and update application cache in **Settings** menu.
+
+#### Building Minimized Project
+
+If you need a minimized version of **codetmp**, run the following :
 ```
 npm run build
 ```
 Minimized files are stored in `codetmp/deploy`.
 
+**cpreview** project doesn't have minimized build, so you can publish it as is.
+
 ### Features Development
+Below is the file tree that you'll most likely be working on when developing a new feature.
+```
+/codetmp
+  /js
+    /components           -> components
+    /uis                  -> components UI
+    /require              -> libraries
+    dom-events.js         -> global events mapping
+    ui.js                 -> global UI
+    view-states-map.js    -> view states mapping
+  environment.js
+  index.js                -> main app entry
+  manifest-cache.json     -> chache index
+```
 
-#### Google Drive Synchronization
-See `codetmp/js/drive.js`.
+### How Previewing Files Works
+Codetmp7 editor use communication API and workers client claiming to allow serving **codetmp** storage files requested by **cpreview** project.
 
-#### File Preview
-See `codetmp/js/preview.js`. Codetmp7 editor use communication API and workers client claiming to allow serving `codetmp` storage files requested by `cpreview` project.
-
-Due to recent policy updates on browser storage partitioning, this communication only possible if both `codetmp` and `cpreview` project hosted in the same domain.
-
-#### File and Folder Management
-See `codetmp/js/file-manager.js`.
-
-#### ACE Editor
-See `compoEditor.Init()`. Ace editor by Ajax.org Cloud9 Editor.
+Due to recent policy updates on browser storage partitioning, this communication is only possible if both **codetmp** and **cpreview** project hosted in the same domain.
 
 
 ## Aknowledgements

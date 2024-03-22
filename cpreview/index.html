@@ -13,32 +13,17 @@
     Nothing to show here. Please go to <a href="https://codetmp.web.app">Codetmp</a> and write your code.
   </span>
   
-  <script> L = console.log </script>
-  <script> window.$ = document.querySelector.bind(document); </script>
-  
   <!-- service worker handler -->
   <script>
   
-    let channelName = 'preview'; // default channel name
-    try {
-      channelName = location.hostname.split('.')[0]; // get sub domain name
-      
-      // dev port settings
-      if (location.hostname.includes(':')) {
-        if (channelName.includes('5002')) {
-          channelName = 'preview';
-        } else {
-          channelName = 'pwa';
-        }
-      }
-    } catch (e) { }
+    let channelName = (window.name == 'PreviewFramePWA' ? 'pwa' : 'preview');
     let controllerResolver = null;
 
     if (window.opener !== null) {
       new Promise(function(resolve) {
         controllerResolver = resolve;
       }).then(function() {
-        $('#js-txt-message').textContent = 'Initializing connection port ...';
+        document.querySelector('#js-txt-message')?.replaceChildren('Initializing connection port ...');
         window.opener.postMessage({ 
           channelName,
           message: 'preview-frame-isReady',
@@ -62,7 +47,7 @@
 
         if (sw.waiting) {
           sw.waiting.postMessage({message: 'skipWaiting'});
-          L('Preview page updated. You might want to reload the page.');
+          console.log('Preview page updated. You might want to reload the page.');
           return;
         }
     
@@ -70,7 +55,7 @@
           sw.installing.addEventListener('statechange', function() {
             if (sw.installing.state == 'installed') {
               sw.waiting.postMessage({message: 'skipWaiting'});
-              L('Preview page updated. You might want to reload the page.');
+              console.log('Preview page updated. You might want to reload the page.');
             }
           })
           return;
@@ -80,7 +65,7 @@
           sw.installing.addEventListener('statechange', function() {
             if (this.state == 'installed') {
               sw.waiting.postMessage({message: 'skipWaiting'});
-              L('Preview page updated. You might want to reload the page.');
+              console.log('Preview page updated. You might want to reload the page.');
             }
           })
         })
@@ -102,11 +87,13 @@
       	switch (e.data.message) {
           case 'init-message-port':
 	          navigator.serviceWorker.controller.postMessage({ 
+              channelName,
               message: 'init-message-port',
             }, [e.ports[0]]);
             break;
             case 'reinit-message-port':
             navigator.serviceWorker.controller.postMessage({ 
+              channelName,
               message: 'reinit-message-port',
             }, [e.ports[0]]);
           break;
