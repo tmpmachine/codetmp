@@ -179,7 +179,6 @@ const fileReaderModule = (function () {
 							action: 'update',
 							metadata: ['media'],
 							type: 'files',
-							isTemp: true,
 						});
 					}
 					delayResolve(resolve, item);
@@ -195,14 +194,12 @@ const fileReaderModule = (function () {
 					content: null,
 					name: item.name,
 					parentId: item.parentId,
-					isTemp: true,
 				});
 				uiTreeExplorer.AppendFile(file);
 				fileManager.sync({
 					fid: file.fid,
 					action: 'create',
 					type: 'files',
-					isTemp: true,
 				});
 				resolve(item);
 			}
@@ -500,7 +497,6 @@ const fileReaderModule = (function () {
 			content: null,
 			name: f.name,
 			parentId: activeFolder,
-			isTemp: true,
 		});
 		uiTreeExplorer.AppendFile(file);
 
@@ -508,7 +504,6 @@ const fileReaderModule = (function () {
 			fid: file.fid,
 			action: 'create',
 			type: 'files',
-			isTemp: true,
 		});
 		fileStorage.save();
 		drive.syncToDrive();
@@ -578,7 +573,6 @@ const fileReaderModule = (function () {
 					content: null,
 					name: entry.name,
 					parentId: parentFolderFid,
-					isTemp: true,
 				}, activeWorkspace, isStoreWriteable);
 
 				uiTreeExplorer.AppendFile(file);

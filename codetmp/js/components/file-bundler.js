@@ -179,7 +179,7 @@
             isMarkedBinary: true,
           });
 
-        } else if (f.isTemp && helper.hasFileReference(f.fileRef) && f.content === null) {
+        } else if (helper.hasFileReference(f.fileRef) && f.content === null) {
 
           let content = null;
           if (needReplaceFileTag(f, options) || needConvertDivless(f, options)) {
@@ -389,7 +389,7 @@
         for (let f of files) {
           if (f.trashed)
             continue;
-          if (f.isTemp && helper.hasFileReference(f.fileRef) && f.content === null) {    
+          if (helper.hasFileReference(f.fileRef) && f.content === null) {    
           // if (f.fileRef.name !== undefined) {
             folder.file(f.name, f.fileRef, {binary: true});
           } else {

@@ -459,7 +459,7 @@ let fileManager = (function() {
     let docFrag = document.createDocumentFragment();
     let counter = 1;
 
-    for (let {fid, id, isTemp, name, trashed, fileRef} of files) {
+    for (let {fid, id, name, trashed, fileRef} of files) {
       if (trashed) continue;
       
       let el = $('#tmp-file-list').content.cloneNode(true);
@@ -470,7 +470,7 @@ let fileManager = (function() {
       $('.Clicker', el)[0].dataset.fid = fid;
       $('.Clicker', el)[0].dataset.number = counter;
 
-      if (isTemp) {
+      if (helper.hasFileReference(fileRef)) {
         if (fileRef.name === undefined && id.length === 0) {
           $('.Label', el)[0].textContent = 'missing link (!)';
           $('.Preview-icon', el)[0].textContent = 'broken_image';
@@ -527,7 +527,6 @@ let fileManager = (function() {
       fileManager.downloadDependencies(file, source).then(async (content) => {
         file.content = content;
         file.loaded = true;
-        file.isTemp = false;
 
         if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
           await TaskUpdate(file, 'files');
@@ -872,7 +871,7 @@ let fileManager = (function() {
   	  if (f.loaded || isMediaTypeMultimedia) {
   	    resolve();
   	  } else {
-  	    if (f.isTemp && f.content === null && f.id === '') {
+  	    if (helper.hasFileReference(f.fileRef) && f.content === null && f.id === '') {
   	    	reject(404)
   	    } else {
   	    	fileManager.downloadMedia(f).then(resolve);
@@ -901,7 +900,7 @@ let fileManager = (function() {
 
       let src = f.contentLink;
 
-      if (f.isTemp && helper.hasFileReference(f.fileRef) && f.content === null) {
+      if (helper.hasFileReference(f.fileRef) && f.content === null) {
       // if (f.fileRef.name !== undefined) {
         src = URL.createObjectURL(f.fileRef);
       } else {

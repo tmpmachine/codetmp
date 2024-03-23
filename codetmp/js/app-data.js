@@ -61,7 +61,6 @@
         trashed: false,
         isLoaded: true,
         isSync: false,
-        isTemp: false,
 
         directoryHandle: null,
         parentDirectoryHandle: null,
@@ -71,7 +70,6 @@
         parentId: -1,
         modifiedTime: '',
         isLock: false,
-        isTemp: false,
         loaded: false,
         
         contentLink: '',
@@ -87,7 +85,6 @@
         source: -1,
         metadata: [],
         type: '',
-        isTemp: false,
         isSyncInProgress: false,
       },
     };
@@ -106,16 +103,6 @@
 
   }
 
-  function unlinkTempFiles() {
-    for (var i = 0; i < mainStorage.data.files.length; i++) {
-      if (mainStorage.data.files[i].isTemp) {
-        mainStorage.data.files[i].loaded = false;
-      }
-    }
-    mainStorage.save();
-  }
-
   initWorkspace();
-  unlinkTempFiles();
 
 })();

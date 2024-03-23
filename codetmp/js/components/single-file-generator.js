@@ -91,7 +91,7 @@ let singleFileGenerator = (function() {
         } else {
           content = file.content;
 
-          if (file.isTemp && helper.hasFileReference(file.fileRef) && file.content === null) {
+          if (helper.hasFileReference(file.fileRef) && file.content === null) {
         
             if (file.fileRef.entry) {
               let fileResult = await file.fileRef.entry.getFile();
@@ -254,7 +254,7 @@ let singleFileGenerator = (function() {
           } else {
             content = file.content;
 
-            if (file.isTemp && helper.hasFileReference(file.fileRef) && file.content === null) {
+            if (helper.hasFileReference(file.fileRef) && file.content === null) {
         
               if (file.fileRef.entry) {
                 let fileResult = await file.fileRef.entry.getFile();

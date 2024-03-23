@@ -100,11 +100,10 @@ const compoClipboard = (function() {
     });
   }
   
-  async function copySingleFile({ id, fid, name, content, loaded, isTemp, fileRef }, modifiedTime) {
+  async function copySingleFile({ id, fid, name, content, loaded, fileRef }, modifiedTime) {
     let action = (loaded) ? 'create' : 'copy';
     let file = await fileManager.CreateFile({
       id,
-      isTemp,
       fileRef,
       name: await fileManager.getDuplicateName(pasteParentFolderId, name),
       modifiedTime,

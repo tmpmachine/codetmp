@@ -122,7 +122,7 @@ let previewHandler = (function () {
       });
     } else {
 
-      if (file.isTemp && helper.hasFileReference(file.fileRef) && file.content === null) {
+      if (helper.hasFileReference(file.fileRef) && file.content === null) {
         
         let content = file.fileRef;
         if (file.fileRef.entry) {
@@ -268,7 +268,7 @@ let previewHandler = (function () {
       return '';
     } 
 
-    if (file.isTemp && helper.hasFileReference(file.fileRef) && file.content === null) { 
+    if (helper.hasFileReference(file.fileRef) && file.content === null) { 
 
       let targetTab = fileTab.find(item => item.fid == file.fid);
       if (activeFile && activeFile.fid === file.fid) {
@@ -492,7 +492,7 @@ let previewHandler = (function () {
         } else {
           content = file.content;
 
-          if (file.isTemp && helper.hasFileReference(file.fileRef) && file.content === null) {
+          if (helper.hasFileReference(file.fileRef) && file.content === null) {
         
             if (file.fileRef.entry) {
               let fileResult = await file.fileRef.entry.getFile();

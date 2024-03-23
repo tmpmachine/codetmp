@@ -439,7 +439,7 @@ const drive = (function() {
      });
   }
 
-  async function syncFile({ action, fid, metadata, type, source, isTemp }) {
+  async function syncFile({ action, fid, metadata, type, source }) {
     
     let method;
     let fetchUrl;
