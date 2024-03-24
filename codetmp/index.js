@@ -148,7 +148,8 @@ app.loadFiles([
   },
 ]);
 
-function RenderSignInButton() {
+// should global scope
+window.RenderSignInButton = function() {
   gapi.signin2.render('g-signin2', {
     'scope': 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive'+auth2.additionalScopes,
     'width': 240,
