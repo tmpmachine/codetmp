@@ -4,15 +4,15 @@ const fsExtra = require('fs-extra');
 let dependencies = [
   { // ace-builds
     source: 'node_modules/ace-builds/src-min-noconflict/',
-    destination: 'codetmp/assets/js/node_modules/ace-builds/src-min-noconflict/',
+    destination: 'codetmp/assets/js/packages/ace-builds/src-min-noconflict/',
   }, 
   { // @isomorphic-git/lightning-fs
     source: 'node_modules/@isomorphic-git/lightning-fs/dist/',
-    destination: 'codetmp/assets/js/node_modules/@isomorphic-git/lightning-fs/',
+    destination: 'codetmp/assets/js/packages/@isomorphic-git/lightning-fs/',
   }, 
   { // isomorphic-git
     source: 'node_modules/isomorphic-git/',
-    destination: 'codetmp/assets/js/node_modules/isomorphic-git/',
+    destination: 'codetmp/assets/js/packages/isomorphic-git/',
     files: [ 'index.umd.min.js' ],
   }
 ];

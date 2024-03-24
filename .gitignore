@@ -1,7 +1,7 @@
 # node_modules cloned assets
 codetmp/assets/js/ace-builds@*
 codetmp/assets/js/ace-builds
-codetmp/assets/js/node_modules/*
+codetmp/assets/js/packages/*
 
 # Logs
 logs

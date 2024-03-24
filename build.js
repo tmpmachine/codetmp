@@ -1,8 +1,10 @@
 const fs = require('fs-extra')
+const fsExtra = require('fs-extra')
 const minify = require('minify');
 const htmlMinifier = require('html-minifier').minify;
 
 
+fsExtra.removeSync('./deploy/codetmp/')
 fs.copySync('./codetmp', './deploy/codetmp');
 minifyFiles();
 
