@@ -565,7 +565,7 @@ let fileManager = (function() {
       if (file.divlessTarget) return file.divlessTarget;
 
       let files = await fileManager.TaskListFiles(parent.parentId);
-      let targetFile = files.find(file => file.name == file.name && !file.trashed);
+      let targetFile = files.find(f => f.name == file.name && !f.trashed);
       
       if (targetFile) return targetFile;
     }
