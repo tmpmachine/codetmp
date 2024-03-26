@@ -3,7 +3,7 @@ let fileManager = (function() {
   let SELF = {
     TaskInitIDBStorage,
     TaskOnStorageReady,
-
+    sync,
     CreateFile,
     CreateFolder,
     RenameFile,
@@ -14,7 +14,7 @@ let fileManager = (function() {
     TaskOpenLocal,
     TaskDeleteFile,
     TaskDeleteFolder,
-    
+    list,
     TaskGetFile,
     TaskUpdate,
     TaskMoveFile,
@@ -27,6 +27,8 @@ let fileManager = (function() {
     TaskGetPreviewLink,
     save,
     TaskSaveAll,
+    TaskResolveFilePath,
+    TaskGetDivlessTargetFile,
   };
 
   let STORAGE_TYPE = 'localStorage'; 
@@ -301,35 +303,25 @@ let fileManager = (function() {
     return folder;
   }
 
-
   async function taskWriteToDisk(fileHandle, editorContent, tabFileName, tabFile) {
-    
     let writable = await fileHandle.createWritable();
     let content = editorContent;
-	  if (helper.isMediaTypeHTML(tabFileName) && settings.data.editor.divlessHTMLFSEnabled) {
 
+	  if (helper.isMediaTypeHTML(tabFileName) && settings.data.editor.divlessHTMLFSEnabled) {
 	    // check for divless directory
 	    let currentFile = tabFile;
       if (currentFile) {
-        let parent = await TaskGetFile({fid: currentFile.parentId, type: 'folders'});
-        if (parent && parent.name == '.divless' && parent.trashed == false) {
-          let targetFile = currentFile.divlessTarget;
-          if (!currentFile.divlessTarget) {
-            let files = await TaskListFiles(parent.parentId);
-            targetFile = files.find(file => file.name == currentFile.name && !file.trashed);
-          }
-          if (targetFile) {
-            currentFile.divlessTarget = targetFile;
-            await writeToDiskFile(divless.replace(content), targetFile);
-          }
-        } 
+        let divlessTargetFile = await fileManager.TaskGetDivlessTargetFile(currentFile);
+        if (divlessTargetFile) {
+          currentFile.divlessTarget = divlessTargetFile;
+          await writeToDiskFile(divless.replace(content), divlessTargetFile);
+        }
       }
 
     }
 
     await writable.write(content);
     await writable.close();
-
   }
   
   async function writeToDiskFile(content, file) {
@@ -560,11 +552,38 @@ let fileManager = (function() {
     });
   }
   
-  SELF.sync = function(data) {
+  function sync(data) {
     if (activeWorkspace === 0) {
-      SELF.handleSync(data);
+      handleSync(data);
     }
-  };
+  }
+
+  async function TaskGetDivlessTargetFile(file) {
+    let parent = await fileManager.TaskGetFile({fid: file.parentId, type: 'folders'});
+    if (parent && parent.name == '.divless' && parent.trashed === false) {
+
+      if (file.divlessTarget) return file.divlessTarget;
+
+      let files = await fileManager.TaskListFiles(parent.parentId);
+      let targetFile = files.find(file => file.name == file.name && !file.trashed);
+      
+      if (targetFile) return targetFile;
+    }
+    return null;
+  }
+
+  async function TaskResolveFilePath(file) {
+  	let parentId = file.parentId;
+    let path = [file.name];
+
+    while (parentId >= 0) {
+  		let folder = await TaskGetFile({fid: parentId, type: 'folders'});
+  		path.push(folder.name);
+  		parentId = parseInt(folder.parentId);
+  	}
+
+  	return path.reverse().join('/');
+  }
 
   async function TaskOpenLocal(event) {
     if (typeof(window.showOpenFilePicker) !== 'undefined') {
@@ -600,7 +619,7 @@ let fileManager = (function() {
         type: 'files',
       });
       drive.syncToDrive();
-      await SELF.list();
+      await list();
       fileStorage.save();
       
       let scrollTop = fileTab[activeTab].editor.env.editor.getSession().getScrollTop();
@@ -769,7 +788,7 @@ let fileManager = (function() {
     await TaskUpdate(data, fileType);
   }
   
-  SELF.list = async function() {
+  async function list() {
     $('#file-list').innerHTML = '';
     await TaskDisplayListFolders();
     $('#file-list').appendChild(o.element('div', { style: 'flex: 0 0 100%', class: 'separator w3-padding-small' }));
@@ -777,7 +796,7 @@ let fileManager = (function() {
     uiFileExplorer.LoadBreadCrumbs();
     selectedFile.splice(0, 1);
     ui.toggleFileActionButton();
-  };
+  }
 
   function getFileContent(file) {
     return new Promise(resolve => {
@@ -968,10 +987,10 @@ let fileManager = (function() {
       breadcrumbs.push({folderId:activeFolder, title})
     }
     
-    fileManager.list();
+    list();
   }
 
-  SELF.handleSync = function(sync) {
+  function handleSync(sync) {
     
     if (sync.action === 'create' || sync.action === 'copy') {
       sync.metadata = [];
@@ -1117,10 +1136,10 @@ let fileManager = (function() {
   }
 
   function commit(data) {
-    SELF.sync(data);
+    sync(data);
     drive.syncToDrive();
     fileStorage.save();
-    SELF.list();
+    list();
   }
   
   return SELF;

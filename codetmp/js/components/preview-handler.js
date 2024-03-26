@@ -44,6 +44,7 @@ let previewHandler = (function () {
       url = environment.previewUrlPWA + requestPath;
   
     }
+
     if (local.isPortOpened) {
 
       testConnection(_targetPreviewDomain)
@@ -81,6 +82,7 @@ let previewHandler = (function () {
         channelName: getMessageChannelName(), 
       }, '*', [channel.port2]);
     }
+
   };
 
   function createMessageChannel(channelName) {
@@ -446,18 +448,14 @@ let previewHandler = (function () {
   	if (typeof(file) == 'undefined') {
   		return 'untitled.html';
   	}
-
-  	let path = [file.name];
-  	let parentId = file.parentId;
-  	
-    while (parentId >= 0) {
-  		// let folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
-  		folder = await fileManager.TaskGetFile({fid: parentId, type: 'folders'});
-  		path.push(folder.name);
-  		parentId = parseInt(folder.parentId);
-  	}
-  	return path.reverse().join('/');
-
+    
+    let divlessTargetFile = await fileManager.TaskGetDivlessTargetFile(file);
+    if (divlessTargetFile) {
+      file = divlessTargetFile;
+    }
+    
+    let filePath = await fileManager.TaskResolveFilePath(file);;
+    return filePath;
   }
 
   function setToken(token) {
