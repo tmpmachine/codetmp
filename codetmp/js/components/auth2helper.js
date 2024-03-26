@@ -78,7 +78,7 @@
         },
         function(fail){
           aww.pop('Grant access failed. Check console.');
-          L('Fail granting acess to '+scope+'. '+fail.error);
+          console.log('Fail granting acess to '+scope+'. '+fail.error);
         });
   }
 

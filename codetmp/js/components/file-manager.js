@@ -310,7 +310,6 @@ let fileManager = (function() {
 
 	    // check for divless directory
 	    let currentFile = tabFile;
-      let hasDivlessFile = false;
       if (currentFile) {
         let parent = await TaskGetFile({fid: currentFile.parentId, type: 'folders'});
         if (parent && parent.name == '.divless' && parent.trashed == false) {
@@ -320,7 +319,6 @@ let fileManager = (function() {
             targetFile = files.find(file => file.name == currentFile.name && !file.trashed);
           }
           if (targetFile) {
-            hasDivlessFile = true;
             currentFile.divlessTarget = targetFile;
             await writeToDiskFile(divless.replace(content), targetFile);
           }

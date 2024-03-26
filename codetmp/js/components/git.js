@@ -135,7 +135,7 @@ const gitRest = (function() {
       text: 'Request failed. Check your internet connection.', 
       timeout: 5000,
     });
-    L(error);
+    console.log(error);
   }
 
   const initClonePath = function(repo, parentId) {
@@ -223,7 +223,7 @@ const gitRest = (function() {
     }).then(r => {
       return r.json();
     }).then(r => {
-      L(r);
+      console.log(r);
       aww.pop('Done');
     });
   }
@@ -245,7 +245,7 @@ const gitRest = (function() {
       }).then((r)=>{
         return r.json();
       }).then((r)=>{
-        L(r);
+        console.log(r);
         aww.pop('Done');
       });
     });
@@ -255,7 +255,7 @@ const gitRest = (function() {
     fetch('https://api.github.com/repos/'+username+'/'+repoName+'/branches')
     .then(asJSON)
     .then(function(r){
-      L(r);
+      console.log(r);
     });
   }
 
@@ -269,7 +269,7 @@ const gitRest = (function() {
     })
     .then(asJSON)
     .then(r => {
-      L(r);
+      console.log(r);
       sha1 = r.commit.sha;
       step2();
     });
@@ -301,7 +301,7 @@ const gitRest = (function() {
     })
     .then(asJSON)
     .then(r => {
-      L(r);
+      console.log(r);
       sha2 = r.sha;
       step3();
     });
@@ -326,7 +326,7 @@ const gitRest = (function() {
       },
       body:JSON.stringify(input)
     }).then(asJSON).then(r => {
-      L(r);
+      console.log(r);
       sha3 = r.sha
       step4()
     })
@@ -343,7 +343,7 @@ const gitRest = (function() {
       },
       body:JSON.stringify(input)
     }).then(asJSON).then(r => {
-      L(r);
+      console.log(r);
     })
   }
 

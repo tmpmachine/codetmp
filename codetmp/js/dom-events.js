@@ -8,6 +8,7 @@ let DOMEvents = {
 		}
 	*/
 	onclick: {
+		'btn-menu-preview': () => previewHandler.previewPath(),
 		'create-session': () => ui.CreateSession(),
 	},
 	clickable: {
@@ -38,9 +39,6 @@ let DOMEvents = {
 
 		'btn-menu-template': function () { ui.toggleInsertSnippet(); },
 		'btn-menu-save': fileManager.save,
-		'btn-menu-preview': async function () {
-			previewHandler.previewPath();
-		},
 		'btn-undo': () => { fileTab[activeTab].editor.env.editor.undo(); fileTab[activeTab].editor.env.editor.focus(); },
 		'btn-redo': () => { fileTab[activeTab].editor.env.editor.redo(); fileTab[activeTab].editor.env.editor.focus(); },
 		'more-tab': function () { ui.switchTab(1); },

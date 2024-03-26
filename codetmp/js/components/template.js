@@ -81,7 +81,7 @@ function loadEnvironmentSettings(file) {
     for (let path of files) {
       let f = getFileAtPath(path);
       if (typeof(f) == 'undefined' || f.trashed)
-        L('Environemnt error : snippet '+path+' not found');
+      console.log('Environemnt error : snippet '+path+' not found');
       else
         downloadSnippetFile(f.fid)
         .then(f => {

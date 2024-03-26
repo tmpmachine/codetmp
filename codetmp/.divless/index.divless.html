@@ -399,10 +399,10 @@
             <label class="l-btn-in">Settings</label>
           </div>
           <div id="btn-menu-preview-wrapper" class="relative" style="z-index:0;">
-            <div data-callback="btn-menu-preview" class="clickable btn-material no-select w3-animate-left">
-              <i class="material-icons i-btn-in">play_arrow</i>
-              <label class="l-btn-in">Preview</label>
-            </div>
+            [ ._btnMenuPreview data-onclick="btn-menu-preview" .btn-material .no-select .w3-animate-left
+              [i 'play_arrow' .material-icons .i-btn-in]
+              [l 'Preview' .l-btn-in]
+            ]
           </div>
           <div id="btn-menu-save-wrapper" class="relative" style="z-index:0;">
             <div data-callback="btn-menu-save" class="clickable btn-material w3-animate-left no-select">
@@ -663,20 +663,6 @@
   })();
 </script>
 
-<script>
-  function scopeStyle(prefix) {
-    prefix = prefix + ' ';
-    let style = document.querySelectorAll(`style[data-prefix="${prefix.trim()}"]`)[0];
-    let selectors = style.textContent.match(/.*?{(.|\n)*?}/g);
-    for (let i=0; i<selectors.length; i++) {
-      let selName = selectors[i].match(/.*?{/)[0].replace('{','');
-      let props = selectors[i].slice(selName.length);
-      selectors[i] = prefix+selName.split(',').join(','+[prefix])+props;     
-    }
-    style.textContent = selectors.join('\n');
-  }
-</script>
-
   <!--service worker handler-->
   <script>
     (function() {
@@ -794,25 +780,9 @@
     })();
   </script>
   <script>
-    window.asd = console.log;
-    window.L = console.log;
     window.$ = function(selector, node=document) { let nodes = node.querySelectorAll(selector); return selector.startsWith('#') ? nodes[0] : nodes };
   </script>
-  <script>
-    // prevent content shift by material icons
-    Promise.all([
-      new Promise(resolve => {
-        let interval = setInterval(() => {
-          if (document.querySelector('[data-callback="btn-menu-preview"]').firstElementChild.scrollWidth > 50) return;
-          clearInterval(interval);
-          resolve();
-        }, 100);
-      })
-    ]).then(() => {
-      document.querySelector('#preload-material').parentNode.removeChild(document.querySelector('#preload-material'));
-    });
-  </script>
-
+  
   <script src="js/app.js"></script>
   <script src="index.js" type="module"></script>
   <script src="pwa.js"></script>

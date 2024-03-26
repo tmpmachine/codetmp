@@ -652,8 +652,22 @@ let ui = (function() {
     }
   }
 
+  function waitMaterialIconsOverflow() {
+    // prevent content shift by material icons
+    new Promise(resolve => {
+      let interval = setInterval(() => {
+        if (document.querySelector('._btnMenuPreview').firstElementChild.scrollWidth > 50) return;
+        clearInterval(interval);
+        resolve();
+      }, 100);
+    }).then(() => {
+      document.querySelector('#preload-material').parentNode.removeChild(document.querySelector('#preload-material'));
+    });
+  }
+
   function Init() {
     
+    waitMaterialIconsOverflow();
     attachListeners();
 
     compoNotif.Init();

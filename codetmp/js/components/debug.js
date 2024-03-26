@@ -11,7 +11,7 @@ const debug = {
       
     }).then(function(json) {
       
-      L(json)
+      console.log(json)
       debug.getMedia(json.files[0].id);
       
     });
@@ -25,7 +25,7 @@ const debug = {
       }
     }).then(function(result) {
       
-      L(result);
+      console.log(result);
 
     })
     
@@ -49,7 +49,7 @@ const debug = {
       
     }).then(function(json) {
       
-      L(json);
+      console.log(json);
       debug.getMedia(json.files[0].id);
       
     });
@@ -67,7 +67,7 @@ const debug = {
       return result.json();
     }).then(function(json) {
       json.files.forEach((file) => {
-        L(file)
+        console.log(file)
       });
     });
   },
@@ -86,7 +86,7 @@ const debug = {
       console.log(json)
       
       json.revisions.forEach((rev) => {
-        L(rev)
+        console.log(rev)
       });
       
     });
@@ -104,7 +104,7 @@ const debug = {
       
     }).then(function(json) {
       
-      L(json);
+      console.log(json);
       
     });
   },
@@ -121,7 +121,7 @@ const debug = {
       
     }).then(function(json) {
       
-      L(json);
+      console.log(json);
       
     });
   },
@@ -146,7 +146,7 @@ const debug = {
       
     }).then(function(json) {
       
-      L(json);
+      console.log(json);
       
     });
     
@@ -173,7 +173,7 @@ const debug = {
     }).then(function(result) {
       return result.text()
     }).then(function(media){
-      L(media)
+      console.log(media)
     })
     
   }
