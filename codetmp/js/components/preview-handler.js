@@ -404,7 +404,6 @@ let previewHandler = (function () {
       	parentId = -1;
       } else if (dirName === '..' || dirName === '.') {
         
-        // folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
         folder = await fileManager.TaskGetFile({fid: parentId, type: 'folders'});
         if (folder === undefined) {
           break;

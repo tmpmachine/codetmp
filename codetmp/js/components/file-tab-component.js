@@ -12,7 +12,6 @@ const compoFileTab = (function() {
     openDirectory,
     GetByFid,
     GetIndexByFid,
-    HandleClick,
     newTab: NewTab,
     ConfirmCloseTab,
     FileClose,
@@ -20,10 +19,6 @@ const compoFileTab = (function() {
   };
 
   let lastOpenTabIndex = 0;
-
-  function HandleClick() {
-    
-  }
 
   function GetByFid(fid) {
     let item = fileTab.find(tab => tab.fid == fid);
@@ -64,14 +59,14 @@ const compoFileTab = (function() {
     
     if (activeTab == idx) {
       activeTab = idx
-      compoFileTab.ConfirmCloseTab()
+      ConfirmCloseTab()
     } else {
       let tmp = activeTab;
       activeTab = idx;
       if (idx < tmp)
-        compoFileTab.ConfirmCloseTab(true, tmp-1)
+        ConfirmCloseTab(true, tmp-1)
       else
-        compoFileTab.ConfirmCloseTab(true, tmp)
+        ConfirmCloseTab(true, tmp)
     }
   }
 
@@ -106,9 +101,9 @@ const compoFileTab = (function() {
     }
     
     if (position >= 0) {
-      $('#file-title')?.insertBefore(el.firstElementChild, $$('.file-tab')[position])
+      $('#file-title')?.insertBefore(el, $$('.file-tab')[position])
     } else {
-      $('#file-title')?.append(el.firstElementChild)
+      $('#file-title')?.append(el)
     }
     
     
@@ -141,7 +136,7 @@ const compoFileTab = (function() {
         name: tab.name,
         fiber: tab.fiber,
       });
-      fragment.append(el.firstElementChild);
+      fragment.append(el);
     }
     $('#file-title')?.replaceChildren(fragment);
   }

@@ -32,11 +32,15 @@ let uiFileTab = (function() {
     }
 
     function CreateElement(data) {
-        let el = o.element('div', {
-            innerHTML: o.template('tmp-file-tab', data)
-        })
+        let el = templateSlot.fill({
+            data, 
+            template: document.querySelector('#tmp-file-tab').content.cloneNode(true), 
+        });
 
         el.querySelector('[data-kind="itemFileTab"]').dataset.fid = data.fid;
+        el.querySelector('[data-kind="itemFileTab"]').dataset.title = data.name;
+        el.querySelector('.file-name')?.replaceChildren(data.name);
+        el.querySelector('.file-closer')?.replaceChildren(data.fiber);
 
         return el;
     }
