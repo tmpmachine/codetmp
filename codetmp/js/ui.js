@@ -717,6 +717,7 @@ let ui = (function() {
     attachInputable('.inputable', DOMEvents.inputable);
 
     listening('[data-onclick]', 'onclick', 'click', DOMEvents.onclick);
+    listening('[data-mousedown]', 'mousedown', 'mousedown', DOMEvents.mousedown);
 
     function attachSubmitable(selector, callback) {
       for (let node of document.querySelectorAll(selector)) {

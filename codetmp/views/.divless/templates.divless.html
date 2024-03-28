@@ -93,7 +93,7 @@
 
 <template id="tmp-file-tab" class="Export">
   <!-- # file tab -->
-  <div class="w3-left file-tab relative" data-title="__name__" oncontextmenu="ui.OpenTabInExplorer(this)" data-parent-id="">
+  [ .w3-left .file-tab .relative data-kind="itemFileTab" data-title="__name__" oncontextmenu="ui.OpenTabInExplorer(this)" data-parent-id=""
     [ .Indicator]
     [ 
       <div class="w3-right" style="padding:6px 10px;">
@@ -103,7 +103,7 @@
         <div class="file-tab-name no-select w3-small file-name w3-left w-100 absolute" onclick="tabManager.focusTab('__fid__', true)" data-title="__name__" style="left:0;top:0;color:#fff!important;padding:10px 10px 10px 19px;font-weight:bold;">__name__</div>
       </div>
     ]
-  </div>
+  ]
 </template>
 
 <template id="msg-git-rate-limit" class="Export">

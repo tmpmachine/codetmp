@@ -11,6 +11,9 @@ let DOMEvents = {
 		'btn-menu-preview': () => previewHandler.previewPath(),
 		'create-session': () => ui.CreateSession(),
 	},
+	mousedown: {
+		'handle-click-file-tab': (evt) => uiFileTab.HandleClick(evt),
+	},
 	clickable: {
 		'upload-file': ui.uploadFile,
 		'file-rename': () => uiFileExplorer.RenameFile(),

@@ -9,7 +9,7 @@ const tabManager = (function() {
     openDirectory,
     GetByFid,
     GetIndexByFid,
-
+    HandleClick,
     newTab: NewTab,
     ConfirmCloseTab,
     FileClose,
@@ -17,6 +17,10 @@ const tabManager = (function() {
   };
 
   let lastOpenTabIndex = 0;
+
+  function HandleClick() {
+    
+  }
 
   function GetByFid(fid) {
     let item = fileTab.find(tab => tab.fid == fid);
@@ -30,22 +34,21 @@ const tabManager = (function() {
     return fileTab.findIndex(tab => tab.fid == fid);
   }
 
-  function InitTabFocusHandler() {
+  function tabFocusHandler(e) {
+    if (e.keyCode === 9) {
+      document.body.classList.add('tab-focused');
+      window.removeEventListener('keydown', tabFocusHandler);
+      window.addEventListener('mousedown', disableTabFocus);
+    }
+  }
 
-    function tabFocusHandler(e) {
-      if (e.keyCode === 9) {
-        document.body.classList.add('tab-focused');
-        window.removeEventListener('keydown', tabFocusHandler);
-        window.addEventListener('mousedown', disableTabFocus);
-      }
-    }
-  
-    function disableTabFocus() {
-      document.body.classList.remove('tab-focused');
-      window.removeEventListener('mousedown', disableTabFocus);
-      window.addEventListener('keydown', tabFocusHandler);
-    }
-  
+  function disableTabFocus() {
+    document.body.classList.remove('tab-focused');
+    window.removeEventListener('mousedown', disableTabFocus);
+    window.addEventListener('keydown', tabFocusHandler);
+  }
+
+  function InitTabFocusHandler() {
     window.addEventListener('keydown', tabFocusHandler);
   }
 
@@ -75,13 +78,11 @@ const tabManager = (function() {
     let name = 'untitled.html';
     if (data) {
       fid = data.fid
-
-      el = o.element('div', {
-        innerHTML: o.template('tmp-file-tab', {
-          fid,
-          name: data.name,
-          fiber: 'close'
-        })
+      
+      el = uiFileTab.CreateElement({
+        fid,
+        name: data.name,
+        fiber: 'close'
       });
 
       if (data.file) {
@@ -93,13 +94,11 @@ const tabManager = (function() {
     } else {
       fid = '-' + (new Date).getTime();
 
-      el = o.element('div', {
-        innerHTML: o.template('tmp-file-tab', {
-          fid,
-          name,
-          fiber: 'close',
-        })
-      })
+      el = uiFileTab.CreateElement({
+        fid,
+        name,
+        fiber: 'close',
+      });
       
     }
     
@@ -134,13 +133,11 @@ const tabManager = (function() {
     $('#file-title').innerHTML = '';
     let fragment = document.createDocumentFragment();
     for (let tab of fileTab) {
-      let el = o.element('div', {
-        innerHTML: o.template('tmp-file-tab', {
-          fid: tab.fid,
-          name: tab.name,
-          fiber: tab.fiber,
-        })
-      })
+      let el = uiFileTab.CreateElement({
+        fid: tab.fid,
+        name: tab.name,
+        fiber: tab.fiber,
+      });
       fragment.append(el.firstElementChild);
     }
     $('#file-title').append(fragment);

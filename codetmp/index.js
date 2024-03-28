@@ -72,6 +72,7 @@ app.loadFiles([
       "js/components/file-manager.js",
       "js/ui.js",
       "js/uis/file-explorer-ui.js",
+      "js/uis/file-tab-ui.js",
       "js/uis/tree-explorer-ui.js",
       "js/components/notif-component.js",
       "js/components/notifier.js",
