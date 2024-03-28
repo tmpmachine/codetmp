@@ -640,19 +640,9 @@ background: #262730;
 .c.links a:hover{opacity: 1}
 
 .folder-list,.file-list{margin:2px}
-.file-list .Preview-icon{color:#3f4755}
+.file-list .Preview-icon{color:#3f4755;}
 .folder-list.isSelected{background:#3b647b}
 .file-list .btn-lock{display:none}
-.file-list .Label{    
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 4px;
-  font-size: 0.7rem;
-  padding: 0 4px;
-  border-radius: 0px;
-  color: #969292;
-}
 
 a.option-menu:hover .li * {color:#3bff99}
 .option-menu{position: relative;display:inline-block;outline-color: #e91e63}

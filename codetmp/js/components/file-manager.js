@@ -460,18 +460,6 @@ let fileManager = (function() {
       $('.Clicker', el)[0].dataset.fid = fid;
       $('.Clicker', el)[0].dataset.number = counter;
 
-      if (helper.hasFileReference(fileRef)) {
-        if (fileRef.name === undefined && id.length === 0) {
-          $('.Label', el)[0].textContent = 'missing link (!)';
-          $('.Preview-icon', el)[0].textContent = 'broken_image';
-        } else {
-          if (fileRef.entry !== undefined) {
-            $('.Label', el)[0].textContent = 'local';
-            $('.Preview-icon', el)[0].textContent = 'attach_file';
-          }
-        }
-      }
-      
       docFrag.append(el);
       counter++;
     }
