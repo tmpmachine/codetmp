@@ -8,7 +8,6 @@ let ui = (function() {
       storage: constant.STORAGE_STATE.Default,
     },
     OpenDiskFile,
-    OpenTabInExplorer,
     highlightTree,
     reloadFileTree,
     myFiles,
@@ -110,14 +109,6 @@ let ui = (function() {
     alert('Session created. Save this URL for later.')
   }
 
-  function OpenTabInExplorer(self) {
-    if (self.dataset.parentId != '' && self.classList.contains('isActive')) {
-      let parentId = parseInt(self.dataset.parentId);
-      tabManager.openDirectory(parentId);
-    }
-    event.preventDefault();
-  }
-
   function ToggleModalByClick() {
     ToggleModal(this.dataset.target);
   }
@@ -171,11 +162,11 @@ let ui = (function() {
   async function taskReloadActiveWorkspaceEnvStates() {
     await fileManager.list();
 
-    tabManager.list();
+    compoFileTab.list();
     if (fileTab.length === 0) {
       ui.openNewTab();
     }
-    tabManager.focusTab(fileTab[activeTab].fid);
+    compoFileTab.focusTab(fileTab[activeTab].fid);
     
     uiFileExplorer.LoadBreadCrumbs();
     
@@ -472,11 +463,11 @@ let ui = (function() {
       fid = fileTab[activeTab + direction].fid
     else
       fid = (activeTab + direction == -1) ? fileTab[fileTab.length - 1].fid : fileTab[0].fid;
-      tabManager.focusTab(fid);
+      compoFileTab.focusTab(fid);
   }
   
   function openNewTab(position, data) {
-    tabManager.newTab(position, data);
+    compoFileTab.newTab(position, data);
   }
   
   function toggleAutoSync() {
@@ -676,7 +667,7 @@ let ui = (function() {
     
     preferences.loadSettings();
     ui.openNewTab();
-    tabManager.InitTabFocusHandler();
+    compoFileTab.InitTabFocusHandler();
     window.setTimeout(() => { 
       ui.resizeEditor();
     }, 350)
@@ -718,6 +709,7 @@ let ui = (function() {
 
     listening('[data-onclick]', 'onclick', 'click', DOMEvents.onclick);
     listening('[data-mousedown]', 'mousedown', 'mousedown', DOMEvents.mousedown);
+    listening('[data-ctxmenu]', 'ctxmenu', 'contextmenu', DOMEvents.contextmenu);
 
     function attachSubmitable(selector, callback) {
       for (let node of document.querySelectorAll(selector)) {

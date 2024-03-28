@@ -1,6 +1,9 @@
-const tabManager = (function() {
+const compoFileTab = (function() {
 
   "use strict";
+
+  let $ = document.querySelector.bind(document);
+  let $$ = document.querySelectorAll.bind(document);
 
   let SELF = {
     list,
@@ -61,14 +64,14 @@ const tabManager = (function() {
     
     if (activeTab == idx) {
       activeTab = idx
-      tabManager.ConfirmCloseTab()
+      compoFileTab.ConfirmCloseTab()
     } else {
       let tmp = activeTab;
       activeTab = idx;
       if (idx < tmp)
-        tabManager.ConfirmCloseTab(true, tmp-1)
+        compoFileTab.ConfirmCloseTab(true, tmp-1)
       else
-        tabManager.ConfirmCloseTab(true, tmp)
+        compoFileTab.ConfirmCloseTab(true, tmp)
     }
   }
 
@@ -86,7 +89,7 @@ const tabManager = (function() {
       });
 
       if (data.file) {
-        $('.file-tab', el)[0].dataset.parentId = data.file.parentId;
+        el.querySelector('.file-tab').dataset.parentId = data.file.parentId;
       }
       if (data.fileHandle === undefined) {
         data.fileHandle = null;
@@ -103,9 +106,9 @@ const tabManager = (function() {
     }
     
     if (position >= 0) {
-      $('#file-title').insertBefore(el.firstElementChild, $('.file-tab')[position])
+      $('#file-title')?.insertBefore(el.firstElementChild, $$('.file-tab')[position])
     } else {
-      $('#file-title').append(el.firstElementChild)
+      $('#file-title')?.append(el.firstElementChild)
     }
     
     
@@ -130,7 +133,7 @@ const tabManager = (function() {
   }
 
   function list() {
-    $('#file-title').innerHTML = '';
+    $('#file-title')?.replaceChildren();
     let fragment = document.createDocumentFragment();
     for (let tab of fileTab) {
       let el = uiFileTab.CreateElement({
@@ -140,24 +143,23 @@ const tabManager = (function() {
       });
       fragment.append(el.firstElementChild);
     }
-    $('#file-title').append(fragment);
+    $('#file-title')?.replaceChildren(fragment);
   }
 
   function focusTab(fid, isRevealFileTree = true) {
     let idx = odin.idxOf(String(fid), fileTab, 'fid');
     
-    for (let tab of $('.file-tab')) {
+    for (let tab of $$('.file-tab')) {
       tab.classList.toggle('isActive', false);
     }
     
     ui.highlightTree(fid, isRevealFileTree);
 
-    $('.file-tab')[idx].classList.toggle('isActive', true);
+    $$('.file-tab')[idx].classList.toggle('isActive', true);
     
     compressTab(idx);
     activeTab = idx;
-    $('#editor-wrapper').innerHTML = '';
-    $('#editor-wrapper').append(fileTab[idx].editor)
+    $('#editor-wrapper')?.replaceChildren(fileTab[idx].editor)
     
     let editor = fileTab[idx].editor.env.editor;
     editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
@@ -170,14 +172,14 @@ const tabManager = (function() {
   }
 
   function compressTab(idx) {
-    for (let tab of $('.file-tab'))
+    for (let tab of $$('.file-tab'))
       tab.style.display = 'inline-block';
 
     $('#more-tab').style.display = ($('.file-tab').length > 1 && getTabWidth() >= $('#file-title').offsetWidth - 48) ? 'inline-block' : 'none';
-    let maxOpenTab = Math.floor(($('#file-title').offsetWidth - 48) / $('.file-tab')[idx].offsetWidth);
+    let maxOpenTab = Math.floor(($('#file-title').offsetWidth - 48) / $$('.file-tab')[idx].offsetWidth);
 
-    if ($('.file-tab').length > maxOpenTab) {
-      let lastOpenedTabIndex = Math.max(idx, $('.file-tab').length - 1);
+    if ($$('.file-tab').length > maxOpenTab) {
+      let lastOpenedTabIndex = Math.max(idx, $$('.file-tab').length - 1);
       let firstOpenedTabIndex = Math.max(lastOpenedTabIndex - (maxOpenTab - 1), 0);
       
       if (idx >= lastOpenTabIndex && idx <= lastOpenTabIndex + maxOpenTab - 1) {
@@ -190,11 +192,12 @@ const tabManager = (function() {
         firstOpenedTabIndex--;
       }
       
-      for (let i=0; i<$('.file-tab').length; i++) {
+      for (let i=0; i<$$('.file-tab').length; i++) {
+        let el = $$('.file-tab')[i];
         if (i < firstOpenedTabIndex || i > lastOpenedTabIndex)
-          $('.file-tab')[i].style.display = 'none';
+          el.style.display = 'none';
         else
-          $('.file-tab')[i].style.display = 'inline-block';
+          el.style.display = 'inline-block';
       }
       
       lastOpenTabIndex = firstOpenedTabIndex;
@@ -204,7 +207,7 @@ const tabManager = (function() {
   
   function ConfirmCloseTab(focus = true, comeback) {
     if (focus) {
-      if ($('.file-tab')[activeTab].querySelector('.icon-rename').textContent.trim() != 'close') {
+      if ($$('.file-tab')[activeTab].querySelector('.icon-rename').textContent.trim() != 'close') {
           modal.confirm('Changes you made will be lost.').then(() => {
             changeFocusTab(focus, comeback);
           }).catch(() => fileTab[activeTab].editor.env.editor.focus())
@@ -221,13 +224,13 @@ const tabManager = (function() {
     app.getComponent('fileTree').then(fileTree => {
       fileTree.removeOpenIndicator(fid);
     });
-    $('#file-title').removeChild($('.file-tab')[activeTab]);
+    $('#file-title')?.removeChild($$('.file-tab')[activeTab]);
     fileTab.splice(activeTab, 1);
   }
 
   function getTabWidth() {
     let width = 0;
-    for (let tab of $('.file-tab'))
+    for (let tab of $$('.file-tab'))
       width += tab.offsetWidth;
     return width;
   }
@@ -250,7 +253,6 @@ const tabManager = (function() {
 
   async function openDirectory(fid) {
     breadcrumbs.splice(1);
-    let stack = [];
     let parentId = fid;
     while (parentId != -1) {
       let folder = await fileManager.TaskGetFile({fid: parentId, type: 'folders'});
@@ -258,9 +260,10 @@ const tabManager = (function() {
       parentId = folder.parentId;
     }
     uiFileExplorer.LoadBreadCrumbs();
-    $('#btn-menu-my-files').click();
-    if (breadcrumbs.length > 1)
+    $('#btn-menu-my-files')?.click();
+    if (breadcrumbs.length > 1) {
       breadcrumbs.pop();
+    }
     await fileManager.OpenFolder(fid);
   }
 

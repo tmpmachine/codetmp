@@ -5,16 +5,19 @@
     "dev-firebase": "firebase serve --config firebase.dev.json",
     "deploy": "firebase deploy --only hosting:codetmp  --config firebase.prod.json",
     "deploy-dev": "firebase deploy --only hosting:codetmp  --config firebase.dev.json",
-    "build": "node build"
+    "build": "node build.mjs"
   },
   "dependencies": {
-    "isomorphic-git": "1.25.6",
     "@isomorphic-git/lightning-fs": "4.6.0",
     "ace-builds": "1.32.7",
     "express": "4.19.1",
+    "isomorphic-git": "1.25.6"
+  },
+  "devDependencies": {
     "fs": "0.0.1-security",
     "fs-extra": "9.1.0",
     "html-minifier": "4.0.0",
-    "minify": "6.0.1"
+    "lightningcss": "^1.24.1",
+    "uglify-js": "3.17.4"
   }
 }

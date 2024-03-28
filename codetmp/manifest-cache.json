@@ -47,7 +47,7 @@
     "js/components/preferences.js",
     "js/components/modal.js",
     "js/components/helper.js",
-    "js/components/tab-manager.js",
+    "js/components/file-tab-component.js",
     "js/components/file-reader.js",
     "js/components/file-bundler.js",
     "js/components/git.js",
@@ -71,6 +71,7 @@
     "environment.js"
   ],
   "uis": [
+    "js/uis/file-tab-ui.js",
     "js/uis/tree-explorer-ui.js",
     "js/uis/file-explorer-ui.js"
   ],
@@ -79,6 +80,7 @@
     "index.html",
     "manifest.json",
     "css/style.css",
+    "css/widgets.css",
     "css/app.css",
     "css/file-tree.css",
     

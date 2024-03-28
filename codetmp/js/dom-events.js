@@ -11,6 +11,9 @@ let DOMEvents = {
 		'btn-menu-preview': () => previewHandler.previewPath(),
 		'create-session': () => ui.CreateSession(),
 	},
+	contextmenu: {
+		'handle-ctxmenu-file-tab': (evt) => uiFileTab.HandleContextMenu(evt),
+	},
 	mousedown: {
 		'handle-click-file-tab': (evt) => uiFileTab.HandleClick(evt),
 	},
@@ -122,7 +125,7 @@ let DOMEvents = {
 			settings.save();
 			ui.resizeEditor();
 		},
-		'Alt+W': () => tabManager.ConfirmCloseTab(),
+		'Alt+W': () => compoFileTab.ConfirmCloseTab(),
 		'Alt+O': () => deferFeature1.openFileDirectory(),
 		'Ctrl+Shift+S': () => { event.preventDefault(); fileManager.TaskSaveAll(); },
 		'Ctrl+S': () => { event.preventDefault(); fileManager.save(); },

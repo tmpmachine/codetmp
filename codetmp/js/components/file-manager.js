@@ -621,7 +621,7 @@ let fileManager = (function() {
         fileContent = fileTab[activeTab].editor.env.editor.getValue();
       }
 
-      tabManager.ConfirmCloseTab(false);
+      compoFileTab.ConfirmCloseTab(false);
       let tabData = {
         fid: file.fid,
         name: file.name,
@@ -630,7 +630,7 @@ let fileManager = (function() {
         fileHandle: ( (activeWorkspace == 2 && file.fileRef && file.fileRef.entry) ? file.fileRef.entry : null ),
         editor: compoEditor.Init(fileContent, scrollTop, row, col),
       };
-      tabManager.newTab(activeTab, tabData);
+      compoFileTab.newTab(activeTab, tabData);
 
     }).catch((err) => {
       fileTab[activeTab].editor.env.editor.focus();
@@ -667,7 +667,7 @@ let fileManager = (function() {
 
       if (item.fileHandle === null) {
 
-        let tabIndex = tabManager.GetIndexByFid(item.fid);
+        let tabIndex = compoFileTab.GetIndexByFid(item.fid);
         saveExistingFile(item, tabIndex);
 
       } else {
@@ -684,7 +684,7 @@ let fileManager = (function() {
   
         // user may have close or change active tab, check the tab again
         {
-          let tabIndex = tabManager.GetIndexByFid(tabFid);
+          let tabIndex = compoFileTab.GetIndexByFid(tabFid);
           if (tabIndex >= 0) {
             fileTab[tabIndex].fiber = 'close';
             $('.icon-rename')[tabIndex].textContent = 'close';
@@ -713,7 +713,7 @@ let fileManager = (function() {
 
       // user may have close or change active tab, check the tab again
       {
-        let tabIndex = tabManager.GetIndexByFid(tabFid);
+        let tabIndex = compoFileTab.GetIndexByFid(tabFid);
         if (tabIndex >= 0) {
           fileTab[tabIndex].fiber = 'close';
           $('.icon-rename')[tabIndex].textContent = 'close';
@@ -843,7 +843,7 @@ let fileManager = (function() {
   function openOnEditor(f) {
     activeFile = f;
     if (fileTab.length == 1 && fileTab[activeTab].editor.env.editor.getValue().length == 0 && String(fileTab[0].fid)[0] == '-') {
-      tabManager.ConfirmCloseTab(false);
+      compoFileTab.ConfirmCloseTab(false);
     }
 
     getFileContent(f).then(content => {
@@ -859,7 +859,7 @@ let fileManager = (function() {
         });
       } else {
         fileTab[activeTab].content = fileTab[activeTab].editor.env.editor.getValue();
-        tabManager.focusTab(f.fid, false);
+        compoFileTab.focusTab(f.fid, false);
       }
       
     if ($('#btn-menu-my-files').classList.contains('active'))

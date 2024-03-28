@@ -24,7 +24,7 @@ let deferFeature1 = {
   toggleWrapMode: function() {
     settings.data.wrapMode = !settings.data.wrapMode;
     settings.save();
-    tabManager.focusTab(fileTab[activeTab].fid);
+    compoFileTab.focusTab(fileTab[activeTab].fid);
   },
 
   handlePasteRow: function() {

@@ -3,12 +3,32 @@ let uiFileTab = (function() {
     let SELF = {
       HandleClick,
       CreateElement,
+      HandleContextMenu,
     };
     
-    function handleClickActions(evt, data) {
+    function handleClickActions(evt, action, data, itemEl) {
         switch (evt.button) {
+            case 0 : handleClickAction(action, data); break;
             case 1: handleMiddleClick(data); break;
         }
+    }
+
+    function openTabInExplorer(itemEl) {
+        if (itemEl.dataset.parentId === '') return;
+
+        let parentId = parseInt(itemEl.dataset.parentId);
+        compoFileTab?.openDirectory(parentId);
+    }
+
+    function handleClickAction(action, data) {
+        switch (action) {
+            case 'close': compoFileTab.FileClose(data.fid); break;
+            default: {
+                let isRevealFileTree = true;
+                compoFileTab.focusTab(data.fid, isRevealFileTree); 
+            }
+            break;
+        } 
     }
 
     function CreateElement(data) {
@@ -22,12 +42,14 @@ let uiFileTab = (function() {
     }
 
     function handleMiddleClick(data) {
-        tabManager.FileClose(`${data.fid}`)
+        compoFileTab.FileClose(`${data.fid}`)
     }
     
     function HandleClick(evt) {
         let targetEl = evt.target;
         let itemEl = targetEl?.closest('[data-kind="itemFileTab"]');
+        let actionEl = targetEl?.closest('[data-action]');
+        let action = actionEl?.dataset.action;
 
         if (!itemEl) return;
         
@@ -35,7 +57,17 @@ let uiFileTab = (function() {
             fid: itemEl.dataset.fid,
         };
 
-        handleClickActions(evt, data);
+        handleClickActions(evt, action, data, itemEl);
+    }
+
+    function HandleContextMenu(evt) {        
+        let targetEl = evt.target;
+        let itemEl = targetEl?.closest('[data-kind="itemFileTab"]');
+        
+        if (!itemEl) return;
+
+        evt.preventDefault();
+        openTabInExplorer(itemEl);
     }
     
     return SELF;

@@ -77,7 +77,7 @@ app.loadFiles([
       "js/components/notif-component.js",
       "js/components/notifier.js",
       `${ACE_CDN_BASEPATH}/ace.js`,
-      "js/components/tab-manager.js",
+      "js/components/file-tab-component.js",
       "assets/js/packages/@isomorphic-git/lightning-fs/lightning-fs.min.js",
       "assets/js/packages/isomorphic-git/index.umd.min.js",
     ],

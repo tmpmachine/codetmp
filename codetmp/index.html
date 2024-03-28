@@ -16,6 +16,7 @@
   <link rel="apple-touch-icon" sizes="128x128" href="assets/images/128ap.png">
   <link rel="shortcut icon" sizes="16x16" type='image/x-icon' href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII=">
   <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/widgets.css"/>
   <link rel="stylesheet" href="css/app.css"/>
   <!-- <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet"> -->
 </head>
@@ -368,7 +369,7 @@
             <div class="d-grid relative file-tab-container">
               
               <!-- # file tab -->
-              <div id="file-title" data-mousedown="handle-click-file-tab"></div>
+              <div id="file-title" class="wg-FileTab" data-mousedown="handle-click-file-tab" data-ctxmenu="handle-ctxmenu-file-tab"></div>
 
               <div id="more-tab" data-callback="more-tab" class="clickable w3-left relative d-none" style="z-index:1;">
                 <div>
