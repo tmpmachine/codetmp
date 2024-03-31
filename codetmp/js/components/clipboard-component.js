@@ -187,7 +187,7 @@ const compoClipboard = (function() {
   }
   
   async function fileMove(data, fileType) {
-    fileManager.handleSync({
+    fileManager.sync({
       fid: data.fid,
       action: 'update',
       metadata: ['parents'],
