@@ -19,7 +19,6 @@ let ui = (function() {
     reloadOpenTab,
     toggleFileDownload,
     toggleGenerateSingleFile,
-    previewMedia,
     closeMediaPreview,
     enableJSZip,
     toggleMyFiles,
@@ -254,42 +253,6 @@ let ui = (function() {
 
   function toggleGenerateSingleFile() {
     ToggleModal('generate-single-file');
-  }
-
-  function previewMedia(file, mimeType) {
-    ToggleModal('media-preview');
-
-    let media;
-    if (mimeType.includes('audio')) 
-      media = document.createElement('audio');
-    else if (mimeType.includes('video'))
-      media = document.createElement('video');
-    else if (mimeType.includes('image')) {
-      media = document.createElement('img');
-    }
-    media.classList.add('Medial-el');
-    media.setAttribute('controls','controls');
-    let modal = $('.modal-component[data-name="media-preview"]')[0];
-    $('.media', modal)[0].innerHTML = '';
-    $('.media', modal)[0].append(media);
-    
-    return new Promise((resolve, reject) => {
-      fileManager.TaskGetPreviewLink(file).then(resolve).catch(reject);
-    }).then(src => {
-      media.src = src;
-      $('.title', modal)[0].textContent = file.name;
-      $('.download', modal)[0].onclick = () => {
-        let a = document.createElement('a');
-        a.href = src;
-        a.target = '_blank';
-        a.download = file.name;
-        $('#limbo').appendChild(a);
-        a.click();
-        $('#limbo').removeChild(a);
-      };
-    }).catch(() => {
-      aww.pop('Failed to preview media.');
-    });
   }
 
   function closeMediaPreview() {

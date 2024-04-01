@@ -24,13 +24,12 @@ let fileManager = (function() {
     TaskGetListFolder,
     TaskGetExistingItem,
     getDuplicateName,
-    TaskGetPreviewLink,
     getFullPath,
     save,
     open,
     reloadBreadcrumb,
     TaskSaveAll,
-    TaskResolveFilePath,
+    TaskResolveFilePath: ResolveFilePathAsync,
     TaskGetDivlessTargetFile,
   };
 
@@ -563,7 +562,7 @@ let fileManager = (function() {
     return null;
   }
 
-  async function TaskResolveFilePath(file) {
+  async function ResolveFilePathAsync(file) {
   	let parentId = file.parentId;
     let path = [file.name];
 
@@ -911,13 +910,16 @@ let fileManager = (function() {
   	    	fileManager.downloadMedia(f).then(resolve);
   	    }
   	  }
-  	}).then(() => {
+  	}).then(async () => {
       let isMediaTypeText = helper.isMediaTypeText(f.name);
       let isMediaTypeStream = helper.isMediaTypeStream(f.name);
+
       if (isMediaTypeText || isMediaTypeStream) {
      	  openOnEditor(f);
       } else {
-        ui.previewMedia(f, mimeType);
+        // open multimedia file in new tab
+        let filePath = await ResolveFilePathAsync(f);
+        previewHandler.previewPath(filePath)
       }
     }).catch(function(error) {
       if (error === 404) {
@@ -926,38 +928,6 @@ let fileManager = (function() {
       } else {
       	aww.pop('Could not download file');
       }
-    });
-  }
-
-  function TaskGetPreviewLink(f) {
-    return new Promise(async (resolve, reject) => {
-
-      let src = f.contentLink;
-
-      if (helper.hasFileReference(f.fileRef) && f.content === null) {
-      // if (f.fileRef.name !== undefined) {
-        src = URL.createObjectURL(f.fileRef);
-      } else {
-        if (helper.isHasSource(f.content)) {
-          src = helper.getRemoteDataContent(f.content).downloadUrl;
-        } else {
-          if (f.id.length > 0 && src.length === 0) {
-            let contentLink = await drive.getWebContentLink(f.id);
-            f.contentLink = contentLink;
-            src = contentLink;
-            if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
-              await TaskUpdate(f, 'files');
-            } else {
-              fileStorage.save();
-            }
-          }
-        }
-      }
-
-      if (src.length === 0)
-        reject();
-      else
-        resolve(src);
     });
   }
 

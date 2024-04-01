@@ -108,6 +108,7 @@ let helper = (function () {
       case 'svg': type ='image/svg+xml'; break;
       case 'bmp': type ='image/bmp'; break;
       case 'wav': type ='audio/wav'; break;
+      case 'm4a': type ='audio/mp4'; break;
       case 'mp3': type ='audio/mpeg'; break;
       case 'ogg': type ='audio/ogg'; break;
       case 'mp4': type ='video/mp4'; break;
