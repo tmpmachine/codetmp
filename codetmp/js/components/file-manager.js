@@ -23,9 +23,12 @@ let fileManager = (function() {
     TaskGetAllFolders,
     TaskGetListFolder,
     TaskGetExistingItem,
-    
+    getDuplicateName,
     TaskGetPreviewLink,
+    getFullPath,
     save,
+    open,
+    reloadBreadcrumb,
     TaskSaveAll,
     TaskResolveFilePath,
     TaskGetDivlessTargetFile,
@@ -401,11 +404,11 @@ let fileManager = (function() {
     return traversePath(folder.parentId, path);
   }
 
-  SELF.getFullPath = function(file) {
+  function getFullPath(file) {
     let path = traversePath(file.parentId).reverse();
     path.push(file.name);
     return path.join('/');
-  };
+  }
 
   async function TaskListFiles(parentId) {
     if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
@@ -638,16 +641,42 @@ let fileManager = (function() {
   }
 
   async function saveExistingFile(tab, tabIndex) {
+    let modifiedTime = (new Date()).toISOString();
+    let content = tab.editor.env.editor.getValue();
     let fid = tab.fid;
     let file = await TaskGetFile({fid, type: 'files'});
-    file.content = tab.editor.env.editor.getValue();
-    file.modifiedTime = (new Date()).toISOString();
+
+    file.content = content;
+    file.modifiedTime = modifiedTime;
     fileManager.sync({
       fid,
       action: 'update',
       metadata: ['media'],
       type: 'files'
     });
+
+    if (helper.isMediaTypeHTML(file.name) && settings.data.editor.divlessHTMLEnabled) {
+	      // check for divless directory
+        let divlessTargetFile = await fileManager.TaskGetDivlessTargetFile(file);
+
+        if (divlessTargetFile) {
+          file.divlessTarget = divlessTargetFile;
+
+          divlessTargetFile.content = divless.replace(content);
+          file.modifiedTime = modifiedTime;
+          fileManager.sync({
+            fid: divlessTargetFile.fid,
+            action: 'update',
+            metadata: ['media'],
+            type: 'files'
+          });
+
+          if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
+            await TaskUpdate(divlessTargetFile, 'files');
+          }
+        }
+
+    }
 
     if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
       await TaskUpdate(file, 'files');
@@ -656,7 +685,7 @@ let fileManager = (function() {
     drive.syncToDrive();
 
     tab.fiber = 'close';
-    $('.icon-rename')[tabIndex].textContent = 'close';
+    $('.icon-rename')[tabIndex]?.replaceChildren('close');
   }
 
   async function TaskSaveAll() {
@@ -867,7 +896,7 @@ let fileManager = (function() {
     })
   }
 
-  SELF.open = async function(fid) {
+  async function open(fid) {
     let f = await TaskGetFile({fid, type: 'files'});
     let mimeType = helper.getMimeType(f.name);
 
@@ -898,7 +927,7 @@ let fileManager = (function() {
       	aww.pop('Could not download file');
       }
     });
-  };
+  }
 
   function TaskGetPreviewLink(f) {
     return new Promise(async (resolve, reject) => {
@@ -949,7 +978,7 @@ let fileManager = (function() {
     return null;
   }
 
-  SELF.getDuplicateName = async function(parentId, name, type = 'file', originalName = '', duplicateCount = 1) {
+  async function getDuplicateName(parentId, name, type = 'file', originalName = '', duplicateCount = 1) {
     if (originalName == '')
       originalName = name;
     let existing = await TaskGetExistingItem(name, parentId, type);
@@ -959,7 +988,7 @@ let fileManager = (function() {
         if (arr.length > 1) {
           ext = '.'+arr.pop();
         }
-        return await SELF.getDuplicateName(parentId, arr.join('.')+' ('+duplicateCount+')'+ext, type, originalName, duplicateCount+1);
+        return await getDuplicateName(parentId, arr.join('.')+' ('+duplicateCount+')'+ext, type, originalName, duplicateCount+1);
     }
     return name;
   }
@@ -1026,7 +1055,7 @@ let fileManager = (function() {
     }
   }
 
-  SELF.reloadBreadcrumb = async function() {
+  async function reloadBreadcrumb() {
     breadcrumbs.length = 0;
     let folderId = activeFolder;
     while (folderId != -1) {
