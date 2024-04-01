@@ -14,7 +14,7 @@ let uiFileExplorer = (function() {
       RenameFile,
       OpenFileConfirm,
       SetState,
-
+      OpenFileDirectoryAsync,
       renameFolder,
       renameFile,
       newFolder,
@@ -191,6 +191,37 @@ let uiFileExplorer = (function() {
     }
   }
 
+  async function OpenFileDirectoryAsync() {
+    
+    if (!activeFile || $('#btn-menu-my-files').classList.contains('active'))  {
+      return;
+    }
+
+    let parentId = activeFile.parentId;
+    let targetMenuId;
+    let useCallback = false;
+    
+    breadcrumbs.splice(1);
+    
+    while (parentId != -1) {
+      folder = await fileManager.TaskGetFile({fid: parentId, type: 'folders'});
+      breadcrumbs.splice(1, 0, {folderId:folder.fid, title: folder.name});
+      parentId = folder.parentId;
+    }
+
+    LoadBreadCrumbs();
+    
+    ui.toggleActionMenu(targetMenuId, useCallback, $('#btn-menu-my-files'));
+    
+    if (breadcrumbs.length > 1) {
+      breadcrumbs.pop();
+    }
+
+    await fileManager.OpenFolder(activeFile.parentId);
+    
+    OpenFileConfirm(document.querySelector(`._fileList [data-type="file"][data-fid="${activeFile.fid}"]`))
+  }
+
   function UnloadSelected() {
     if (selectedFile.length === 1) {
       confirmDeletion('Unload selected item?').then(async () => {
@@ -212,6 +243,8 @@ let uiFileExplorer = (function() {
   }
 
   function OpenFileConfirm(el) {
+
+    if (!el) return;
 
       let index = selectedFile.indexOf(el);
     

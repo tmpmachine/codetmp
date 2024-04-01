@@ -126,7 +126,7 @@ let DOMEvents = {
 			ui.resizeEditor();
 		},
 		'Alt+W': () => compoFileTab.ConfirmCloseTab(),
-		'Alt+O': () => deferFeature1.openFileDirectory(),
+		'Alt+O': () => uiFileExplorer.OpenFileDirectoryAsync(),
 		'Ctrl+Shift+S': () => { event.preventDefault(); fileManager.TaskSaveAll(); },
 		'Ctrl+S': () => { event.preventDefault(); fileManager.save(); },
 		'Ctrl+D': () => { event.preventDefault(); uiFileExplorer.deleteSelected(); },

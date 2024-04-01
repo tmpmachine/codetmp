@@ -974,7 +974,7 @@ let fileManager = (function() {
       breadcrumbs.push({folderId:activeFolder, title})
     }
     
-    list();
+    await list();
   }
 
   function handleSync(sync) {
