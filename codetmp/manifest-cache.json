@@ -61,7 +61,6 @@
     "js/components/drive.js",
     "js/components/key-input-component.js",
     "js/components/notif-component.js",
-    "js/components/defer-feature-1.js",
     "js/components/defer-feature-2.js",
     "js/components/single-file-generator.js",
     "js/components/environment-manager.js"

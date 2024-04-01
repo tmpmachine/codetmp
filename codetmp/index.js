@@ -120,7 +120,6 @@ app.loadFiles([
       "js/require/aww.js",
       "js/components/auth2helper.js",
       "js/components/drive.js",
-      "js/components/defer-feature-1.js",
       "js/components/defer-feature-2.js",
     ],
   },

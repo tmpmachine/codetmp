@@ -84,8 +84,8 @@ let DOMEvents = {
 		to do : determine a fitting className
 	*/
 	clickableMenu: {
-		'command-palette': () => deferFeature1.toggleTemplate(),
-		'open-in-explorer': () => deferFeature1.openFileDirectory(),
+		'command-palette': () => ui.toggleTemplate(),
+		'open-in-explorer': () => uiFileExplorer.OpenFileDirectoryAsync(),
 		'new-file': ui.newFile,
 		'new-file-on-disk': ui.newDiskFile,
 		'open-disk-folder': () => ui.OpenDiskFile(),
@@ -117,7 +117,7 @@ let DOMEvents = {
 			if (!$('#in-home').classList.contains('active'))
 				ui.toggleMyFiles();
 		},
-		'Alt+R': () => deferFeature1.toggleWrapMode(),
+		'Alt+R': () => compoEditor.ToggleWrapMode(),
 		'Alt+N': uiFileExplorer.newFile,
 		'Alt+Q': () => {
 			document.body.classList.toggle('--tree-explorer');
@@ -131,11 +131,11 @@ let DOMEvents = {
 		'Ctrl+S': () => { event.preventDefault(); fileManager.save(); },
 		'Ctrl+D': () => { event.preventDefault(); uiFileExplorer.deleteSelected(); },
 		'Ctrl+A': () => uiFileExplorer.SelectAllFiles(),
-		'Ctrl+V': () => deferFeature1.handlePasteRow(),
+		'Ctrl+V': () => compoEditor.HandlePasteRow(),
 		'Ctrl+O': () => { fileManager.TaskOpenLocal(event); },
 		'Alt+D': () => {
 			event.preventDefault();
-			deferFeature1.toggleTemplate();
+			ui.toggleTemplate();
 		},
 		'Ctrl+Enter': function () {
 			if ($('#btn-menu-my-files').classList.contains('active')) {

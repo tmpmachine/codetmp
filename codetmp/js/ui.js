@@ -11,6 +11,7 @@ let ui = (function() {
     highlightTree,
     reloadFileTree,
     myFiles,
+    toggleTemplate,
     trash,
     toggleTheme,
     toggleInFrame,
@@ -89,6 +90,10 @@ let ui = (function() {
       })
     }
 
+  }
+
+  function toggleTemplate() {
+    $('#btn-menu-template').click();
   }
 
   function SetActiveWorkspace(index) {
