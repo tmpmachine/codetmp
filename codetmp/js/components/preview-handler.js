@@ -249,134 +249,137 @@ let previewHandler = (function () {
   }
 
 	async function getContent(src, mimeType) {
+    let content = '';
+    let isConvertDivless = ( settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/) );
 
     if (src == '/untitled.html') {
-    	let content = await replaceTemplate(fileTab[activeTab].editor.env.editor.getValue());
-      if (settings.data.editor.divlessHTMLEnabled)
-        return divless.replace(content);
-      return content;
+      content = fileTab[activeTab].editor.env.editor.getValue();
+      // replace <file> tags relative to root dir.
+      content = await replaceTemplate(content);
+    } else {
+      content = await getContentFromSrcAsync(src, isConvertDivless);
     }
 
-    let content = '<404></404>';
+    // convert to divless if enabled in Settings
+    if (isConvertDivless) {
+      return divless.replace(content);
+    }
+
+    return content;
+  }
+
+  async function getContentFromSrcAsync(src, isConvertDivless) {
+
+    let content = '';
     let filePathData = await getFileAtPath(src);
     let file = filePathData.file;
     let parentId = filePathData.parentId;
     
     if (file === null) return content;
 
+    // return empty and download the file from the remote source at the same time.
     if (!file.loaded) {
       aww.pop('Downloading required file : '+file.name);
       fileManager.downloadMedia(file);
-      return '';
-    } 
+      return content;
+    }
 
-    if (helper.hasFileReference(file.fileRef) && file.content === null) { 
+    /*
+      Return order:
+      --
+      1. opened file tab
+      2. opened divless file tab (.html only)
+      3. either a file reference or file storage content depending on the active workspace type (Main, Playground, and File System)
+    */
 
-      let targetTab = fileTab.find(item => item.fid == file.fid);
-      if (activeFile && activeFile.fid === file.fid) {
-        targetTab = fileTab[activeTab];
-      }
+    // seek and return content from opened files
+    let openedFileTab = fileTab.find(item => item.fid == file.fid);
+    if (openedFileTab) {
+      content = openedFileTab.editor.env.editor.getValue();
+      return content;
+    }
 
-      let isConvertDivless = ( settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/) );
+    // seek and return content from its divless file, only if it's currently opened
+    if (isConvertDivless) {
+      let divlessContent = await getOpenedDivlessFileContentAsync(file);
+      if (divlessContent) {
+        return divlessContent;
+      } 
+    }
 
-      // search .divless/* reference files in opened tabs
-      try {
-        
-        if (isConvertDivless) {
+    // File System workspace: return content from file reference
+    if (activeWorkspace == 2) {
 
-          let targetFid = file.fid;
-          
-          let findTargetTab = fileTab.find(item => item.divlessConvertFileTargetFid == targetFid);
-          if (findTargetTab) {
-            // cache divless target tab
-            targetTab = findTargetTab;
-          } else {
+      let blob = null;
 
-            // loop through opened tab, search for .divless/* reference of requested file
-            for (let tabData of fileTab) {
-    
-              if (!tabData.file) continue;
-
-              // check if tab is HTML
-              if (!helper.getMimeType(tabData.file.name).match(/text\/html|text\/xml/)) continue;
-    
-              let currentFile = tabData.file;
-    
-              // todo: this block was taken from filemanager, create utility function instead.
-              {
-                let parent = await fileManager.TaskGetFile({fid: currentFile.parentId, type: 'folders'});
-                if (parent && parent.name == '.divless' && parent.trashed == false) {
-                  let targetDivlessFile = currentFile.divlessTarget;
-                  if (!currentFile.divlessTarget) {
-                    let files = await fileManager.TaskListFiles(parent.parentId);
-                    targetDivlessFile = files.find(file => file.name == currentFile.name && !file.trashed);
-                  }
-                  if (targetDivlessFile && targetDivlessFile.fid == targetFid) {
-                    // set to read content from opened tab
-                    targetTab = tabData;
-                    tabData.divlessConvertFileTargetFid = targetFid;
-                    break;
-                  }
-                }
-              }
-    
-            }
-
-          }
-
-        }
-
-      } catch (error) {
-        console.error(error);
-      }
-      // end search
-
-      if (targetTab) {
-
-          content = targetTab.editor.env.editor.getValue();
-
+      if (file.fileRef.entry) {
+        blob = await file.fileRef.entry.getFile();
       } else {
-
-        if (file.fileRef.entry) {
-
-          if (!isConvertDivless) {
-            return await file.fileRef.entry.getFile();
-          }
-
-          // convert divless
-          let blob = await file.fileRef.entry.getFile();
-          content = await new Promise(resolve => {
-            let r = new FileReader();
-            r.onload = async function() {
-              content = divless.replace(r.result);
-              resolve(content)
-            }
-            r.readAsText(blob);   
-          })
-
-        } else {
-          return file.fileRef;
-        }
-
+        blob = file.fileRef;
       }
+      
+      // return as text so that it can be converted from divless format
+      if (isConvertDivless) {
+        content = await new Promise(resolve => {
+          let reader = new FileReader();
+          reader.onload = async function() {
+            resolve(reader.result)
+          }
+          reader.readAsText(blob);   
+        })
+        return content;
+      } 
+      
+      // return blob as is
+      return blob;
+    }
+
+    // oher workspaces: return content from file storage
+    content = file.content;
+    return content;
+
+  }
+
+  async function getOpenedDivlessFileContentAsync(file) {
+
+    let content = null
+
+    // seek cached divless reference file in opened tabs
+    let openedDivlessFileTab = fileTab.find(item => item.divlessConvertFileTargetFid == file.fid);
+
+    if (openedDivlessFileTab) {
+
+      content = openedDivlessFileTab.editor.env.editor.getValue();
+      return content;
 
     } else {
 
-      let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
-      if (tabIdx >= 0)
-        content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
-      else
-        content = file.content;
+      // seek divless reference file in opened tabs and set cache reference if found
+      
+      for (let tabObj of fileTab) {
 
-    }
-    
-    content = await replaceTemplate(content, parentId)
-    if (settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/)) {
-      content = divless.replace(content);
+        // skip untitled (new, unsaved) file
+        if (!tabObj.file) continue;
+
+        // skip other files than html
+        if (!helper.getMimeType(tabObj.file.name).match(/text\/html|text\/xml/)) continue;
+
+        // skip files with different name
+        if (tabObj.file.name != file.name) continue;
+
+        let divlessTargetFile = await fileManager.TaskGetDivlessTargetFile(tabObj.file);
+        
+        if (divlessTargetFile && divlessTargetFile.fid == file.fid) {
+          tabObj.divlessConvertFileTargetFid = file.fid;
+          content = tabObj.editor.env.editor.getValue();
+          return content;
+        }
+
+      }
+
     }
 
     return content;
-
   }
 
   function getFrameName() {
