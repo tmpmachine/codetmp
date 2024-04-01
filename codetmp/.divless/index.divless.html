@@ -26,7 +26,7 @@
 
   <div id="main-layout" class="normal-mode">
     <div id="main-editor">
-      <div class="w3-rest relative h-100">
+      <div class="w3-rest pos-relative h-100">
         <div id="in-home" class="in-window in-content col1 active">
           <div style="top:0;left:0;overflow:auto;z-index:2;" class="w-100 h-100 absolute">
             <div class="w3-hide-small" style="height:34px;"></div>
@@ -38,11 +38,11 @@
                 <p>
                   <input id="check-show-homepage" class="w3-check" type="checkbox" checked oninput="ui.ToggleHomepageSetting()"/> <label for="check-show-homepage">Show homepage first</label>
                 </p>
-                <div class="w3-button w3-border w3-block clickable" data-callback="toggle-homepage" style="text-align: center;background: dodgerblue;color:#fff;max-width: 300px">
-                  <div class="w3-small w3-padding-small" style="font-weight:bold;">Start Coding</div>
-                </div>
+                <button class="d-block clickable" data-callback="toggle-homepage">
+                  Start Coding
+                </button>
                 <div style="height:1rem"></div>
-                <div class="w3-button w3-border w3-block w3-hide" style="text-align: center;background: #009688;color:#fff;max-width: 300px" id="buttonInstall">
+                <div class="w3-button w3-border d-block w3-hide" style="text-align: center;background: #009688;color:#fff;max-width: 300px" id="buttonInstall">
                   <div class="w3-small w3-padding-small" style="font-weight:bold;">Install Codetmp</div>
                 </div>
                 <div style="height:12px"></div>
@@ -208,27 +208,27 @@
 	                </div>
 	                <div class="uid-A">
 	                  <div>
-	                    <div class="Btn w3-block w3-padding clickable" data-callback="file-rename">
+	                    <div class="Btn d-block w3-padding clickable" data-callback="file-rename">
 	                      <i class="material-icons">edit</i>
 	                      <div class="w3-small w3-padding-small">Rename</div>
 	                    </div>
-	                    <div class="Btn w3-block w3-padding clickable" data-callback="file-delete">
+	                    <div class="Btn d-block w3-padding clickable" data-callback="file-delete">
 	                      <i class="material-icons">delete</i>
 	                      <span class="w3-small w3-padding-small" title="Move to trash">Trash</span>
 	                    </div>
-	                    <div class="Btn w3-block w3-padding clickable" data-callback="file-download">
+	                    <div class="Btn d-block w3-padding clickable" data-callback="file-download">
 	                      <i class="material-icons">get_app</i>
 	                      <span class="w3-small w3-padding-small">Download</span>
 	                    </div>
-	                    <div class="Btn w3-block w3-padding clickable" data-callback="copy">
+	                    <div class="Btn d-block w3-padding clickable" data-callback="copy">
 	                      <i class="material-icons">copy</i>
 	                      <span class="w3-small w3-padding-small">Copy</span>
 	                    </div>
-	                    <div class="Btn w3-block w3-padding clickable" data-callback="move">
+	                    <div class="Btn d-block w3-padding clickable" data-callback="move">
 	                      <i class="material-icons">drive_file_move</i>
 	                      <span class="w3-small w3-padding-small">Move</span>
 	                    </div>
-	                    <div class="Btn w3-block w3-padding clickable authorized" data-callback="file-unload">
+	                    <div class="Btn d-block w3-padding clickable authorized" data-callback="file-unload">
 	                      <i class="material-icons">refresh</i>
 	                      <span class="w3-small w3-padding-small">Resync</span>
 	                    </div>
@@ -253,11 +253,11 @@
           <div class="w3-hide-small" style="height:34px;"></div>
           <div class="w3-padding border-bottom-dark">
             <div class="no-select">
-              <h5><b>Trash <span class="w3-tiny">(Preview only)</span> <span class="w3-black w3-round w3-tiny" style="padding:0 2px 2px ;">Beta</span></b></h5>
+              <h5><b>Trash <small>(Preview only)</small> <small class="w3-black w3-round" style="padding:0 2px 2px ;">Beta</small></b></h5>
             </div>
           </div>
           <div class="h-100">
-            <div style="z-index:1;" class="ov-auto relative h-100">
+            <div style="z-index:1;" class="ov-auto pos-relative h-100">
               <div id="list-trash" class="w3-padding d-flex" style="flex-flow:wrap;"></div>
             </div>
           </div>
@@ -268,11 +268,11 @@
 
         <!-- # editor window -->
         <div class="in-window d-grid ov-hidden h-100">
-          <div class="relative h-100 d-grid" style="grid-template-rows:auto auto 1fr;">
+          <div class="pos-relative h-100 d-grid" style="grid-template-rows:auto auto 1fr;">
             
             <div id="nav-bar" class="no-select w3-small w-100">
 
-              [ .relative .d-flex .justify-content-between
+              [ .pos-relative .d-flex .justify-content-between
 
                 <div class="menu-bar">
                   
@@ -366,14 +366,14 @@
 
             </div>
             
-            <div class="d-grid relative file-tab-container">
+            <div class="d-grid pos-relative file-tab-container">
               
               <!-- # file tab -->
               [ #file-title .wg-FileTab data-mousedown="handle-click-file-tab" data-ctxmenu="handle-ctxmenu-file-tab"]
 
-              <div id="more-tab" data-callback="more-tab" class="clickable w3-left relative d-none" style="z-index:1;">
+              <div id="more-tab" data-callback="more-tab" class="clickable w3-left pos-relative d-none" style="z-index:1;">
                 <div>
-                  <div class="w3-rest relative" style="padding:18px 24px;line-height:1.5em;">
+                  <div class="w3-rest pos-relative" style="padding:18px 24px;line-height:1.5em;">
                     <div class="file-tab-name no-select w3-small w3-left h-100 d-flex w-100 absolute" data-title="__name__" style="left:0;top:0;color:#fff!important;font-weight:bold;align-items:center;justify-content:center;">
                       <i class="material-icons">navigate_next</i>
                     </div>
@@ -383,14 +383,14 @@
               </div>
             </div>
             
-            <div style="position: relative;">
+            [ .pos-relative
               <div id="editor-wrapper" spellcheck="false" class="relative h-100" style="background:#21252b;"></div>
               <div data-target="editor" data-message="1" class="drop-zone w3-hide"></div>
-            </div>
+            ]
           </div>
         </div>
       </div>
-      <div id="sidebar" class="w3-animate-left w3-card-4 HIDE ov-auto">
+      <div id="sidebar" class="w3-animate-left HIDE ov-auto">
         
         <!-- # sidebar -->
         <div class="Inner sidebar-inner h-100">
@@ -431,7 +431,7 @@
             <label class="l-btn-in">Trash</label>
           </div>
           
-          <div id="btn-home-wrapper" class="hide w3-animate-left relative" style="z-index:0;">
+          <div id="btn-home-wrapper" class="hide w3-animate-left pos-relative" style="z-index:0;">
             <div id="btn-home" id="btn-home" class="btn-material no-select w3-hide-medium w3-hide-large clickable" data-callback="toggle-homepage">
               <i class="material-icons i-btn-in">home</i>
               <label class="l-btn-in">Home</label>
@@ -477,8 +477,8 @@
         <!-- END OF FILE TREE EXPLORER -->
 
       </div>
-      <div id="status-bar" class="no-select w3-tiny">
-        <span id="txt-sync"></span>
+      <div id="status-bar" class="no-select">
+        <small id="txt-sync"></small>
         <span>&nbsp;</span>
       </div>
     </div>

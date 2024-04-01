@@ -1,8 +1,8 @@
 <export>
 
-<div class="w-100 search-box w3-container w3-hide Export" style="position:fixed;z-index:8177;top:0;height:0;padding-top:3rem">
-  <div class="w3-left-align" style="max-width:400px;margin:auto;">
-    <div class="w3-card relative">
+<div class="w-100 search-box w3-hide Export" style="position:fixed;z-index:8177;top:0;height:0;padding-top:3rem">
+  <div style="max-width:400px;margin:auto;">
+    <div class="pos-relative">
       <div class="search-box relative">
         <div class="w3-round w3-white d-grid relative" style="z-index:1;grid-template-columns:1fr auto;align-items:center">
           <div class="button-tb ov-hidden">
@@ -10,23 +10,23 @@
           </div>
           <div>
             <label for="search-input">
-              <i id="btn-search" class="material-icons ai-button w3-container" onclick="resetSearch(this)">search</i>
+              <i id="btn-search" class="material-icons ai-button" onclick="resetSearch(this)">search</i>
             </label>
           </div>
         </div>
       </div>
     </div>
-    <div id="search-result" class="relative" style="z-index:1;top:-2px;"></div>
+    <div id="search-result" class="pos-relative" style="z-index:1;top:-2px;"></div>
   </div>
 </div>
 
 <div id="update-notif" class="Export w-100" style="position:fixed;bottom:0;left:0;background:#0b0b0e;color:#ccc;z-index:8177;font-weight:bold">
   <div class="w3-right">
-    <div id="btn-refresh" class="w3-left w3-container" style="padding:16px;text-transform:uppercase;font-weight:bold;color:#d8d782;">Refresh</div>
-    <div id="btn-dismiss" class="w3-left w3-container" style="padding:16px;text-transform:uppercase;font-weight:bold;">Dismiss</div>
+    <div id="btn-refresh" style="padding:16px;text-transform:uppercase;font-weight:bold;color:#d8d782;">Refresh</div>
+    <div id="btn-dismiss" style="padding:16px;text-transform:uppercase;font-weight:bold;">Dismiss</div>
   </div>
   <div class="w3-rest">
-    <div class="w3-container w3-small" style="padding:16px;">New version available</div>
+    <small style="padding:16px;">New version available</small>
   </div>
 </div>
 
@@ -140,19 +140,19 @@
         <form class="authorized feature-enabled submittable preventDefault if-post" data-callback="deploy-hosting" data-feature="firebase">
           
           <p>Note : You are deploying current opened directory.</p>
-          <div class="w3-tiny">Manage your project at <a href="https://firebase.google.com/" target="_blank"><u>Firebase</u></a></div>
+          <small>Manage your project at <a href="https://firebase.google.com/" target="_blank"><u>Firebase</u></a></small>
 
           <div style="height:1em"></div>
-          <div class="w3-tiny">Select Project</div>
+          <small>Select Project</small>
           <select id="project-list" class="inputable" data-callback="select-project" name="projectId"></select>
           <div style="height:1em"></div>
-          <div class="w3-tiny">
-            <span class="if-post">Select Site</span>
+          <div>
+            <small class="if-post">Select Site</small>
           </div>
           <select id="site-list" class="inputable" data-callback="select-site" name="siteId"></select>
           <div style="height:1em"></div>
-          <div class="w3-tiny">
-            <span class="if-post">Cache-Control</span>
+          <div>
+            <small class="if-post">Cache-Control</small>
           </div>
           <input type="number" value="0" name="cacheControl"/> seconds
 
@@ -170,7 +170,7 @@
               </label>
             </p>
             <small>CSS (Lighting CSS, transform target : Chrome 95) : </small>
-            <mark class="w3-round w3-tiny" style="padding:0 2px 2px ;">Beta</mark>
+            <mark class="w3-round" style="padding:0 2px 2px ;"><small>Beta</small></mark>
             <p>
               <label>
                 <input name="minifyCss" class="autofocus w3-check input-settings" type="checkbox"/> 
@@ -241,13 +241,15 @@
               <input class="w3-check" name="replaceDivless" type="checkbox"/> Convert Divless HTML format
             </label>
           </div>
-          <div class="pb-half"></div>
+          <div class="void void-half"></div>
           <small>JavaScript (Terser) : </small>
           <p>
             <label><input name="minifyJs" class="autofocus w3-check input-settings" type="checkbox"/> Minify</label>
           </p>
           <small>CSS (Lighting CSS, transform target : Chrome 95) : </small>
-          <mark class="w3-round w3-tiny" style="padding:0 2px 2px ;">Beta</mark>
+          <mark class="w3-round" style="padding:0 2px 2px ;">
+            <small>Beta</small>
+          </mark>
           <p>
             <label>
               <input name="minifyCss" class="autofocus w3-check input-settings" type="checkbox"/> 
@@ -320,7 +322,8 @@
         <section>
           <input type="" name="" class="w3-input autofocus" spellcheck="false">
           <small class="notes"></small>
-          <div class="w3-margin-top w3-right-align no-select">
+          <div class="void void-full"></div>
+          <div class="text-right no-select">
             <button class="Btn-submit btn-style-1" type="submit" name="submit" ><i class="material-icons">check</i>Ok</button>
             <button type="button" class="toggler btn-style-2"><i class="material-icons">close</i>Cancel</button>
           </div>
@@ -341,7 +344,8 @@
       <form data-type="confirm">
         <section>
         <p class="message"></p>
-        <div class="w3-margin-top w3-right-align no-select">
+        <div class="void void-full"></div>
+        <div class="text-right no-select">
           <button class="Btn-submit btn-style-1 autofocus" type="submit" name="submit" ><i class="material-icons">check</i>Ok</button>
           <button type="button" class="toggler btn-cancel btn-style-2"><i class="material-icons">close</i>Cancel</button>
         </div>
