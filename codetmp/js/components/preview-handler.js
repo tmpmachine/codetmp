@@ -249,7 +249,7 @@ let previewHandler = (function () {
   }
 
 	async function getContent(src, mimeType) {
-    let content = '';
+    let content = '<404></404>';
     let isConvertDivless = ( settings.data.editor.divlessHTMLEnabled && mimeType.match(/text\/html|text\/xml/) );
 
     if (src == '/untitled.html') {
@@ -270,7 +270,7 @@ let previewHandler = (function () {
 
   async function getContentFromSrcAsync(src, isConvertDivless) {
 
-    let content = '';
+    let content = '<404></404>';
     let filePathData = await getFileAtPath(src);
     let file = filePathData.file;
     let parentId = filePathData.parentId;
