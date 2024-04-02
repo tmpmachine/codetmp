@@ -170,7 +170,7 @@ const compoFileTab = (function() {
     for (let tab of $$('.file-tab'))
       tab.style.display = 'inline-block';
 
-    $('#more-tab').style.display = ($('.file-tab').length > 1 && getTabWidth() >= $('#file-title').offsetWidth - 48) ? 'inline-block' : 'none';
+    $('#more-tab').style.display = ($$('.file-tab').length > 1 && getTabWidth() >= $('#file-title').offsetWidth - 48) ? 'inline-block' : 'none';
     let maxOpenTab = Math.floor(($('#file-title').offsetWidth - 48) / $$('.file-tab')[idx].offsetWidth);
 
     if ($$('.file-tab').length > maxOpenTab) {

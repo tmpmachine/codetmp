@@ -2,6 +2,9 @@ let app = (function() {
 
   'use strict'; 
 
+  let $ = document.querySelector.bind(document);
+  let $$ = document.querySelectorAll.bind(document);
+
   let SELF = {
     get getComponent() {
       return getComponent;
@@ -27,7 +30,7 @@ let app = (function() {
   }
 
   function AuthReady() {
-    $('body')[0].classList.toggle('is-authorized', true);
+    $('body').classList.toggle('is-authorized', true);
     if (fileStorage.data.rootId === '') {
       drive.readAppData();
     } else {
@@ -44,7 +47,7 @@ let app = (function() {
     compoNotif.Reset();
     ui.reloadFileTree();
   
-    $('body')[0].classList.toggle('is-authorized', false);
+    $('body').classList.toggle('is-authorized', false);
     support.check('firebase');
     
     activeFolder = -1;
@@ -129,8 +132,9 @@ let app = (function() {
     function loadExternalFiles(URLs, isConnectionRequired = false) {
       return new Promise(resolve => {
         let bundleURL = [];
-        for (let URL of URLs)
+        for (let URL of URLs) {
           bundleURL.push(requireExternalFiles(URL));
+        }
         Promise.all(bundleURL).then(() => {
           resolve();
         }).catch(error => {
@@ -153,7 +157,7 @@ let app = (function() {
         div.innerHTML = e.data.content;
         
         let fragment = document.createDocumentFragment();
-        for (let node of $('.Export', div)) {
+        for (let node of div.querySelectorAll('.Export')) {
           node.classList.toggle('Export', false);
           fragment.appendChild(node);
         }

@@ -1,5 +1,9 @@
-"use strict"; 
 (function() {
+
+  'use strict'; 
+  
+  let $ = document.querySelector.bind(document);
+  let $$ = document.querySelectorAll.bind(document);
 
   function FileBundlerComponent() {
 

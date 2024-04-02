@@ -1,5 +1,7 @@
 const fileReaderModule = (function () {
 
+	let $ = document.querySelector.bind(document);
+	
 	let self = {
 		init,
 		readSingleUploadItem,
@@ -405,37 +407,13 @@ const fileReaderModule = (function () {
 		}
 	}
 
-	// function keyHandler(e) {
-	// 	if (e.type == 'keydown' && e.keyCode == 17) {
-	// 		clearTimeout(keyHandler.timeout);
-	// 		isPressedCtrlKey = true;
-	// 		changeDropMessage()
-	// 	} else {
-	// 		clearTimeout(keyHandler.timeout);
-	// 		keyHandler.timeout = setTimeout(function() {
-	// 			isPressedCtrlKey = false;
-	// 			changeDropMessage()
-	// 		}, 50);
-	// 	}
-	// }
-
 	function showDropZone(dropZone) {
 		changeDropMessage()
 		dropZone.classList.toggle('w3-hide', false);
-		// if (isSupportSaveFile) {
-		// window.addEventListener('keydown', keyHandler);
-		// window.addEventListener('keyup', keyHandler);
-		// $('.Helpnote', dropZone)[0].classList.toggle('w3-opacity', !document.hasFocus());
-		// $('.Helpnote', dropZone)[1].classList.toggle('w3-hide', document.hasFocus());
-		// }
 	}
 
 	function hideDropZone(dropZone) {
 		dropZone.classList.toggle('w3-hide', true);
-		// if (isSupportSaveFile) {
-		// window.removeEventListener('keydown', keyHandler);
-		// window.removeEventListener('keyup', keyHandler);
-		// }
 	}
 
 	function handleExplorerDrop(e, target, isPressedCtrlKey) {
@@ -453,11 +431,12 @@ const fileReaderModule = (function () {
 	}
 
 	function initDragDropZone(target, dragZone) {
-		let dropZone = $('.drop-zone[data-target="' + target + '"]')[0];
-		if (isSupportSaveFile)
+		let dropZone = $('.drop-zone[data-target="' + target + '"]');
+		if (isSupportSaveFile) {
 			dropZone.append($('#msg-drop-zone').content.cloneNode(true));
-		else
+		} else {
 			dropZone.append($('#msg-drop-zone-no-edit').content.cloneNode(true));
+		}
 		dropZone.addEventListener('drop', preventDefault);
 		dropZone.addEventListener('dragover', preventDefault);
 		dragZone.addEventListener('dragover', preventDefault);

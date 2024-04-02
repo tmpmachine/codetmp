@@ -1,17 +1,20 @@
 const modal = (function() {
 
+  let $ = document.querySelector.bind(document);
+  let $$ = document.querySelectorAll.bind(document);
+
   let _modal;
   let _resolve;
   let _reject;
 
-  let confirmModal = $('.modal-component[data-name="confirm"]')[0];
+  let confirmModal = $('.modal-component[data-name="confirm"]');
   confirmModal.addEventListener('onclose', closeHandler);
-  $('form', confirmModal)[0].onsubmit = submitForm;
-  $('.btn-cancel', confirmModal)[0].onclick = rejectForm;
+  confirmModal.querySelector('form').onsubmit = submitForm;
+  confirmModal.querySelector('.btn-cancel').onclick = rejectForm;
 
-  let promptModal = $('.modal-component[data-name="prompt"]')[0];
+  let promptModal = $('.modal-component[data-name="prompt"]');
   promptModal.addEventListener('onclose', closeHandler);
-  $('form', promptModal)[0].onsubmit = submitForm;
+  promptModal.querySelector('form').onsubmit = submitForm;
 
   function submitForm() {
     event.preventDefault();
@@ -40,18 +43,18 @@ const modal = (function() {
     _modal = confirmModal.toggle();
     type = 'confirm';
     compoStateManager.pushState([0]);
-    $('.message', _modal)[0].innerHTML = message;
+    _modal.querySelector('.message').innerHTML = message;
     return getResolver();
   }
 
   function prompt(promptText = '', defaultValue = '', notes = '', selectionLength = 0) {
     _modal = promptModal.toggle();
-    input = $('input', _modal)[0];
+    input = _modal.querySelector('input');
     type = 'prompt';
     compoStateManager.pushState([0]);
-    $('.title', _modal)[0].innerHTML = promptText;
+    _modal.querySelector('.title').innerHTML = promptText;
     input.value = defaultValue;
-    $('.notes', _modal)[0].innerHTML = notes;
+    _modal.querySelector('.notes').innerHTML = notes;
     setTimeout(() => {
       input.focus();
       if (selectionLength > 0)

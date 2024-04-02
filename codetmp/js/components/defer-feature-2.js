@@ -1,5 +1,8 @@
 (function() {
 
+  let $ = document.querySelector.bind(document);
+	let $$ = document.querySelectorAll.bind(document);
+
   function initMenuBar() {
 
     function handler(e) {
@@ -14,7 +17,7 @@
     }
     
     function blur() {
-      if (document.activeElement.classList.contains('authorized') && !$('body')[0].classList.contains('is-authorized')) {
+      if (document.activeElement.classList.contains('authorized') && !$('body').classList.contains('is-authorized')) {
 
       } else {
         document.activeElement.blur();
@@ -22,29 +25,24 @@
     }
     
     $('#nav-bar').addEventListener('mouseover', handler);
-    for (let node of $('.menu-bar a')) {
+    for (let node of $$('.menu-bar a')) {
       if (node.classList.contains('Root'))
         node.setAttribute('tabindex', '0');
       if (node.getAttribute('href') == '#')
         node.href = 'javascript:void(0)';
     }
     
-    for (let node of $('.menu-bar a:not(.Root)'))
+    for (let node of $$('.menu-bar a:not(.Root)'))
       node.addEventListener('click', blur)
   }
 
   function initNavMenus() {
 
-    function checkAuth(callback) {
-      if ($('body')[0].classList.contains('is-authorized'))
-        callback();
-    }
-
-    for (let menu of $('.menu-link')) {
+    for (let menu of $$('.menu-link')) {
       
       if (menu.dataset.shortcut) {
         let shortcut = $('#tmp-keyboard-shortcut').content.cloneNode(true);
-        $('.shortcuts', shortcut)[0].textContent = menu.dataset.shortcut;
+        shortcut.querySelector('.shortcuts').textContent = menu.dataset.shortcut;
         menu.append(shortcut);
       }
 

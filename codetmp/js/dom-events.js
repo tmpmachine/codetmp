@@ -114,7 +114,7 @@ let DOMEvents = {
 		'Alt+>': () => ui.switchTab(1),
 		'Alt+P': ui.toggleGenerateSingleFile,
 		'Alt+M': () => {
-			if (!$('#in-home').classList.contains('active'))
+			if (!document.querySelector('#in-home').classList.contains('active'))
 				ui.toggleMyFiles();
 		},
 		'Alt+R': () => compoEditor.ToggleWrapMode(),
@@ -138,7 +138,7 @@ let DOMEvents = {
 			ui.toggleTemplate();
 		},
 		'Ctrl+Enter': function () {
-			if ($('#btn-menu-my-files').classList.contains('active')) {
+			if (document.querySelector('#btn-menu-my-files').classList.contains('active')) {
 				if (selectedFile.length > 0) {
 					uiFileExplorer.RenameFile();
 				}
@@ -147,7 +147,7 @@ let DOMEvents = {
 			}
 		},
 		'Ctrl+Shift+Enter': function () {
-			if (!$('#btn-menu-my-files').classList.contains('active')) {
+			if (!document.querySelector('#btn-menu-my-files').classList.contains('active')) {
 				previewHandler.previewPathAtPWA();
 			}
 		},

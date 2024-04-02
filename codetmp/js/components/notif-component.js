@@ -1,5 +1,8 @@
 let compoNotif = (function() {
   
+  let $ = document.querySelector.bind(document);
+  let $$ = document.querySelectorAll.bind(document);
+
   let SELF = {
     Init,
     Add,

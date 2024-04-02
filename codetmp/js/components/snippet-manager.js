@@ -108,170 +108,176 @@ function fuzzysearch (needle, haystack) {
   return {isMatch: true, matchIndexes};
 }
 
-var wgSearchRes;
-var wgSearch = {
-  hints: [],
-  pageId: '',
-  keywords: [],
-  match: function(value) {
-    this.find.idx = -1;
+let wgSearchRes;
+let wgSearch;
 
-    if (value.trim().length < 2) return [];
-    var data = [];
-    var extraMatch = [];
-    for (var i=0,title,matchIdx,match=1,xmatch=1,wildChar,offset,creps; i<snippets.length; i++) {
-      if (match > 10) break;
-      titleOri = snippets[i].title;
-      let search = fuzzysearch(value,titleOri.toLowerCase());
-      if (search.isMatch) {
-        if (search.matchIndexes.length === 0) {
-          if (value == titleOri.toLowerCase()) {
-            data.push({index:snippets[i].index,title:'<b>'+titleOri+'</b>'});
-            match++;
+(async function() {
+
+  let $ = document.querySelector.bind(document);
+  let $$ = document.querySelectorAll.bind(document);
+
+  wgSearch = {
+    hints: [],
+    pageId: '',
+    keywords: [],
+    match: function(value) {
+      this.find.idx = -1;
+
+      if (value.trim().length < 2) return [];
+      var data = [];
+      var extraMatch = [];
+      for (var i=0,title,matchIdx,match=1,xmatch=1,wildChar,offset,creps; i<snippets.length; i++) {
+        if (match > 10) break;
+        titleOri = snippets[i].title;
+        let search = fuzzysearch(value,titleOri.toLowerCase());
+        if (search.isMatch) {
+          if (search.matchIndexes.length === 0) {
+            if (value == titleOri.toLowerCase()) {
+              data.push({index:snippets[i].index,title:'<b>'+titleOri+'</b>'});
+              match++;
+            } else {
+            extraMatch.push({index:snippets[i].index,title:titleOri});
+              xmatch++;
+
+            }
           } else {
-          extraMatch.push({index:snippets[i].index,title:titleOri});
-            xmatch++;
-
+            titleOri = titleOri.split('');
+            for (let index of search.matchIndexes) {
+              titleOri[index] = '<b>'+titleOri[index]+'</b>';
+            }
+            data.push({index:snippets[i].index,title:titleOri.join('')});
+            match++;
           }
-        } else {
-          titleOri = titleOri.split('');
-          for (let index of search.matchIndexes) {
-            titleOri[index] = '<b>'+titleOri[index]+'</b>';
-          }
-          data.push({index:snippets[i].index,title:titleOri.join('')});
+        }
+      }
+      if (match < 10) {
+        for (var i=0; i<xmatch-1 && match<10; i++) {
+          data.push(extraMatch[i]);
           match++;
         }
       }
-    }
-    if (match < 10) {
-      for (var i=0; i<xmatch-1 && match<10; i++) {
-        data.push(extraMatch[i]);
-        match++;
-      }
-    }
-    return data;
-  },
-  selectHints: function() {
-    let hints = $('.search-hints');
-    if (hints.length === 0)
-        return;
+      return data;
+    },
+    selectHints: function() {
+      let hints = $$('.search-hints');
+      if (hints.length === 0)
+          return;
 
-    switch(event.keyCode) {
-      case 13:
-        if (this.find.idx > -1) {
+      switch(event.keyCode) {
+        case 13:
+          if (this.find.idx > -1) {
+            event.preventDefault();
+            hints[this.find.idx].click();
+          } else {
+            handleCommand();
+          }
+        break;
+        case 38:
           event.preventDefault();
-          hints[this.find.idx].click();
-        } else {
-          handleCommand();
-        }
-      break;
-      case 38:
-        event.preventDefault();
-        this.find.idx--;
-        if (this.find.idx == -2) {
-          this.find.idx = hints.length-1;
-          hints[this.find.idx].classList.toggle('selected');
-        } else {
-          hints[this.find.idx+1].classList.toggle('selected');
-          if (this.find.idx > -1 && this.find.idx < hints.length)
+          this.find.idx--;
+          if (this.find.idx == -2) {
+            this.find.idx = hints.length-1;
             hints[this.find.idx].classList.toggle('selected');
-        }
-        return;
-      break;
-      case 40:
-        this.find.idx++;
-        if (this.find.idx == hints.length) {
-          this.find.idx = -1;
-          hints[hints.length-1].classList.toggle('selected');
-        } else {
-          hints[this.find.idx].classList.toggle('selected');
-          if (this.find.idx > 0 && this.find.idx < hints.length)
-            hints[this.find.idx-1].classList.toggle('selected');
-        }
-        return;
-      break;
-    }
-  },
-  highlightHints: function() {
-    let idx = Number(this.dataset.searchIndex);
-    var hints = $('.search-hints');
-    for (var i=0; i<hints.length; i++) {
-      if (i == idx)
-        hints[i].classList.toggle('selected',true);
-      else
-        hints[i].classList.toggle('selected',false);
-    }
-    wgSearch.find.idx = idx;
-  },
-  displayResult: function(data) {
-    $('#search-result').innerHTML = '';
-    let i = 0;
-    for (let hint of data) {
-      if (index == data.length-1) {
-        let tmp = $('#tmp-hints-last').content.cloneNode(true);
-        $('.Title', tmp)[0].innerHTML = hint.title;
-        $('.Container', tmp)[0].addEventListener('mouseover', wgSearch.highlightHints);
-        $('.Container', tmp)[0].addEventListener('click', insertTemplate);
-        $('.Container', tmp)[0].dataset.index = hint.index;
-        $('.Container', tmp)[0].dataset.searchIndex = i;
-        $('#search-result').appendChild(tmp);
-      } else {
-        let tmp = $('#tmp-hints').content.cloneNode(true);
-        $('.Title', tmp)[0].innerHTML = hint.title;
-        $('.Container', tmp)[0].addEventListener('mouseover', wgSearch.highlightHints);
-        $('.Container', tmp)[0].addEventListener('click', insertTemplate);
-        $('.Container', tmp)[0].dataset.index = hint.index;
-        $('.Container', tmp)[0].dataset.searchIndex = i;
-        $('#search-result').appendChild(tmp);
+          } else {
+            hints[this.find.idx+1].classList.toggle('selected');
+            if (this.find.idx > -1 && this.find.idx < hints.length)
+              hints[this.find.idx].classList.toggle('selected');
+          }
+          return;
+        break;
+        case 40:
+          this.find.idx++;
+          if (this.find.idx == hints.length) {
+            this.find.idx = -1;
+            hints[hints.length-1].classList.toggle('selected');
+          } else {
+            hints[this.find.idx].classList.toggle('selected');
+            if (this.find.idx > 0 && this.find.idx < hints.length)
+              hints[this.find.idx-1].classList.toggle('selected');
+          }
+          return;
+        break;
       }
-      i++;
-    }
-  },
-  find: function(v) {
-    clearTimeout(this.wait);
-    this.v = v;
-    
-    if (this.v.trim().length < 2) {
-      if (this.v.trim().length == 0) {
-        resetSearch($('#btn-search'),true)
+    },
+    highlightHints: function() {
+      let idx = Number(this.dataset.searchIndex);
+      var hints = $('.search-hints');
+      for (var i=0; i<hints.length; i++) {
+        if (i == idx)
+          hints[i].classList.toggle('selected',true);
+        else
+          hints[i].classList.toggle('selected',false);
       }
-        
+      wgSearch.find.idx = idx;
+    },
+    displayResult: function(data) {
       $('#search-result').innerHTML = '';
-      return;
+      let i = 0;
+      for (let hint of data) {
+        if (index == data.length-1) {
+          let tmp = $('#tmp-hints-last').content.cloneNode(true);
+          tmp.querySelector('.Title').innerHTML = hint.title;
+          tmp.querySelector('.Container').addEventListener('mouseover', wgSearch.highlightHints);
+          tmp.querySelector('.Container').addEventListener('click', insertTemplate);
+          tmp.querySelector('.Container').dataset.index = hint.index;
+          tmp.querySelector('.Container').dataset.searchIndex = i;
+          $('#search-result').appendChild(tmp);
+        } else {
+          let tmp = $('#tmp-hints').content.cloneNode(true);
+          tmp.querySelector('.Title').innerHTML = hint.title;
+          tmp.querySelector('.Container').addEventListener('mouseover', wgSearch.highlightHints);
+          tmp.querySelector('.Container').addEventListener('click', insertTemplate);
+          tmp.querySelector('.Container').dataset.index = hint.index;
+          tmp.querySelector('.Container').dataset.searchIndex = i;
+          $('#search-result').appendChild(tmp);
+        }
+        i++;
+      }
+    },
+    find: function(v) {
+      clearTimeout(this.wait);
+      this.v = v;
+      
+      if (this.v.trim().length < 2) {
+        if (this.v.trim().length == 0) {
+          resetSearch($('#btn-search'),true)
+        }
+          
+        $('#search-result').innerHTML = '';
+        return;
+      }
+      
+      if ($('#btn-search').textContent == 'search') {
+        resetSearch($('#btn-search'))
+      }
+      
+      var data = wgSearch.match(this.v.toLowerCase());
+      
+      if (this.keywords.indexOf(v) < 0) {
+        this.displayResult(data);
+        this.keywords.push(v)
+      }
+      else if (data.length >= 0)
+        this.displayResult(data);
+      
     }
-    
-    if ($('#btn-search').textContent == 'search')
-      resetSearch($('#btn-search'))
-    
-    var data = wgSearch.match(this.v.toLowerCase());
-    
-    if (this.keywords.indexOf(v) < 0) {
-      this.displayResult(data);
-      this.keywords.push(v)
+  };
+
+  function resetSearch(self, bypass) {
+    if (self.textContent == 'search' && $('#search-input').value.length > 0)
+    {
+      self.textContent = 'close';
+      self.style.color = '#d48989';
     }
-    else if (data.length >= 0)
-      this.displayResult(data);
-    
+    else if (self.textContent == 'close' || bypass)
+    {
+      self.textContent = 'search';
+      self.style.color = '#000';
+      $('#search-input').value = '';
+      $('#search-result').innerHTML = '';
+    }
   }
-};
 
-function resetSearch(self, bypass) {
-  if (self.textContent == 'search' && $('#search-input').value.length > 0)
-  {
-    self.textContent = 'close';
-    self.style.color = '#d48989';
-  }
-  else if (self.textContent == 'close' || bypass)
-  {
-    self.textContent = 'search';
-    self.style.color = '#000';
-    $('#search-input').value = '';
-    $('#search-result').innerHTML = '';
-  }
-}
-
-;(async function() {
-  
   function waitUntil(stateCheckCallback, delay = 100) {
     return new Promise(resolve => {
         let interval = window.setInterval(() => {
@@ -311,7 +317,6 @@ function resetSearch(self, bypass) {
         editor.focus();
       }, 10);
     }
-  }
-  
+  } 
   
 })();

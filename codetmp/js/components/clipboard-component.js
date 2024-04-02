@@ -1,5 +1,8 @@
 const compoClipboard = (function() {
   
+  let $ = document.querySelector.bind(document);
+  let $$ = document.querySelectorAll.bind(document);
+
   let clipBoard = [];
   let pasteParentFolderId = -1;
   let pasteMode = 'copy';
@@ -15,8 +18,8 @@ const compoClipboard = (function() {
           clipBoard = evt.data.clipBoard;
           pasteMode = evt.data.pasteMode;
           sourceWorkspaceId = evt.data.sourceWorkspaceId;
-          $('body')[0].classList.toggle('has-clipboard', true);
-          $('.clickable[data-callback="paste"] .Label')[0].textContent = (pasteMode == 'cut') ? 'Move here' : 'Copy here';
+          $('body').classList.toggle('has-clipboard', true);
+          $('.clickable[data-callback="paste"] .Label').textContent = (pasteMode == 'cut') ? 'Move here' : 'Copy here';
           break;
         case 'paste':
           clipBoard.length = 0;
@@ -89,8 +92,8 @@ const compoClipboard = (function() {
       }
     }
     pasteMode = isCut ? 'cut' : 'copy';
-    $('body')[0].classList.toggle('has-clipboard', true);
-    $('.clickable[data-callback="paste"] .Label')[0].textContent = isCut ? 'Move here' : 'Copy here';
+    $('body').classList.toggle('has-clipboard', true);
+    $('.clickable[data-callback="paste"] .Label').textContent = isCut ? 'Move here' : 'Copy here';
 
     clipboardChannel.postMessage({
       clipBoard,
@@ -280,7 +283,7 @@ const compoClipboard = (function() {
       selectedFile.splice(0, 1);
     }
     
-    $('body')[0].classList.toggle('has-clipboard', false);
+    $('body').classList.toggle('has-clipboard', false);
     
     drive.syncToDrive();
     fileStorage.save();

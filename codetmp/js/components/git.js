@@ -1,5 +1,7 @@
 const gitRest = (function() {
 
+  let $ = document.querySelector.bind(document);
+
   let activeSha;
   let branch = '';
   let repoName = '';
@@ -178,7 +180,7 @@ const gitRest = (function() {
     fetch('https://api.github.com/repos/'+username+'/'+repoName+'/contents/')
     .then(asJSON)
     .then(function(r){
-      $('#file-list').innerHTML = o.template('tmp-list',r);
+      $('._fileList').innerHTML = o.template('tmp-list',r);
     });
   }
     

@@ -1,6 +1,9 @@
 let compoEditor = (function() {
   
-    let SELF = {
+  let $ = document.querySelector.bind(document);
+  let $$ = document.querySelectorAll.bind(document);
+  
+  let SELF = {
         Init,
         SetMode,
         ToggleWrapMode,
@@ -210,11 +213,10 @@ let compoEditor = (function() {
         editor.session.on("change", function() {
             if (undoMgr.canUndo()) {
                 fileTab[activeTab].fiber = 'fiber_manual_record';
-                $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
-                // $('.icon-rename')[activeTab].classList.toggle('w3-hide', false);
+                $$('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
             } else {
                 fileTab[activeTab].fiber = 'close';
-                $('.icon-rename')[activeTab].textContent = 'close';
+                $$('.icon-rename')[activeTab].textContent = 'close';
             }
         })
             

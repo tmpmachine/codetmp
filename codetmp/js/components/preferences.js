@@ -1,7 +1,11 @@
-"use strict";
 
 const preferences = (function() {
+  
+  'use strict';
 
+  let $ = document.querySelector.bind(document);
+  let $$ = document.querySelectorAll.bind(document);
+  
   let SELF = {
 
   };
@@ -45,7 +49,7 @@ const preferences = (function() {
   }
 
   function initEditorSettings() {
-    for (let input of $('.input-settings')) {
+    for (let input of $$('.input-settings')) {
       let key = input.dataset.name;
       input.checked = settings.data.editor[key];
       applyEditorSettings(key, input.checked);

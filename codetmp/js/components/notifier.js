@@ -31,9 +31,9 @@ function Notifier(templateNode, wrapperNode) {
           i++;
         } else {
           let node = templateNode.content.cloneNode(true);
-          $('.Timestamp', node)[0].innerHTML = notifInstance.timestamp;
-          $('.Title', node)[0].innerHTML = notifInstance.title;
-          $('.Content', node)[0].innerHTML = notifInstance.content;
+          node.querySelector('.Timestamp').innerHTML = notifInstance.timestamp;
+          node.querySelector('.Title').innerHTML = notifInstance.title;
+          node.querySelector('.Content').innerHTML = notifInstance.content;
           wrapper.append(node);
         }
         count++;
@@ -43,7 +43,7 @@ function Notifier(templateNode, wrapperNode) {
 
       if (pool.length === 0) {
         let node = templateNode.content.cloneNode(true);
-        $('.Title', node)[0].innerHTML = 'No running tasks';
+        node.querySelector('.Title').innerHTML = 'No running tasks';
         wrapper.append(node);
       }
 

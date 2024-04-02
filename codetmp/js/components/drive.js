@@ -1,5 +1,8 @@
 const drive = (function() {
 
+  let $ = document.querySelector.bind(document);
+  let $$ = document.querySelectorAll.bind(document);
+
   let SELF = {
     // read-only properties
     // will overwritten by defineProperty below

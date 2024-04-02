@@ -1,5 +1,7 @@
 const support = (function() {
 
+	let $ = document.querySelector.bind(document);
+
 	function checkJSZip() {
 		if ('JSZip' in window) {
 			// TO DO
@@ -23,7 +25,7 @@ const support = (function() {
 	}
 
 	function hideFeature(name) {
-		let style = $('style[data-feature="'+name+'"]')[0];
+		let style = $('style[data-feature="'+name+'"]');
 		if (style)
 			style.remove();
 	}

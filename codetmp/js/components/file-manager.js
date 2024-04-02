@@ -1,5 +1,8 @@
 let fileManager = (function() {
   
+  let $ = document.querySelector.bind(document);
+	let $$ = document.querySelectorAll.bind(document);
+  
   let SELF = {
     TaskInitIDBStorage,
     TaskOnStorageReady,
@@ -346,10 +349,10 @@ let fileManager = (function() {
     for (let f of folders) {
       if (f.trashed) continue;
       let el = $('#tmp-folder-list').content.cloneNode(true);
-      $('.Name', el)[0].textContent = f.name;
-      $('.Clicker', el)[0].setAttribute('title', f.name);
-      $('.Clicker', el)[0].setAttribute('data', f.fid);
-      $('.Clicker', el)[0].dataset.number = counter;
+      el.querySelector('.Name').textContent = f.name;
+      el.querySelector('.Clicker').setAttribute('title', f.name);
+      el.querySelector('.Clicker').setAttribute('data', f.fid);
+      el.querySelector('.Clicker').dataset.number = counter;
 
       docFrag.append(el);
       counter++;
@@ -357,7 +360,7 @@ let fileManager = (function() {
         downloadQueue.push(f.id)
     }
     
-    $('#file-list').appendChild(docFrag);
+    $('._fileList').appendChild(docFrag);
 
     if (downloadQueue.length > 0) {
       let notifId = compoNotif.Add({
@@ -455,17 +458,17 @@ let fileManager = (function() {
       if (trashed) continue;
       
       let el = $('#tmp-file-list').content.cloneNode(true);
-      $('.Name', el)[0].textContent = name;
-      $('.Icon', el)[0].style.color = helper.getFileIconColor(name);
-      $('.Clicker', el)[0].setAttribute('title', name);
-      $('.Clicker', el)[0].setAttribute('data', fid);
-      $('.Clicker', el)[0].dataset.fid = fid;
-      $('.Clicker', el)[0].dataset.number = counter;
+      el.querySelector('.Name').textContent = name;
+      el.querySelector('.Icon').style.color = helper.getFileIconColor(name);
+      el.querySelector('.Clicker').setAttribute('title', name);
+      el.querySelector('.Clicker').setAttribute('data', fid);
+      el.querySelector('.Clicker').dataset.fid = fid;
+      el.querySelector('.Clicker').dataset.number = counter;
 
       docFrag.append(el);
       counter++;
     }
-    $('#file-list').append(docFrag);
+    $('._fileList').append(docFrag);
 
   }
 
@@ -595,7 +598,7 @@ let fileManager = (function() {
   
   function saveAsNewFile() {
 
-  	let fileName = $('.file-name')[activeTab].textContent;
+  	let fileName = $$('.file-name')[activeTab].textContent;
     modal.prompt('File name', fileName, '', helper.getFileNameLength(fileName)).then(async (name) => {
       if (!name) return;
       
@@ -684,7 +687,7 @@ let fileManager = (function() {
     drive.syncToDrive();
 
     tab.fiber = 'close';
-    $('.icon-rename')[tabIndex]?.replaceChildren('close');
+    $$('.icon-rename')[tabIndex]?.replaceChildren('close');
   }
 
   async function TaskSaveAll() {
@@ -715,7 +718,7 @@ let fileManager = (function() {
           let tabIndex = compoFileTab.GetIndexByFid(tabFid);
           if (tabIndex >= 0) {
             fileTab[tabIndex].fiber = 'close';
-            $('.icon-rename')[tabIndex].textContent = 'close';
+            $$('.icon-rename')[tabIndex].textContent = 'close';
           }
         }
 
@@ -744,7 +747,7 @@ let fileManager = (function() {
         let tabIndex = compoFileTab.GetIndexByFid(tabFid);
         if (tabIndex >= 0) {
           fileTab[tabIndex].fiber = 'close';
-          $('.icon-rename')[tabIndex].textContent = 'close';
+          $$('.icon-rename')[tabIndex].textContent = 'close';
         }
       }
 
@@ -805,9 +808,9 @@ let fileManager = (function() {
   }
   
   async function list() {
-    $('#file-list').innerHTML = '';
+    $('._fileList').innerHTML = '';
     await TaskDisplayListFolders();
-    $('#file-list').appendChild(o.element('div', { style: 'flex: 0 0 100%', class: 'separator w3-padding-small' }));
+    $('._fileList').appendChild(o.element('div', { style: 'flex: 0 0 100%', class: 'separator w3-padding-small' }));
     await TaskDisplayListFiles();
     uiFileExplorer.LoadBreadCrumbs();
     selectedFile.splice(0, 1);

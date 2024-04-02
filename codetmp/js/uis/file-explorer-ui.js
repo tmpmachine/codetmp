@@ -1,5 +1,8 @@
 let uiFileExplorer = (function() {
 
+  let $ = document.querySelector.bind(document);
+  let $$ = document.querySelectorAll.bind(document);
+
   let SELF = {
       NavigationHandler,
       NavScrollDown,
@@ -78,7 +81,7 @@ let uiFileExplorer = (function() {
         let index = 0
         for (let tab of fileTab) {
           if (tab.fid == fid) {
-            $('.file-name')[index].textContent = file.name;
+            $$('.file-name')[index].textContent = file.name;
             break;
           }
           index++;
@@ -158,7 +161,7 @@ let uiFileExplorer = (function() {
     if (activeFile && parseInt(fid) == parseInt(activeFile.fid)) {
       activeFile = null;
       fileTab[activeTab].fiber = 'fiber_manual_record';
-      $('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
+      $$('.icon-rename')[activeTab].textContent = 'fiber_manual_record';
     }
   }
 
@@ -452,7 +455,7 @@ let uiFileExplorer = (function() {
   function SelectAllFiles() {
       if (compoStateManager.isState(0)) {
       event.preventDefault();
-          selectedFile = [...$('.folder-list, .file-list')];
+          selectedFile = [...$$('.folder-list, .file-list')];
           for (let el of selectedFile)
               ToggleFileHighlight(el, true);
       ui.toggleFileActionButton();
@@ -460,9 +463,9 @@ let uiFileExplorer = (function() {
   }
   
   function PreviousFolder() {
-      if ($('#btn-menu-my-files').classList.contains('active') && $('.breadcrumbs').length > 1) {
+      if ($('#btn-menu-my-files').classList.contains('active') && $$('.breadcrumbs').length > 1) {
           event.preventDefault();
-          $('.breadcrumbs')[$('.breadcrumbs').length-2].click()
+          $$('.breadcrumbs')[$$('.breadcrumbs').length-2].click()
       }
   }
   
@@ -511,8 +514,8 @@ let uiFileExplorer = (function() {
       let fileContainerOffsetTop = selectedFile[0].offsetTop;
       let customDefinedGap = 34;
       let scrollTop = (fileContainerOffsetTop - customDefinedGap + $('#status-bar').offsetHeight);
-      if (scrollTop < $('#file-list').parentNode.scrollTop) {
-        $('#file-list').parentNode.scrollTop = scrollTop;
+      if (scrollTop < $('._fileList').parentNode.scrollTop) {
+        $('._fileList').parentNode.scrollTop = scrollTop;
       }
   }
   
@@ -521,9 +524,10 @@ let uiFileExplorer = (function() {
       let padding = 16;
       let customDefinedGap = 28;
       let scrollTop = (fileContainerOffsetTop + selectedFile[0].offsetHeight + padding + $('#status-bar').offsetHeight);
-      let visibleScreenHeight = $('#file-list').parentNode.scrollTop + customDefinedGap + $('#file-list').parentNode.offsetHeight;
-      if (scrollTop > visibleScreenHeight)
-          $('#file-list').parentNode.scrollTop += scrollTop - visibleScreenHeight;
+      let visibleScreenHeight = $('._fileList').parentNode.scrollTop + customDefinedGap + $('._fileList').parentNode.offsetHeight;
+      if (scrollTop > visibleScreenHeight) {
+        $('._fileList').parentNode.scrollTop += scrollTop - visibleScreenHeight;
+      }
   }
 
   function navigateHorizontal(target) {
@@ -544,7 +548,7 @@ let uiFileExplorer = (function() {
 
   function navigateVertical(target) {
 
-      let w = $('#file-list .separator').offsetWidth;
+      let w = $('._fileList .separator').offsetWidth;
       let padding = 4;
       let f = selectedFile[0].offsetWidth + padding;
       let cols = Math.floor(w/f)
@@ -584,11 +588,11 @@ let uiFileExplorer = (function() {
   }
   
   function selectFirstFile() {
-      if ($('.folder-list').length > 0) {
-          $('.folder-list')[0].click();
+      if ($$('.folder-list').length > 0) {
+          $('.folder-list').click();
           return true;
-      } else if ($('.file-list').length > 0) {
-          $('.file-list')[0].click();
+      } else if ($$('.file-list').length > 0) {
+          $('.file-list').click();
           return true;
       }
       return false;

@@ -1,5 +1,8 @@
 let ui = (function() {
-  
+
+  let $ = document.querySelector.bind(document);
+  let $$ = document.querySelectorAll.bind(document);
+
   let SELF = {
     SetActiveWorkspace,
     GetActiveWorkspace,
@@ -118,7 +121,7 @@ let ui = (function() {
   }
 
   function ToggleModal(name) {
-    let modal = $(`.modal-component[data-name="${name}"]`)[0];
+    let modal = $(`.modal-component[data-name="${name}"]`);
     modal.addEventListener('onclose', onclosemodal);
     modal.toggle();
     compoStateManager.pushState([0]);
@@ -180,7 +183,7 @@ let ui = (function() {
 
   function reloadActiveWorkspaceUiStatesByIndex(workspaceIndex) {
     
-    for (let node of $('.workspace .Btn')) {
+    for (let node of $$('.workspace .Btn')) {
       node.classList.toggle('active', false);
       if (node.dataset.index == workspaceIndex) {
         node.classList.toggle('active', true);
@@ -261,15 +264,15 @@ let ui = (function() {
   }
 
   function closeMediaPreview() {
-    let src = $('.media-preview .Media')[0].src;
-    $('.media-preview .Title')[0].textContent = '';
-    $('.media-preview .Download')[0].onclick = null;
-    $('.media-preview .Medial-el')[0].remove();
+    let src = $('.media-preview .Media').src;
+    $('.media-preview .Title').textContent = '';
+    $('.media-preview .Download').onclick = null;
+    $('.media-preview .Medial-el').remove();
     URL.revokeObjectURL(src);
   }
 
   function enableJSZip() {
-    $('.clickable[data-callback="file-download"]')[0].classList.toggle('hide', false);
+    $('.clickable[data-callback="file-download"]').classList.toggle('hide', false);
   }
 
   function toggleMyFiles() {
@@ -333,7 +336,7 @@ let ui = (function() {
       
       if (useCallback) {
         $('#list-trash').innerHTML = '';
-        $('#file-list').innerHTML = '';
+        $('._fileList').innerHTML = '';
         if (menuId === 'in-my-files') {
           fileManager.list();
         } else if (menuId === 'in-trash') {
@@ -353,7 +356,7 @@ let ui = (function() {
       return;
     }
     
-    for (let el of $('.btn-material')) {
+    for (let el of $$('.btn-material')) {
       
       if (el !== target) {
         
@@ -371,8 +374,7 @@ let ui = (function() {
     }
      
     menu.classList.toggle('active');
-    if (typeof(block) != 'undefined')
-      block.classList.toggle('active');
+    block?.classList.toggle('active');
     
     if (!menu.classList.contains('active')) {
       selectedFile = [];
@@ -403,7 +405,7 @@ let ui = (function() {
   function toggleInsertSnippet(persistent) {
     if ($('#in-my-files').classList.contains('active')) return
   
-    let el = $('.search-box')[0];
+    let el = $('.search-box');
     if (typeof(persistent) == 'undefined')
       el.classList.toggle('w3-hide');
     else
@@ -467,7 +469,7 @@ let ui = (function() {
   
   function cloneRepo() {
     let message = $('#msg-git-rate-limit').content.cloneNode(true).firstElementChild;
-    $('.Rate', message)[0].textContent = gitRest.rateLimit;
+    message.querySelector('.Rate').textContent = gitRest.rateLimit;
     modal.prompt('Repository web URL', 'https://github.com/username/repository', message.innerHTML).then(url => {
       if (!url) 
         return;
@@ -569,12 +571,12 @@ let ui = (function() {
   
     settings.data.explorer.view = type;
     settings.save();
-    $('#file-list').classList.toggle('list-view', (type == 'list'));
-    for (let node of $('.Btn[data-callback="change-file-list-view"]')) {
+    $('._fileList').classList.toggle('list-view', (type == 'list'));
+    for (let node of $$('.Btn[data-callback="change-file-list-view"]')) {
       node.classList.toggle('active', false);
       if (node.dataset.type == type) {
         node.classList.toggle('active', true);
-        $('#view-type-icon').innerHTML = $('.material-icons', node)[0].innerHTML;
+        $('#view-type-icon').innerHTML = node.querySelector('.material-icons').innerHTML;
       }
     }
   }
@@ -591,7 +593,7 @@ let ui = (function() {
 
   async function hidePalette(event) {
     await delayMs(10);
-    let el = $('.search-box')[0];
+    let el = $('.search-box');
     el.classList.toggle('w3-hide', true);
     $('#search-input').value = '';
     $('#search-input').removeEventListener('blur', ui.hidePalette);
@@ -657,10 +659,10 @@ let ui = (function() {
       }
     });
 
-    for (let modal of $('.modal-window')) {
+    for (let modal of $$('.modal-window')) {
       modal.classList.toggle('transition-enabled', true);
-      $('.Overlay',modal)[0].addEventListener('click', ui.ToggleModalByClick);
-      $('.Btn-close',modal)[0].addEventListener('click', ui.ToggleModalByClick);
+      modal.querySelector('.Overlay').addEventListener('click', ui.ToggleModalByClick);
+      modal.querySelector('.Btn-close').addEventListener('click', ui.ToggleModalByClick);
     }
     
     function preventDefault(event) {

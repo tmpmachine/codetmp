@@ -16,13 +16,13 @@
   let type = 'confirm';
 
   function initComponent(modal) {
-    content = $('.Modal', modal)[0];
-    overlay = $('.Overlay', modal)[0];
-    btnClose = $('.Btn-close', modal)[0];
-    form = $('.form', modal)[0];
-    title = $('.Title', modal)[0];
-    message = $('.Message', modal)[0];
-    input = $('input', modal)[0]; 
+    content = modal.querySelector('.Modal');
+    overlay = modal.querySelector('.Overlay');
+    btnClose = modal.querySelector('.Btn-close');
+    form = modal.querySelector('.form');
+    title = modal.querySelector('.Title');
+    message = modal.querySelector('.Message');
+    input = modal.querySelector('input'); 
   }
   
   function closeModal() {
@@ -80,7 +80,7 @@
     form.onsubmit = submitForm;
     document.activeElement.blur();
     setTimeout(() => {
-      $('.Btn-submit', modal)[0].focus();
+      modal.querySelector('.Btn-submit').focus();
     }, 150);
     window.addEventListener('keydown', blur);
     message.textContent = promptText;
@@ -93,7 +93,7 @@
   window.cprompt = function(promptText = '', defaultValue = '') {
     modal = $('#cprompt-modal');
     initComponent(modal);
-    input = $('input', modal)[0];
+    input = modal.querySelector('input');
     type = 'prompt';
     modal.classList.toggle(hideClass, false)
     window.cprompt.isActive = true;

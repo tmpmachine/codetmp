@@ -242,13 +242,12 @@
           </div>
 
           <div id="in-my-files-drop-zone">
-            [ #file-list ._fileList]
+            [ .wg-FileList ._fileList]
             <div data-target="explorer" data-message="1" class="drop-zone w3-hide"></div>
           </div>
 
         </div>
 
-        <!-- <div id="in-my-files-block" class="in-window in-block"></div> -->
         <div id="in-trash" class="in-window in-content bg1 col1 ov-hidden">
           <div class="w3-hide-small" style="height:34px;"></div>
           <div class="w3-padding border-bottom-dark">
@@ -297,7 +296,7 @@
                     <div class="Submenu">
                       <a href="#" class="w3-padding Items menu-link" data-callback="my-files" data-shortcut="Alt + M"> My Files </a>
                       <a href="#" class="w3-padding Items menu-link" data-callback="open-in-explorer" data-shortcut="Alt + O"> Open File in Explorer </a>
-                      [a 'Create a new session' href="#" .w3-padding data-onclick="create-session"]
+                      [a 'Create a new session' href="#" .w3-padding .Items .menu-link data-onclick="create-session"]
                       <a href="#" class="w3-padding Items menu-link w3-hide" data-callback="trash"> Trash </a>
                     </div>
                   </div>
@@ -573,7 +572,9 @@
 
 <script>
   (function() {
-    let $ = (selector, node = document) => node.querySelectorAll(selector);
+    let $ = document.querySelector.bind(document);
+    let $$ = document.querySelectorAll.bind(document);
+
     let version = Math.floor(2.1);
     let templateId = `modal-v${version}`;
     class CustomElement extends HTMLElement {
@@ -585,15 +586,15 @@
         template.innerHTML = "@replaceWithTemplateHTML@";
         document.querySelector('html').append(template);
         // */
-        let content = $(`template#${templateId}`)[0].content.cloneNode(true);
+        let content = $(`template#${templateId}`).content.cloneNode(true);
         this.attachShadow({mode: 'open'}).append(content);
-        $('slot', this.shadowRoot)[0].addEventListener('slotchange', this.updateContent.bind(this));
+        this.shadowRoot.querySelector('slot').addEventListener('slotchange', this.updateContent.bind(this));
         this.onclose = new CustomEvent('onclose');
         this.keyTrapper = this.keyTrapper.bind(this);
       }
       
       toggle(state) {
-        let isClosed = $('.window', this.shadowRoot)[0].classList.toggle('hide');
+        let isClosed = this.shadowRoot.querySelector('.window').classList.toggle('hide');
         this.isShown = !isClosed;
         if (isClosed) {
           this.dispatchEvent(this.onclose);
@@ -605,7 +606,7 @@
       }
       
       close() {
-        let isClosed = $('.window', this.shadowRoot)[0].classList.toggle('hide', true);
+        let isClosed = this.shadowRoot.querySelector('.window').classList.toggle('hide', true);
         this.dispatchEvent(this.onclose);
         this.removeListener();
       }
@@ -616,10 +617,10 @@
       
       attachKeytrap() {
         let focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-        let focusableContent = $(focusableElements, this.modalContent);
+        let focusableContent = this.modalContent.querySelector(focusableElements);
         this.firstFocusableElement = focusableContent[0]
         this.lastFocusableElement = focusableContent[focusableContent.length - 1]; 
-        let autofocusElement = $('.autofocus', this.modalContent)[0];
+        let autofocusElement = this.modalContent.querySelector('.autofocus');
         document.addEventListener('keydown', this.keyTrapper);
         let self = this;
         document.activeElement.blur();
@@ -653,13 +654,13 @@
       }
       
       connectedCallback() {
-        $('.overlay', this.shadowRoot)[0].addEventListener('click', this.close.bind(this));
+        this.shadowRoot.querySelector('.overlay').addEventListener('click', this.close.bind(this));
       }
       
       updateContent(evt) {
         let contentDOM = evt.target.assignedNodes()[0];
         this.modalContent = contentDOM;
-        for (let node of $('.toggler', contentDOM))
+        for (let node of contentDOM.querySelectorAll('.toggler'))
           node.addEventListener('click', this.close.bind(this));
       }
     }
@@ -782,9 +783,6 @@
       }
 
     })();
-  </script>
-  <script>
-    window.$ = function(selector, node=document) { let nodes = node.querySelectorAll(selector); return selector.startsWith('#') ? nodes[0] : nodes };
   </script>
   
   <script src="js/app.js"></script>
