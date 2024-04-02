@@ -1,5 +1,7 @@
 let helperUtils = (function () {
 
+  let $$ = document.querySelectorAll.bind(document);
+
   let SELF = {
     getFileNameLength,
     generateRemoteDataContent,
@@ -171,6 +173,7 @@ let helperUtils = (function () {
 
   function redirectWarning() {
     let notSaved = false;
+
     for (let icon of $$('.icon-rename')) {
       if (icon.textContent !== 'close') {
         notSaved = true;
