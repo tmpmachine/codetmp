@@ -23,6 +23,7 @@ let DOMEvents = (function() {
 			'handle-sidebar-btn-click': (evt) => ui.HandleSidebarBtnClick(evt.target), 
 			'btn-menu-preview': () => compoPreview.previewPath(),
 			'create-session': () => ui.CreateSession(),
+			'handle-file-list-click': (evt) => uiFileExplorer.HandleClickList(evt.target),
 		},
 		contextmenu: {
 			'handle-ctxmenu-file-tab': (evt) => uiFileTab.HandleContextMenu(evt),

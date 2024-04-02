@@ -240,10 +240,11 @@
 
         </div>
 
-        <div id="in-my-files-drop-zone">
-          [ .wg-FileList ._fileList]
-          <div data-target="explorer" data-message="1" class="drop-zone w3-hide"></div>
-        </div>
+        [ #in-my-files-drop-zone
+          <!-- # widget file list -->
+          [ .wg-FileList ._fileList data-onclick="handle-file-list-click"]
+          [ data-target="explorer" data-message="1" .drop-zone .w3-hide]
+        ]
 
       </div>
 

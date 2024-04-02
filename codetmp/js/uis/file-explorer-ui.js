@@ -4,32 +4,54 @@ let uiFileExplorer = (function() {
   let $$ = document.querySelectorAll.bind(document);
 
   let SELF = {
-      NavigationHandler,
-      NavScrollDown,
-      NavScrollUp,
-      ToggleFileHighlight,
-      ClearFileSelection,
-      SelectAllFiles,
-      PreviousFolder,
-      DoubleClickOnFile,
-      SelectFileByName,
-      LoadBreadCrumbs,
-      RenameFile,
-      OpenFileConfirm,
-      SetState,
-      OpenFileDirectoryAsync,
-      renameFolder,
-      renameFile,
-      newFolder,
-      newFile,
-      deleteSelected,
-      getSelected,
-      UnloadSelected,
+    HandleClickList,
+    NavigationHandler,
+    NavScrollDown,
+    NavScrollUp,
+    ToggleFileHighlight,
+    ClearFileSelection,
+    SelectAllFiles,
+    PreviousFolder,
+    DoubleClickOnFile,
+    SelectFileByName,
+    LoadBreadCrumbs,
+    RenameFile,
+    SetState,
+    OpenFileDirectoryAsync,
+    renameFolder,
+    renameFile,
+    newFolder,
+    newFile,
+    deleteSelected,
+    getSelected,
+    UnloadSelected,
   };
 
   let states = {
       lastClickEl: null,
       doubleClick: false,
+  }
+
+  function handleClickAction(action, data, targetEl) {
+    switch (action) {
+      case 'confirm-click': openFileConfirm(targetEl); break;
+    }
+  }
+
+  function HandleClickList(evtTarget) {
+    let targetEl = evtTarget;
+    let itemEl = targetEl?.closest('[data-kind="itemFile"]');
+    let actionEl = targetEl?.closest('[data-action]');
+    let action = actionEl?.dataset.action;
+    
+    if (!itemEl) return;
+  
+    let data = {
+      fileName: itemEl.dataset.fileName,
+      fileType: itemEl.dataset.fileType,
+    };
+    
+    handleClickAction(action, data, itemEl);
   }
 
   function commit(data) {
@@ -222,7 +244,7 @@ let uiFileExplorer = (function() {
 
     await fileManager.OpenFolder(activeFile.parentId);
     
-    OpenFileConfirm(document.querySelector(`._fileList [data-type="file"][data-fid="${activeFile.fid}"]`))
+    openFileConfirm(document.querySelector(`._fileList [data-type="file"][data-fid="${activeFile.fid}"]`))
   }
 
   function UnloadSelected() {
@@ -245,7 +267,7 @@ let uiFileExplorer = (function() {
     states[key] = value;
   }
 
-  function OpenFileConfirm(el) {
+  function openFileConfirm(el) {
 
     if (!el) return;
 

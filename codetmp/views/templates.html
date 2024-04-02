@@ -15,7 +15,7 @@
 <template id="tmp-hints" class="Export">
   <div class="w3-white">
     <div class="Container" data-index="">
-      <div class="search-hints relative">
+      <div class="search-hints pos-relative">
         <div class="Title w3-padding d-block"></div>
       </div>
     </div>
@@ -24,7 +24,7 @@
 <template id="tmp-hints-last" class="Export">
   <div class="w3-white ov-hidden" style="border-radius:0 0 4px 4px;">
     <div class="Container" data-index="">
-      <div class="search-hints last relative">
+      <div class="search-hints last pos-relative">
         <div class="Title w3-padding d-block"></div>
       </div>
     </div>
@@ -35,14 +35,14 @@
 </template>
 <template id="tmp-file-list" class="Export">
   <!-- # tmp-file-list -->
-  <div class="file-list bg2 files pointer no-select Clicker" onclick='uiFileExplorer.OpenFileConfirm(this)' title="" data-type="file" data-fid="" data="" style="position: relative;">
+  <div class="pos-relative file-list bg2 files pointer no-select Clicker" data-action="confirm-click" title="" data-type="file" data-fid="" data="" data-kind="itemFile">
     <div class="text-center Area" style="padding:32px 0">
       <i class="material-icons Preview-icon" style="font-size:36px">insert_drive_file</i>
     </div>
     <div class="inner">
       <i class="material-icons icons w3-medium w3-left Icon" style="padding:2px 0">insert_drive_file</i>
-      <div class="w3-rest w3-small w3-padding relative" style="font-weight:bold;">
-        <div class="h-100 d-grid w-100 absolute" style="top: 0;left: 0;">
+      <div class="w3-rest w3-small w3-padding pos-relative" style="font-weight:bold;">
+        <div class="h-100 d-grid w-100 pos-absolute" style="top: 0;left: 0;">
           <div style="align-items: center;" class="h-100 Name d-flex"></div>
         </div>
       </div>
@@ -50,17 +50,18 @@
   </div>
 </template>
 <template id="tmp-folder-list" class="Export">
-  <div class="folder-list bg2 folders pointer no-select Clicker inner" onclick='uiFileExplorer.OpenFileConfirm(this)' title="" data-type="folder" data="">
+  <!-- # tmp-folder-list -->
+  <div class="folder-list bg2 folders pointer no-select Clicker inner" data-action="confirm-click" title="" data-type="folder" data="" data-kind="itemFile">
     <i class="icons material-icons w3-medium w3-left" style="padding:2px 0">folder</i>
     <small class="relative ov-hidden" style="font-weight:bold">
-      <div class="h-100 d-grid absolute">
+      <div class="h-100 d-grid pos-absolute">
         <div style="align-items: center" class="h-100 Name d-flex"></div>
       </div>
     </small>
   </div>
 </template>
 <template id="tmp-list-file-trash" class="Export">
-  <div class="file-list files pointer no-select bg7 hover-bg3-light relative" style="margin:0.1em;padding:0;">
+  <div class="file-list files pointer no-select bg7 hover-bg3-light pos-relative" style="margin:0.1em;padding:0;">
     <div class="text-center w3-padding-32">
       <i class="material-icons w3-xxlarge" style="color:#777;">insert_drive_file</i>
     </div>
@@ -68,8 +69,8 @@
       <div class="w3-col" style="width:24px;">
         <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__iconColor__!important;">insert_drive_file</i>
       </div>
-      <div class="w3-rest w3-small w3-padding relative" style="font-weight:bold;">
-        <div style="top:0;left:0" class="h-100 w-100 absolute">
+      <div class="w3-rest w3-small w3-padding pos-relative" style="font-weight:bold;">
+        <div style="top:0;left:0" class="h-100 w-100 pos-absolute">
           __name__
         </div>
       </div>
@@ -83,7 +84,7 @@
         <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__iconColor__!important;">folder</i>
       </div>
       <small class="relative ov-hidden" style="font-weight:bold;">
-        <div style="top:0;left:0;" class="h-100 w-100 absolute">
+        <div style="top:0;left:0;" class="h-100 w-100 pos-absolute">
           __name__
         </div>
       </small>
@@ -99,7 +100,7 @@
       <div class="w3-right" style="padding:6px 10px;">
         <i class="file-closer material-icons w3-right w3-button w3-hover-none w3-hover-text-light-grey w3-medium w3-text-gray icon-rename" data-action="close" style="padding:4px 0 4px 9px;"></i>
       </div>
-      <div class="w3-rest relative" style="padding:18px 24px;line-height:1.5em;">
+      <div class="w3-rest pos-relative" style="padding:18px 24px;line-height:1.5em;">
         <div class="file-tab-name no-select w3-small file-name w3-left w-100 absolute"></div>
       </div>
     </div>
