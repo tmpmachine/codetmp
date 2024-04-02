@@ -17,13 +17,11 @@ let ui = (function() {
     toggleTemplate,
     trash,
     toggleTheme,
-    toggleInFrame,
     setFontSize,
     changeFileListView,
     reloadOpenTab,
     toggleFileDownload,
     toggleGenerateSingleFile,
-    closeMediaPreview,
     enableJSZip,
     toggleMyFiles,
     toggleFileActionButton,
@@ -231,13 +229,6 @@ let ui = (function() {
     }
   }
 
-  function toggleInFrame() {
-    $('#main-layout').classList.toggle('inframe-mode');
-    $('#main-layout').classList.toggle('normal-mode');
-    previewHandler.previewMode = (previewHandler.previewMode == 'normal') ? 'inframe' : 'normal';
-    fileTab[activeTab].editor.env.editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
-  }
-
   function setFontSize() {
     modal.prompt('Editor Font Size', 16).then(size => {
       size = parseInt(size);
@@ -271,14 +262,6 @@ let ui = (function() {
 
   function toggleGenerateSingleFile() {
     ToggleModal('generate-single-file');
-  }
-
-  function closeMediaPreview() {
-    let src = $('.media-preview .Media').src;
-    $('.media-preview .Title').textContent = '';
-    $('.media-preview .Download').onclick = null;
-    $('.media-preview .Medial-el').remove();
-    URL.revokeObjectURL(src);
   }
 
   function enableJSZip() {
@@ -631,8 +614,6 @@ let ui = (function() {
 
     compoNotif.Init();
 
-    // initInframeLayout();
-    
     preferences.loadSettings();
     ui.openNewTab();
     compoFileTab.InitTabFocusHandler();

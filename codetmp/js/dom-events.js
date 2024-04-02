@@ -110,7 +110,6 @@ let DOMEvents = (function() {
 			'trash': ui.trash,
 			'toggle-editor-theme': ui.toggleTheme,
 			'toggle-word-wrap': preferences.toggleWordWrap,
-			'toggle-in-frame': ui.toggleInFrame,
 			'set-font-size': ui.setFontSize,
 			'about': () => ui.ToggleHomepage(),
 			'sign-out': app.SignOut,

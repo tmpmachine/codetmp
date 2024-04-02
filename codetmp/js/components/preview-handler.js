@@ -1,7 +1,6 @@
 let previewHandler = (function () {
   
   let SELF = {
-    previewMode: 'normal',
     previewPathAtPWA,
     getDirectory,
     setToken,

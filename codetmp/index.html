@@ -24,466 +24,460 @@
   
   <style id="preload-material">.material-icons{max-width:37.5px;overflow:hidden;color:transparent}</style>
 
-  <div id="main-layout" class="normal-mode">
-    <div id="main-editor">
-      <div class="w3-rest pos-relative h-100">
-        <div id="in-home" class="in-window in-content col1 active">
-          <div style="top:0;left:0;overflow:auto;z-index:2;" class="w-100 h-100 absolute">
-            <div class="w3-hide-small" style="height:34px;"></div>
-            
-            <div class="w3-padding homepage-content">
-              <div>
-                <h3 style="font-weight:bold;margin-bottom: 0">Codetmp7</h3>
-                <p>Web IDE for serverless static web development (<a href="https://github.com/tmpmachine/divless-html" style="text-decoration:underline;">Divless-HTML</a>, HTML, CSS, and JS).</p>
-                <p>
-                  <input id="check-show-homepage" class="w3-check" type="checkbox" checked oninput="ui.ToggleHomepageSetting()"/> <label for="check-show-homepage">Show homepage first</label>
-                </p>
-                <button class="d-block clickable" data-callback="toggle-homepage">
-                  Start Coding
-                </button>
-                <div style="height:1rem"></div>
-                <div class="w3-button w3-border d-block w3-hide" style="text-align: center;background: #009688;color:#fff;max-width: 300px" id="buttonInstall">
-                  <div class="w3-small w3-padding-small" style="font-weight:bold;">Install Codetmp</div>
-                </div>
-                <div style="height:12px"></div>
-                <small>
-                  Hobbies app by <a href="http://pacolemon.blogspot.com/" style="text-decoration:underline;">PacoLemon</a>.
-                </small>
-                <div>
-                  <small>Powered by <a href="https://ace.c9.io/" style="text-decoration:underline;">Ace</a> - The High Performance Code Editor for the Web.</small>
-                </div>
-              </div>
-              <div>
-                <h3 style="font-weight:bold;">Links</h3>
-                <ul class="c links">
-                  <li><a href="https://github.com/tmpmachine/codetmp">Codetmp7 GitHub Page</a></li>
-                  <li><a href="https://github.com/ajaxorg/ace">Ace GitHub Page</a></li>
-                  <li><a href="pages/PP.html">Privacy Policy</a></li>
-                  <li><a href="pages/TOS.html">Terms of service</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="in-home-block" class="in-window in-block" style="z-index:0;"></div>
-
-        <!-- # file manager -->
-        <div id="in-my-files" class="in-window in-content col1 d-grid">
-
+  <div id="main-editor">
+    <div class="w3-rest pos-relative h-100">
+      <div id="in-home" class="in-window in-content col1 active">
+        <div style="top:0;left:0;overflow:auto;z-index:2;" class="w-100 h-100 absolute">
           <div class="w3-hide-small" style="height:34px;"></div>
           
-          <div>
-
-            <div class="border-bottom-dark menu-action d-flex" style="align-items: center;padding:8px 12px 0;justify-content: space-between;">  
-              
-              <div class="w3-left">
-
-                <a href="javascript:void(0)" class="no-select option-menu" ondragstart="return false;" ondrop="return false;" tabindex="0">
-                  <div class="Btn w3-right w3-hover-none li no-select d-flex" style="align-items: center;padding:0">
-                    <h5 class="Btn w3-medium w3-padding-small w3-left no-select" style="font-weight:bold;" id="workspace-title">Main</h5>
-                    <i class="Btn material-icons w3-left">arrow_drop_down</i>
-                  </div>
-                  <div class="uid-A workspace no-select" onmousedown="event.preventDefault ? event.preventDefault() : event.returnValue = false" style="right:initial;left:0">
-                    <div>
-                      <div class="Btn w3-padding clickable active" data-kind="item" data-callback="change-workspace" data-index="0" data-target="Main" style="grid-template-columns: 1fr auto">
-                        <div class="w3-small w3-padding-small" title="Default workspace">
-                          <b>Main</b>
-                          <div style="opacity: 0.8;font-size: 0.7rem">Files stored in browser storage</div>
-                        </div>
-                        <i class="material-icons">done_outline</i>
-                      </div>
-                      <div class="Btn w3-padding clickable" data-kind="item" data-callback="change-workspace" data-index="1" data-target="Playground" style="grid-template-columns: 1fr auto;align-items: center">
-                        <span class="w3-small w3-padding-small" title="Secondary workspace">
-                          <b>Playground</b>
-                          <div style="opacity: 0.8;font-size: 0.7rem">Files cleared on application close</div>
-                        </span>
-                        <i class="material-icons">done_outline</i>
-                      </div>
-                      <div class="Btn w3-padding clickable" data-kind="item" data-callback="change-workspace" data-index="2" data-target="File System" style="grid-template-columns: 1fr auto;align-items: center">
-                        <span class="w3-small w3-padding-small" title="Local system workspace">
-                          <b>File System</b>
-                          <div style="opacity: 0.8;font-size: 0.7rem">Create, read, or modify local system files</div>
-                        </span>
-                        <i class="material-icons">done_outline</i>
-                      </div>
-                    </div>
-                  </div>
-                </a>
-                <style type="text/css">
-                  .option-menu > div .Btn { border-left: 4px solid #9e9e9e; }
-                  .option-menu > div .Btn:not(.active) { border-left: 4px solid transparent; }
-                  .workspace .Btn .material-icons { opacity: 0.8 }
-                  .workspace .Btn:not(.active) .material-icons { visibility: hidden }
-                </style>
-
+          <div class="w3-padding homepage-content">
+            <div>
+              <h3 style="font-weight:bold;margin-bottom: 0">Codetmp7</h3>
+              <p>Web IDE for serverless static web development (<a href="https://github.com/tmpmachine/divless-html" style="text-decoration:underline;">Divless-HTML</a>, HTML, CSS, and JS).</p>
+              <p>
+                <input id="check-show-homepage" class="w3-check" type="checkbox" checked oninput="ui.ToggleHomepageSetting()"/> <label for="check-show-homepage">Show homepage first</label>
+              </p>
+              <button class="d-block clickable" data-callback="toggle-homepage">
+                Start Coding
+              </button>
+              <div style="height:1rem"></div>
+              <div class="w3-button w3-border d-block w3-hide" style="text-align: center;background: #009688;color:#fff;max-width: 300px" id="buttonInstall">
+                <div class="w3-small w3-padding-small" style="font-weight:bold;">Install Codetmp</div>
               </div>
-
-              <div class="w3-right d-flex" style="flex-wrap: wrap;justify-content: flex-end;">
-                <div>
-
-                    <a href="javascript:void(0)" class="no-select option-menu authorized clickable" data-callback="sync-from-drive" tabindex="0" ondragstart="return false;" ondrop="return false;">
-                      <div class="Btn w3-button w3-right w3-hover-none li">
-                        <div class="Btn w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Refresh</div>
-                        <i class="Btn material-icons">refresh</i>
-                      </div>
-                    </a>
-                    <a href="javascript:void(0)" class="no-select option-menu" tabindex="0" ondragstart="return false;" ondrop="return false;">
-                      <div class="Btn w3-button w3-right w3-hover-none li">
-                        <i class="Btn material-icons">add</i>
-                      </div>
-                      <div class="uid-A">
-                        <div>
-                          <div class="Btn w3-padding clickable" data-callback="new-file">
-                            <i class="material-icons">note_add</i>
-                            <div class="w3-small w3-padding-small" title="New file">New File</div>
-                          </div>
-                          <div class="Btn w3-padding clickable" data-callback="new-folder">
-                            <i class="material-icons">create_new_folder</i>
-                            <span class="w3-small w3-padding-small" title="New folder">New Folder</span>
-                          </div>
-                          <div class="Btn w3-padding clickable" data-callback="clone-repo">
-                            <div class="d-flex" style="justify-content: center;align-items: center;">
-                              <i class="material-icons" style="visibility:hidden">http</i>
-                              <img class="material-icons absolute" style="font-size: 1.3em;" src="assets/images/GitHub_Logo.png" width="36">
-                            </div>
-                            <div class="w3-small w3-padding-small">Clone Git Repository</div>
-                          </div>
-                          <div class="Btn w3-padding clickable" data-callback="upload-file">
-                            <i class="material-icons">upload_file</i>
-                            <span class="w3-small w3-padding-small" title="New folder" data-target="#file-upload">Upload a File</span>
-                          </div>
-                          <div class="Btn w3-padding clickable" data-callback="paste">
-                            <i class="material-icons">paste</i>
-                            <span class="w3-small w3-padding-small Label">Move here</span>
-                          </div>
-                          <div class="Btn w3-padding clickable" data-callback="create-workspace">
-                            <i class="material-icons">workspaces</i>
-                            <span class="w3-small w3-padding-small">Create Workspace</span>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                    <a href="javascript:void(0)" class="no-select option-menu notif-button" tabindex="0" ondragstart="return false;" ondrop="return false;">
-                      <div class="Btn w3-button w3-right w3-hover-none li">
-                        <i class="Btn material-icons">notifications</i>
-                      </div>
-                      <div class="uid-A" style="min-width:280px;font-size:0.7rem">
-                        <div id="notif-list" class="ov-auto"></div>
-                      </div>
-                    </a>
-
-                </div>
-
-              </div>
-
-            </div>
-
-            <div class="d-grid" style="grid-template-columns: 1fr auto;padding:4px">
-
-              <div class="ov-auto" style="scroll-behavior: smooth;">
-                <div id="breadcrumbs" class="d-inline-flex no-select w3-small w3-padding"></div>
-              </div>
-              <div class="d-flex" style="justify-content: flex-end;padding:0 8px 0 0;align-items: center;">
-                <a href="javascript:void(0)" class="no-select option-menu" tabindex="0" ondragstart="return false;" ondrop="return false;">
-                  <div class="Btn w3-button w3-right w3-hover-none li">
-                    <i id="view-type-icon" class="Btn material-icons">grid_view</i>
-                  </div>
-                  <div class="uid-A" style="width: 150px">
-                    <div>
-                      <div class="Btn w3-padding clickable active" data-callback="change-file-list-view" data-type="grid">
-                        <i class="material-icons">grid_view</i>
-                        <span class="w3-small w3-padding-small" title="New folder">Grid view</span>
-                      </div>
-                      <div class="Btn w3-padding clickable" data-callback="change-file-list-view" data-type="list">
-                        <i class="material-icons">view_list</i>
-                        <div class="w3-small w3-padding-small" title="New file">List view</div>
-                      </div>
-                    </div>
-                  </div>
-                </a>
-                <a href="javascript:void(0)" class="no-select option-menu btn-file-action w3-hide" tabindex="0" ondragstart="return false;" ondrop="return false;">
-	                <div class="Btn w3-button w3-right w3-hover-none li">
-	                  <i class="Btn material-icons">more_vert</i>
-	                </div>
-	                <div class="uid-A">
-	                  <div>
-	                    <div class="Btn d-block w3-padding clickable" data-callback="file-rename">
-	                      <i class="material-icons">edit</i>
-	                      <div class="w3-small w3-padding-small">Rename</div>
-	                    </div>
-	                    <div class="Btn d-block w3-padding clickable" data-callback="file-delete">
-	                      <i class="material-icons">delete</i>
-	                      <span class="w3-small w3-padding-small" title="Move to trash">Trash</span>
-	                    </div>
-	                    <div class="Btn d-block w3-padding clickable" data-callback="file-download">
-	                      <i class="material-icons">get_app</i>
-	                      <span class="w3-small w3-padding-small">Download</span>
-	                    </div>
-	                    <div class="Btn d-block w3-padding clickable" data-callback="copy">
-	                      <i class="material-icons">copy</i>
-	                      <span class="w3-small w3-padding-small">Copy</span>
-	                    </div>
-	                    <div class="Btn d-block w3-padding clickable" data-callback="move">
-	                      <i class="material-icons">drive_file_move</i>
-	                      <span class="w3-small w3-padding-small">Move</span>
-	                    </div>
-	                    <div class="Btn d-block w3-padding clickable authorized" data-callback="file-unload">
-	                      <i class="material-icons">refresh</i>
-	                      <span class="w3-small w3-padding-small">Resync</span>
-	                    </div>
-	                  </div>
-	                </div>
-	              </a>
-              </div>
-
-            </div>
-
-          </div>
-
-          <div id="in-my-files-drop-zone">
-            <div class="wg-FileList _fileList"></div>
-            <div data-target="explorer" data-message="1" class="drop-zone w3-hide"></div>
-          </div>
-
-        </div>
-
-        <div id="in-trash" class="in-window in-content bg1 col1 ov-hidden">
-          <div class="w3-hide-small" style="height:34px;"></div>
-          <div class="w3-padding border-bottom-dark">
-            <div class="no-select">
-              <h5><b>Trash <small>(Preview only)</small> <small class="w3-black w3-round" style="padding:0 2px 2px ;">Beta</small></b></h5>
-            </div>
-          </div>
-          <div class="h-100">
-            <div style="z-index:1;" class="ov-auto pos-relative h-100">
-              <div id="list-trash" class="w3-padding d-flex" style="flex-flow:wrap;"></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="in-trash-block" class="in-window in-block"></div>
-        <div id="in-settings-block" class="in-window in-block"></div>
-
-        <!-- # editor window -->
-        <div class="in-window d-grid ov-hidden h-100">
-          <div class="pos-relative h-100 d-grid" style="grid-template-rows:auto auto 1fr;">
-            
-            <div id="nav-bar" class="no-select w3-small w-100">
-
-              <div class="pos-relative d-flex justify-content-between">
-
-                <div class="menu-bar">
-                  
-                  <button class="tree-explorer-btn-expand clickable d-none" title="File Tree Explorer (Alt + Q)" data-callback="expand-tree-explorer" style="border: 0;cursor: pointer;color: #97bcc1;border-right: 1px solid hsl(214deg 14% 13%);">
-                    <i class="material-icons i-btn-in">chevron_right</i>
-                  </button>
-                  <div class="drop-menu">
-                <a href="#" class="Root w3-padding">File</a>
-                    <div class="Submenu">
-                      <a href="#" class="w3-padding Items menu-link" data-callback="save" data-shortcut="Ctrl + S"> Save </a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback="save-all" data-shortcut="Ctrl + Shift + S"> Save All </a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback="new-file" data-shortcut="Alt + N"> New File </a>
-                      <a href="#" class="w3-padding Items menu-link hide" data-callback="new-file-on-disk">New File on Disk</a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback="new-folder" data-shortcut="Alt + Shift + N"> New Folder </a>
-                      <a href="#" class="w3-padding Items menu-link feature-fs" data-callback="open-disk-folder" data-shortcut="Ctrl + O"> Open Folder from Disk </a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback="preview" data-shortcut="Ctrl + Enter"> Preview </a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback="preview-at-pwa" data-shortcut="Ctrl + Shift + Enter">Preview PWAs</a>
-                    </div>
-                  </div>
-                  <div class="drop-menu">
-                <a href="#" class="Root w3-padding">Explorer</a>
-                    <div class="Submenu">
-                      <a href="#" class="w3-padding Items menu-link" data-callback="my-files" data-shortcut="Alt + M"> My Files </a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback="open-in-explorer" data-shortcut="Alt + O"> Open File in Explorer </a>
-                      <a class="w3-padding Items menu-link" href="#" data-onclick="create-session">Create a new session</a>
-                      <a href="#" class="w3-padding Items menu-link w3-hide" data-callback="trash"> Trash </a>
-                    </div>
-                  </div>
-                  <!-- view menu -->
-                  <div class="drop-menu">
-                    <a href="#" class="Root w3-padding">View</a>
-                    <div class="Submenu">
-                      <a href="#" class="w3-padding Items menu-link" data-callback="command-palette" data-shortcut="Ctrl + Shift + P"> Command Palette </a>
-                    </div>
-                  </div>
-
-                  <div class="drop-menu">
-                <a href="#" class="Root w3-padding">Editor</a>
-                    <div class="Submenu">
-                      <a href="#" class="w3-padding Items menu-link" data-callback="set-font-size"> Set Font Size </a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback="toggle-editor-theme"> Toggle Light Theme </a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback="toggle-word-wrap"> Toggle Word Wrap </a>
-                      <!-- <a href="#" class="w3-padding Items menu-link" data-callback="toggle-in-frame"> Toggle In-frame Preview </a> -->
-                      <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + K, K"> Toggle Bookmark</a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + K, L"> Clear Bookmark</a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Ctrl + Alt + ,"> Go To Previous Bookmark</a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Ctrl + Alt + ."> Go To Next Bookmark</a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + ,"> Previous Tab</a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + ."> Next Tab</a>
-                    </div>
-                  </div>
-                  <div class="drop-menu">
-                <a href="#" class="Root w3-padding">Publish</a>
-                    <div class="Submenu">
-                      <a href="#" class="w3-padding Items menu-link authorized" data-callback="modal" data-target="deploy-firebase">Deploy to Firebase Hosting</a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback="generate-single-file" data-shortcut="Alt + P">Generate Single File</a>
-                    </div>
-                  </div>
-                  <div class="drop-menu">
-                <a href="#" class="Root w3-padding">Help</a>
-                    <div class="Submenu">
-                      <a href="pages/PP.html" class="w3-padding Items">Privacy Policy</a>
-                      <a href="pages/TOS.html" class="w3-padding Items">Terms of Service</a>
-                      <a href="#" class="w3-padding Items menu-link" data-callback="about">About Codetmp</a>
-                    </div>
-                  </div>
-
-                </div>
-
-                <div class="menu-bar">
-
-                  <div class="drop-menu">
-                  <a href="#" class="Root w3-padding menu-link" data-callback="modal" data-target="settings">Settings</a>
-                  </div>
-                  <div class="drop-menu unauthorized">
-                <a href="#" class="Root w3-padding menu-link" data-callback="modal" data-target="account">Sign in</a>
-                  </div>
-                  <div class="drop-menu authorized">
-                <a href="#" class="Root w3-padding">My Account</a>
-                    <div class="Submenu" style="right:0">
-                      <a href="#" class="w3-padding Items menu-link" data-callback="sign-out">Sign out</a>
-                    </div>
-                  </div>
-
-                </div>
-
-              </div>
-
-              <!-- # navbar line -->
-              <div style="border-top:1px solid #3b3b3b;"></div>
-
-            </div>
-            
-            <div class="d-grid pos-relative file-tab-container">
-              
-              <!-- # file tab -->
-              <div id="file-title" class="wg-FileTab" data-mousedown="handle-click-file-tab" data-ctxmenu="handle-ctxmenu-file-tab"></div>
-
-              <div id="more-tab" data-callback="more-tab" class="clickable w3-left pos-relative d-none" style="z-index:1;">
-                <div>
-                  <div class="w3-rest pos-relative" style="padding:18px 24px;line-height:1.5em;">
-                    <div class="file-tab-name no-select w3-small w3-left h-100 d-flex w-100 absolute" data-title="__name__" style="left:0;top:0;color:#fff!important;font-weight:bold;align-items:center;justify-content:center;">
-                      <i class="material-icons">navigate_next</i>
-                    </div>
-                  </div>
-                </div>
-                <div style="height:3px"></div>
+              <div style="height:12px"></div>
+              <small>
+                Hobbies app by <a href="http://pacolemon.blogspot.com/" style="text-decoration:underline;">PacoLemon</a>.
+              </small>
+              <div>
+                <small>Powered by <a href="https://ace.c9.io/" style="text-decoration:underline;">Ace</a> - The High Performance Code Editor for the Web.</small>
               </div>
             </div>
-            
-            <div class="pos-relative">
-              <div id="editor-wrapper" spellcheck="false" class="relative h-100" style="background:#21252b;"></div>
-              <div data-target="editor" data-message="1" class="drop-zone w3-hide"></div>
+            <div>
+              <h3 style="font-weight:bold;">Links</h3>
+              <ul class="c links">
+                <li><a href="https://github.com/tmpmachine/codetmp">Codetmp7 GitHub Page</a></li>
+                <li><a href="https://github.com/ajaxorg/ace">Ace GitHub Page</a></li>
+                <li><a href="pages/PP.html">Privacy Policy</a></li>
+                <li><a href="pages/TOS.html">Terms of service</a></li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
-      <div id="sidebar" class="w3-animate-left HIDE ov-auto" data-onclick="handle-sidebar-btn-click">
+
+      <div id="in-home-block" class="in-window in-block" style="z-index:0;"></div>
+
+      <!-- # file manager -->
+      <div id="in-my-files" class="in-window in-content col1 d-grid">
+
+        <div class="w3-hide-small" style="height:34px;"></div>
         
-        <!-- # sidebar -->
-        <div class="Inner sidebar-inner h-100">
-          <div id="btn-menu-my-files" class="wgs-BtnSidebar _btnSidebar no-select" menu="in-my-files">
-            <i class="material-icons i-btn-in">folder</i>
-            <label class="l-btn-in">My Files</label>
-          </div>
-          <div id="btn-menu-settings" class="w3-animate-left wgs-BtnSidebar _btnSidebar no-select clickable w3-hide-medium w3-hide-large" data-callback="toggle-settings">
-            <i class="material-icons i-btn-in">settings</i>
-            <label class="l-btn-in">Settings</label>
-          </div>
-          <div id="btn-menu-preview-wrapper" class="relative" style="z-index:0;">
-            <div class="_btnMenuPreview wgs-BtnSidebar no-select w3-animate-left" data-onclick="btn-menu-preview" _btnSidebar>
-              <i class="material-icons i-btn-in">play_arrow</i>
-              <label class="l-btn-in">Preview</label>
-            </div>
-          </div>
-          <div id="btn-menu-save-wrapper" class="relative" style="z-index:0;">
-            <div data-callback="btn-menu-save" class="clickable wgs-BtnSidebar _btnSidebar w3-animate-left no-select">
-              <i class="material-icons i-btn-in">save</i>
-              <label class="l-btn-in">Save</label>
-            </div>
-          </div>
-          <div id="btn-menu-template" data-callback="btn-menu-template" class="clickable w3-animate-left wgs-BtnSidebar _btnSidebar no-select">
-            <i class="material-icons i-btn-in">extension</i>
-            <label class="l-btn-in">Snippets</label>
-          </div>
-          <div id="btn-undo" data-callback="btn-undo" class="clickable w3-animate-left wgs-BtnSidebar _btnSidebar no-select w3-hide-medium w3-hide-large">
-            <i class="material-icons i-btn-in">undo</i>
-            <label class="l-btn-in">Undo</label>
-          </div>
-          <div id="btn-redo" data-callback="btn-redo" class="clickable w3-animate-left wgs-BtnSidebar _btnSidebar no-select w3-hide-medium w3-hide-large">
-            <i class="material-icons i-btn-in">redo</i>
-            <label class="l-btn-in">Redo</label>
-          </div>
-          <div id="btn-menu-trash" data-callback="btn-menu-trash" class="clickable wgs-BtnSidebar _btnSidebar no-select hide " menu="in-trash">
-            <i class="material-icons i-btn-in">delete</i>
-            <label class="l-btn-in">Trash</label>
-          </div>
-          
-          <div id="btn-home-wrapper" class="hide w3-animate-left pos-relative" style="z-index:0;">
-            <div id="btn-home" id="btn-home" class="wgs-BtnSidebar _btnSidebar no-select w3-hide-medium w3-hide-large clickable" data-callback="toggle-homepage">
-              <i class="material-icons i-btn-in">home</i>
-              <label class="l-btn-in">Home</label>
-            </div>
-          </div>
-          <div id="btn-account-wrapper" class="hide w3-animate-left wgs-BtnSidebar _btnSidebar no-select clickable w3-hide-medium w3-hide-large" data-callback="toggle-account">
-            <i class="material-icons i-btn-in">account_circle</i>
-            <label class="l-btn-in">Account</label>
-          </div>
-          <div class="bg5x absolute" style="top:0;left:0;right:0;bottom:0;z-index:-2;"></div>
-        </div>
-        <!--  -->
-        <!-- END OF SIDEBAR MENU -->
+        <div>
 
+          <div class="border-bottom-dark menu-action d-flex" style="align-items: center;padding:8px 12px 0;justify-content: space-between;">  
+            
+            <div class="w3-left">
 
-        <!-- FILE TREE EXPLORER -->
-        <!--  -->
-        <div class="tree-explorer d-none">
-          <div class="no-select w3-small">
-            <button data-callback="collapse-tree-explorer" class="clickable tree-explorer-btn-collapse">
-              <i class="material-icons i-btn-in">chevron_left</i>
-            </button>
+              <a href="javascript:void(0)" class="no-select option-menu" ondragstart="return false;" ondrop="return false;" tabindex="0">
+                <div class="Btn w3-right w3-hover-none li no-select d-flex" style="align-items: center;padding:0">
+                  <h5 class="Btn w3-medium w3-padding-small w3-left no-select" style="font-weight:bold;" id="workspace-title">Main</h5>
+                  <i class="Btn material-icons w3-left">arrow_drop_down</i>
+                </div>
+                <div class="uid-A workspace no-select" onmousedown="event.preventDefault ? event.preventDefault() : event.returnValue = false" style="right:initial;left:0">
+                  <div>
+                    <div class="Btn w3-padding clickable active" data-kind="item" data-callback="change-workspace" data-index="0" data-target="Main" style="grid-template-columns: 1fr auto">
+                      <div class="w3-small w3-padding-small" title="Default workspace">
+                        <b>Main</b>
+                        <div style="opacity: 0.8;font-size: 0.7rem">Files stored in browser storage</div>
+                      </div>
+                      <i class="material-icons">done_outline</i>
+                    </div>
+                    <div class="Btn w3-padding clickable" data-kind="item" data-callback="change-workspace" data-index="1" data-target="Playground" style="grid-template-columns: 1fr auto;align-items: center">
+                      <span class="w3-small w3-padding-small" title="Secondary workspace">
+                        <b>Playground</b>
+                        <div style="opacity: 0.8;font-size: 0.7rem">Files cleared on application close</div>
+                      </span>
+                      <i class="material-icons">done_outline</i>
+                    </div>
+                    <div class="Btn w3-padding clickable" data-kind="item" data-callback="change-workspace" data-index="2" data-target="File System" style="grid-template-columns: 1fr auto;align-items: center">
+                      <span class="w3-small w3-padding-small" title="Local system workspace">
+                        <b>File System</b>
+                        <div style="opacity: 0.8;font-size: 0.7rem">Create, read, or modify local system files</div>
+                      </span>
+                      <i class="material-icons">done_outline</i>
+                    </div>
+                  </div>
+                </div>
+              </a>
+              <style type="text/css">
+                .option-menu > div .Btn { border-left: 4px solid #9e9e9e; }
+                .option-menu > div .Btn:not(.active) { border-left: 4px solid transparent; }
+                .workspace .Btn .material-icons { opacity: 0.8 }
+                .workspace .Btn:not(.active) .material-icons { visibility: hidden }
+              </style>
+
+            </div>
+
+            <div class="w3-right d-flex" style="flex-wrap: wrap;justify-content: flex-end;">
+              <div>
+
+                  <a href="javascript:void(0)" class="no-select option-menu authorized clickable" data-callback="sync-from-drive" tabindex="0" ondragstart="return false;" ondrop="return false;">
+                    <div class="Btn w3-button w3-right w3-hover-none li">
+                      <div class="Btn w3-hide-medium w3-hide-small w3-small w3-padding-small w3-left">Refresh</div>
+                      <i class="Btn material-icons">refresh</i>
+                    </div>
+                  </a>
+                  <a href="javascript:void(0)" class="no-select option-menu" tabindex="0" ondragstart="return false;" ondrop="return false;">
+                    <div class="Btn w3-button w3-right w3-hover-none li">
+                      <i class="Btn material-icons">add</i>
+                    </div>
+                    <div class="uid-A">
+                      <div>
+                        <div class="Btn w3-padding clickable" data-callback="new-file">
+                          <i class="material-icons">note_add</i>
+                          <div class="w3-small w3-padding-small" title="New file">New File</div>
+                        </div>
+                        <div class="Btn w3-padding clickable" data-callback="new-folder">
+                          <i class="material-icons">create_new_folder</i>
+                          <span class="w3-small w3-padding-small" title="New folder">New Folder</span>
+                        </div>
+                        <div class="Btn w3-padding clickable" data-callback="clone-repo">
+                          <div class="d-flex" style="justify-content: center;align-items: center;">
+                            <i class="material-icons" style="visibility:hidden">http</i>
+                            <img class="material-icons absolute" style="font-size: 1.3em;" src="assets/images/GitHub_Logo.png" width="36">
+                          </div>
+                          <div class="w3-small w3-padding-small">Clone Git Repository</div>
+                        </div>
+                        <div class="Btn w3-padding clickable" data-callback="upload-file">
+                          <i class="material-icons">upload_file</i>
+                          <span class="w3-small w3-padding-small" title="New folder" data-target="#file-upload">Upload a File</span>
+                        </div>
+                        <div class="Btn w3-padding clickable" data-callback="paste">
+                          <i class="material-icons">paste</i>
+                          <span class="w3-small w3-padding-small Label">Move here</span>
+                        </div>
+                        <div class="Btn w3-padding clickable" data-callback="create-workspace">
+                          <i class="material-icons">workspaces</i>
+                          <span class="w3-small w3-padding-small">Create Workspace</span>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                  <a href="javascript:void(0)" class="no-select option-menu notif-button" tabindex="0" ondragstart="return false;" ondrop="return false;">
+                    <div class="Btn w3-button w3-right w3-hover-none li">
+                      <i class="Btn material-icons">notifications</i>
+                    </div>
+                    <div class="uid-A" style="min-width:280px;font-size:0.7rem">
+                      <div id="notif-list" class="ov-auto"></div>
+                    </div>
+                  </a>
+
+              </div>
+
+            </div>
+
           </div>
-          <div>
-            <button data-callback="reload-file-tree" class="clickable tree-explorer-btn-collapse">
-              <i class="material-icons i-btn-in">sync</i> Reload
-            </button>
-            <button>Info: Right click to reveal file</button>
+
+          <div class="d-grid" style="grid-template-columns: 1fr auto;padding:4px">
+
+            <div class="ov-auto" style="scroll-behavior: smooth;">
+              <div id="breadcrumbs" class="d-inline-flex no-select w3-small w3-padding"></div>
+            </div>
+            <div class="d-flex" style="justify-content: flex-end;padding:0 8px 0 0;align-items: center;">
+              <a href="javascript:void(0)" class="no-select option-menu" tabindex="0" ondragstart="return false;" ondrop="return false;">
+                <div class="Btn w3-button w3-right w3-hover-none li">
+                  <i id="view-type-icon" class="Btn material-icons">grid_view</i>
+                </div>
+                <div class="uid-A" style="width: 150px">
+                  <div>
+                    <div class="Btn w3-padding clickable active" data-callback="change-file-list-view" data-type="grid">
+                      <i class="material-icons">grid_view</i>
+                      <span class="w3-small w3-padding-small" title="New folder">Grid view</span>
+                    </div>
+                    <div class="Btn w3-padding clickable" data-callback="change-file-list-view" data-type="list">
+                      <i class="material-icons">view_list</i>
+                      <div class="w3-small w3-padding-small" title="New file">List view</div>
+                    </div>
+                  </div>
+                </div>
+              </a>
+              <a href="javascript:void(0)" class="no-select option-menu btn-file-action w3-hide" tabindex="0" ondragstart="return false;" ondrop="return false;">
+                <div class="Btn w3-button w3-right w3-hover-none li">
+                  <i class="Btn material-icons">more_vert</i>
+                </div>
+                <div class="uid-A">
+                  <div>
+                    <div class="Btn d-block w3-padding clickable" data-callback="file-rename">
+                      <i class="material-icons">edit</i>
+                      <div class="w3-small w3-padding-small">Rename</div>
+                    </div>
+                    <div class="Btn d-block w3-padding clickable" data-callback="file-delete">
+                      <i class="material-icons">delete</i>
+                      <span class="w3-small w3-padding-small" title="Move to trash">Trash</span>
+                    </div>
+                    <div class="Btn d-block w3-padding clickable" data-callback="file-download">
+                      <i class="material-icons">get_app</i>
+                      <span class="w3-small w3-padding-small">Download</span>
+                    </div>
+                    <div class="Btn d-block w3-padding clickable" data-callback="copy">
+                      <i class="material-icons">copy</i>
+                      <span class="w3-small w3-padding-small">Copy</span>
+                    </div>
+                    <div class="Btn d-block w3-padding clickable" data-callback="move">
+                      <i class="material-icons">drive_file_move</i>
+                      <span class="w3-small w3-padding-small">Move</span>
+                    </div>
+                    <div class="Btn d-block w3-padding clickable authorized" data-callback="file-unload">
+                      <i class="material-icons">refresh</i>
+                      <span class="w3-small w3-padding-small">Resync</span>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+
           </div>
-          <div id="file-tree" class="d-grid">
-            <ul class="file-tree-list file-tree" data-fid="-1">
-              <li class="folder-root open">
-                <span class="folder-name root" data-fid="-1">My Files</span>
-                <ul class="isLoaded"></ul>
-              </li>
-            </ul>
-          </div>
-          <div id="tree-workspace">
-            <div data-fid="-1" class="--active no-select">My Files</div>
-          </div>
+
         </div>
-        <!--  -->
-        <!-- END OF FILE TREE EXPLORER -->
+
+        <div id="in-my-files-drop-zone">
+          <div class="wg-FileList _fileList"></div>
+          <div data-target="explorer" data-message="1" class="drop-zone w3-hide"></div>
+        </div>
 
       </div>
-      <div id="status-bar" class="no-select">
-        <small id="txt-sync"></small>
-        <span>&nbsp;</span>
+
+      <div id="in-trash" class="in-window in-content bg1 col1 ov-hidden">
+        <div class="w3-hide-small" style="height:34px;"></div>
+        <div class="w3-padding border-bottom-dark">
+          <div class="no-select">
+            <h5><b>Trash <small>(Preview only)</small> <small class="w3-black w3-round" style="padding:0 2px 2px ;">Beta</small></b></h5>
+          </div>
+        </div>
+        <div class="h-100">
+          <div style="z-index:1;" class="ov-auto pos-relative h-100">
+            <div id="list-trash" class="w3-padding d-flex" style="flex-flow:wrap;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="in-trash-block" class="in-window in-block"></div>
+      <div id="in-settings-block" class="in-window in-block"></div>
+
+      <!-- # editor window -->
+      <div class="in-window d-grid ov-hidden h-100">
+        <div class="pos-relative h-100 d-grid" style="grid-template-rows:auto auto 1fr;">
+          
+          <div id="nav-bar" class="no-select w3-small w-100">
+
+            <div class="pos-relative d-flex justify-content-between">
+
+              <div class="menu-bar">
+                
+                <button class="tree-explorer-btn-expand clickable d-none" title="File Tree Explorer (Alt + Q)" data-callback="expand-tree-explorer" style="border: 0;cursor: pointer;color: #97bcc1;border-right: 1px solid hsl(214deg 14% 13%);">
+                  <i class="material-icons i-btn-in">chevron_right</i>
+                </button>
+                <div class="drop-menu">
+              <a href="#" class="Root w3-padding">File</a>
+                  <div class="Submenu">
+                    <a href="#" class="w3-padding Items menu-link" data-callback="save" data-shortcut="Ctrl + S"> Save </a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback="save-all" data-shortcut="Ctrl + Shift + S"> Save All </a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback="new-file" data-shortcut="Alt + N"> New File </a>
+                    <a href="#" class="w3-padding Items menu-link hide" data-callback="new-file-on-disk">New File on Disk</a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback="new-folder" data-shortcut="Alt + Shift + N"> New Folder </a>
+                    <a href="#" class="w3-padding Items menu-link feature-fs" data-callback="open-disk-folder" data-shortcut="Ctrl + O"> Open Folder from Disk </a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback="preview" data-shortcut="Ctrl + Enter"> Preview </a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback="preview-at-pwa" data-shortcut="Ctrl + Shift + Enter">Preview PWAs</a>
+                  </div>
+                </div>
+                <div class="drop-menu">
+              <a href="#" class="Root w3-padding">Explorer</a>
+                  <div class="Submenu">
+                    <a href="#" class="w3-padding Items menu-link" data-callback="my-files" data-shortcut="Alt + M"> My Files </a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback="open-in-explorer" data-shortcut="Alt + O"> Open File in Explorer </a>
+                    <a class="w3-padding Items menu-link" href="#" data-onclick="create-session">Create a new session</a>
+                    <a href="#" class="w3-padding Items menu-link w3-hide" data-callback="trash"> Trash </a>
+                  </div>
+                </div>
+                <!-- view menu -->
+                <div class="drop-menu">
+                  <a href="#" class="Root w3-padding">View</a>
+                  <div class="Submenu">
+                    <a href="#" class="w3-padding Items menu-link" data-callback="command-palette" data-shortcut="Ctrl + Shift + P"> Command Palette </a>
+                  </div>
+                </div>
+
+                <div class="drop-menu">
+              <a href="#" class="Root w3-padding">Editor</a>
+                  <div class="Submenu">
+                    <a href="#" class="w3-padding Items menu-link" data-callback="set-font-size"> Set Font Size </a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback="toggle-editor-theme"> Toggle Light Theme </a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback="toggle-word-wrap"> Toggle Word Wrap </a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + K, K"> Toggle Bookmark</a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + K, L"> Clear Bookmark</a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Ctrl + Alt + ,"> Go To Previous Bookmark</a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Ctrl + Alt + ."> Go To Next Bookmark</a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + ,"> Previous Tab</a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback='' data-shortcut="Alt + ."> Next Tab</a>
+                  </div>
+                </div>
+                <div class="drop-menu">
+              <a href="#" class="Root w3-padding">Publish</a>
+                  <div class="Submenu">
+                    <a href="#" class="w3-padding Items menu-link authorized" data-callback="modal" data-target="deploy-firebase">Deploy to Firebase Hosting</a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback="generate-single-file" data-shortcut="Alt + P">Generate Single File</a>
+                  </div>
+                </div>
+                <div class="drop-menu">
+              <a href="#" class="Root w3-padding">Help</a>
+                  <div class="Submenu">
+                    <a href="pages/PP.html" class="w3-padding Items">Privacy Policy</a>
+                    <a href="pages/TOS.html" class="w3-padding Items">Terms of Service</a>
+                    <a href="#" class="w3-padding Items menu-link" data-callback="about">About Codetmp</a>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="menu-bar">
+
+                <div class="drop-menu">
+                <a href="#" class="Root w3-padding menu-link" data-callback="modal" data-target="settings">Settings</a>
+                </div>
+                <div class="drop-menu unauthorized">
+              <a href="#" class="Root w3-padding menu-link" data-callback="modal" data-target="account">Sign in</a>
+                </div>
+                <div class="drop-menu authorized">
+              <a href="#" class="Root w3-padding">My Account</a>
+                  <div class="Submenu" style="right:0">
+                    <a href="#" class="w3-padding Items menu-link" data-callback="sign-out">Sign out</a>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- # navbar line -->
+            <div style="border-top:1px solid #3b3b3b;"></div>
+
+          </div>
+          
+          <div class="d-grid pos-relative file-tab-container">
+            
+            <!-- # file tab -->
+            <div id="file-title" class="wg-FileTab" data-mousedown="handle-click-file-tab" data-ctxmenu="handle-ctxmenu-file-tab"></div>
+
+            <div id="more-tab" data-callback="more-tab" class="clickable w3-left pos-relative d-none" style="z-index:1;">
+              <div>
+                <div class="w3-rest pos-relative" style="padding:18px 24px;line-height:1.5em;">
+                  <div class="file-tab-name no-select w3-small w3-left h-100 d-flex w-100 absolute" data-title="__name__" style="left:0;top:0;color:#fff!important;font-weight:bold;align-items:center;justify-content:center;">
+                    <i class="material-icons">navigate_next</i>
+                  </div>
+                </div>
+              </div>
+              <div style="height:3px"></div>
+            </div>
+          </div>
+          
+          <div class="pos-relative">
+            <div id="editor-wrapper" spellcheck="false" class="relative h-100" style="background:#21252b;"></div>
+            <div data-target="editor" data-message="1" class="drop-zone w3-hide"></div>
+          </div>
+        </div>
       </div>
     </div>
-    <div id="gutter"></div>
-    <!-- end of main editor -->
-    <iframe id="inframe-preview" name="inframe-preview"></iframe>
+    <div id="sidebar" class="w3-animate-left HIDE ov-auto" data-onclick="handle-sidebar-btn-click">
+      
+      <!-- # sidebar -->
+      <div class="Inner sidebar-inner h-100">
+        <div id="btn-menu-my-files" class="wgs-BtnSidebar _btnSidebar no-select" menu="in-my-files">
+          <i class="material-icons i-btn-in">folder</i>
+          <label class="l-btn-in">My Files</label>
+        </div>
+        <div id="btn-menu-settings" class="w3-animate-left wgs-BtnSidebar _btnSidebar no-select clickable w3-hide-medium w3-hide-large" data-callback="toggle-settings">
+          <i class="material-icons i-btn-in">settings</i>
+          <label class="l-btn-in">Settings</label>
+        </div>
+        <div id="btn-menu-preview-wrapper" class="relative" style="z-index:0;">
+          <div class="_btnMenuPreview wgs-BtnSidebar no-select w3-animate-left" data-onclick="btn-menu-preview" _btnSidebar>
+            <i class="material-icons i-btn-in">play_arrow</i>
+            <label class="l-btn-in">Preview</label>
+          </div>
+        </div>
+        <div id="btn-menu-save-wrapper" class="relative" style="z-index:0;">
+          <div data-callback="btn-menu-save" class="clickable wgs-BtnSidebar _btnSidebar w3-animate-left no-select">
+            <i class="material-icons i-btn-in">save</i>
+            <label class="l-btn-in">Save</label>
+          </div>
+        </div>
+        <div id="btn-menu-template" data-callback="btn-menu-template" class="clickable w3-animate-left wgs-BtnSidebar _btnSidebar no-select">
+          <i class="material-icons i-btn-in">extension</i>
+          <label class="l-btn-in">Snippets</label>
+        </div>
+        <div id="btn-undo" data-callback="btn-undo" class="clickable w3-animate-left wgs-BtnSidebar _btnSidebar no-select w3-hide-medium w3-hide-large">
+          <i class="material-icons i-btn-in">undo</i>
+          <label class="l-btn-in">Undo</label>
+        </div>
+        <div id="btn-redo" data-callback="btn-redo" class="clickable w3-animate-left wgs-BtnSidebar _btnSidebar no-select w3-hide-medium w3-hide-large">
+          <i class="material-icons i-btn-in">redo</i>
+          <label class="l-btn-in">Redo</label>
+        </div>
+        <div id="btn-menu-trash" data-callback="btn-menu-trash" class="clickable wgs-BtnSidebar _btnSidebar no-select hide " menu="in-trash">
+          <i class="material-icons i-btn-in">delete</i>
+          <label class="l-btn-in">Trash</label>
+        </div>
+        
+        <div id="btn-home-wrapper" class="hide w3-animate-left pos-relative" style="z-index:0;">
+          <div id="btn-home" id="btn-home" class="wgs-BtnSidebar _btnSidebar no-select w3-hide-medium w3-hide-large clickable" data-callback="toggle-homepage">
+            <i class="material-icons i-btn-in">home</i>
+            <label class="l-btn-in">Home</label>
+          </div>
+        </div>
+        <div id="btn-account-wrapper" class="hide w3-animate-left wgs-BtnSidebar _btnSidebar no-select clickable w3-hide-medium w3-hide-large" data-callback="toggle-account">
+          <i class="material-icons i-btn-in">account_circle</i>
+          <label class="l-btn-in">Account</label>
+        </div>
+        <div class="bg5x absolute" style="top:0;left:0;right:0;bottom:0;z-index:-2;"></div>
+      </div>
+      <!--  -->
+      <!-- END OF SIDEBAR MENU -->
+
+
+      <!-- FILE TREE EXPLORER -->
+      <!--  -->
+      <div class="tree-explorer d-none">
+        <div class="no-select w3-small">
+          <button data-callback="collapse-tree-explorer" class="clickable tree-explorer-btn-collapse">
+            <i class="material-icons i-btn-in">chevron_left</i>
+          </button>
+        </div>
+        <div>
+          <button data-callback="reload-file-tree" class="clickable tree-explorer-btn-collapse">
+            <i class="material-icons i-btn-in">sync</i> Reload
+          </button>
+          <button>Info: Right click to reveal file</button>
+        </div>
+        <div id="file-tree" class="d-grid">
+          <ul class="file-tree-list file-tree" data-fid="-1">
+            <li class="folder-root open">
+              <span class="folder-name root" data-fid="-1">My Files</span>
+              <ul class="isLoaded"></ul>
+            </li>
+          </ul>
+        </div>
+        <div id="tree-workspace">
+          <div data-fid="-1" class="--active no-select">My Files</div>
+        </div>
+      </div>
+      <!--  -->
+      <!-- END OF FILE TREE EXPLORER -->
+
+    </div>
+    <div id="status-bar" class="no-select">
+      <small id="txt-sync"></small>
+      <span>&nbsp;</span>
+    </div>
   </div>
 
   <div id="limbo" class="limbo">

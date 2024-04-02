@@ -63,46 +63,6 @@
     }
   }
 
-  function initInframeLayout() {
-    let isDragged = false;
-    let width = 350;
-    $('#inframe-preview').style.width = width+'px';
-    function mouseHandler(event) {
-      if (event.type == 'mousedown') {
-        $('#main-layout').classList.add('blocked');
-        oldX = event.pageX;
-      } else if (event.type == 'touchstart') {
-        $('#main-layout').classList.add('blocked');
-        oldX = event.changedTouches[0].pageX;
-      } else {
-        $('#main-layout').classList.remove('blocked');
-      }
-      isDragged = (event.type == 'mousedown' || event.type == 'touchstart') ? true : false;
-    }
-    let oldX, delta, updateEditor;
-    function mouseMove(event) {
-      if (isDragged) {
-        if (event.type == 'touchmove') {
-          event = event.changedTouches[0];
-        }
-        delta = oldX - event.pageX;
-        oldX = event.pageX;
-        width += delta;
-        $('#inframe-preview').style.width = width+'px';
-        clearTimeout(updateEditor);
-        updateEditor = setTimeout(function() {
-          fileTab[activeTab].editor.env.editor.session.setUseWrapMode(settings.data.editor.wordWrapEnabled);
-        }, 100);
-      }
-    }
-    $('#gutter').addEventListener('touchstart', mouseHandler, {passive: true});
-    $('#gutter').addEventListener('mousedown', mouseHandler, {passive: true});
-    document.addEventListener('mouseup', mouseHandler, {passive: true});
-    document.addEventListener('touchend', mouseHandler, {passive: true});
-    document.addEventListener('mousemove', mouseMove, {passive: true});
-    document.addEventListener('touchmove', mouseMove, {passive: true});
-  }
-
   function logWarningMessage() {
     let cssRule = "color:rgb(249,162,34);font-size:60px;font-weight:bold";
     setTimeout(console.log.bind(console, "%cATTENTION", cssRule), 0); 
@@ -125,7 +85,6 @@
     }
   }
 
-  initInframeLayout();
   initMenuBar();
   initNavMenus();
   logWarningMessage();
