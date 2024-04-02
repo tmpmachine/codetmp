@@ -55,11 +55,11 @@ const gitRest = (function() {
       parentId,
       loaded: false,
       name: _file.name,
-      content: helper.generateRemoteDataContent('git', _file.download_url),
+      content: helperUtils.generateRemoteDataContent('git', _file.download_url),
     });
     uiTreeExplorer.AppendFile(file);
-    let mimeType = helper.getMimeType(file.name);
-    if (helper.isMediaTypeMultimedia(mimeType)) {
+    let mimeType = helperUtils.getMimeType(file.name);
+    if (helperUtils.isMediaTypeMultimedia(mimeType)) {
       file.contentLink = _file.download_url;
     }
 
@@ -96,7 +96,7 @@ const gitRest = (function() {
     listChanges = window.setTimeout(function() {
       fileManager.list();
       fileStorage.save();
-      drive.syncToDrive();
+      compoDrive.syncToDrive();
     }, 300);
   };
 

@@ -75,7 +75,7 @@ const preferences = (function() {
         resolve(file);
       } else {
         
-          drive.downloadDependencies(file).then(media => {
+        compoDrive.downloadDependencies(file).then(media => {
           file.content = media;
           file.loaded = true;
           fileStorage.save();

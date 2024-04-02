@@ -1,7 +1,7 @@
 const debug = {
   getAppData: function() {
     
-    fetch(drive.apiUrl+'files?spaces=appDataFolder&fields=files(id)', {
+    fetch(compoDrive.apiUrl+'files?spaces=appDataFolder&fields=files(id)', {
       headers: {
         'Authorization':'Bearer '+auth0.auth.data.token
       }
@@ -18,7 +18,7 @@ const debug = {
   },
   delete: function(id) {
     
-    fetch(drive.apiUrl+'files/'+id, {
+    fetch(compoDrive.apiUrl+'files/'+id, {
       method: 'DELETE',
       headers: {
         Authorization: 'Bearer '+auth0.auth.data.token
@@ -37,7 +37,7 @@ const debug = {
     form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
     form.append('file', new Blob([content], { type: 'text/plain' }));
     
-    fetch(drive.apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id', {
+    fetch(compoDrive.apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=id', {
       method: 'PATCH',
       body: form,
       headers: {
@@ -58,7 +58,7 @@ const debug = {
   
   list: function(ids) {
     let queryParents = '('+ids.join(' in parents or ')+' in parents)';
-    fetch(drive.apiUrl+'files?q=('+escape(queryParents)+')&fields=files(name, id, trashed, parents, mimeType, modifiedTime)', {
+    fetch(compoDrive.apiUrl+'files?q=('+escape(queryParents)+')&fields=files(name, id, trashed, parents, mimeType, modifiedTime)', {
       method:'GET',
       headers: {
         'Authorization':'Bearer '+auth0.auth.data.token
@@ -74,8 +74,8 @@ const debug = {
   
   revs: function(id) {
     // let queryParents = '('+ids.join(' in parents or ')+' in parents)';
-    // fetch(drive.apiUrl+'files?q=('+escape(queryParents)+')&fields=files(name, id, trashed, parents, mimeType, modifiedTime)', {
-    fetch(drive.apiUrl+'files/'+id+'/revisions?fields=revisions(id)&q=(keepForevers = true)', {
+    // fetch(compoDrive.apiUrl+'files?q=('+escape(queryParents)+')&fields=files(name, id, trashed, parents, mimeType, modifiedTime)', {
+    fetch(compoDrive.apiUrl+'files/'+id+'/revisions?fields=revisions(id)&q=(keepForevers = true)', {
       method:'GET',
       headers: {
         'Authorization':'Bearer '+auth0.auth.data.token
@@ -94,7 +94,7 @@ const debug = {
   
   file: function(id) {
     
-    fetch(drive.apiUrl+'files/'+id+'?fields=parents,id,name,trashed,webContentLink,webViewLink,headRevisionId', {
+    fetch(compoDrive.apiUrl+'files/'+id+'?fields=parents,id,name,trashed,webContentLink,webViewLink,headRevisionId', {
       headers: {
         'Authorization':'Bearer '+auth0.auth.data.token
       }
@@ -111,7 +111,7 @@ const debug = {
   
   rev: function(id) {
     
-    fetch(drive.apiUrl+'files/'+id+'/revisions?fields=*', {
+    fetch(compoDrive.apiUrl+'files/'+id+'/revisions?fields=*', {
       headers: {
         'Authorization':'Bearer '+auth0.auth.data.token
       }
@@ -133,7 +133,7 @@ const debug = {
     
     form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}))
     
-    fetch(drive.apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=parents,id,name,trashed', {
+    fetch(compoDrive.apiUrlUpload+'files/'+id+'?uploadType=multipart&fields=parents,id,name,trashed', {
       method: 'PATCH',
       body: form,
       headers: {
@@ -162,9 +162,9 @@ const debug = {
   getMedia: function(id, rev) {
     let url;
     if (rev)
-      url = drive.apiUrl+'files/'+id+'/revisions/'+rev+'?alt=media';
+      url = compoDrive.apiUrl+'files/'+id+'/revisions/'+rev+'?alt=media';
     else
-      url = drive.apiUrl+'files/'+id+'?alt=media';
+      url = compoDrive.apiUrl+'files/'+id+'?alt=media';
       
     fetch(url, {
       headers: {

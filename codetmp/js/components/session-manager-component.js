@@ -17,7 +17,7 @@ let compoSessionManager = (function () {
 
   async function LoadAll() {
 
-    await helper.TaskWaitUntil(() => typeof(compoSnippet) != 'undefined');
+    await helperUtils.TaskWaitUntil(() => typeof(compoSnippet) != 'undefined');
 
     return new Promise(resolve => {
 
@@ -97,7 +97,7 @@ let compoSessionManager = (function () {
       if (!isPermissionGranted) return;
 
       let parentFolderId = -1; // root
-      await helper.TaskWaitUntil(() => typeof(compoFileReader) == 'object');
+      await helperUtils.TaskWaitUntil(() => typeof(compoFileReader) == 'object');
       await compoFileReader.TaskPopulateFiles(item.dirHandle, parentFolderId);
 
     }
@@ -127,7 +127,7 @@ let compoSessionManager = (function () {
     let sid = GetSidParameter();
     if (!sid) return null;
 
-    await helper.TaskWaitUntil(() => window.idbEditorSessionStorage);
+    await helperUtils.TaskWaitUntil(() => window.idbEditorSessionStorage);
     
     let store = window.idbEditorSessionStorage.transaction('sessions').objectStore('sessions');
     let data = await store.get(sid);
@@ -146,7 +146,7 @@ let compoSessionManager = (function () {
     if (!dirHandle) return;
     
     let parentFolderId = -1; // root
-    await helper.TaskWaitUntil(() => typeof(compoFileReader) == 'object');
+    await helperUtils.TaskWaitUntil(() => typeof(compoFileReader) == 'object');
     await compoFileReader.TaskPopulateFiles(dirHandle, parentFolderId);
   }
 

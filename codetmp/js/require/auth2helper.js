@@ -24,7 +24,7 @@
 
   function distributeToken() {
     if (typeof(drive) != 'undefined') { 
-      drive.setToken(access_token) 
+      compoDrive.setToken(access_token) 
     }
     previewManager.setToken(access_token);
     compoFirebaseHosting.setToken(access_token);

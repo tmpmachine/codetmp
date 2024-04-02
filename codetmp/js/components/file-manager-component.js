@@ -80,7 +80,7 @@ let fileManager = (function() {
       },
     });
 
-    helper.TaskWaitUntil(() => typeof(compoFileReader) == 'object')
+    helperUtils.TaskWaitUntil(() => typeof(compoFileReader) == 'object')
       .then(() => {
 
         compoSessionManager.LoadAll();
@@ -265,7 +265,7 @@ let fileManager = (function() {
       type: 'files'
     });
 
-    if (activeWorkspace == 2 && helper.hasFileReference(file.fileRef)) {
+    if (activeWorkspace == 2 && helperUtils.hasFileReference(file.fileRef)) {
       try {
         let fileHandle = file.fileRef.entry;
         fileHandle.move(newFileName);
@@ -312,7 +312,7 @@ let fileManager = (function() {
     let writable = await fileHandle.createWritable();
     let content = editorContent;
 
-	  if (helper.isMediaTypeHTML(tabFileName) && settings.data.editor.divlessHTMLFSEnabled) {
+	  if (helperUtils.isMediaTypeHTML(tabFileName) && settings.data.editor.divlessHTMLFSEnabled) {
 	    // check for divless directory
 	    let currentFile = tabFile;
       if (currentFile) {
@@ -366,7 +366,7 @@ let fileManager = (function() {
       let notifId = compoNotif.Add({
         title: 'Loading directory',
       });
-      drive.syncFromDrivePartial(downloadQueue).then(() => {
+      compoDrive.syncFromDrivePartial(downloadQueue).then(() => {
         compoNotif.GetInstance().update(notifId, {content:'Done'}, true);
       });
     }
@@ -391,7 +391,7 @@ let fileManager = (function() {
       let notifId = compoNotif.Add({
         title: 'Loading directory',
       });
-      drive.syncFromDrivePartial(downloadQueue).then(() => {
+      compoDrive.syncFromDrivePartial(downloadQueue).then(() => {
         compoNotif.GetInstance().update(notifId, {content:'Done'}, true);
       });
     }
@@ -459,7 +459,7 @@ let fileManager = (function() {
       
       let el = $('#tmp-file-list').content.cloneNode(true);
       el.querySelector('.Name').textContent = name;
-      el.querySelector('.Icon').style.color = helper.getFileIconColor(name);
+      el.querySelector('.Icon').style.color = helperUtils.getFileIconColor(name);
       el.querySelector('.Clicker').setAttribute('title', name);
       el.querySelector('.Clicker').setAttribute('data', fid);
       el.querySelector('.Clicker').dataset.fid = fid;
@@ -490,7 +490,7 @@ let fileManager = (function() {
       if (source.origin == 'git')
         gitRest.downloadFile(source.downloadUrl).then(resolve);
       else
-        drive.downloadDependencies(file).then(resolve).catch(reject);
+        compoDrive.downloadDependencies(file).then(resolve).catch(reject);
     });
   }
 
@@ -504,8 +504,8 @@ let fileManager = (function() {
       
       aww.pop('Downloading required file : '+file.name);
       let source = {};
-      if (helper.isHasSource(file.content)) {
-        source = helper.getRemoteDataContent(file.content);
+      if (helperUtils.isHasSource(file.content)) {
+        source = helperUtils.getRemoteDataContent(file.content);
       }
       fileManager.downloadDependencies(file, source).then(async (content) => {
         file.content = content;
@@ -523,10 +523,10 @@ let fileManager = (function() {
             metadata: ['media'],
             type: 'files'
           });
-          drive.syncToDrive();
+          compoDrive.syncToDrive();
         }
 
-        if (helper.isHasSource(content)) {
+        if (helperUtils.isHasSource(content)) {
           fileManager.downloadMedia(file).then(() => {
             compoNotif.GetInstance().update(notifId,{content:`file: ${file.name} (done)`}, true);
             resolve();
@@ -599,7 +599,7 @@ let fileManager = (function() {
   function saveAsNewFile() {
 
   	let fileName = $$('.file-name')[activeTab].textContent;
-    modal.prompt('File name', fileName, '', helper.getFileNameLength(fileName)).then(async (name) => {
+    modal.prompt('File name', fileName, '', helperUtils.getFileNameLength(fileName)).then(async (name) => {
       if (!name) return;
       
       let isCreatedFromFileTab = true;
@@ -611,7 +611,7 @@ let fileManager = (function() {
         action: 'create', 
         type: 'files',
       });
-      drive.syncToDrive();
+      compoDrive.syncToDrive();
       await list();
       fileStorage.save();
       
@@ -657,7 +657,7 @@ let fileManager = (function() {
       type: 'files'
     });
 
-    if (helper.isMediaTypeHTML(file.name) && settings.data.editor.divlessHTMLEnabled) {
+    if (helperUtils.isMediaTypeHTML(file.name) && settings.data.editor.divlessHTMLEnabled) {
 	      // check for divless directory
         let divlessTargetFile = await fileManager.TaskGetDivlessTargetFile(file);
 
@@ -684,7 +684,7 @@ let fileManager = (function() {
       await TaskUpdate(file, 'files');
     }
     fileStorage.save();
-    drive.syncToDrive();
+    compoDrive.syncToDrive();
 
     tab.fiber = 'close';
     $$('.icon-rename')[tabIndex]?.replaceChildren('close');
@@ -905,29 +905,29 @@ let fileManager = (function() {
 
   async function open(fid) {
     let f = await TaskGetFile({fid, type: 'files'});
-    let mimeType = helper.getMimeType(f.name);
+    let mimeType = helperUtils.getMimeType(f.name);
 
     new Promise(function(resolve, reject) {
-      let isMediaTypeMultimedia = helper.isMediaTypeMultimedia(mimeType);
+      let isMediaTypeMultimedia = helperUtils.isMediaTypeMultimedia(mimeType);
   	  if (f.loaded || isMediaTypeMultimedia) {
   	    resolve();
   	  } else {
-  	    if (helper.hasFileReference(f.fileRef) && f.content === null && f.id === '') {
+  	    if (helperUtils.hasFileReference(f.fileRef) && f.content === null && f.id === '') {
   	    	reject(404)
   	    } else {
   	    	fileManager.downloadMedia(f).then(resolve);
   	    }
   	  }
   	}).then(async () => {
-      let isMediaTypeText = helper.isMediaTypeText(f.name);
-      let isMediaTypeStream = helper.isMediaTypeStream(f.name);
+      let isMediaTypeText = helperUtils.isMediaTypeText(f.name);
+      let isMediaTypeStream = helperUtils.isMediaTypeStream(f.name);
 
       if (isMediaTypeText || isMediaTypeStream) {
      	  openOnEditor(f);
       } else {
         // open multimedia file in new tab
         let filePath = await ResolveFilePathAsync(f);
-        previewHandler.previewPath(filePath)
+        compoPreview.previewPath(filePath)
       }
     }).catch(function(error) {
       if (error === 404) {
@@ -1083,7 +1083,7 @@ let fileManager = (function() {
   
     // delete the file in file system mode
     if (activeWorkspace == 2) {
-      if (helper.hasFileReference(data.fileRef)) {
+      if (helperUtils.hasFileReference(data.fileRef)) {
         try {
           let fileHandle = data.fileRef.entry;
           await fileHandle.remove();  
@@ -1132,7 +1132,7 @@ let fileManager = (function() {
 
   function commit(data) {
     sync(data);
-    drive.syncToDrive();
+    compoDrive.syncToDrive();
     fileStorage.save();
     list();
   }

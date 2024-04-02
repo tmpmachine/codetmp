@@ -122,7 +122,7 @@ const compoFileReader = (function() {
 		let queue = item.queue;
 
 		fileStorage.save();
-		drive.syncToDrive();
+		compoDrive.syncToDrive();
 		fileManager.list();
 
 		queue.isReading = false;
@@ -166,7 +166,7 @@ const compoFileReader = (function() {
 
 					if (activeWorkspace == 2) {
 						// rewrite the content of existing file
-						if (helper.hasFileReference(existingItem.fileRef)) {
+						if (helperUtils.hasFileReference(existingItem.fileRef)) {
 							let fileHandle = await existingItem.fileRef.entry;
 							const writable = await fileHandle.createWritable();
 							await writable.write(fileRef);
@@ -485,7 +485,7 @@ const compoFileReader = (function() {
 			type: 'files',
 		});
 		fileStorage.save();
-		drive.syncToDrive();
+		compoDrive.syncToDrive();
 		fileManager.list();
 		self.value = '';
 	}

@@ -36,7 +36,7 @@ app.loadFiles([
       "js/components/modal-window-component.js",
       "js/components/state-manager-component.js",
       "js/components/support.js",
-      "js/components/helper.js",
+      "js/utils/helper-utils.js",
       "js/components/extension.js",
       "js/components/preferences.js",
       "js/components/modal.js",
@@ -66,8 +66,8 @@ app.loadFiles([
     urls: [
       "js/components/editor-component.js",
       "js/require/keyboard.js",
-      "js/components/preview-handler.js",
-      "js/components/file-manager.js",
+      "js/components/preview-component.js",
+      "js/components/file-manager-component.js",
       "js/ui.js",
       "js/uis/file-explorer-ui.js",
       "js/uis/file-tab-ui.js",
@@ -80,7 +80,7 @@ app.loadFiles([
       "assets/js/packages/isomorphic-git/index.umd.min.js",
     ],
     callback: function() {
-      previewHandler.Init(),
+      compoPreview.Init(),
 
       ace.config.set('basePath', `${ACE_CDN_BASEPATH}`);
       ace.config.setModuleUrl("ace/theme/codetmp", "/assets/ace/theme-codetmp.js");
@@ -94,7 +94,7 @@ app.loadFiles([
       "js/components/session-manager-component.js",
       "js/dom-events.js",
       "css/file-tree.css",
-      "js/components/file-tree.js",
+      "js/components/file-tree-component.js",
     ],
     callback: function() {
       ui.Init();
@@ -117,8 +117,8 @@ app.loadFiles([
   {
     urls: [
       "js/require/aww.js",
-      "js/components/auth2helper.js",
-      "js/components/drive.js",
+      "js/components/auth-component.js",
+      "js/components/drive-component.js",
       "js/components/defer-feature-2.js",
     ],
   },

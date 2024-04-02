@@ -568,7 +568,7 @@ let ui = (function() {
     window.addEventListener('copy', (evt) => compoClipboard.handler(evt));
     window.addEventListener('paste', (evt) => compoClipboard.handler(evt));
     window.onbeforeunload = function(evt) {
-      return helper.redirectWarning(evt);
+      return helperUtils.redirectWarning(evt);
     };
   }
 

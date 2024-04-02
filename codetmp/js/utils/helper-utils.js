@@ -1,4 +1,4 @@
-let helper = (function () {
+let helperUtils = (function () {
 
   let SELF = {
     getFileNameLength,

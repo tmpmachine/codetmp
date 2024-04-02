@@ -21,7 +21,7 @@ let DOMEvents = (function() {
 		*/
 		onclick: {
 			'handle-sidebar-btn-click': (evt) => ui.HandleSidebarBtnClick(evt.target), 
-			'btn-menu-preview': () => previewHandler.previewPath(),
+			'btn-menu-preview': () => compoPreview.previewPath(),
 			'create-session': () => ui.CreateSession(),
 		},
 		contextmenu: {
@@ -40,7 +40,7 @@ let DOMEvents = (function() {
 			'move': () => compoClipboard.cut(),
 			'paste': () => compoClipboard.paste(),
 
-			'sync-from-drive': () => drive.syncFromDrive(),
+			'sync-from-drive': () => compoDrive.syncFromDrive(),
 
 			'clear-data': ui.confirmClearData,
 			'set-git-token': ui.setGitToken,
@@ -104,8 +104,8 @@ let DOMEvents = (function() {
 			'new-folder': uiFileExplorer.newFolder,
 			'save': () => fileManager.save(),
 			'save-all': () => fileManager.TaskSaveAll(),
-			'preview': () => previewHandler.previewPath(),
-			'preview-at-pwa': () => previewHandler.previewPathAtPWA(),
+			'preview': () => compoPreview.previewPath(),
+			'preview-at-pwa': () => compoPreview.previewPathAtPWA(),
 			'my-files': ui.myFiles,
 			'trash': ui.trash,
 			'toggle-editor-theme': ui.toggleTheme,
@@ -160,12 +160,12 @@ let DOMEvents = (function() {
 						uiFileExplorer.RenameFile();
 					}
 				} else {
-					previewHandler.previewPath();
+					compoPreview.previewPath();
 				}
 			},
 			'Ctrl+Shift+Enter': function () {
 				if (!document.querySelector('#btn-menu-my-files').classList.contains('active')) {
-					previewHandler.previewPathAtPWA();
+					compoPreview.previewPathAtPWA();
 				}
 			},
 			'Ctrl+O': function (evt) {

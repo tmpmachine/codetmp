@@ -285,7 +285,7 @@ const compoClipboard = (function() {
     
     $('body').classList.toggle('has-clipboard', false);
     
-    drive.syncToDrive();
+    compoDrive.syncToDrive();
     fileStorage.save();
     fileManager.list();
 

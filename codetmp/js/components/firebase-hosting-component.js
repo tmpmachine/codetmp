@@ -177,7 +177,7 @@ const compoFirebaseHosting = (function() {
 
             }
             
-            if (activeWorkspace == 2 && helper.hasFileReference(fileData.file)) {
+            if (activeWorkspace == 2 && helperUtils.hasFileReference(fileData.file)) {
               try {
                 let fileHandle = fileData.file.entry;
                 fileHandle.getFile().then(file => {
@@ -285,7 +285,7 @@ const compoFirebaseHosting = (function() {
       if (folders[i].trashed) continue;
 
       if (folders[i].id.length > 0 && !folders[i].isLoaded) {
-        await drive.syncFromDrivePartial([folders[i].id]);
+        await compoDrive.syncFromDrivePartial([folders[i].id]);
       }
       
       await populateQueue(queue, folders[i].fid, path+folders[i].name+'/');

@@ -50,7 +50,7 @@ const compoFileBundler = (function() {
             if (r.result == '/*RD-start*/')  {
               let r = new FileReader();
               r.onload = async function() {
-                let source = helper.getRemoteDataContent(r.result);
+                let source = helperUtils.getRemoteDataContent(r.result);
                 if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) { 
                   fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
                       content = await applyExportOptionToContent(content, options, f.parentId);
@@ -125,7 +125,7 @@ const compoFileBundler = (function() {
         if (r.result == '/*RD-start*/')  {
           let r = new FileReader();
           r.onload = async function() {
-            let source = helper.getRemoteDataContent(r.result);
+            let source = helperUtils.getRemoteDataContent(r.result);
             if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) { 
               fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
                   content = await applyExportOptionToContent(content, options, f.parentId);
@@ -158,11 +158,11 @@ const compoFileBundler = (function() {
 
     return new Promise(async (resolve) => {
 
-      let mimeType = helper.getMimeType(f.name);
-      let isMultimedia = helper.isMediaTypeMultimedia(mimeType);
+      let mimeType = helperUtils.getMimeType(f.name);
+      let isMultimedia = helperUtils.isMediaTypeMultimedia(mimeType);
       
       // check for multimedia file must done first
-      if (isMultimedia && (helper.hasFileReference(f.fileRef) || typeof(f.blob) != 'undefined')) {
+      if (isMultimedia && (helperUtils.hasFileReference(f.fileRef) || typeof(f.blob) != 'undefined')) {
         
         // this seems obsoletes, need more check
         if (typeof(f.blob) != 'undefined') {
@@ -180,17 +180,17 @@ const compoFileBundler = (function() {
           isMarkedBinary: true,
         });
 
-      } else if (helper.hasFileReference(f.fileRef) && f.content === null) {
+      } else if (helperUtils.hasFileReference(f.fileRef) && f.content === null) {
 
         let content = null;
         if (needReplaceFileTag(f, options) || needConvertDivless(f, options)) {
-          content = await helper.FileReaderReadAsText(f.fileRef);
+          content = await helperUtils.FileReaderReadAsText(f.fileRef);
           content = await applyExportOptionToContent(content, options, f.parentId);
         }
 
         try {
           if (!content) {
-            content = await helper.FileReaderReadAsText(f.fileRef);
+            content = await helperUtils.FileReaderReadAsText(f.fileRef);
           }
         } catch (e) {
           console.log(e)
@@ -234,8 +234,8 @@ const compoFileBundler = (function() {
         return;
       }
 
-      if (helper.isHasSource(f.content)) {
-        let source = helper.getRemoteDataContent(f.content);
+      if (helperUtils.isHasSource(f.content)) {
+        let source = helperUtils.getRemoteDataContent(f.content);
         if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) {
           fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
             content = await applyExportOptionToContent(content, options, f.parentId);
@@ -255,14 +255,14 @@ const compoFileBundler = (function() {
         return;
       }
 
-      drive.downloadDependencies(f, 'blob').then(blob => {
+      compoDrive.downloadDependencies(f, 'blob').then(blob => {
         let firstBytes = blob.slice(0, 12);
         let r = new FileReader();
         r.onload = function() {
           if (r.result == '/*RD-start*/')  {
             let r = new FileReader();
             r.onload = function() {
-              let source = helper.getRemoteDataContent(r.result);
+              let source = helperUtils.getRemoteDataContent(r.result);
               if (needConvertDivless(f, options) || needReplaceFileTag(f, options)) { 
                 fetch(source.downloadUrl).then(r => r.text()).then(async (content) => {
                     content = await applyExportOptionToContent(content, options, f.parentId);
@@ -309,13 +309,13 @@ const compoFileBundler = (function() {
   }
 
   function needConvertDivless(f, options) {
-    if (helper.isMediaTypeHTML(f.name) && options.replaceDivless)
+    if (helperUtils.isMediaTypeHTML(f.name) && options.replaceDivless)
       return true;
     return false;
   }
 
   function needReplaceFileTag(f, options) {
-    if (helper.isMediaTypeHTML(f.name) && options.replaceFileTag)
+    if (helperUtils.isMediaTypeHTML(f.name) && options.replaceFileTag)
       return true;
     return false;
   }
@@ -325,7 +325,7 @@ const compoFileBundler = (function() {
     try {
       
       // terser preprocessing
-      if (typeof Terser != 'undefied' && helper.isMediaTypeJavascript(fileName) && options.minifyJs) {
+      if (typeof Terser != 'undefied' && helperUtils.isMediaTypeJavascript(fileName) && options.minifyJs) {
         
         let result = await Terser.minify(content, { sourceMap: false });
         content = result.code;
@@ -333,7 +333,7 @@ const compoFileBundler = (function() {
       } 
 
       // lighting CSS preprocessing
-      else if (helper.isMediaTypeCSS(fileName) ) {
+      else if (helperUtils.isMediaTypeCSS(fileName) ) {
         
         if (typeof(window.lightingCss) != 'undefined' && (options.minifyCss || options.transformCss) ) {
 
@@ -366,7 +366,7 @@ const compoFileBundler = (function() {
     let match = getMatchTemplate(content);
     while (match !== null) {
       let searchPath = JSON.parse(JSON.stringify(['root']));
-      content = await previewHandler.replaceFile(match, content, parentId, searchPath);
+      content = await compoPreview.replaceFile(match, content, parentId, searchPath);
       match = getMatchTemplate(content);
     }
     return content;
@@ -390,7 +390,7 @@ const compoFileBundler = (function() {
       for (let f of files) {
         if (f.trashed)
           continue;
-        if (helper.hasFileReference(f.fileRef) && f.content === null) {    
+        if (helperUtils.hasFileReference(f.fileRef) && f.content === null) {    
         // if (f.fileRef.name !== undefined) {
           folder.file(f.name, f.fileRef, {binary: true});
         } else {
@@ -409,7 +409,7 @@ const compoFileBundler = (function() {
         if (container.isLoaded) {
           folderToZip(container, folder, fileRequests, options).then(resolve);
         } else {
-          drive.syncFromDrivePartial([container.id]).then(async () => {
+          compoDrive.syncFromDrivePartial([container.id]).then(async () => {
             folderToZip(container, folder, fileRequests, options).then(resolve);
           });
         }

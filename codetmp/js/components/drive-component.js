@@ -1,4 +1,4 @@
-const drive = (function() {
+const compoDrive = (function() {
 
   let $ = document.querySelector.bind(document);
   let $$ = document.querySelectorAll.bind(document);
@@ -155,7 +155,7 @@ const drive = (function() {
     
     let {id, name, modifiedTime, trashed, parents} = files[0];
     let f = await fileManager.TaskGetFile({id, type: 'files'}, 0);
-    let mimeType = helper.getMimeType(name);
+    let mimeType = helperUtils.getMimeType(name);
 
     if (parents) {
       
@@ -456,7 +456,7 @@ const drive = (function() {
       metaHeader = {
         modifiedTime,
         parents: [(await getParents(parentId)).id],
-        mimeType: (type === 'folders') ? 'application/vnd.google-apps.folder' : helper.getMimeType(name),
+        mimeType: (type === 'folders') ? 'application/vnd.google-apps.folder' : helperUtils.getMimeType(name),
       };
       
       if (action === 'create') {
@@ -496,20 +496,20 @@ const drive = (function() {
     } else {
       form.append('metadata', new Blob([JSON.stringify(metaHeader)], { type: 'application/json' }));
       if ((action === 'create' || metadata.includes('media')) && type === 'files') {
-        if (content === null && helper.hasFileReference(fileRef)) {
+        if (content === null && helperUtils.hasFileReference(fileRef)) {
           // upload File objecty if a custom content has not been created
 
           fileBlob = fileRef
           form.append('file', fileBlob);
         } else {
         // if (fileRef.name === undefined) {
-      		if (helper.isHasSource(content)) {
-	        	let source = helper.getRemoteDataContent(content);
+      		if (helperUtils.isHasSource(content)) {
+	        	let source = helperUtils.getRemoteDataContent(content);
 	        	let fileData = await gitRest.downloadFileData(source.downloadUrl);
           		form.append('file', fileData);
               fileBlob = fileData; 
 	      	} else {
-            fileBlob = new Blob([content], { type: helper.getMimeType(name) });
+            fileBlob = new Blob([content], { type: helperUtils.getMimeType(name) });
           		form.append('file', fileBlob);
 	      	}
         }

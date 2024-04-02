@@ -59,7 +59,7 @@ let singleFileGenerator = (function() {
 
     let src = match[0].substring(11, match[0].length-9);
     let relativeParent = preParent;
-    let parentId = await previewHandler.getDirectory(src, relativeParent, path);
+    let parentId = await compoPreview.getDirectory(src, relativeParent, path);
     let files = await fileManager.TaskListFiles(parentId);
     let name = src.replace(/.*?\//g,'');
     let file = null;
@@ -92,7 +92,7 @@ let singleFileGenerator = (function() {
         } else {
           content = file.content;
 
-          if (helper.hasFileReference(file.fileRef) && file.content === null) {
+          if (helperUtils.hasFileReference(file.fileRef) && file.content === null) {
         
             if (file.fileRef.entry) {
               let fileResult = await file.fileRef.entry.getFile();
@@ -127,7 +127,7 @@ let singleFileGenerator = (function() {
     try {
       
       // terser preprocessing
-      if (typeof Terser != 'undefied' && helper.isMediaTypeJavascript(fileName) && options.minifyJs) {
+      if (typeof Terser != 'undefied' && helperUtils.isMediaTypeJavascript(fileName) && options.minifyJs) {
         
         let result = await Terser.minify(content, { sourceMap: false });
         content = result.code;
@@ -135,7 +135,7 @@ let singleFileGenerator = (function() {
       } 
 
       // lighting CSS preprocessing
-      else if (helper.isMediaTypeCSS(fileName) ) {
+      else if (helperUtils.isMediaTypeCSS(fileName) ) {
         
         if (typeof(window.lightingCss) != 'undefined' && (options.minifyCss || options.transformCss) ) {
 
@@ -226,7 +226,7 @@ let singleFileGenerator = (function() {
         src = src.replace(/__\//, '');
       }
       
-      let parentId = await previewHandler.getDirectory(src, relativeParent, path);
+      let parentId = await compoPreview.getDirectory(src, relativeParent, path);
       let files = await fileManager.TaskListFiles(parentId);
       let name = src.replace(/.*?\//g,'');
       let file = null;
@@ -257,7 +257,7 @@ let singleFileGenerator = (function() {
           } else {
             content = file.content;
 
-            if (helper.hasFileReference(file.fileRef) && file.content === null) {
+            if (helperUtils.hasFileReference(file.fileRef) && file.content === null) {
         
               if (file.fileRef.entry) {
                 let fileResult = await file.fileRef.entry.getFile();

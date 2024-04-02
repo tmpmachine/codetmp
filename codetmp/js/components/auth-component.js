@@ -23,9 +23,9 @@
   }
 
   function distributeToken() {
-    previewHandler.setToken(access_token);
+    compoPreview.setToken(access_token);
     if (typeof(drive) != 'undefined') {
-      drive.setToken(access_token);
+      compoDrive.setToken(access_token);
     }
     if (typeof(compoFirebaseHosting) != 'undefined') {
       compoFirebaseHosting.setToken(access_token);

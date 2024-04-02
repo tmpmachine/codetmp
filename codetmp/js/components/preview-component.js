@@ -1,4 +1,4 @@
-let previewHandler = (function () {
+let compoPreview = (function () {
   
   let SELF = {
     previewPathAtPWA,
@@ -123,7 +123,7 @@ let previewHandler = (function () {
       });
     } else {
 
-      if (helper.hasFileReference(file.fileRef) && file.content === null) {
+      if (helperUtils.hasFileReference(file.fileRef) && file.content === null) {
         
         let content = file.fileRef;
         if (file.fileRef.entry) {
@@ -131,7 +131,7 @@ let previewHandler = (function () {
         }
         getMessageChannel(channelName).port1.postMessage({
           message: 'response-file', 
-          mime: helper.getMimeType(file.name),
+          mime: helperUtils.getMimeType(file.name),
           content: content,
           resolverUID: event.data.resolverUID,
         });
@@ -140,16 +140,16 @@ let previewHandler = (function () {
 
         let isHasSource = false;
         if (file.content.length > 0) {
-          isHasSource = helper.isHasSource(file.content);
+          isHasSource = helperUtils.isHasSource(file.content);
         }
 
         let data = {
-          contentLink: drive.apiUrl+'files/'+file.id+'?alt=media',
+          contentLink: compoDrive.apiUrl+'files/'+file.id+'?alt=media',
           source: 'drive',
         };
         
         if (isHasSource) {
-          data.contentLink = helper.getRemoteDataContent(file.content).downloadUrl;
+          data.contentLink = helperUtils.getRemoteDataContent(file.content).downloadUrl;
           data.source = 'git';
         } else {
           await auth2.init();
@@ -199,8 +199,8 @@ let previewHandler = (function () {
         let path = decodeURI(removeParam(e.data.path));
         if(path.endsWith('/')) 
           path += 'index.html';
-        let mimeType = helper.getMimeType(path);
-        if (helper.isMediaTypeText(path)) {
+        let mimeType = helperUtils.getMimeType(path);
+        if (helperUtils.isMediaTypeText(path)) {
           await responseAsText(e, path, mimeType+'; charset=UTF-8', channelName);
         } else {
           await responseAsMedia(e, path, mimeType, channelName);
@@ -361,7 +361,7 @@ let previewHandler = (function () {
         if (!tabObj.file) continue;
 
         // skip other files than html
-        if (!helper.getMimeType(tabObj.file.name).match(/text\/html|text\/xml/)) continue;
+        if (!helperUtils.getMimeType(tabObj.file.name).match(/text\/html|text\/xml/)) continue;
 
         // skip files with different name
         if (tabObj.file.name != file.name) continue;
@@ -423,7 +423,7 @@ let previewHandler = (function () {
         }
         if (folder) {
           if (!folder.isLoaded) {
-            drive.syncFromDrivePartial([folder.id]);
+            compoDrive.syncFromDrivePartial([folder.id]);
             break;
           }
           parentId = folder.fid;
@@ -493,7 +493,7 @@ let previewHandler = (function () {
         } else {
           content = file.content;
 
-          if (helper.hasFileReference(file.fileRef) && file.content === null) {
+          if (helperUtils.hasFileReference(file.fileRef) && file.content === null) {
         
             if (file.fileRef.entry) {
               let fileResult = await file.fileRef.entry.getFile();

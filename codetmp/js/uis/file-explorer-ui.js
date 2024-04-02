@@ -34,7 +34,7 @@ let uiFileExplorer = (function() {
 
   function commit(data) {
     fileManager.sync(data);
-    drive.syncToDrive();
+    compoDrive.syncToDrive();
     fileStorage.save();
     fileManager.list();
   }
@@ -54,7 +54,7 @@ let uiFileExplorer = (function() {
     }
 
     let selection = getSelected(selectedFile[0]);
-    modal.prompt('Rename', selection.title, '', helper.getFileNameLength(selection.title)).then(async (name) => {
+    modal.prompt('Rename', selection.title, '', helperUtils.getFileNameLength(selection.title)).then(async (name) => {
       if (!name || name === selection.title) return;
     
         let folder = await fileManager.RenameFolder(selection.id, name);
@@ -67,7 +67,7 @@ let uiFileExplorer = (function() {
     let selection = getSelected(selectedFile[0]);
     let fid = selection.id;
 
-    modal.prompt('Rename', selection.title, '', helper.getFileNameLength(selection.title)).then(async (name) => {
+    modal.prompt('Rename', selection.title, '', helperUtils.getFileNameLength(selection.title)).then(async (name) => {
       if (!name || name == selection.title) 
         return;
 

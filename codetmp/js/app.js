@@ -32,10 +32,10 @@ let app = (function() {
   function AuthReady() {
     $('body').classList.toggle('is-authorized', true);
     if (fileStorage.data.rootId === '') {
-      drive.readAppData();
+      compoDrive.readAppData();
     } else {
-      drive.syncFromDrive();
-      drive.syncToDrive();
+      compoDrive.syncFromDrive();
+      compoDrive.syncToDrive();
     }
     let uid = gapi.auth2.getAuthInstance().currentUser.get().getId();
     support.check('firebase');
@@ -63,8 +63,8 @@ let app = (function() {
     let isOnline = navigator.onLine ? true : false;
     if (isOnline) {
       if (fileStorage.data.rootId !== '') {
-        drive.syncFromDrive();
-        drive.syncToDrive();
+        compoDrive.syncFromDrive();
+        compoDrive.syncToDrive();
       }
     }
   }
