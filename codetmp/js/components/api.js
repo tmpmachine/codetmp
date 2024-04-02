@@ -15,7 +15,7 @@ const isSupport = (function() {
 	  let hasScopeFirebase = gapi.auth2.getAuthInstance().currentUser.get().hasGrantedScopes(scope);
 	  if (hasScopeFirebase) {
 	  	auth2.addScope(scope);
-	    fire.init();
+		  compoFirebaseHosting.init();
 	    displayFeature('firebase');
 	  } else {
 	  	auth2.removeScope(scope);

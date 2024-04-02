@@ -1,7 +1,6 @@
 const compoKeyInput = (function() {
 
   let $ = document.querySelector.bind(document);
-  let $$ = document.querySelectorAll.bind(document);
 
   let SELF = {
     Init,
@@ -19,7 +18,7 @@ const compoKeyInput = (function() {
     keyboard.isBlocked = function() {
       return compoStateManager.isState(1);
     }
-    keyboard.listen(DOMEvents.keyboardShortcuts);
+    keyboard.listen(DOMEvents.eventsMap.keyboardShortcuts);
   }
 
   function keyEscape() {
@@ -32,7 +31,7 @@ const compoKeyInput = (function() {
         selectedFile.length = 0;
         ui.toggleFileActionButton();
       } else {
-         if (!fileReaderModule.isDragging) {
+         if (!compoFileReader.isDragging) {
            $('#btn-menu-my-files').click();
            delayedFocusCursorEditor();
         }

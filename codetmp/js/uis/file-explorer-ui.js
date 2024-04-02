@@ -392,13 +392,13 @@ let uiFileExplorer = (function() {
 
       let found = false;
       let matchName = [];
-      for (let el of $('.folder-list')) {
+      for (let el of $$('.folder-list')) {
         if (el.title.toLowerCase().startsWith(key)) {
           matchName.push(el);
         }
       }
     
-      for (let el of $('.file-list')) {
+      for (let el of $$('.file-list')) {
         if (el.title.toLowerCase().startsWith(key)) {
           matchName.push(el);
         }

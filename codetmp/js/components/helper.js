@@ -171,7 +171,7 @@ let helper = (function () {
 
   function redirectWarning() {
     let notSaved = false;
-    for (let icon of $('.icon-rename')) {
+    for (let icon of $$('.icon-rename')) {
       if (icon.textContent !== 'close') {
         notSaved = true;
         break;

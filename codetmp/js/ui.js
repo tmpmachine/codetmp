@@ -490,12 +490,7 @@ let ui = (function() {
   }
   
   function fileDownload(self) {
-    app.getComponent('fileBundler').then(fb => {
-      fb.fileDownload(self);
-    }).catch((e) => {
-      console.log(e);
-      aww.pop('Component is not ready. Try again later.');
-    });
+    compoFileBundler?.fileDownload(self);
   }
 
   function resizeEditor() {
@@ -534,7 +529,7 @@ let ui = (function() {
   }
   
   function OpenDiskFile() {
-    fileReaderModule.OpenDirectory();
+    compoFileReader.OpenDirectory();
   }
 
   function InitFileHandler() {
@@ -665,47 +660,12 @@ let ui = (function() {
       modal.querySelector('.Btn-close').addEventListener('click', ui.ToggleModalByClick);
     }
     
-    function preventDefault(event) {
-      event.preventDefault();
-    }
-    
-    function blur() {
-      document.activeElement.blur();
-    }
-    
-    attachSubmitable('.submittable', DOMEvents.submittable);
-    attachClickable('.clickable', DOMEvents.clickable);
-    attachInputable('.inputable', DOMEvents.inputable);
-
-    listening('[data-onclick]', 'onclick', 'click', DOMEvents.onclick);
-    listening('[data-mousedown]', 'mousedown', 'mousedown', DOMEvents.mousedown);
-    listening('[data-ctxmenu]', 'ctxmenu', 'contextmenu', DOMEvents.contextmenu);
-
-    function attachSubmitable(selector, callback) {
-      for (let node of document.querySelectorAll(selector)) {
-        if (node.classList.contains('preventDefault'))
-          node.addEventListener('submit', preventDefault);
-        node.addEventListener('submit', callback[node.dataset.callback]);
-      }
-    }
-
-    function attachClickable(selector, callback) {
-      for (let element of document.querySelectorAll(selector)) {
-        element.addEventListener('click', callback[element.dataset.callback]);
-        element.addEventListener('click', blur);
-      }
-    }
-
-    function attachInputable(selector, callback) {
-      for (let element of document.querySelectorAll(selector))
-        element.addEventListener('input', callback[element.dataset.callback]);
-    }
+    DOMEvents.Init();
 
     o.listen({
       '.btn-material': ui.toggleMenu,
     });
-    // initNavMenus();
-    // attachMouseListener();
+
   }
 
   return SELF;

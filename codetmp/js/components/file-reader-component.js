@@ -1,4 +1,4 @@
-const fileReaderModule = (function () {
+const compoFileReader = (function() {
 
 	let $ = document.querySelector.bind(document);
 	

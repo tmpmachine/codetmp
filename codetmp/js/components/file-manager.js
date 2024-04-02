@@ -80,7 +80,7 @@ let fileManager = (function() {
       },
     });
 
-    helper.TaskWaitUntil(() => typeof(fileReaderModule) == 'object')
+    helper.TaskWaitUntil(() => typeof(compoFileReader) == 'object')
       .then(() => {
 
         compoSessionManager.LoadAll();

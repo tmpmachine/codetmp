@@ -24,7 +24,7 @@ app.loadFiles([
   {
     urls: [
       "assets/js/idb@7/umd.js",
-      "js/components/ext-firebase.js",
+      "js/components/firebase-hosting-component.js",
       "assets/js/fflate.js",
       "assets/js/sha256.js",
       "assets/js/templateslot@1.0.2.min.js",
@@ -105,12 +105,13 @@ app.loadFiles([
   {
     urls: [
       "js/components/key-input-component.js",
-      "js/components/file-reader.js",
-      "js/components/snippet-manager.js",
+      "js/components/file-reader-component.js",
+      "js/components/snippet-component.js",
       "assets/js/divless-html@v1.0.1/divless.min.js",
     ],
     callback: function() {
-      fileReaderModule.init();
+      compoSnippet.InitAsync();
+      compoFileReader.init();
       compoKeyInput.Init();
       ui.InitFileHandler();
     },
@@ -133,7 +134,7 @@ app.loadFiles([
       "js/components/git.js",
       "js/components/environment-manager.js",
       "js/components/single-file-generator.js",
-      "js/components/file-bundler.js",
+      "js/components/file-bundler-component.js",
       "js/require/jszip.min.js",
     ],
     callback: function() {

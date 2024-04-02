@@ -24,10 +24,12 @@
 
   function distributeToken() {
     previewHandler.setToken(access_token);
-    if (typeof(drive) != 'undefined') 
+    if (typeof(drive) != 'undefined') {
       drive.setToken(access_token);
-    if (typeof(fire) != 'undefined')
-      fire.setToken(access_token);
+    }
+    if (typeof(compoFirebaseHosting) != 'undefined') {
+      compoFirebaseHosting.setToken(access_token);
+    }
   }
 
   function init() {

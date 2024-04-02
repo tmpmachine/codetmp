@@ -1,7 +1,6 @@
-const fire = (() => {
+const compoFirebaseHosting = (function() {
 
   let $ = document.querySelector.bind(document);
-  let $$ = document.querySelectorAll.bind(document);
 
   let SELF = {
     init,
@@ -157,7 +156,7 @@ const fire = (() => {
 
           log(`Hashing file... ${file.name}`);
 
-          app.fileBundler.getReqFileContent(file, fileExportOptions).then(fileData => {
+          compoFileBundler.getReqFileContent(file, fileExportOptions).then(fileData => {
 
             let r = new FileReader();
 

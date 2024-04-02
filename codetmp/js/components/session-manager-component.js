@@ -17,6 +17,8 @@ let compoSessionManager = (function () {
 
   async function LoadAll() {
 
+    await helper.TaskWaitUntil(() => typeof(compoSnippet) != 'undefined');
+
     return new Promise(resolve => {
 
       // Open a connection to the IndexedDB database
@@ -55,8 +57,8 @@ let compoSessionManager = (function () {
               snippet: "", 
               callback: openSession,
             };
-            snippets.push(snip)
-            appendIDESnippet(snip)
+            compoSnippet.AddCommand(snip)
+            compoSnippet.appendIDESnippet(snip)
           }
 
           resolve(dataArray)
@@ -95,8 +97,8 @@ let compoSessionManager = (function () {
       if (!isPermissionGranted) return;
 
       let parentFolderId = -1; // root
-      await helper.TaskWaitUntil(() => typeof(fileReaderModule) == 'object');
-      await fileReaderModule.TaskPopulateFiles(item.dirHandle, parentFolderId);
+      await helper.TaskWaitUntil(() => typeof(compoFileReader) == 'object');
+      await compoFileReader.TaskPopulateFiles(item.dirHandle, parentFolderId);
 
     }
   }
@@ -144,8 +146,8 @@ let compoSessionManager = (function () {
     if (!dirHandle) return;
     
     let parentFolderId = -1; // root
-    await helper.TaskWaitUntil(() => typeof(fileReaderModule) == 'object');
-    await fileReaderModule.TaskPopulateFiles(dirHandle, parentFolderId);
+    await helper.TaskWaitUntil(() => typeof(compoFileReader) == 'object');
+    await compoFileReader.TaskPopulateFiles(dirHandle, parentFolderId);
   }
 
   async function TaskGetDirHandle() {

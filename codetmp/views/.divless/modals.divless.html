@@ -6,7 +6,7 @@
       <div class="search-box relative">
         <div class="w3-round w3-white d-grid relative" style="z-index:1;grid-template-columns:1fr auto;align-items:center">
           <div class="button-tb ov-hidden">
-            <input id="search-input" class="w3-round w3-white w3-padding w-100" autocomplete='off' onkeydown='wgSearch.selectHints()' oninput='wgSearch.find(this.value)' placeholder='Search snippets' type='text' name='q' style="border:0;padding:16px"/>
+            <input id="search-input" class="w3-round w3-white w3-padding w-100" autocomplete='off' data-onkeydown="cmd-select-command" data-oninput="cmd-search-command" placeholder='Search snippets' type='text' name='q' style="border:0;padding:16px"/>
           </div>
           <div>
             <label for="search-input">
