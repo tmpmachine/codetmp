@@ -201,7 +201,7 @@ const compoClipboard = (function() {
       let type = (fileType == 'files') ? 'file' : 'folder';
       fileTree.moveItemFrom(type, data, activeFolder);
     });
-    await fileManager.TaskMoveFile(data, activeFolder, fileType);
+    await fileManager.MoveFileAsync(data, activeFolder, fileType);
   }
   
   function isBreadcrumb(folderId) {
@@ -243,8 +243,9 @@ const compoClipboard = (function() {
             aww.pop('Cannot move files between workspaces. Files copied instead.', false, 5000);
             await copySingleFile(data, modifiedTime);
           } else {
-            if (data.parentId !== activeFolder)
+            if (data.parentId !== activeFolder) {
               await fileMove(data, 'files');
+            }
           }
 
         }

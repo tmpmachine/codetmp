@@ -20,7 +20,7 @@ let fileManager = (function() {
     list,
     TaskGetFile,
     TaskUpdate,
-    TaskMoveFile,
+    MoveFileAsync,
     TaskListFiles,
     TaskListFolders,
     TaskGetAllFolders,
@@ -773,12 +773,13 @@ let fileManager = (function() {
     }
   }
 
-  async function TaskMoveFile(data, targetFolderFid, fileType) {
+  async function MoveFileAsync(data, targetFolderFid, fileType) {
 
     // handle file system move file
     if (activeWorkspace == 2) {
 
       let currentDir = await TaskGetFile({fid:targetFolderFid, type: 'folders'});
+
       if (currentDir) {
 
         try {
@@ -790,6 +791,7 @@ let fileManager = (function() {
           }
 
           let fileHandle = getFileHandle(data);
+          
           if (fileHandle !== null) {
             await fileHandle.move(dirHandle);
           }
