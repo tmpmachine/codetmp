@@ -399,9 +399,9 @@ let fileManager = (function() {
   }
   
   function traversePath(parentId, path = []) {
-    if (parentId === -1)
-      return path;
-    let folder = odin.dataOf(parentId, fileStorage.data.folders, 'fid');
+    if (parentId === -1) return path;
+
+    let folder = fileStorage.data.folders.find(item => item.fid == parentId);
     path.push(folder.name);
     return traversePath(folder.parentId, path);
   }
@@ -416,7 +416,7 @@ let fileManager = (function() {
     if (STORAGE_TYPE == 'idb' && activeWorkspace == 0) {
       return await window.idbStorage.getAllFromIndex('files','parentId', parseInt(parentId));
     } else {
-      return odin.filterData(parentId, fileStorage.data.files, 'parentId');
+      return fileStorage.data.files.filter(item => item.parentId == parentId);
     }
   }
 
@@ -428,7 +428,7 @@ let fileManager = (function() {
         return await window.idbStorage.getAllFromIndex('folders', column, parseInt(parentId));
       }
     } else {
-      return odin.filterData(parentId, fileStorage.data.folders, column);
+      return fileStorage.data.folders.filter(item => item[column] == parentId);
     }
   }
   
@@ -808,9 +808,13 @@ let fileManager = (function() {
   }
   
   async function list() {
-    $('._fileList').innerHTML = '';
+    $('._fileList')?.replaceChildren();
     await TaskDisplayListFolders();
-    $('._fileList').appendChild(o.element('div', { style: 'flex: 0 0 100%', class: 'separator w3-padding-small' }));
+
+    let separatorEl = document.createElement('div');
+    separatorEl.classList.add('_fileSeparator', 'wgs-FileSeparator');
+    $('._fileList')?.appendChild(separatorEl);
+
     await TaskDisplayListFiles();
     uiFileExplorer.LoadBreadCrumbs();
     selectedFile.splice(0, 1);
@@ -855,9 +859,9 @@ let fileManager = (function() {
       }
       
       if (data.id !== undefined) {
-        return odin.dataOf(data.id, haystack, 'id')
+        return haystack.find(item => item.id == data.id)
       } else if (data.fid !== undefined) {
-        return odin.dataOf(data.fid, haystack, 'fid')
+        return haystack.find(item => item.fid == data.fid)
       }
     }
   }
@@ -878,7 +882,8 @@ let fileManager = (function() {
     }
 
     getFileContent(f).then(content => {
-      let idx = odin.idxOf(f.fid, fileTab, 'fid')
+      let idx = fileTab.findIndex(item => item.fid == f.fid);
+
       if (idx < 0) {
         ui.openNewTab(fileTab.length, {
           fid: f.fid,

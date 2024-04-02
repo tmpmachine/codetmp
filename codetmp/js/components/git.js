@@ -175,14 +175,14 @@ const gitRest = (function() {
     initClonePath(repo, activeFolder);
   };
     
-    
-  function listFile() {
+  
+  /* function listFile() {
     fetch('https://api.github.com/repos/'+username+'/'+repoName+'/contents/')
     .then(asJSON)
     .then(function(r){
       $('._fileList').innerHTML = o.template('tmp-list',r);
     });
-  }
+  } */
     
   function loadFile(self) {
     let r = new FileReader();

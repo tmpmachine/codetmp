@@ -438,7 +438,7 @@
     };
 
     _.removeWorktreeData = function(fid) {
-      let index = odin.dataOf(fid, tempData.data.worktree, 'fid');
+      let index = tempData.data.worktree.find(item => item.fid == fid);
       tempData.data.worktree.splice(index, 1);
       tempData.save();
     };

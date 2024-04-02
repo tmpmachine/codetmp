@@ -6,3 +6,8 @@
         padding: 10px 10px 10px 19px;
     }
 }
+
+.wgs-FileSeparator {
+    flex: 0 0 100%;
+    margin-top: 1rem;
+}

@@ -53,7 +53,7 @@ const compoFileTab = (function() {
   function FileClose(fid) {
     let idx;
     if (fid)
-      idx = odin.idxOf(String(fid), fileTab, 'fid')
+      idx = fileTab.findIndex(item => item.fid == `${fid}`);
     else
       idx = activeTab
     
@@ -142,7 +142,7 @@ const compoFileTab = (function() {
   }
 
   function focusTab(fid, isRevealFileTree = true) {
-    let idx = odin.idxOf(String(fid), fileTab, 'fid');
+    let idx = fileTab.findIndex(item => item.fid == `${fid}`);
     
     for (let tab of $$('.file-tab')) {
       tab.classList.toggle('isActive', false);

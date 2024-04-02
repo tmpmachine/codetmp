@@ -20,6 +20,7 @@ let DOMEvents = (function() {
 			}
 		*/
 		onclick: {
+			'handle-sidebar-btn-click': (evt) => ui.HandleSidebarBtnClick(evt.target), 
 			'btn-menu-preview': () => previewHandler.previewPath(),
 			'create-session': () => ui.CreateSession(),
 		},

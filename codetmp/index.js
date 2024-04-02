@@ -65,9 +65,7 @@ app.loadFiles([
   {
     urls: [
       "js/components/editor-component.js",
-      "js/require/o.js",
       "js/require/keyboard.js",
-      "js/require/odin.js",
       "js/components/preview-handler.js",
       "js/components/file-manager.js",
       "js/ui.js",

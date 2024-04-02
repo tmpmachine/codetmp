@@ -85,7 +85,8 @@ let singleFileGenerator = (function() {
       
       } else {
 
-        let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
+        let tabIdx = fileTab.findIndex(item => item.fid == file.fid);
+
         if (tabIdx >= 0) {
           content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
         } else {
@@ -248,7 +249,9 @@ let singleFileGenerator = (function() {
         }
 
         if (file.loaded) {
-          let tabIdx = odin.idxOf(file.fid, fileTab, 'fid');
+          
+          let tabIdx = fileTab.findIndex(item => item.fid == file.fid);
+
           if (tabIdx >= 0) {  
             content = (activeFile && activeFile.fid === file.fid) ? fileTab[activeTab].editor.env.editor.getValue() : fileTab[tabIdx].editor.env.editor.getValue();
           } else {

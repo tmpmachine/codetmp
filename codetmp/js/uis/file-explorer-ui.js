@@ -277,7 +277,7 @@ let uiFileExplorer = (function() {
     
               let next = last[direction];
               while (next) {
-                if (next.classList.contains('separator')) {
+                if (next.classList.contains('_fileSeparator')) {
                   next = next[direction];
                 } else {
                   selectedFile.push(next);
@@ -381,7 +381,7 @@ let uiFileExplorer = (function() {
       if (this.textContent == '..') {
           await fileManager.reloadBreadcrumb();
       } else {
-          let idx = odin.idxOf(fid,breadcrumbs,'folderId');
+          let idx = breadcrumbs.findIndex(item => item.folderId == fid);
           breadcrumbs = breadcrumbs.slice(0,idx+1);
       }
       await fileManager.list();
@@ -534,7 +534,7 @@ let uiFileExplorer = (function() {
       let last = selectedFile[selectedFile.length-1];
       let next = last[target];
       while (next) {
-        if (next.classList.contains('separator')) {
+        if (next.classList.contains('_fileSeparator')) {
           next = next[target];
         } else {
           if (!compoKeyInput.pressedKeys.shiftKey) {
@@ -548,7 +548,7 @@ let uiFileExplorer = (function() {
 
   function navigateVertical(target) {
 
-      let w = $('._fileList .separator').offsetWidth;
+      let w = $('._fileSeparator').offsetWidth;
       let padding = 4;
       let f = selectedFile[0].offsetWidth + padding;
       let cols = Math.floor(w/f)
@@ -560,7 +560,7 @@ let uiFileExplorer = (function() {
       let next = last[target];
 
       while (next) {
-          if (next.classList.contains('separator')) {
+          if (next.classList.contains('_fileSeparator')) {
           next = next[target];
           if (targetNo < 1) {
               targetNo = Math.ceil(folders.length / cols) * cols + targetNo;

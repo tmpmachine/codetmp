@@ -132,7 +132,7 @@ const compoClipboard = (function() {
     activeWorkspace = targetWorkspaceId;
     
     if (!trashed) {
-      let idx = odin.idxOf(parentId, road, 0);
+      let idx = road.findIndex(item => item[0] == parentId);
       let action = (loaded) ? 'create' : 'copy';
       let file = await fileManager.CreateFile({
         id,
@@ -165,7 +165,7 @@ const compoClipboard = (function() {
     activeWorkspace = targetWorkspaceId;
 
     if (!trashed) {
-      let idx = odin.idxOf(parentId, road, 0);
+      let idx = road.findIndex(item => item[0] == parentId);
       let folder = await fileManager.CreateFolder({
         name: await fileManager.getDuplicateName(pasteParentFolderId, name, 'folder'),
         modifiedTime,

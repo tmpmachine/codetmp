@@ -44,7 +44,6 @@ let ui = (function() {
     toggleSaveToken,
     ToggleHomepageSetting,
     ToggleHomepage,
-    toggleMenu,
     toggleActionMenu,
     toggleInsertSnippet,
     changeWorkspace,
@@ -65,6 +64,7 @@ let ui = (function() {
       },
     },
     CreateSession,
+    HandleSidebarBtnClick,
   };
 
   // init workspace data
@@ -93,6 +93,16 @@ let ui = (function() {
       })
     }
 
+  }
+
+  function HandleSidebarBtnClick(evtTarget) {
+    let btnEl = evtTarget.closest('._btnSidebar');
+
+    if (!btnEl) return;
+
+    let useCallback = true;
+    let targetId = null;
+    ui.toggleActionMenu(targetId, useCallback, btnEl);
   }
 
   function toggleTemplate() {
@@ -295,7 +305,7 @@ let ui = (function() {
 
   function toggleFileActionButton() {
     let isHide = (selectedFile.length === 0);
-    o.classList.toggle($('.btn-file-action'), 'w3-hide', isHide);
+    $('.btn-file-action')?.classList.toggle('w3-hide', isHide);
   }
 
   function setGitToken() {
@@ -306,13 +316,6 @@ let ui = (function() {
         aww.pop('Personal access token has been set.');
       }
     });
-  }
-  
-  function toggleMenu() {
-    let self = this;
-    let useCallback = true;
-    let targetId = null;
-    ui.toggleActionMenu(targetId, useCallback, self);
   }
   
   function toggleActionMenu(targetId, useCallback, targetNode) {
@@ -356,7 +359,7 @@ let ui = (function() {
       return;
     }
     
-    for (let el of $$('.btn-material')) {
+    for (let el of $$('._btnSidebar')) {
       
       if (el !== target) {
         
@@ -661,10 +664,6 @@ let ui = (function() {
     }
     
     DOMEvents.Init();
-
-    o.listen({
-      '.btn-material': ui.toggleMenu,
-    });
 
   }
 

@@ -133,9 +133,9 @@ html,body{height:100%;}
 .window{position:absolute;top:0;left:0;right:0;bottom:0;}
 
 /*colors*/
-.btn-material{color:#fff;}
+.wgs-BtnSidebar{color:#fff;}
 @media (hover: hover) {
-  .btn-material:hover{color:#FFEB3B}
+  .wgs-BtnSidebar:hover{color:#FFEB3B}
 }
 .in-block{background:#000;background:rgba(0,0,0,0.8);}
 
@@ -155,13 +155,12 @@ html,body{height:100%;}
 .in-block.active{transform:translateX(0);}
 
 /*padding,margin,etc*/
-.btn-material{text-align:center;cursor:pointer;overflow:hidden;padding:0.5em;}
+.wgs-BtnSidebar{text-align:center;cursor:pointer;overflow:hidden;padding:0.5em;}
 .l-btn-in{font-size:0.7em;font-weight:bold;font-family:sans-serif;position:relative;z-index:-1;display:block}
 
 /*dependenciess & screen*/
 .in-block{cursor:pointer;}
 #nav{user-select:none;}
-/*.btn-material{cursor:pointer}*/
 .w3-button{outline:none;}
 #header{position:relative;}
 .limbo{overflow:hidden;height:0;}
@@ -819,7 +818,7 @@ body:not(.is-authorized) .drop-menu .Items.authorized {display:flex;color:#73737
   .folder-list, .file-list {
     margin: 0px;
   }
-  .wg-FileList .separator {
+  .wg-FileList .wgs-FileSeparator {
     grid-column: 1/3;
   }
   .wg-FileList {
@@ -846,7 +845,7 @@ body:not(.is-authorized) .drop-menu .Items.authorized {display:flex;color:#73737
 .wg-FileList.list-view{display:flex}
 .wg-FileList.list-view .isSelected{background:#3b647b}
 .wg-FileList.list-view .Area{display:none}
-.wg-FileList.list-view .separator{display:none}
+.wg-FileList.list-view .wgs-FileSeparator{display:none}
 
 /* grid/list view override */ 
 .wg-FileList.list-view .folder-list:hover, .folder-list:hover{background:#464a52}

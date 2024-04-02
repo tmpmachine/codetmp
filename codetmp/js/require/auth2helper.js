@@ -23,8 +23,9 @@
   }
 
   function distributeToken() {
-    if (typeof(drive) != 'undefined') { drive.setToken(access_token) }
-    if (typeof(oblog) != 'undefined') { oblog.setToken(access_token) }
+    if (typeof(drive) != 'undefined') { 
+      drive.setToken(access_token) 
+    }
     previewManager.setToken(access_token);
     compoFirebaseHosting.setToken(access_token);
   }

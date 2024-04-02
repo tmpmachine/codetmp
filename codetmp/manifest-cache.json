@@ -101,10 +101,8 @@
     "views/modals.html",
     "views/templates.html",
 
-    "js/require/o.js",
     "js/require/lsdb.js",
     "js/require/keyboard.js",
-    "js/require/odin.js",
     "js/require/aww.js",
     "js/require/jszip.min.js",
     "js/app-data.js",
