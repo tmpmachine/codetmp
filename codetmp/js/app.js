@@ -157,8 +157,9 @@ let app = (function() {
         div.innerHTML = e.data.content;
         
         let fragment = document.createDocumentFragment();
-        for (let node of div.querySelectorAll('.Export')) {
-          node.classList.toggle('Export', false);
+        for (let node of div.querySelectorAll('.Export, [data-export]')) {
+          node.classList.remove('Export');
+          node.removeAttribute('data-export');
           fragment.appendChild(node);
         }
 
