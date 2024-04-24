@@ -37,6 +37,9 @@
     "assets/js/idb@7/umd.js"
   ],
   "components": [
+    "js/widgets/quick-search-widget.js"
+  ],
+  "components": [
     "js/components/session-manager-component.js",
     "js/components/modal-window-component.js",
     "js/components/state-manager-component.js",

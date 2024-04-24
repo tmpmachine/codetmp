@@ -20,6 +20,21 @@
   ]
 </div>
 
+<template id="tmp-quick-search" data-export>
+  [ data-view-group="feat" data-view-name="quickSearch"
+    [ .w-100 .wg-QuickSearch style="position:fixed;z-index:8177;top:0;height:0;padding-top:3rem"
+      [ {Mw:400px;m:auto;}
+        [ .pos-relative
+          [ .d-grid .relative {z:1;cols:1fr auto;} .align-items-center
+            [in ._searchInput .w-100 autocomplete='off' data-lazy-onkeydown="cmd-select-command" data-lazy-oninput="cmd-search-command" placeholder="Search file tree" type="text"]
+          ]
+        ]
+        [ ._searchResult .pos-relative {z:1;top:-2px}]
+      ]
+    ]
+  ]
+</template>
+
 <div id="update-notif" class="Export w-100" style="position:fixed;bottom:0;left:0;background:#0b0b0e;color:#ccc;z-index:8177;font-weight:bold">
   <div class="w3-right">
     <div id="btn-refresh" style="padding:16px;text-transform:uppercase;font-weight:bold;color:#d8d782;">Refresh</div>

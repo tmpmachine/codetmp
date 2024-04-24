@@ -102,6 +102,7 @@ app.loadFiles([
   },
   {
     urls: [
+      "js/widgets/quick-search-widget.js",
       "js/components/key-input-component.js",
       "js/components/file-reader-component.js",
       "js/components/snippet-component.js",

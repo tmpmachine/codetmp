@@ -265,6 +265,12 @@ let compoEditor = (function() {
         }
       });
       editor.commands.addCommand({
+        bindKey: {win:"Ctrl-Shift-Q"},
+        exec: function() {
+          wgQuickSearch.ToggleCommandPalette();
+        }
+      });
+      editor.commands.addCommand({
           name: "movelinesup",
           bindKey: {win:"Ctrl-Shift-Up"},
           exec: function(editor) {

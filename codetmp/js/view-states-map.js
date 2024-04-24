@@ -1,8 +1,6 @@
 let viewStatesMap = [
   {
-    group: '',
-    states: [
-      '',
-    ],
+    group: 'feat',
+    states: [ 'quickSearch' ],
   },
 ];
