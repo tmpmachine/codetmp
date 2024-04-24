@@ -39,20 +39,20 @@ let compoEditor = (function() {
         let editor = fileTab[activeTab].editor.env.editor;
         let themeMd =  false;
     
-        if (fileName.endsWith('.txt'))
-        editor.session.setMode();
-        else if (fileName.endsWith('.css'))
-        editor.session.setMode("ace/mode/css");
-        else if (fileName.endsWith('.js'))
-        editor.session.setMode("ace/mode/javascript");
-        else if (fileName.endsWith('.md')) {
-        editor.session.setMode("ace/mode/markdown");
-        themeMd =  true;
+        if (fileName.endsWith('.txt')) {
+          editor.session.setMode();
+        } else if (fileName.endsWith('.css')) {
+          editor.session.setMode("ace/mode/css");
+        }  else if (fileName.endsWith('.js')) {
+          editor.session.setMode("ace/mode/javascript"); 
+        } else if (fileName.endsWith('.md')) {
+          editor.session.setMode("ace/mode/markdown");
+          themeMd =  true;
+        } else if (fileName.endsWith('.json')) {
+          editor.session.setMode("ace/mode/json");
+        } else {
+          editor.session.setMode("ace/mode/html");
         }
-        else if (fileName.endsWith('.json'))
-        editor.session.setMode("ace/mode/json");
-        else
-        editor.session.setMode("ace/mode/html");
     
         if (themeMd) {
             editor.setTheme('ace/theme/codetmp-markdown');
