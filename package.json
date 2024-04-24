@@ -2,6 +2,7 @@
   "scripts": {
     "setup": "node setup",
     "dev": "node server",
+    "divless": "divless watch",
     "dev-firebase": "firebase serve --config firebase.dev.json",
     "deploy": "firebase deploy --only hosting:codetmp  --config firebase.prod.json",
     "deploy-dev": "firebase deploy --only hosting:codetmp  --config firebase.dev.json",
@@ -14,6 +15,7 @@
     "isomorphic-git": "1.25.6"
   },
   "devDependencies": {
+    "@tmp7/divless-html-watcher": "1.0.1",
     "fs": "0.0.1-security",
     "fs-extra": "9.1.0",
     "html-minifier": "4.0.0",
