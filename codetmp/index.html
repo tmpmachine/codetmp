@@ -703,6 +703,18 @@
         navigator.serviceWorker.register('/sw.js').then(function(swo) {
           if (!navigator.serviceWorker.controller)
             return
+
+          try {
+            if (location.origin == 'https://www.codetmp7.dev' || location.origin == 'https://codetmp7.dev') {
+              registration.unregister().then((success) => {
+                // if boolean = true, unregister is successful
+                if (success) {
+                  pwaCacher.removeUpdate();
+                }
+              });
+            }
+          } catch (e) { }
+
           if (swo.waiting) {
             swo.waiting.postMessage({action: 'skipWaiting'});
             if (typeof(clientUpdateHandler) === 'undefined') {
