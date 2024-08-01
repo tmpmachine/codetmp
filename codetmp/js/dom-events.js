@@ -20,6 +20,8 @@ let DOMEvents = (function() {
 			}
 		*/
 		onclick: {
+      		'authorize': () => compoGsi.RequestToken(),
+			'revoke-access': () => ui.RevokeAccess(),
 			'handle-sidebar-btn-click': (evt) => ui.HandleSidebarBtnClick(evt.target), 
 			'btn-menu-preview': () => compoPreview.previewPath(),
 			'create-session': () => ui.CreateSession(),
@@ -52,7 +54,7 @@ let DOMEvents = (function() {
 			'new-folder': uiFileExplorer.newFolder,
 			'new-file': uiFileExplorer.newFile,
 			'sign-out': () => app.SignOut(),
-			'grant-firebase-access': () => auth2.grant('https://www.googleapis.com/auth/firebase'),
+			'grant-firebase-access': () => compoGsi.Grant('https://www.googleapis.com/auth/firebase'),
 
 			'change-workspace': (evt) => ui.changeWorkspace(evt.target.closest('[data-kind="item"]')),
 			'change-file-list-view': ui.changeFileListView,

@@ -22,11 +22,8 @@ let app = (function() {
 
 
   function SignOut() {
-    auth2.signOut();
+    compoGsi.Logout()
     authLogout();
-    gapi.auth2.getAuthInstance().signOut().then(function() {
-      console.log('User signed out.');
-    });
   }
 
   function AuthReady() {
@@ -37,7 +34,6 @@ let app = (function() {
       compoDrive.syncFromDrive();
       compoDrive.syncToDrive();
     }
-    let uid = gapi.auth2.getAuthInstance().currentUser.get().getId();
     support.check('firebase');
   }
 

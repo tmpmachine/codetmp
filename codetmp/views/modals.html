@@ -299,6 +299,7 @@
 </modal-v2>
 
 <modal-v2 class="modal-component Export" data-name="account">
+  <!-- # account, # my account -->
   <div class="Modal bg8 col1" slot="content">
     <div class="Header no-select d-flex justify-content-between">
       <h5><b>My Account</b></h5>
@@ -306,10 +307,26 @@
     </div>
     <div class="Content">
       <section>
+
+        <!-- Backup and restore -->
+        <h3>Sync to Google Drive</h3>
+        <div>
+          <div class="d-flex flex-wrap" style="gap:0.25rem;">
+            <div data-view-group="features-cloud" data-view-name-not="authorized">
+              <!-- authorize -->
+              <button class="btn-style-1 btn btn-style-1" data-onclick="authorize">Authorize</button>
+            </div>
+          </div>
+          <span id="txt-backup-status"></span>
+          <span id="txt-restore-status"></span>
+        </div><div style="margin-bottom:0.5rem;"></div>
+
         <p class="w3-small unauthorized">(!) Your files are <b>currently stored locally</b> in browser storage. Sign in to synchronize with Google Drive across devices.</p>
         <div id="g-signin2" class="unauthorized"></div>
-        <div class="authorized">
+        <div data-view-group="features-cloud" data-view-name="authorized">
+          <!-- sign out, revoke token -->
           <button class="btn-style-1 clickable" style="width:auto" data-callback="sign-out">Sign out</button>
+          <button class="btn-style-1" style="width:auto" data-onclick="revoke-access">Revoke access</button>
         </div>
         <hr/>
         <p class="w3-small">By using <b>Codetmp</b>, you're considered agreed to terms and condition written on articles below :</p>

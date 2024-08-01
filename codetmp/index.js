@@ -118,7 +118,6 @@ app.loadFiles([
   {
     urls: [
       "js/require/aww.js",
-      "js/components/auth-component.js",
       "js/components/drive-component.js",
       "js/components/defer-feature-2.js",
     ],
@@ -143,12 +142,20 @@ app.loadFiles([
   {
     urls: [
       "assets/js/source-map@0.7.3/source-map.js",
+      "js/components/gsi-component.js",
+      "https://accounts.google.com/gsi/client",
       "assets/js/terser/bundle.min.js",
     ],
+    callback: function() {
+      compoGsi.InitTokenClient();
+      appData.GetComponentData('compoGsi', (data) => {
+        compoGsi.InitData(data);
+      });
+    }
   },
 ]);
 
-// should global scope
+/* // should global scope
 window.RenderSignInButton = function() {
   gapi.signin2.render('g-signin2', {
     'scope': 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive'+auth2.additionalScopes,
@@ -161,4 +168,4 @@ window.RenderSignInButton = function() {
       app.AuthReady();
     },
   });
-}
+} */

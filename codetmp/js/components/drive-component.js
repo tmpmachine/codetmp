@@ -8,7 +8,7 @@ const compoDrive = (function() {
     // will overwritten by defineProperty below
     apiUrl: null,
 
-    setToken,
+    SetToken,
     readAppData,
     syncToDrive,
     syncFromDrive,
@@ -28,7 +28,7 @@ const compoDrive = (function() {
     Authorization: '',
   };
 
-  function setToken(access_token) {
+  function SetToken(access_token) {
     httpHeaders.Authorization = 'Bearer '+access_token;
   }
 
@@ -47,6 +47,12 @@ const compoDrive = (function() {
   let queueLimit = 10;
   let queueInLine = 0;
   
+  let authHelper = {
+    validateAccessToken: async function() {
+      return await compoGsi.TaskAuthorize();
+    },
+  };
+
   function nextDownloadQueue() {
   	if (waitList.length > 0) {
 	    if (queueInLine < queueLimit) {
@@ -66,7 +72,7 @@ const compoDrive = (function() {
   
   function downloadDependencies(file, returnType = 'text') {
     return new Promise(async (resolve, reject) => {
-     await auth2.init();
+     await authHelper.validateAccessToken();
      if (downloadQueue[file.id]) {
       downloadQueue[file.id].resolver.push(resolve);
       downloadQueue[file.id].rejector.push(reject);
@@ -212,7 +218,7 @@ const compoDrive = (function() {
   }
 
   async function getStartPageToken() {
-    await auth2.init();
+    await authHelper.validateAccessToken();
     fetch(apiUrl+'changes/startPageToken', {
       method: 'GET',
       headers: httpHeaders,
@@ -225,7 +231,7 @@ const compoDrive = (function() {
   }
 
   async function listChanges(pageToken = settings.data.drive.startPageToken) {
-    await auth2.init();
+    await authHelper.validateAccessToken();
     let notifId = compoNotif.Add({
       title: 'Checking for file changes ...',
     });
@@ -293,7 +299,7 @@ const compoDrive = (function() {
       if (typeof(nextPageToken) !== 'undefined')
         url = url+'&pageToken='+nextPageToken;
       
-      await auth2.init();
+      await authHelper.validateAccessToken();
       fetch(url, {
         method:'GET',
         headers: httpHeaders,
@@ -386,7 +392,7 @@ const compoDrive = (function() {
       if (typeof(nextPageToken) !== 'undefined')
         url = url+'&pageToken='+nextPageToken;
       
-      await auth2.init();
+      await authHelper.validateAccessToken();
       fetch(url, {
         method:'GET',
         headers: httpHeaders,
@@ -516,7 +522,7 @@ const compoDrive = (function() {
       }
     }
 
-    await auth2.init();
+    await authHelper.validateAccessToken();
     let options = {
       method,
       body: form,
@@ -605,7 +611,7 @@ const compoDrive = (function() {
     headers['Content-Length'] = size;
     headers['Content-Range'] = `bytes ${chunk.start}-${chunk.end}/${total}`;
 
-    await auth2.init();
+    await authHelper.validateAccessToken();
 
       fetch(loc, {
         headers,
@@ -700,13 +706,14 @@ const compoDrive = (function() {
   function initAppData(systemFolderId) {
     mainStorage.data.rootId = systemFolderId;
     mainStorage.save();
+
     checkPermission(systemFolderId)
     syncFromDrive();
   }
 
   async function readAppData() {
     
-    await auth2.init();
+    await authHelper.validateAccessToken();
     fetch(apiUrl+'files?spaces=appDataFolder&fields=files(id)', {
       headers: httpHeaders,
     })
@@ -753,7 +760,7 @@ const compoDrive = (function() {
       form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
       form.append('file', new Blob([JSON.stringify(systemFolderJSON)], { type: 'text/plain'} ));
       
-      await auth2.init();
+      await authHelper.validateAccessToken();
       let options = {
         method: 'POST',
         body: form,
@@ -776,7 +783,7 @@ const compoDrive = (function() {
       };
       form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
       
-      await auth2.init();
+      await authHelper.validateAccessToken();
       let options = {
         method: 'POST',
         body: form,
@@ -808,7 +815,7 @@ const compoDrive = (function() {
 
   function getFile(id, type = 'text', param = '') {
     return new Promise(async function(resolve, reject) {
-      await auth2.init();
+      await authHelper.validateAccessToken();
       fetch(apiUrl+'files/'+id+param, {
         headers: httpHeaders,
       }).then(function(result) {
@@ -824,7 +831,7 @@ const compoDrive = (function() {
 
   function deleteFile(id) {
     return new Promise(async function(resolve, reject) {
-      await auth2.init();
+      await authHelper.validateAccessToken();
       fetch(apiUrl+'files/'+id, {
         method: 'DELETE',
         headers: httpHeaders,

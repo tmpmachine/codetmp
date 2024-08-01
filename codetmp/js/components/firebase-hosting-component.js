@@ -22,6 +22,12 @@ const compoFirebaseHosting = (function() {
   };
   let logger = $('#deploy-logs');
 
+  let authHelper = {
+    validateAccessToken: async function() {
+      return await compoGsi.TaskAuthorize();
+    },
+  };
+  
   function selectProject(value) {
     projectId = value;
     $('#site-list').innerHTML = '';
@@ -257,7 +263,7 @@ const compoFirebaseHosting = (function() {
 
   async function init() {
     if (token.length > 0) {
-       await auth2.init();
+       await authHelper.validateAccessToken();
       listProject();
     }
   }

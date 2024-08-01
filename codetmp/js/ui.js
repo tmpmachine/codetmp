@@ -46,7 +46,7 @@ let ui = (function() {
     toggleInsertSnippet,
     changeWorkspace,
     uploadFile,
-
+    RevokeAccess,
     ToggleModalByClick,
     ToggleModal,
     InitFileHandler,
@@ -79,9 +79,9 @@ let ui = (function() {
       },
     };
     
-    let navMain = new lsdb('nav-main', navStructure);
-    let navTemp = new lsdb('nav-temp', navStructure);
-    let navLocal = new lsdb('nav-local', navStructure);
+    let navMain = new Lsdb('nav-main', navStructure);
+    let navTemp = new Lsdb('nav-temp', navStructure);
+    let navLocal = new Lsdb('nav-local', navStructure);
     let navs = [navMain, navTemp, navLocal];
     
     for (let key in navStructure.root) {
@@ -91,6 +91,14 @@ let ui = (function() {
       })
     }
 
+  }
+
+  function RevokeAccess() {
+    let isConfirm = window.confirm('This will log you out and you will need to grant app permission again. Continue?');
+    if (!isConfirm) return;
+
+    compoGsi.RevokeToken();
+    app.SignOut();
   }
 
   function HandleSidebarBtnClick(evtTarget) {
