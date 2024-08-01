@@ -26,7 +26,7 @@ let compoGsi = (function() {
   };
   
   let local = {
-    client_id: '502466142434-v1l52c1aql83544amvtanqjo0njp4rn3.apps.googleusercontent.com',
+    client_id: '502466142434-c7jku5i8sk4g790i8hkrlf8j80otl3lc.apps.googleusercontent.com',
     scopes: [
       'https://www.googleapis.com/auth/drive.file', 
       'https://www.googleapis.com/auth/drive.appdata',
