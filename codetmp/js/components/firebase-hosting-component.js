@@ -262,10 +262,8 @@ const compoFirebaseHosting = (function() {
 
 
   async function init() {
-    if (token.length > 0) {
-       await authHelper.validateAccessToken();
-      listProject();
-    }
+    await authHelper.validateAccessToken();
+    listProject();
   }
 
   function setToken(_token) {

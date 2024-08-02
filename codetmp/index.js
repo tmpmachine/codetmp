@@ -36,6 +36,7 @@ app.loadFiles([
       "js/components/modal-window-component.js",
       "js/components/state-manager-component.js",
       "js/components/support.js",
+      "js/utils/wait.js",
       "js/utils/helper-utils.js",
       "js/components/extension.js",
       "js/components/preferences.js",
@@ -124,11 +125,6 @@ app.loadFiles([
   },
   {
     urls: [
-      "https://apis.google.com/js/platform.js?onload=RenderSignInButton",
-    ],
-  },
-  {
-    urls: [
       "js/components/git.js",
       "js/components/environment-manager.js",
       "js/components/single-file-generator.js",
@@ -154,18 +150,3 @@ app.loadFiles([
     }
   },
 ]);
-
-/* // should global scope
-window.RenderSignInButton = function() {
-  gapi.signin2.render('g-signin2', {
-    'scope': 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive'+auth2.additionalScopes,
-    'width': 240,
-    'height': 50,
-    'longtitle': true,
-    'theme': 'dark',
-    'onsuccess': (googleUser) => {
-      auth2.onSignIn(googleUser);
-      app.AuthReady();
-    },
-  });
-} */

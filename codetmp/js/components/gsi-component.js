@@ -14,7 +14,10 @@ let compoGsi = (function() {
     AddScope,
     Grant,
     RemoveScope,
+    Request,
     HasGrantScope,
+    ReceiveToken,
+    ReceiveSilentSignal,
   };
   
   let data = {
@@ -26,7 +29,9 @@ let compoGsi = (function() {
   };
   
   let local = {
-    client_id: '502466142434-c7jku5i8sk4g790i8hkrlf8j80otl3lc.apps.googleusercontent.com',
+    silentFrame: null,
+    isSilentFrameReady: false,
+    client_id: '',
     scopes: [
       'https://www.googleapis.com/auth/drive.file', 
       'https://www.googleapis.com/auth/drive.appdata',
@@ -36,6 +41,12 @@ let compoGsi = (function() {
     isOnGoingAuthProcessStarted: false, 
     tempData: null,
   };
+
+  // # func
+
+  function ReceiveSilentSignal() {
+    local.isSilentFrameReady = true;
+  }
 
   function AddScope(scope) {
     if (data.additionalScopes.includes(scope)) return;
@@ -104,7 +115,8 @@ let compoGsi = (function() {
     compoDrive.SetToken(data.access_token);
     compoFirebaseHosting.setToken(data.access_token);
   }
-  
+
+  // # authorize
   async function TaskAuthorize() {
     
     return new Promise(async resolve => {
@@ -113,11 +125,27 @@ let compoGsi = (function() {
       let thirtySc = 30 * 1000;
       
       if (data.expires_at - now <= thirtySc) {
+        
         while (local.isOnGoingAuthProcessStarted) {
-          await utilAwaiter.WaitUntilAsync(CheckNoOngoingAuthProcess, 500);
+          await wait.Until(CheckNoOngoingAuthProcess, 500);
         }
-        RequestToken();
-        await utilAwaiter.WaitUntilAsync(CheckNoOngoingAuthProcess, 500);
+        
+        local.isOnGoingAuthProcessStarted = true;
+        
+        if (!local.isSilentFrameReady) {
+          loadSilentRefreshFrame();
+          await wait.Until(() => {
+            local.silentFrame.postMessage({ 
+              message: 'tryConnect', 
+            }, '*');
+            return local.isSilentFrameReady;
+          }, 200);
+        }
+
+        RequestSilentToken();
+
+        await wait.Until(CheckNoOngoingAuthProcess, 500);
+
       } else {
         distributeTokenToComponents();
       }
@@ -179,23 +207,59 @@ let compoGsi = (function() {
     
   }
   
-  function readToken() {
+  async function readToken() {
     if (typeof(data.email) != 'string' || data.email == '') {
-      getTokenUserInfo(data.access_token);
+      let tokenInfo = await getTokenUserInfo_(data.access_token);
+      data.userEmail = tokenInfo.email;
+      Commit();
     }
   }
-  
-   function getTokenUserInfo(access_token) {
-    fetch('https://www.googleapis.com/oauth2/v3/tokeninfo', {
-      headers: {
-        authorization: `Bearer ${access_token}`
-      }
-    })
-    .then(r => r.json())
-    .then(json => {
-      data.userEmail = json.email;
+
+  async function ReceiveToken(token) {
+    let tokenInfo = await getTokenUserInfo_(token);
+
+    try {
+      data.grantedScope = tokenInfo.scope;
+      data.access_token = token;
+      data.expires_at = new Date(new Date().getTime() + tokenInfo.expires_in * 1000).getTime();
+      data.userEmail = tokenInfo.email;
+
       Commit();
-    });
+      distributeTokenToComponents();
+      reloadAuthState();
+      
+    } catch (e) {
+      console.error(e);
+    }
+
+    local.isOnGoingAuthProcessStarted = false;
+
+  }
+  
+   function getTokenUserInfo_(access_token) {
+    return new Promise(resolve => {
+      fetch('https://www.googleapis.com/oauth2/v3/tokeninfo', {
+        headers: {
+          authorization: `Bearer ${access_token}`
+        }
+      })
+      .then(r => r.json())
+      .then(json => {
+        resolve(json);
+      });
+    })
+  }
+  
+  function loadSilentRefreshFrame() {
+    local.silentFrame = window.open('./pages/silent-refresh.html', '_frameSilentRefresj')
+  }
+
+  function RequestSilentToken() {
+    local.silentFrame.postMessage({ 
+      message: 'requestToken', 
+      scopes: data.grantedScope,
+      hint: data.userEmail,
+    }, '*')
   }
   
   function RequestToken() {
