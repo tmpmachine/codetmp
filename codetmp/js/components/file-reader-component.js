@@ -10,6 +10,11 @@ const compoFileReader = (function() {
 		TaskPopulateFiles,
 	};
 
+	// # local
+	let local = {
+		exclude: ['.git', 'node_modules'],
+	};
+
 	let activeDropZone;
 	let isPressedCtrlKey = false;
 	let isDragging = false;
@@ -517,15 +522,19 @@ const compoFileReader = (function() {
 
 	}
 
+	function checkExcludeDirName(name) {
+		return local.exclude.includes(name);
+	}
 
 	// Recursive function that walks the directory structure.
 	async function TaskPopulateFiles(dirHandle, parentFolderFid) {
 
 		const dirs = [];
 		const files = [];
+		let isExcludeDir = checkExcludeDirName(dirHandle.name);
 
 		// create the root directory
-		if (parentFolderFid == -1 && !dirHandle.name.startsWith('.git')) {
+		if (parentFolderFid == -1 && !isExcludeDir) {
 			let folder = await fileManager.CreateFolder({
 				parentId: parentFolderFid,
 				name: dirHandle.name,
@@ -558,7 +567,9 @@ const compoFileReader = (function() {
 
 			} else if (entry.kind === "directory") {
 
-				if (entry.name.startsWith('.git')) {
+				let isExcludeDir = checkExcludeDirName(entry.name);
+
+				if (isExcludeDir) {
 					continue;
 				}
 
