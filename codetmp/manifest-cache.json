@@ -36,7 +36,12 @@
     "assets/js/divless-html@v1.0.1/divless.min.js",
     "assets/js/idb@7/umd.js"
   ],
+  "utils": [
+    "js/utils/wait.js",
+    "js/utils/helper-utils.js"
+  ],
   "components": [
+    "js/widgets/quick-search-widget.js",
     "js/components/session-manager-component.js",
     "js/components/modal-window-component.js",
     "js/components/state-manager-component.js",
@@ -46,7 +51,6 @@
     "js/components/extension.js",
     "js/components/preferences.js",
     "js/components/modal.js",
-    "js/utils/helper-utils.js",
     "js/components/file-tab-component.js",
     "js/components/file-reader-component.js",
     "js/components/file-bundler-component.js",

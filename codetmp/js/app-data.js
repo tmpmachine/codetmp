@@ -1,6 +1,12 @@
-(function() {
+let appData = (function() {
 
-  window.settings = new lsdb('settings', {
+  let SELF = {
+    GetComponentData,
+    SetComponentData,
+    Save,
+  };
+
+  let lsdb = window.settings = new Lsdb('settings', {
     root: {
       gitToken: '',
       drive: {
@@ -27,11 +33,16 @@
       showHomepage: true,
       autoSync: true,
       saveGitToken: false,
+      
+      // components
+      components: {
+        compoGsi: {},
+      }
     }
   });
 
   // testing out development data
-  window.tempData = new lsdb('tempData', {
+  window.tempData = new Lsdb('tempData', {
     root: {
       worktree: []
     }
@@ -88,11 +99,11 @@
         isSyncInProgress: false,
       },
     };
-    let mainStorage = new lsdb('file-storage', fileStructure);
-    let tempStorage = new lsdb('temp-file-storage', fileStructure, {
+    let mainStorage = new Lsdb('file-storage', fileStructure);
+    let tempStorage = new Lsdb('temp-file-storage', fileStructure, {
       isStoreData: false,
     });
-    let temp2Storage = new lsdb('temp2-file-storage', fileStructure, {
+    let temp2Storage = new Lsdb('temp2-file-storage', fileStructure, {
       isStoreData: false,
     });
     let workspaces = [mainStorage, tempStorage, temp2Storage];
@@ -103,6 +114,28 @@
 
   }
 
+  function Save() {
+    lsdb.save();
+  }
+
+  function clearReference(data) {
+    return JSON.parse(JSON.stringify(data));
+  }
+  
+  function SetComponentData(componentKey, noReferenceData) {
+    if (!lsdb.data.components[componentKey]) return;
+    
+    lsdb.data.components[componentKey] = noReferenceData;
+  }
+  
+  function GetComponentData(componentKey, callback) {
+    if (!lsdb.data.components[componentKey]) return;
+    
+    callback(clearReference(lsdb.data.components[componentKey]));
+  }
+
   initWorkspace();
+
+  return SELF;
 
 })();

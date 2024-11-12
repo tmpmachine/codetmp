@@ -5,7 +5,6 @@ let viewStateUtil = (function() {
     let SELF = {
       GetViewGroupNode,
       Init,
-      
       Set: SetState,
       Toggle,
       GetViewStates,
@@ -19,14 +18,12 @@ let viewStateUtil = (function() {
       viewStateMap: {}
     };
     
-    function HasViewState(viewGroupName, viewName) {
-      let viewStates = GetViewStates(viewGroupName);
-      
+    function HasViewState(viewGroupName, viewName, el) {
+      let viewStates = GetViewStates(viewGroupName, el);
       return viewStates.includes(viewName);
     }
     
-    function GetViewStates(viewGroupName) {
-      let el = null;
+    function GetViewStates(viewGroupName, el) {
       let groupEl = GetViewGroupNode(viewGroupName, el);
       if (!groupEl) return [];
       
@@ -38,7 +35,7 @@ let viewStateUtil = (function() {
     
     function Toggle(viewGroupName, viewNames, el) {
       let groupEl = GetViewGroupNode(viewGroupName, el);
-      let viewStates = groupEl.dataset.viewStates.split(' ');
+      let viewStates = getViewStates(groupEl);
       
       for (let viewName of viewNames) {
         if (viewStates.includes(viewName)) {
@@ -52,14 +49,18 @@ let viewStateUtil = (function() {
       SetViewState(viewGroupName, viewStates, groupEl);
     }
     
+    function getViewStates(groupEl) {
+        return groupEl.dataset.viewStates?.split(' ') ?? [];
+    }
+    
     function filterViewStates(viewStates, viewName) {
       return viewStates.filter(item => item != viewName);
     }
     
     function Add(viewGroupName, viewNames, el) {
       let groupEl = GetViewGroupNode(viewGroupName, el);
-      let viewStates = groupEl.dataset.viewStates.split(' ');
-  
+      let viewStates = groupEl.dataset.viewStates?.split(' ');
+    
       for (let viewName of viewNames) {
         viewStates.push(viewName);
       }
@@ -70,7 +71,7 @@ let viewStateUtil = (function() {
     
     function Remove(viewGroupName, viewNames, el) {
       let groupEl = GetViewGroupNode(viewGroupName, el);
-      let viewStates = groupEl.dataset.viewStates.split(' ');
+      let viewStates = getViewStates(groupEl);
       
       for (let viewName of viewNames) {
         viewStates = filterViewStates(viewStates, viewName);
@@ -86,9 +87,10 @@ let viewStateUtil = (function() {
     
     function RemoveAll(viewGroupName, el) {
       let groupEl = GetViewGroupNode(viewGroupName, el);
-      let viewStates = groupEl.dataset.viewStates.split(' ');
+      let viewStates = getViewStates(groupEl);
       let groupStates = [];
       let group = data.viewStateMap.find(x => x.group == viewGroupName);
+    
       if (group.states) {
         for (let state of group.states) {
           groupStates.push(state);
@@ -117,42 +119,35 @@ let viewStateUtil = (function() {
     }
     
     function GetViewGroupNode(groupName, el) {
-      if (el) {
-        return el;
-      }
-      return $(`[data-view-group~="${groupName}"][data-view-states]`);
+      return el ?? $(`[data-view-group~="${groupName}"][data-view-states]`);
     }
     
     function Init(viewStateMap) {
+      
+      let elContainer = document.createElement('style');
       
       data.viewStateMap = viewStateMap;
       
       for (let map of viewStateMap) {
         
         let groupName = map.group;
-        if ($(`style[data-view-group-control="${groupName}"]`)) continue;
-        
-        let childViewEls = document.querySelectorAll(`[data-view-group="${groupName}"][data-view-states] [data-view-group="${groupName}"]`);
-        
-        let elContainer = document.createElement('style');
-        elContainer.dataset.viewGroupControl = groupName;
         
         if (map.states && map.states.length > 0) {
           let childViewSelectors = map.states.map(state => `[data-view-group~="${groupName}"][data-view-states~="${state}"] [data-view-group="${groupName}"][data-view-name~="${state}"]`)
-          elContainer.innerHTML = `${childViewSelectors.join(',')} { display: revert; }`;
+          elContainer.textContent += `${childViewSelectors.join(',')} { display: revert; }`;
         }
         
         if (map.inverseStates && map.inverseStates.length > 0) {
           let childViewSelectorsInverse = map.inverseStates.map(state => `[data-view-group~="${groupName}"][data-view-states~="${state}"] [data-view-group="${groupName}"][data-view-name-not~="${state}"]`)
-          elContainer.innerHTML += `${childViewSelectorsInverse.join(',')} { display: none; }`;
+          elContainer.textContent += `${childViewSelectorsInverse.join(',')} { display: none; }`;
         }
         
-        document.body.append(elContainer);
       }
       
+      document.head.append(elContainer);
       
     }
     
     return SELF;
     
-  })();
+})();

@@ -1,8 +1,12 @@
 let viewStatesMap = [
   {
-    group: '',
-    states: [
-      '',
-    ],
+    group: 'feat',
+    states: [ 'quickSearch' ],
+  },
+  // features cloud
+  {
+    group: 'features-cloud',
+    states: ['authorized'],
+    inverseStates: ['authorized']
   },
 ];

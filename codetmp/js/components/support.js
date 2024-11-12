@@ -11,13 +11,13 @@ const support = (function() {
 
 	function checkFirebase() {
 		let scope = 'https://www.googleapis.com/auth/firebase'
-	  let hasScopeFirebase = gapi.auth2.getAuthInstance().currentUser.get().hasGrantedScopes(scope);
+	  let hasScopeFirebase = compoGsi.HasGrantScope(scope);
 	  if (hasScopeFirebase) {
-	  	auth2.addScope(scope);
-		  compoFirebaseHosting.init();
+	  	// compoGsi.AddScope(scope);
+		compoFirebaseHosting.init();
 	    displayFeature('firebase');
 	  } else {
-	  	auth2.removeScope(scope);
+	  	// compoGsi.RemoveScope(scope);
 	    $('#project-list').innerHTML = '';
       	$('#site-list').innerHTML = '';
 	  	hideFeature('firebase');

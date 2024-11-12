@@ -20,6 +20,21 @@
   </div>
 </div>
 
+<template id="tmp-quick-search" data-export>
+  <div data-view-group="feat" data-view-name="quickSearch">
+    <div class="w-100 wg-QuickSearch" style="position:fixed;z-index:8177;top:0;height:0;padding-top:3rem">
+      <div style="max-width:400px;margin:auto;">
+        <div class="pos-relative">
+          <div class="d-grid relative align-items-center" style="z-index:1;grid-template-columns:1fr auto;">
+            <input class="_searchInput w-100" autocomplete='off' data-lazy-onkeydown="cmd-select-command" data-lazy-oninput="cmd-search-command" placeholder="Search file tree" type="text"/>
+          </div>
+        </div>
+        <div class="_searchResult pos-relative" style="z-index:1;top:-2px;"></div>
+      </div>
+    </div>
+  </div>
+</template>
+
 <div id="update-notif" class="Export w-100" style="position:fixed;bottom:0;left:0;background:#0b0b0e;color:#ccc;z-index:8177;font-weight:bold">
   <div class="w3-right">
     <div id="btn-refresh" style="padding:16px;text-transform:uppercase;font-weight:bold;color:#d8d782;">Refresh</div>
@@ -284,6 +299,7 @@
 </modal-v2>
 
 <modal-v2 class="modal-component Export" data-name="account">
+  <!-- # account, # my account -->
   <div class="Modal bg8 col1" slot="content">
     <div class="Header no-select d-flex justify-content-between">
       <h5><b>My Account</b></h5>
@@ -291,10 +307,26 @@
     </div>
     <div class="Content">
       <section>
+
+        <!-- Backup and restore -->
+        <h3>Sync to Google Drive</h3>
+        <div>
+          <div class="d-flex flex-wrap" style="gap:0.25rem;">
+            <div data-view-group="features-cloud" data-view-name-not="authorized">
+              <!-- authorize -->
+              <button class="btn-style-1 btn btn-style-1" data-onclick="authorize">Authorize</button>
+            </div>
+          </div>
+          <span id="txt-backup-status"></span>
+          <span id="txt-restore-status"></span>
+        </div><div style="margin-bottom:0.5rem;"></div>
+
         <p class="w3-small unauthorized">(!) Your files are <b>currently stored locally</b> in browser storage. Sign in to synchronize with Google Drive across devices.</p>
         <div id="g-signin2" class="unauthorized"></div>
-        <div class="authorized">
+        <div data-view-group="features-cloud" data-view-name="authorized">
+          <!-- sign out, revoke token -->
           <button class="btn-style-1 clickable" style="width:auto" data-callback="sign-out">Sign out</button>
+          <button class="btn-style-1" style="width:auto" data-onclick="revoke-access">Revoke access</button>
         </div>
         <hr/>
         <p class="w3-small">By using <b>Codetmp</b>, you're considered agreed to terms and condition written on articles below :</p>

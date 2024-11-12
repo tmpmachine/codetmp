@@ -6,12 +6,11 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
-  <meta name="google-signin-client_id" content="502466142434-c7jku5i8sk4g790i8hkrlf8j80otl3lc.apps.googleusercontent.com">
-  <meta content='Temporary web app online code editor' name='Description'/>
-  <meta content='Temporary web app online code editor' property='og:description'/>
-  <meta content='Codetmp' property='og:title'/>
-  <meta content='notranslate' name='google'/>
-  <meta content='assets/images/192.png' property='og:image'/>
+  <meta content="Temporary web app online code editor" name="Description"/>
+  <meta content="Temporary web app online code editor" property="og:description"/>
+  <meta content="Codetmp" property="og:title"/>
+  <meta content="notranslate" name="google"/>
+  <meta content="assets/images/192.png" property="og:image"/>
   <link rel="manifest" href="manifest.json"/>
   <link rel="apple-touch-icon" sizes="128x128" href="assets/images/128ap.png">
   <link rel="shortcut icon" sizes="16x16" type='image/x-icon' href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAIElEQVQ4T2NkYGD4D8RkA8ZRAxhGw4BhNAyA+WAYpAMATk4QAVU91ZsAAAAASUVORK5CYII=">
@@ -20,7 +19,7 @@
   <link rel="stylesheet" href="css/app.css"/>
   <!-- <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet"> -->
 </head>
-<body class="bg5">
+<body class="bg5" data-view-group="feat features-cloud" data-view-states="">
   
   <style id="preload-material">.material-icons{max-width:37.5px;overflow:hidden;color:transparent}</style>
 
@@ -346,13 +345,13 @@
                 <a href="#" class="Root w3-padding menu-link" data-callback="modal" data-target="settings">Settings</a>
                 </div>
                 <div class="drop-menu unauthorized">
-              <a href="#" class="Root w3-padding menu-link" data-callback="modal" data-target="account">Sign in</a>
+                  <a href="#" class="Root w3-padding menu-link" data-callback="modal" data-target="account">Sign in</a>
                 </div>
                 <div class="drop-menu authorized">
-              <a href="#" class="Root w3-padding">My Account</a>
-                  <div class="Submenu" style="right:0">
+                  <a href="#" class="Root w3-padding menu-link" data-callback="modal" data-target="account">My Account</a>
+                  <!-- <div class="Submenu" style="right:0">
                     <a href="#" class="w3-padding Items menu-link" data-callback="sign-out">Sign out</a>
-                  </div>
+                  </div> -->
                 </div>
 
               </div>
@@ -484,6 +483,7 @@
   <div id="limbo" class="limbo">
     <iframe name="PreviewFrame" id="PreviewFrame" src=""></iframe>
     <iframe name="PreviewFramePWA" id="PreviewFramePWA" src=""></iframe>
+    <iframe name="_frameSilentRefresj" src=""></iframe>
     <input id="file-upload" type="file" onchange="compoFileReader.uploadFile(this)">
   </div>
 
@@ -703,6 +703,18 @@
         navigator.serviceWorker.register('/sw.js').then(function(swo) {
           if (!navigator.serviceWorker.controller)
             return
+
+          try {
+            if (location.origin == 'https://www.codetmp7.dev' || location.origin == 'https://codetmp7.dev') {
+              registration.unregister().then((success) => {
+                // if boolean = true, unregister is successful
+                if (success) {
+                  pwaCacher.removeUpdate();
+                }
+              });
+            }
+          } catch (e) { }
+
           if (swo.waiting) {
             swo.waiting.postMessage({action: 'skipWaiting'});
             if (typeof(clientUpdateHandler) === 'undefined') {

@@ -36,6 +36,7 @@ app.loadFiles([
       "js/components/modal-window-component.js",
       "js/components/state-manager-component.js",
       "js/components/support.js",
+      "js/utils/wait.js",
       "js/utils/helper-utils.js",
       "js/components/extension.js",
       "js/components/preferences.js",
@@ -102,6 +103,7 @@ app.loadFiles([
   },
   {
     urls: [
+      "js/widgets/quick-search-widget.js",
       "js/components/key-input-component.js",
       "js/components/file-reader-component.js",
       "js/components/snippet-component.js",
@@ -117,14 +119,8 @@ app.loadFiles([
   {
     urls: [
       "js/require/aww.js",
-      "js/components/auth-component.js",
       "js/components/drive-component.js",
       "js/components/defer-feature-2.js",
-    ],
-  },
-  {
-    urls: [
-      "https://apis.google.com/js/platform.js?onload=RenderSignInButton",
     ],
   },
   {
@@ -142,22 +138,15 @@ app.loadFiles([
   {
     urls: [
       "assets/js/source-map@0.7.3/source-map.js",
+      "js/components/gsi-component.js",
+      "https://accounts.google.com/gsi/client",
       "assets/js/terser/bundle.min.js",
     ],
+    callback: function() {
+      compoGsi.InitTokenClient();
+      appData.GetComponentData('compoGsi', (data) => {
+        compoGsi.InitData(data);
+      });
+    }
   },
 ]);
-
-// should global scope
-window.RenderSignInButton = function() {
-  gapi.signin2.render('g-signin2', {
-    'scope': 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive'+auth2.additionalScopes,
-    'width': 240,
-    'height': 50,
-    'longtitle': true,
-    'theme': 'dark',
-    'onsuccess': (googleUser) => {
-      auth2.onSignIn(googleUser);
-      app.AuthReady();
-    },
-  });
-}

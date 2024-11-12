@@ -856,3 +856,6 @@ i.Btn-close.material-icons.w3-button.w3-hover-none:hover {
 .modal-component .close-btn:focus {
   outline-color: #e91e63;
 }
+
+/* view utils : views initial state */
+[data-view-name] { display: none; }

@@ -39,20 +39,20 @@ let compoEditor = (function() {
         let editor = fileTab[activeTab].editor.env.editor;
         let themeMd =  false;
     
-        if (fileName.endsWith('.txt'))
-        editor.session.setMode();
-        else if (fileName.endsWith('.css'))
-        editor.session.setMode("ace/mode/css");
-        else if (fileName.endsWith('.js'))
-        editor.session.setMode("ace/mode/javascript");
-        else if (fileName.endsWith('.md')) {
-        editor.session.setMode("ace/mode/markdown");
-        themeMd =  true;
+        if (fileName.endsWith('.txt')) {
+          editor.session.setMode();
+        } else if (fileName.endsWith('.css')) {
+          editor.session.setMode("ace/mode/css");
+        }  else if (fileName.endsWith('.js')) {
+          editor.session.setMode("ace/mode/javascript"); 
+        } else if (fileName.endsWith('.md')) {
+          editor.session.setMode("ace/mode/markdown");
+          themeMd =  true;
+        } else if (fileName.endsWith('.json')) {
+          editor.session.setMode("ace/mode/json");
+        } else {
+          editor.session.setMode("ace/mode/html");
         }
-        else if (fileName.endsWith('.json'))
-        editor.session.setMode("ace/mode/json");
-        else
-        editor.session.setMode("ace/mode/html");
     
         if (themeMd) {
             editor.setTheme('ace/theme/codetmp-markdown');
@@ -89,118 +89,8 @@ let compoEditor = (function() {
         editor.focus();
         editor.moveCursorTo(0,0);
         
-        
-        editor.commands.addCommand({
-          bindKey: {win:"Ctrl-Shift-P"},
-          exec: function() {
-            ui.toggleTemplate();
-          }
-        });
-        editor.commands.addCommand({
-            name: "movelinesup",
-            bindKey: {win:"Ctrl-Shift-Up"},
-            exec: function(editor) {
-            editor.moveLinesUp();
-            }
-        });
-        editor.commands.addCommand({
-            name: "movelinesdown",
-            bindKey: {win:"Ctrl-Shift-Down"},
-            exec: function(editor) {
-            editor.moveLinesDown();
-            }
-        });
-        editor.commands.addCommand({
-            name: "select-or-more-after",
-            bindKey: {win:"Ctrl-D"},
-            exec: function(editor) {
-            if (editor.selection.isEmpty()) {
-                editor.selection.selectWord();
-            } else {
-                editor.execCommand("selectMoreAfter");
-            }
-            }
-        });
-        editor.commands.addCommand({
-            name: "removeline",
-            bindKey: {win: "Ctrl-Shift-K"},
-            exec: function(editor) {
-            editor.removeLines();
-            }
-        });
-        
-        editor.commands.addCommand({
-            name: "custom-copy",
-            bindKey: {win: "Ctrl-C"},
-            exec: function(editor) {
-            let selection = editor.getSelectionRange();
-            if (selection.start.row == selection.end.row && selection.start.column == selection.end.column) {
-                let row = selection.start.row
-                let col = selection.start.column
-                editor.selection.setSelectionRange({start:{row,column:0},end:{row:row+1,column:0}})
-                document.execCommand('copy');
-                editor.clearSelection();
-                editor.moveCursorTo(row, col);
-                editorManager.isPasteRow = true;
-            } else {
-                document.execCommand('copy');
-                editorManager.isPasteRow = false;
-            }
-            }
-        });
-        
-        editor.commands.addCommand({
-            name: "custom-cut",
-            bindKey: {win: "Ctrl-X"},
-            exec: function(editor) {
-            let selection = editor.getSelectionRange();
-            if (selection.start.row == selection.end.row && selection.start.column == selection.end.column) {
-                let row = selection.start.row
-                editor.selection.setSelectionRange({start:{row,column:0},end:{row:row+1,column:0}})
-                document.execCommand('cut');
-                editorManager.isPasteRow = true;
-            } else {
-                document.execCommand('cut');
-                editorManager.isPasteRow = false;
-            }
-            }
-        });
-        
-        editor.commands.addCommand({
-            name: "decrease-font-size",
-            bindKey: {win: "Ctrl--"},
-            exec: function(editor) {
-            event.preventDefault();
-            editorManager.changeFontIndex(-1);
-            }
-        });
-        editor.commands.addCommand({
-            name: "increase-font-size",
-            bindKey: {win: "Ctrl-="},
-            exec: function(editor) {
-            event.preventDefault();
-            editorManager.changeFontIndex(+1);
-            }
-        });
-        editor.commands.addCommand({
-            name: "reset-font-size",
-            bindKey: {win: "Ctrl-0"},
-            exec: function(editor) {
-            event.preventDefault();
-            editorManager.changeFontIndex(0);
-            }
-        });
-        editor.commands.addCommand({
-            name: "gotoline",
-            bindKey: {win: "Ctrl-G"},
-            exec: function(editor, line) {
-            if (typeof line === "number" && !isNaN(line))
-                editor.gotoLine(line);
-            editor.prompt({ $type: "gotoLine" });
-            },
-        });
-        
-        initEditorSmartBookmark(editor);
+        addCommonCommands(editor);        
+        addBookmarkCommands(editor);
         
         let undoMgr = new ace.UndoManager();
         editor.setValue(content)
@@ -260,7 +150,7 @@ let compoEditor = (function() {
         get firstVisibleRow() { return fileTab[activeTab].editor.env.editor.getFirstVisibleRow() },
     };
 
-    function initEditorSmartBookmark(editor) {
+    function addBookmarkCommands(editor) {
     
         editor.commands.addCommand({
           name: "custom-bookmark",
@@ -364,6 +254,123 @@ let compoEditor = (function() {
             }
           }
         });
+    }
+
+    function addCommonCommands(editor) {
+
+      editor.commands.addCommand({
+        bindKey: {win:"Ctrl-Shift-P"},
+        exec: function() {
+          ui.toggleTemplate();
+        }
+      });
+      editor.commands.addCommand({
+        bindKey: {win:"Ctrl-Shift-Q"},
+        exec: function() {
+          wgQuickSearch.ToggleCommandPalette();
+        }
+      });
+      editor.commands.addCommand({
+          name: "movelinesup",
+          bindKey: {win:"Ctrl-Shift-Up"},
+          exec: function(editor) {
+          editor.moveLinesUp();
+          }
+      });
+      editor.commands.addCommand({
+          name: "movelinesdown",
+          bindKey: {win:"Ctrl-Shift-Down"},
+          exec: function(editor) {
+          editor.moveLinesDown();
+          }
+      });
+      editor.commands.addCommand({
+          name: "select-or-more-after",
+          bindKey: {win:"Ctrl-D"},
+          exec: function(editor) {
+            if (editor.selection.isEmpty()) {
+                editor.selection.selectWord();
+            } else {
+                editor.execCommand("selectMoreAfter");
+            }
+          }
+      });
+      editor.commands.addCommand({
+          name: "removeline",
+          bindKey: {win: "Ctrl-Shift-K"},
+          exec: function(editor) {
+          editor.removeLines();
+          }
+      });
+      editor.commands.addCommand({
+          name: "custom-copy",
+          bindKey: {win: "Ctrl-C"},
+          exec: function(editor) {
+            let selection = editor.getSelectionRange();
+            if (selection.start.row == selection.end.row && selection.start.column == selection.end.column) {
+                let row = selection.start.row
+                let col = selection.start.column
+                editor.selection.setSelectionRange({start:{row,column:0},end:{row:row+1,column:0}})
+                document.execCommand('copy');
+                editor.clearSelection();
+                editor.moveCursorTo(row, col);
+                editorManager.isPasteRow = true;
+            } else {
+                document.execCommand('copy');
+                editorManager.isPasteRow = false;
+            }
+          }
+      });
+      editor.commands.addCommand({
+        name: "custom-cut",
+        bindKey: {win: "Ctrl-X"},
+        exec: function(editor) {
+          let selection = editor.getSelectionRange();
+          if (selection.start.row == selection.end.row && selection.start.column == selection.end.column) {
+              let row = selection.start.row
+              editor.selection.setSelectionRange({start:{row,column:0},end:{row:row+1,column:0}})
+              document.execCommand('cut');
+              editorManager.isPasteRow = true;
+          } else {
+              document.execCommand('cut');
+              editorManager.isPasteRow = false;
+          }
+        }
+      });
+      editor.commands.addCommand({
+          name: "decrease-font-size",
+          bindKey: {win: "Ctrl--"},
+          exec: function(editor) {
+          event.preventDefault();
+          editorManager.changeFontIndex(-1);
+          }
+      });
+      editor.commands.addCommand({
+          name: "increase-font-size",
+          bindKey: {win: "Ctrl-="},
+          exec: function(editor) {
+          event.preventDefault();
+          editorManager.changeFontIndex(+1);
+          }
+      });
+      editor.commands.addCommand({
+          name: "reset-font-size",
+          bindKey: {win: "Ctrl-0"},
+          exec: function(editor) {
+          event.preventDefault();
+          editorManager.changeFontIndex(0);
+          }
+      });
+      editor.commands.addCommand({
+          name: "gotoline",
+          bindKey: {win: "Ctrl-G"},
+          exec: function(editor, line) {
+          if (typeof line === "number" && !isNaN(line))
+              editor.gotoLine(line);
+          editor.prompt({ $type: "gotoLine" });
+          },
+      });
+
     }
 
     return SELF;

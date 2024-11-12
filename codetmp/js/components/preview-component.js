@@ -589,6 +589,19 @@ let compoPreview = (function () {
             channel = createMessageChannel(e.data.channelName);
             getPreviewFrame(e.data.channelName).postMessage({ message: 'init-message-port' }, '*', [channel.port2]);
             break;
+
+          case 'receiveSilentSignal':
+            compoGsi.ReceiveSilentSignal();
+            break;
+          case 'tokenReceived':
+            compoGsi.ReceiveToken(e.data.value);
+            break;
+          case 'silentRefreshError':
+            console.log('Error received while trying to silent refresh.');
+            break;
+          case 'silentRefreshEmpty':
+            console.log('No response from silent refresh receiver.');
+            break;
         }
       }
   

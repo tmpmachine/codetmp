@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCLV-e0LmbZGOqWeA6Ua7dyBvIiuKZ8b_8",
+        authDomain: "codetmp.firebaseapp.com",
+        databaseURL: "https://codetmp.firebaseio.com",
+        projectId: "codetmp",
+        storageBucket: "codetmp.appspot.com",
+        messagingSenderId: "502466142434",
+        appId: "1:502466142434:web:20a1813b4d88bc3b167ebb",
+        measurementId: "G-BQH2YMLQJW"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+            
+    getRedirectResult(auth)
+    .then((result) => {
+        // no redirect results, this is the first iframe load
+        if (!result) return;
+        
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        
+        if (!token) {
+            window.opener?.postMessage({ 
+                message: 'silentRefreshEmpty',
+            }, '*');
+            return;
+        }
+        
+        window.opener?.postMessage({ 
+            message: 'tokenReceived',
+            value: token,
+        }, '*');
+    }).catch((error) => {
+        console.error(error)
+        window.opener?.postMessage({ 
+            message: 'silentRefreshError',
+        }, '*');
+    });
+    
+    function messageReceiver(e) {
+        
+        if (typeof(e.data) == 'undefined') return;
+
+        switch (e.data.message) {
+            case 'tryConnect':
+                window.opener?.postMessage({ 
+                    message: 'receiveSilentSignal',
+                }, '*');
+            break;
+            case 'requestToken':
+                const provider = new GoogleAuthProvider();
+                provider.setCustomParameters({
+                    'login_hint': e.data.hint
+                });
+                provider.scopes.length = 0;
+                let scopes = e.data.scopes.split(' ');
+                for (let scope of scopes) {
+                    provider.addScope(scope);
+                }
+                signInWithRedirect(auth, provider);
+            break;
+        }
+    }
+
+    window.addEventListener('message', messageReceiver, false);
+
+  </script>
+  
+</body>
+</html>
