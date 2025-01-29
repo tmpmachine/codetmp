@@ -92,10 +92,13 @@ loadScripts([
   {
     urls: [
       "js/components/session-manager-component.js",
+      "js/application/events-map.js",
+      "js/infrastructure/libs/dom-events.js",
       "js/dom-events.js",
       "js/components/file-tree-component.js",
     ],
     callback: function() {
+      DOMEvents.Listen(eventsMap)
       ui.Init();
     },
   },

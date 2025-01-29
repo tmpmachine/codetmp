@@ -1,4 +1,4 @@
-let DOMEvents = (function() {
+let DOMEventsLegacy = (function() {
 
 	let $$ = document.querySelectorAll.bind(document);
 	
@@ -19,67 +19,13 @@ let DOMEvents = (function() {
 				data-callback-attribute: callbackFunction
 			}
 		*/
-		onclick: {
-      		'authorize': () => compoGsi.RequestToken(),
-			'revoke-access': () => ui.RevokeAccess(),
-			'handle-sidebar-btn-click': (evt) => ui.HandleSidebarBtnClick(evt.target), 
-			'btn-menu-preview': () => compoPreview.previewPath(),
-			'create-session': () => ui.CreateSession(),
-			'handle-file-list-click': (evt) => uiFileExplorer.HandleClickList(evt.target),
-		},
 		contextmenu: {
 			'handle-ctxmenu-file-tab': (evt) => uiFileTab.HandleContextMenu(evt),
 		},
 		mousedown: {
 			'handle-click-file-tab': (evt) => uiFileTab.HandleClick(evt),
 		},
-		clickable: {
-			'upload-file': ui.uploadFile,
-			'file-rename': () => uiFileExplorer.RenameFile(),
-			'file-delete': uiFileExplorer.deleteSelected,
-			'file-unload': (evt) => uiFileExplorer.UnloadSelected(evt.target),
-			'file-download': ui.toggleFileDownload,
-			'copy': () => compoClipboard.copy(),
-			'move': () => compoClipboard.cut(),
-			'paste': () => compoClipboard.paste(),
-
-			'sync-from-drive': () => compoDrive.syncFromDrive(),
-
-			'clear-data': ui.confirmClearData,
-			'set-git-token': ui.setGitToken,
-			'clone-repo': ui.cloneRepo,
-			'toggle-homepage': () => ui.ToggleHomepage(),
-			'toggle-settings': () => ui.ToggleModal('settings'),
-			'toggle-account': () => ui.ToggleModal('account'),
-			'new-folder': uiFileExplorer.newFolder,
-			'new-file': uiFileExplorer.newFile,
-			'sign-out': () => app.SignOut(),
-			'grant-firebase-access': () => compoGsi.Grant('https://www.googleapis.com/auth/firebase'),
-
-			'change-workspace': (evt) => ui.changeWorkspace(evt.target.closest('[data-kind="item"]')),
-			'change-file-list-view': ui.changeFileListView,
-
-			'btn-menu-template': function () { ui.toggleInsertSnippet(); },
-			'btn-menu-save': fileManager.save,
-			'btn-undo': () => { fileTab[activeTab].editor.env.editor.undo(); fileTab[activeTab].editor.env.editor.focus(); },
-			'btn-redo': () => { fileTab[activeTab].editor.env.editor.redo(); fileTab[activeTab].editor.env.editor.focus(); },
-			'more-tab': function () { ui.switchTab(1); },
-
-			'expand-tree-explorer': function () {
-				settings.data.explorer.tree = true;
-				settings.save();
-				document.body.classList.toggle('--tree-explorer', true);
-			},
-			'collapse-tree-explorer': function () {
-				settings.data.explorer.tree = false;
-				settings.save();
-				document.body.classList.toggle('--tree-explorer', false);
-			},
-			'reload-file-tree': ui.reloadFileTree,
-			'generate-single-file': ui.fileGenerator.generate,
-			'copy-generated-file': ui.fileGenerator.copy,
-			'create-workspace': uiTreeExplorer.CreateWorkspace,
-		},
+		
 
 		submittable: {
 			'confirm-download': ui.fileDownload,
@@ -222,10 +168,8 @@ let DOMEvents = (function() {
 
 	function Init() {
 		attachSubmitable('.submittable', eventsMap.submittable);
-		attachClickable('.clickable', eventsMap.clickable);
 		attachInputable('.inputable', eventsMap.inputable);
 
-		listening('[data-onclick]', 'onclick', 'click', eventsMap.onclick);
 		listening('[data-onkeydown]', 'onkeydown', 'keydown', eventsMap.onkeydown);
 		listening('[data-oninput]', 'oninput', 'input', eventsMap.oninput);
 		listening('[data-mousedown]', 'mousedown', 'mousedown', eventsMap.mousedown);

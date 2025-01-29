@@ -18,7 +18,7 @@ const compoKeyInput = (function() {
     keyboard.isBlocked = function() {
       return compoStateManager.isState(1);
     }
-    keyboard.listen(DOMEvents.eventsMap.keyboardShortcuts);
+    keyboard.listen(DOMEventsLegacy.eventsMap.keyboardShortcuts);
   }
 
   function keyEscape() {

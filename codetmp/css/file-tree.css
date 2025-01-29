@@ -122,7 +122,7 @@
 
 
 
-.tree-explorer-btn-collapse[data-callback="collapse-tree-explorer"] {
+.tree-explorer-btn-collapse[data-onclick="collapse-tree-explorer"] {
     border: 0;
     cursor: pointer;
     text-align: right;
@@ -130,7 +130,7 @@
     width: 100%
 }
 
-.tree-explorer-btn-collapse[data-callback="reload-file-tree"] {
+.tree-explorer-btn-collapse[data-onclick="reload-file-tree"] {
     border: 0;
     cursor: pointer;
     color: white;

@@ -652,7 +652,7 @@ let ui = (function() {
       modal.querySelector('.Btn-close').addEventListener('click', ui.ToggleModalByClick);
     }
     
-    DOMEvents.Init();
+    DOMEventsLegacy.Init();
 
   }
 

@@ -50,7 +50,7 @@
       let isSupported = checkBrowserSupport(key);
       if (isSupported) {
         menu.classList.toggle('hide', false);
-        menu.addEventListener('click', DOMEvents.eventsMap.clickableMenu[key]);
+        menu.addEventListener('click', DOMEventsLegacy.eventsMap.clickableMenu[key]);
       }
     }
 
