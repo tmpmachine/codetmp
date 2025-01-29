@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/widgets.css"/>
   <link rel="stylesheet" href="css/app.css"/>
+  <link rel="stylesheet" href="css/file-tree.css"/>
   <!-- <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round" rel="stylesheet"> -->
 </head>
 <body class="bg5" data-view-group="feat features-cloud" data-view-states="">
@@ -564,6 +565,537 @@
     </div>
   </div>
 </template>
+
+
+<!-- # templates -->
+<!-- =========== -->
+
+<template id="tmp-notif" class="Export">
+  <div class="w3-padding Btn">
+    <span class="Timestamp"></span>
+    <div>
+      <div class="Title" style="font-weight:bold"></div>
+      <div class="Content"></div>
+    </div>
+  </div>
+</template>
+<template id="tmp-keyboard-shortcut" class="Export">
+  <small class="shortcuts w3-right"></small>
+</template>
+<template id="tmp-hints" class="Export">
+  <div class="w3-white">
+    <div class="Container" data-index="">
+      <div class="search-hints pos-relative">
+        <div class="Title w3-padding d-block"></div>
+      </div>
+    </div>
+  </div>
+</template>
+<template id="tmp-hints-last" class="Export">
+  <div class="w3-white ov-hidden" style="border-radius:0 0 4px 4px;">
+    <div class="Container" data-index="">
+      <div class="search-hints last pos-relative">
+        <div class="Title w3-padding d-block"></div>
+      </div>
+    </div>
+  </div>
+</template>
+<template id="tmp-breadcrumb" class="Export">
+  <div class="w3-padding w3-button breadcrumbs Button"></div>
+</template>
+<template id="tmp-file-list" class="Export">
+  <!-- # tmp-file-list -->
+  [ .pos-relative .file-list .bg2 .files .pointer .no-select .Clicker data-action="confirm-click" title="" data-type="file" data-fid="" data="" data-kind="itemFile"
+    <div class="text-center Area" style="padding:32px 0">
+      [i 'insert_drive_file' class="material-icons Preview-icon" style="font-size:36px"]
+    </div>
+    <div class="inner">
+      <i class="material-icons icons w3-medium w3-left Icon" style="padding:2px 0">insert_drive_file</i>
+      <div class="w3-rest w3-small w3-padding pos-relative" style="font-weight:bold;">
+        <div class="h-100 d-grid w-100 pos-absolute" style="top: 0;left: 0;">
+          <div style="align-items: center;" class="h-100 Name d-flex"></div>
+        </div>
+      </div>
+    </div>
+  ]
+</template>
+<template id="tmp-folder-list" class="Export">
+  <!-- # tmp-folder-list -->
+  [ .folder-list .bg2 .folders .pointer .no-select .Clicker .inner data-action="confirm-click" title="" data-type="folder" data="" data-kind="itemFile"
+    <i class="icons material-icons w3-medium w3-left" style="padding:2px 0">folder</i>
+    <small class="relative ov-hidden" style="font-weight:bold">
+      <div class="h-100 d-grid pos-absolute">
+        <div style="align-items: center" class="h-100 Name d-flex"></div>
+      </div>
+    </small>
+  ]
+</template>
+<template id="tmp-list-file-trash" class="Export">
+  <div class="file-list files pointer no-select bg7 hover-bg3-light pos-relative" style="margin:0.1em;padding:0;">
+    <div class="text-center w3-padding-32">
+      <i class="material-icons w3-xxlarge" style="color:#777;">insert_drive_file</i>
+    </div>
+    <div class="bg2 w3-padding">
+      <div class="w3-col" style="width:24px;">
+        <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__iconColor__!important;">insert_drive_file</i>
+      </div>
+      <div class="w3-rest w3-small w3-padding pos-relative" style="font-weight:bold;">
+        <div style="top:0;left:0" class="h-100 w-100 pos-absolute">
+          __name__
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<template id="tmp-list-folder-trash" class="Export">
+  <div class="folder-list w3-left pointer no-select folders bg2 hover-bg3-light" style="margin:0.1em;padding:0;">
+    <div class="d-grid" style="padding:8px 16px;grid-template-columns:auto 1fr;">
+      <div style="width:24px;">
+        <i class="material-icons w3-medium w3-left" style="padding:2px 0;color:__iconColor__!important;">folder</i>
+      </div>
+      <small class="relative ov-hidden" style="font-weight:bold;">
+        <div style="top:0;left:0;" class="h-100 w-100 pos-absolute">
+          __name__
+        </div>
+      </small>
+    </div>
+  </div>
+</template>
+
+<template id="tmp-file-tab" class="Export">
+  <!-- # tmp-file-tab -->
+  [ .w3-left .file-tab .relative data-kind="itemFileTab" data-title="" data-parent-id=""
+    [ .Indicator]
+    [ 
+      <div class="w3-right" style="padding:6px 10px;">
+        [i .file-closer .material-icons .w3-right .w3-button .w3-hover-none .w3-hover-text-light-grey .w3-medium .w3-text-gray .icon-rename data-action="close" {padding:4px 0 4px 9px;}]
+      </div>
+      <div class="w3-rest pos-relative" style="padding:18px 24px;line-height:1.5em;">
+        [ .file-tab-name .no-select .w3-small .file-name .w3-left .w-100 .absolute]
+      </div>
+    ]
+  ]
+</template>
+
+<template id="msg-git-rate-limit" class="Export">
+  <div>Rate limit remaining : <b><span class="Rate">54</span></b>. <a href="https://github.com/tmpmachine/codetmp/wiki/GitHub-Rate-Limit" target="_blank">(What is this? <span class="material-icons" style="font-size:14px">open_in_new</span>)</a></div>
+</template>
+<template id="msg-drop-zone-no-edit" class="Export">
+  <div>
+    <i class="material-icons">upload</i><br>
+    <p>Drop to open files on editor.</p>
+  </div>
+</template>
+<template id="msg-drop-zone" class="Export">
+  <div>
+    <i class="material-icons">upload</i><br>
+    <!-- <p class="Helpnote">Hold <b>Ctrl</b> key to enable local editing of dropped files.</p> -->
+    <!-- <p class="Helpnote w3-hide">(Feature disabled, window not focused)</p> -->
+    <p class="Helpnote">Drop your files here</p>
+  </div>
+</template>
+<template id="msg-drop-edit-mode" class="Export">
+  <div>
+    <i class="material-icons">edit</i><br>
+    <p>Drop your files here.</p>
+  </div>
+</template>
+<template data-name="tree-node" class="Export">
+  <ul class="file-tree-list file-tree d-none" data-fid="-1">
+    <li class="folder-root open">
+      <span class="folder-name root" data-fid="">Root</span>
+      <ul class="isLoaded"></ul>
+    </li>
+  </ul>
+</template>
+
+<div class="w-100 search-box w3-hide Export" style="position:fixed;z-index:8177;top:0;height:0;padding-top:3rem">
+  [ {Mw:400px;m:auto;}
+    <div class="pos-relative">
+      <div class="search-box relative">
+        <div class="w3-round w3-white d-grid relative" style="z-index:1;grid-template-columns:1fr auto;align-items:center">
+          <div class="button-tb ov-hidden">
+            <input id="search-input" class="w3-round w3-white w3-padding w-100" autocomplete='off' data-onkeydown="cmd-select-command" data-oninput="cmd-search-command" placeholder='Search snippets' type='text' name='q' style="border:0;padding:16px"/>
+          </div>
+          <div>
+            <label for="search-input">
+              <i id="btn-search" class="material-icons ai-button" onclick="resetSearch(this)">search</i>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="search-result" class="pos-relative" style="z-index:1;top:-2px;"></div>
+  ]
+</div>
+
+<template id="tmp-quick-search" data-export>
+  [ data-view-group="feat" data-view-name="quickSearch"
+    [ .w-100 .wg-QuickSearch style="position:fixed;z-index:8177;top:0;height:0;padding-top:3rem"
+      [ {Mw:400px;m:auto;}
+        [ .pos-relative
+          [ .d-grid .relative {z:1;cols:1fr auto;} .align-items-center
+            [in ._searchInput .w-100 autocomplete='off' data-lazy-onkeydown="cmd-select-command" data-lazy-oninput="cmd-search-command" placeholder="Search file tree" type="text"]
+          ]
+        ]
+        [ ._searchResult .pos-relative {z:1;top:-2px}]
+      ]
+    ]
+  ]
+</template>
+
+<div id="update-notif" class="Export w-100" style="position:fixed;bottom:0;left:0;background:#0b0b0e;color:#ccc;z-index:8177;font-weight:bold">
+  <div class="w3-right">
+    <div id="btn-refresh" style="padding:16px;text-transform:uppercase;font-weight:bold;color:#d8d782;">Refresh</div>
+    <div id="btn-dismiss" style="padding:16px;text-transform:uppercase;font-weight:bold;">Dismiss</div>
+  </div>
+  <div class="w3-rest">
+    [small 'New version available' style="padding:16px;"]
+  </div>
+</div>
+
+<modal-v2 class="modal-component Export" data-name="settings">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b class="title">Settings</b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      
+      <section>
+        <h6 style="font-weight:bold;">Preview</h6>
+        <p>
+          <label><input data-name="divlessHTMLEnabled" class="autofocus w3-check input-settings" type="checkbox"/> Convert Divless HTML format (.html files only)</label>
+        </p>
+        <p>
+          <label><input data-name="linkPreviewWindowProcess" class="autofocus w3-check input-settings" type="checkbox"/> Link preview window process (might freeze editor while in debug mode)</label>
+        </p>
+        [small 'JavaScript (Terser) : ']
+        [p
+          <label><input data-name="minifyJs" class="autofocus w3-check input-settings" type="checkbox"/> Minify</label>
+        ]
+      </section>
+      <hr/>
+      <section>
+        <h6 style="font-weight:bold;">File Manager</h6>
+        <p>
+          <label><input data-name="divlessHTMLFSEnabled" class="autofocus w3-check input-settings" type="checkbox"/> Convert Divless HTML format on file save (.html files only)</label>
+        </p>
+      </section>
+      <hr/>
+      <section>
+        <h6 style="font-weight:bold;">Editor</h6>
+        <p>
+          <label><input data-name="emmetEnabled" class="w3-check input-settings" type="checkbox"/> Emmet Support</label>
+        </p>
+        <p>
+          <label><input data-name="autoCompleteEnabled" class="w3-check input-settings" type="checkbox"/> Autocompletion</label>
+        </p>
+      </section>
+      <hr/>
+      <section>
+        <h6 class="w3-hide" style="font-weight:bold;">Google Drive Sync</h6>
+        <p>
+        <label><input id="check-auto-sync" class="w3-check" type="checkbox" oninput="ui.toggleAutoSync()" checked/> Automatically sync files and folders</label>          
+        </p>
+      </section>
+      <hr/>
+
+      <!-- work offline -->
+      <section>
+        <h6 style="font-weight:bold;">Updates & Offline Access</h6>
+        <button type="button" class="btn-style-1" style="width:auto" onclick="pwaCacher.update()">Check for updates</button>
+        <button type="button" class="btn-style-1" style="width:auto" onclick="pwaCacher.removeUpdate()">Remove App Cache</button>
+        [p '*) Removing app cache will disable offline access until you update the app manually by clicking on <b>Check for updates</b> button.']
+      </section>
+      <hr/>
+
+      <section>
+        <h6 style="font-weight:bold;">File Storage</h6>
+        <p>Delete locally saved files & folders (doesn't affect your files on Google Drive).</p>
+        <button class="btn-style-1 clickable toggler" style="width:auto" data-callback="clear-data">Clear data</button>
+      </section>
+      <hr/>
+      <section>
+        <h6 style="font-weight:bold;">GitHub Token</h6>
+        <p>Set personal access token to get higher rate limit. Valid until this application is closed.</p>
+        <p><label><input id="check-save-token" class="w3-check" type="checkbox" oninput="ui.toggleSaveToken()"/> Store token in browser storage</label></p>
+        <button class="btn-style-1 clickable" style="width:auto" data-callback="set-git-token">Set token</button>
+      </section>
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export" data-name="snippet-manager">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b class="title">Snippet Manager</b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      <section>
+        <p>
+          <i>This feature is still in development.</i>
+        </p>
+        <p>
+          You can manage custom snippets here.
+        </p>
+      </section>
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export" data-name="deploy-firebase">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b class="title">Deploy to Firebase Hosting</b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      <section>
+        <div class="unauthorized">You're not logged in. Sign in to use this feature.</div>
+
+        <div class="feature-disabled" data-feature="firebase">
+          Access to Firebase account is required.
+          <div style="height:1em"></div>
+          <button class="clickable btn-style-1 w-100" data-callback="grant-firebase-access">Grant Access</button>
+        </div>
+
+        <form class="authorized feature-enabled submittable preventDefault if-post" data-callback="deploy-hosting" data-feature="firebase">
+          
+          <p>Note : You are deploying current opened directory.</p>
+          <small>Manage your project at <a href="https://firebase.google.com/" target="_blank"><u>Firebase</u></a></small>
+
+          <div style="height:1em"></div>
+          <small>Select Project</small>
+          <select id="project-list" class="inputable" data-callback="select-project" name="projectId"></select>
+          <div style="height:1em"></div>
+          <div>
+            <small class="if-post">Select Site</small>
+          </div>
+          <select id="site-list" class="inputable" data-callback="select-site" name="siteId"></select>
+          <div style="height:1em"></div>
+          <div>
+            <small class="if-post">Cache-Control</small>
+          </div>
+          <input type="number" value="0" name="cacheControl"/> seconds
+
+          <!-- deploy options -->
+          <div>
+
+            [h4 'Deploy options' {fw:bold}]
+            
+            <!-- firebase js options -->
+            [small 'JavaScript (Terser) : ']
+            [p
+              [l
+                [in name="minifyJs" .autofocus .w3-check .input-settings type="checkbox"] 
+                Minify
+              ]
+            ]
+            [small 'CSS (Lighting CSS, transform target : Chrome 95) : ']
+            <mark class="w3-round" style="padding:0 2px 2px ;"><small>Beta</small></mark>
+            [p
+              [l
+                <input name="minifyCss" class="autofocus w3-check input-settings" type="checkbox"/> 
+                Minify
+              ]
+              [l
+                <input name="transformCss" class="autofocus w3-check input-settings" type="checkbox"/> 
+                Transform
+              ]
+            ]
+
+          </div>
+
+          <div style="height:1em"></div>
+          <button class="btn-style-1">Deploy</button>
+          <div style="height:1em"></div>
+          <div id="deploy-logs"></div>
+        </form>
+
+      </section> 
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export" data-name="file-download">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b class="title">File Download</b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      <section>
+        <h6 style="font-weight:bold;">Download options</h6>
+        <form class="submittable preventDefault" data-callback="confirm-download">
+          <p>
+            <label class="no-select"><input class="w3-check" name="replaceDivless" type="checkbox"/> Convert Divless-HTML tag</label>
+          </p>
+          <p class="no-select">
+          <!-- <p class="no-select _in-replaceFileTemplate"> -->
+            <label class="no-select"><input class="w3-check" name="replaceFileTag" type="checkbox"/> Replace &lt;file> template </label>
+          </p>
+          <p class="no-select">
+            <label class="no-select"><input class="w3-check" name="minifyJs" type="checkbox"/> Try to minify JavaScript files</label>
+          </p>
+          <div style="text-align:right;">
+            <button class="btn-style-1 autofocus" name="submit" style="width:auto">Download</button>
+          </div>
+        </form>
+      </section> 
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export" data-name="generate-single-file">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b>Generate Single File</b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      <section>
+        <h6 style="font-weight:bold;">File options</h6>
+
+        <form onsubmit="event.preventDefault()">
+        
+          [
+            [l class="no-select"
+              <input class="w3-check" name="replaceDivless" type="checkbox"/> Convert Divless HTML format
+            ]
+          ]
+          [ .void .void-half]
+          [small 'JavaScript (Terser) : ']
+          [p
+            <label><input name="minifyJs" class="autofocus w3-check input-settings" type="checkbox"/> Minify</label>
+          ]
+          [small 'CSS (Lighting CSS, transform target : Chrome 95) : ']
+          <mark class="w3-round" style="padding:0 2px 2px ;">
+            [small 'Beta']
+          </mark>
+          [p
+            [l
+              <input name="minifyCss" class="autofocus w3-check input-settings" type="checkbox"/> 
+              Minify
+            ]
+            [l
+              <input name="transformCss" class="autofocus w3-check input-settings" type="checkbox"/> 
+              Transform
+            ]
+            [l
+              <input name="wrapCdata" class="autofocus w3-check input-settings" type="checkbox"/> 
+              Wrap in CDATA tags
+            ]
+          ]
+
+          <div class="d-flex justify-content-end mt-1">
+            <button class="btn-style-1 clickable toggler autofocus" data-callback="copy-generated-file" name="submit" style="width:auto">
+              <i class="material-icons" style="color:white">content_paste</i> 
+              <span class="ml-1">Copy</span>
+            </button>
+            <button class="btn-style-1 ml-2 clickable toggler" data-callback="generate-single-file" name="submit" style="width:auto">
+              <i class="material-icons" style="color:white">download</i> 
+              <span class="ml-1">Download</span>
+            </button>
+          </div>
+
+        </form>
+
+      </section>
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export" data-name="account">
+  <!-- # account, # my account -->
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b>My Account</b></h5>
+      <button class="material-icons toggler close-btn autofocus">close</button>
+    </div>
+    <div class="Content">
+      <section>
+
+        <!-- Backup and restore -->
+        [h3 'Sync to Google Drive']
+        [
+          [ .d-flex .flex-wrap {gap:0.25rem}
+            [ data-view-group="features-cloud" data-view-name-not="authorized"
+              <!-- authorize -->
+              [btn 'Authorize' .btn-style-1 data-onclick="authorize" .btn .btn-style-1]
+            ]
+          ]
+          [s #txt-backup-status]
+          [s #txt-restore-status]
+        ][ {mb:0.5rem}]
+
+        <p class="w3-small unauthorized">(!) Your files are <b>currently stored locally</b> in browser storage. Sign in to synchronize with Google Drive across devices.</p>
+        <div id="g-signin2" class="unauthorized"></div>
+        <div data-view-group="features-cloud" data-view-name="authorized">
+          <!-- sign out, revoke token -->
+          <button class="btn-style-1 clickable" style="width:auto" data-callback="sign-out">Sign out</button>
+          <button class="btn-style-1" style="width:auto" data-onclick="revoke-access">Revoke access</button>
+        </div>
+        <hr/>
+        <p class="w3-small">By using <b>Codetmp</b>, you're considered agreed to terms and condition written on articles below :</p>
+        <ul>
+          <li>
+             <u><a target="_blank" href="pages/TOS.html" style="font-weight:bold;">Terms of Service</a></u>
+          </li>
+          <li>
+             <u><a href="pages/PP.html" target="_blank" style="font-weight:bold;">Privacy Policy</a></u>
+          </li>
+        </ul>
+        </section>
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export" data-name="prompt">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b class="title"></b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      <form data-type="prompt">
+        <section>
+          <input type="" name="" class="w3-input autofocus" spellcheck="false">
+          <small class="notes"></small>
+          [ .void .void-full]
+          <div class="text-right no-select">
+            <button class="Btn-submit btn-style-1" type="submit" name="submit" ><i class="material-icons">check</i>Ok</button>
+            <button type="button" class="toggler btn-style-2"><i class="material-icons">close</i>Cancel</button>
+          </div>
+        </section>
+      </form>
+      </div>
+    </div>
+  </div>
+</modal-v2>
+
+<modal-v2 class="modal-component Export" data-name="confirm">
+  <div class="Modal bg8 col1" slot="content">
+    <div class="Header no-select d-flex justify-content-between">
+      <h5><b class="title">Confirm</b></h5>
+      <button class="material-icons toggler close-btn">close</button>
+    </div>
+    <div class="Content">
+      <form data-type="confirm">
+        <section>
+        <p class="message"></p>
+        [ .void .void-full]
+        <div class="text-right no-select">
+          <button class="Btn-submit btn-style-1 autofocus" type="submit" name="submit" ><i class="material-icons">check</i>Ok</button>
+          <button type="button" class="toggler btn-cancel btn-style-2"><i class="material-icons">close</i>Cancel</button>
+        </div>
+        </section>
+      </form>
+      </div>
+    </div>
+  </div>
+</modal-v2>
 
 <script>
   (function() {

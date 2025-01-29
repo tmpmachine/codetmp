@@ -1,4 +1,5 @@
 import { GetEnv } from './environment.js';
+import { loadScripts } from './js/infrastructure/script-loader.js';
 
 let environment = GetEnv();
 let ACE_CDN_BASEPATH = '/assets/js/packages/ace-builds/src-min-noconflict';
@@ -9,11 +10,9 @@ window.environment = environment;
 window.activeWorkspace = activeWorkspace;
 window.ACE_CDN_BASEPATH = ACE_CDN_BASEPATH;
 
-app.loadFiles([
+loadScripts([
   {
     urls: [
-      'views/modals.html',
-      'views/templates.html',
       "assets/js/view-state-util.js",
       "js/view-states-map.js",
     ],
@@ -94,7 +93,6 @@ app.loadFiles([
     urls: [
       "js/components/session-manager-component.js",
       "js/dom-events.js",
-      "css/file-tree.css",
       "js/components/file-tree-component.js",
     ],
     callback: function() {
