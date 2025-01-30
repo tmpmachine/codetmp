@@ -78,41 +78,38 @@
 
     (function() {
       
-      window.addEventListener('message', messageReceiver, false);
+      addEventListener('message', messageReceiver, false);
       
       function messageReceiver(e) {
       	if (typeof(e.data) == 'undefined')
       		return;
 
-      	switch (e.data.message) {
-          case 'init-message-port':
-	          navigator.serviceWorker.controller.postMessage({ 
-              channelName,
-              message: 'init-message-port',
-            }, [e.ports[0]]);
+        switch (e.data.message) {
+          case 'response-file':
+            broadcastChannel.postMessage(e.data);
             break;
-            case 'reinit-message-port':
-            navigator.serviceWorker.controller.postMessage({ 
-              channelName,
-              message: 'reinit-message-port',
-            }, [e.ports[0]]);
-          break;
-      	}
+        }
       }
 
-      navigator.serviceWorker.addEventListener('message', event => {
-        if (typeof(event.data) == 'undefined')
-          return;
+      const broadcastChannelKey = 'NjMyNTA0MDc';
+      const broadcastChannel = new BroadcastChannel(broadcastChannelKey);
 
-        switch (event.data.message) {
-          case 'port-missing':
-            window.opener.postMessage({ 
-              channelName, 
-              message: 'port-missing', 
-            }, '*');
-          break;
+      broadcastChannel.onmessage = (e) => {
+
+        if (!e.data.message) return;
+
+        let channelName = 'preview'; // default
+
+        if (e.data.channelName) {
+          channelName = e.data.channelName;
         }
-      });
+
+        switch (e.data.message) {
+          case 'request-path':
+            window.opener.postMessage(e.data, '*');
+            break;
+        }
+      };
 
     })();
 

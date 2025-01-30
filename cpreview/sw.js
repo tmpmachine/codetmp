@@ -5,22 +5,13 @@ let resolverQueue = {};
 let uid = 0;
 let catchedBlob = {};
 let isRelinkingMessagePort = false;
-
 let channelName = 'preview';
+const broadcastChannelKey = 'NjMyNTA0MDc';
+const broadcastChannel = new BroadcastChannel(broadcastChannelKey);
 
-function portMessageHandler(e) {
+broadcastChannel.onmessage = (e) => {
   switch (e.data.message) {
     
-    case 'test-connection':
-      messagePort.postMessage({ message: 'resolve-test-connection' });
-    break;
-    case 'resolve-test-connection':
-      if (testConnectionResolver) {
-        testConnectionResolver();
-      }
-      testConnectionPromise = null;
-      clearTimeout(testConnectionRejectorTimeout);
-      break;
     case 'response-file':
       let response;
       if (e.data.content == '<404></404>') {
@@ -28,7 +19,8 @@ function portMessageHandler(e) {
       } else {
         response = new Response(e.data.content, {headers:{'Content-Type': e.data.mime}});
       }
-      resolverQueue['R'+e.data.resolverUID](response);
+      resolverQueue['R'+e.data.resolverUID]?.(response);
+      delete resolverQueue['R'+e.data.resolverUID];
     break;
     case 'response-file-multimedia':
       	let data = e.data.content;
@@ -44,20 +36,22 @@ function portMessageHandler(e) {
   
         if (catchedBlob[data.contentLink]) {
             let response = new Response(catchedBlob[data.contentLink]);
-            resolverQueue['R'+e.data.resolverUID](response);
+            resolverQueue['R'+e.data.resolverUID]?.(response);
+            delete resolverQueue['R'+e.data.resolverUID];
         } else {
         	fetch(request)
         	.then(r => r.blob())
           .then(blob => {
             catchedBlob[data.contentLink] = blob;
             let response = new Response(catchedBlob[data.contentLink]);
-            resolverQueue['R'+e.data.resolverUID](response);
+            resolverQueue['R'+e.data.resolverUID]?.(response);
+            delete resolverQueue['R'+e.data.resolverUID];
           })
         	.catch(resolverQueue['R'+e.data.resolverUID]);
         }
     break;
   }
-}
+};
 
 self.addEventListener('message', async function(e) {
   if (typeof(e.data) == 'undefined')
@@ -66,18 +60,6 @@ self.addEventListener('message', async function(e) {
   switch (e.data.message) {
     case 'skipWaiting':
       self.skipWaiting();
-    break;
-    case 'reinit-message-port':
-      channelName = e.data.channelName;
-      messagePort = e.ports[0];
-      messagePort.onmessage = portMessageHandler;
-      isRelinkingMessagePort = false;
-    break;
-    case 'init-message-port':
-      channelName = e.data.channelName;
-      messagePort = e.ports[0];
-      messagePort.onmessage = portMessageHandler;
-      messagePort.postMessage({ message: 'message-port-opened' });
     break;
   }
 });
@@ -107,111 +89,16 @@ self.addEventListener('activate', function(e) {
   ]));
 });
 
-let testConnectionResolver;
-let testConnectionPromise;
-let testConnectionRejectorTimeout;
-
-function testConnection() {
-
-  if (testConnectionPromise) {
-    return testConnectionPromise;
-  }
-  
-  clearTimeout(testConnectionRejectorTimeout);
-  testConnectionPromise = new Promise((resolve, reject) => {
-    testConnectionResolver = resolve;
-    messagePort.postMessage({
-      channelName, 
-      message: 'test-connection',
-    });
-    testConnectionRejectorTimeout = setTimeout(() => {
-      reject();
-      testConnectionPromise = null;
-    }, 120);
-  });
-
-  return testConnectionPromise;
-}
-
-
-function checkMessagePort() {
-  return new Promise((resolve, reject) => {
-    if (messagePort) {
-      testConnection().then(resolve).catch(() => {
-        relinkMissingPort().then(resolve).catch(reject);
-      });
-    } else {
-      relinkMissingPort().then(resolve).catch(reject);
-    }
-  });
-  
-}
-
-let relinkingPromise;
-
-function relinkMissingPort() {
-
-  if (relinkingPromise) {
-    return relinkingPromise;
-  }
-
-  relinkingPromise = new Promise((resolve, reject) => {
-
-    self.clients.matchAll({
-      includeUncontrolled: true,
-      type: 'window',
-    }).then((clients) => {
-      let hasClient = false;
-      if (clients && clients.length) {
-        for (let client of clients) {
-          if(client.url == location.origin+'/') {
-            hasClient = true;
-            isRelinkingMessagePort = true;
-            client.postMessage({ message: 'port-missing' });
-            let timeout = 3000;
-            let waiting = setInterval(() => {
-              timeout -= 10;
-              if (timeout === 0) {
-                isRelinkingMessagePort = false;
-                clearInterval(waiting);
-                reject();
-                relinkingPromise = null;
-              }
-              if (messagePort) {
-                isRelinkingMessagePort = false;
-                clearInterval(waiting);
-                resolve();
-                relinkingPromise = null;
-              }
-            }, 10)
-            break;
-          }
-        }
-      }
-      if (!hasClient) {
-        reject();
-        relinkingPromise = null;
-      }
-    }); 
-
-  });
-
-  return relinkingPromise;
-}
 
 function responseBySearch(e, resolve) {
-  checkMessagePort().then(() => {
-    resolverQueue['R'+uid] = resolve;
-    messagePort.postMessage({ 
-      channelName,
-      message: 'request-path',
-      path: e.request.url.replace(location.origin, ''),
-      resolverUID: uid,  
-    });
-    uid++;
-  }).catch(() => {
-    resolve(new Response('Failed to establish port connection. Try reopening the file from <a href="https://codetmp.web.app/">Codetmp</a>.', {headers: {'Content-Type': 'text/html;charset=UTF-8'} }))
+  resolverQueue['R'+uid] = resolve;
+  broadcastChannel.postMessage({ 
+    channelName,
+    message: 'request-path',
+    path: e.request.url.replace(location.origin, ''),
+    resolverUID: uid,  
   });
+  uid++;
 }
 
 function responseByFetch(e, resolve) {

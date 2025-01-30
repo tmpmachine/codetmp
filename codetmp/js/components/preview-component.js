@@ -44,83 +44,26 @@ let compoPreview = (function () {
   
     }
 
-    if (local.isPortOpened) {
-
-      testConnection(_targetPreviewDomain)
-      .then(async () => {
-        await delayWindowFocus();
-        if (frameName) {
-          window.open(url, frameName);
-        } else {
-          window.open(url, '_blank', 'noopener');
-        }
-      })
-      .catch(() => {
-        local.isPortOpened = false;
-        previewPath(requestPath, _targetPreviewDomain);
-      });
-
+    await delayWindowFocus();
+    if (frameName) {
+      window.open(url, frameName);
     } else {
-      
-      new Promise(resolve => {
-        local.resolvePort = resolve;
-      }).then(async () => {
-        local.isPortOpened = true;
-        local.resolvePort = null;
-        await delayWindowFocus();
-        if (frameName) {
-          window.open(url, frameName);
-        } else {
-          window.open(url, '_blank', 'noopener');
-        }
-      });
-      
-      let channel = createMessageChannel(_targetPreviewDomain);
-      getPreviewFrame().postMessage({ 
-        message: 'init-message-port', 
-        channelName: getMessageChannelName(), 
-      }, '*', [channel.port2]);
+      window.open(url, '_blank', 'noopener');
     }
 
   };
 
-  function createMessageChannel(channelName) {
-    if (channelName == 'preview') {
-      local.messageChannel1 = new MessageChannel();
-      local.messageChannel1.port1.onmessage = fileResponseHandler;
-      return local.messageChannel1;
-    } else if (channelName == 'pwa') {
-      local.messageChannel2 = new MessageChannel();
-      local.messageChannel2.port1.onmessage = fileResponseHandler;
-      return local.messageChannel2;
-    }
-  }
-  
-  let testConnectionResolver1, testConnectionResolver2;
-  async function testConnection(channelName) {
-    return new Promise((resolve, reject) => {
-      setTestConnectionResolver(channelName, resolve);
-      // testConnectionResolver = resolve;
-      getMessageChannel(channelName).port1.postMessage({
-        message: 'test-connection', 
-        channelName: getMessageChannelName(),
-      });
-      window.setTimeout(() => {
-        reject();
-      }, 120);
-    });
-  }
-
   async function responseAsMedia(event, path, mimeType, channelName) {
 
   	let file = (await getFileAtPath(path)).file;
+
     if (file === null || file === undefined) {
-      getMessageChannel(channelName).port1.postMessage({
+      getPreviewFrame(channelName).postMessage({
         message: 'response-file', 
         mime: '',
         content: '<404></404>',
         resolverUID: event.data.resolverUID,
-      });
+      }, '*');
     } else {
 
       if (helperUtils.hasFileReference(file.fileRef) && file.content === null) {
@@ -129,12 +72,12 @@ let compoPreview = (function () {
         if (file.fileRef.entry) {
           content = await file.fileRef.entry.getFile();
         }
-        getMessageChannel(channelName).port1.postMessage({
+        getPreviewFrame(channelName).postMessage({
           message: 'response-file', 
           mime: helperUtils.getMimeType(file.name),
           content: content,
           resolverUID: event.data.resolverUID,
-        });
+        }, '*');
 
       } else { 
 
@@ -156,12 +99,12 @@ let compoPreview = (function () {
           data.accessToken = local.driveAccessToken;
         }
 
-        getMessageChannel(channelName).port1.postMessage({
+        getPreviewFrame(channelName).postMessage({
           message: 'response-file-multimedia', 
           mime: mimeType,
           content: data,
           resolverUID: event.data.resolverUID,
-        });
+        }, '*');
         
       }
     }
@@ -170,6 +113,7 @@ let compoPreview = (function () {
   async function responseAsText(event, path, mimeType, channelName) {
 
   	let content = await getContent(path, mimeType);
+
     if (typeof Terser != 'undefied' && mimeType == "text/javascript; charset=UTF-8" && settings.data.editor.minifyJs) {
       try {
         let result = await Terser.minify(content, { sourceMap: false });
@@ -178,55 +122,13 @@ let compoPreview = (function () {
         console.log(e)
       }
     }
-    
-    getMessageChannel(channelName).port1.postMessage({
+
+    getPreviewFrame(channelName).postMessage({
   		message: 'response-file', 
   		mime: mimeType,
   		content: content,
   		resolverUID: event.data.resolverUID,
-  	});
-
-  }
-
-	async function fileResponseHandler(e) {
-	  
-    let channelName = 'preview'; // default
-    if (e.data.channelName) {
-      channelName = e.data.channelName;
-    }
-	  switch (e.data.message) {
-	    case 'request-path':
-        let path = decodeURI(removeParam(e.data.path));
-        if(path.endsWith('/')) 
-          path += 'index.html';
-        let mimeType = helperUtils.getMimeType(path);
-        if (helperUtils.isMediaTypeText(path)) {
-          await responseAsText(e, path, mimeType+'; charset=UTF-8', channelName);
-        } else {
-          await responseAsMedia(e, path, mimeType, channelName);
-        }
-	      break;
-      case 'test-connection':
-        getMessageChannel(channelName).port1.postMessage({
-          message: 'resolve-test-connection', 
-        });
-        break;
-	    case 'resolve-test-connection':
-        resolveTestConnection(channelName);
-	      break;
-	    case 'message-port-opened':
-        if (local.resolvePort) {
-          local.resolvePort();
-        }
-        break;
-	  }
-  }
-
-  function resolveTestConnection(channelName) {
-    let resolver = getTestConnectionResolver(channelName);
-    if (resolver) {
-      resolver();
-    }
+  	}, '*');
   }
 
   async function getFileAtPath(src) {
@@ -236,7 +138,6 @@ let compoPreview = (function () {
     let parentId = await getDirectory(src, relativeParent, path);
     let files = await fileManager.TaskListFiles(parentId);
     let name = src.replace(/.*?\//g,'');
-    let isFileFound = false;
     let file = null;
     for (let i=0; i<files.length; i++) {
       if (files[i].name.toLowerCase() == name.toLowerCase() && !files[i].trashed) {
@@ -272,7 +173,6 @@ let compoPreview = (function () {
     let content = '<404></404>';
     let filePathData = await getFileAtPath(src);
     let file = filePathData.file;
-    let parentId = filePathData.parentId;
     
     if (file === null) return content;
 
@@ -533,30 +433,6 @@ let compoPreview = (function () {
     return (channelName == 'pwa') ? local.previewFrame2 : local.previewFrame1;
   }
 
-  function getMessageChannel(channelName) {
-    return (channelName == 'pwa') ? local.messageChannel2 : local.messageChannel1;
-  }
-
-  function getMessageChannelName() {
-    return local.targetPreviewDomain;
-  }
-
-  function setTestConnectionResolver(channelName, resolver) {
-    if (channelName == 'pwa') {
-      testConnectionResolver2 = resolver;
-    } else if (channelName == 'preview') {
-      testConnectionResolver1 = resolver;
-    }
-  }
-
-  function getTestConnectionResolver(channelName) {
-    if (channelName == 'pwa') {
-      return testConnectionResolver2;
-    } else if (channelName == 'preview') {
-      return testConnectionResolver1;
-    }
-  }
-
   function removeParam(url) {
     var oldURL = url;
     var index = 0;
@@ -575,19 +451,32 @@ let compoPreview = (function () {
     attachPortListeners();
   }
 
+  // # message
   function attachPortListeners() {
-    window.addEventListener('message', function(e) {
+    addEventListener('message', async function(e) {
 
       if (e.data.message) {
-        let channel;
+        let channelName = 'preview'; // default
+
+        if (e.data.channelName) {
+          channelName = e.data.channelName;
+        }
+
         switch (e.data.message) {
-          case 'port-missing':
-            channel = createMessageChannel(e.data.channelName);
-            getPreviewFrame(e.data.channelName).postMessage({ message: 'reinit-message-port' }, '*', [channel.port2]);
-            break;
-          case 'preview-frame-isReady':
-            channel = createMessageChannel(e.data.channelName);
-            getPreviewFrame(e.data.channelName).postMessage({ message: 'init-message-port' }, '*', [channel.port2]);
+          case 'request-path':
+            let path = decodeURI(removeParam(e.data.path));
+            
+            if(path.endsWith('/'))  {
+              path += 'index.html';
+            }
+            
+            let mimeType = helperUtils.getMimeType(path);
+
+            if (helperUtils.isMediaTypeText(path)) {
+              await responseAsText(e, path, mimeType+'; charset=UTF-8', channelName);
+            } else {
+              await responseAsMedia(e, path, mimeType, channelName);
+            }
             break;
 
           case 'receiveSilentSignal':
