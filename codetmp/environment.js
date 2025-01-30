@@ -7,7 +7,7 @@ let environment = {
     }, 
     development: {
         previewUrl: 'http://localhost:8202/',
-        previewUrlPWA: 'http://localhost:8202/', 
+        previewUrlPWA: 'http://localhost:8203/', 
     }
 };
 
