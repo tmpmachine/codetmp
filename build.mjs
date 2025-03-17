@@ -96,8 +96,8 @@ async function minifyFiles() {
 	await fsExtra.remove('./deploy/codetmp/')
 	fsExtra.copySync('./codetmp', './deploy/codetmp');
 
-	minifyHTML('./deploy/codetmp/');
-	minifyHTML('./deploy/codetmp/views/');
+	minifyHTML('deploy/codetmp/');
+	// minifyHTML('deploy/codetmp/views/');
 	minifyCSS('./deploy/codetmp/css/');
 	minifyJS('./deploy/codetmp/js/');
 	minifyJS('./deploy/codetmp/js/require/');

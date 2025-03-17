@@ -31,7 +31,7 @@ let compoGsi = (function() {
   let local = {
     silentFrame: null,
     isSilentFrameReady: false,
-    client_id: '',
+    client_id: '502466142434-c7jku5i8sk4g790i8hkrlf8j80otl3lc.apps.googleusercontent.com',
     scopes: [
       'https://www.googleapis.com/auth/drive.file', 
       'https://www.googleapis.com/auth/drive.appdata',
