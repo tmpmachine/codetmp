@@ -806,12 +806,28 @@
       </section>
       <hr/>
 
-      <!-- work offline -->
-      <section>
+      <!-- offline -->
+      <section class="_pwaCacheManagerContainer">
         <h6 style="font-weight:bold;">Updates & Offline Access</h6>
-        <button type="button" class="btn-style-1" style="width:auto" onclick="pwaCacher.update()">Check for updates</button>
-        <button type="button" class="btn-style-1" style="width:auto" onclick="pwaCacher.removeUpdate()">Remove App Cache</button>
-        <p>*) Removing app cache will disable offline access until you update the app manually by clicking on <b>Check for updates</b> button.</p>
+        
+        <!-- PWA cache manager -->
+        <div class="flex gap-50">
+          <button data-slot="cacheBtn" onclick="compoCache.Update()">Enable</button>
+          <button data-slot="clearBtn" onclick="compoCache.Clear()">Disable</button>
+        </div>
+        <div class="void-50"></div>
+        <div>
+          <button data-slot="updateBtn" onclick="compoCache.Update()">Cache latest version</button>
+        </div>
+        <div class="void-50"></div>
+        <div>
+          <label>
+            <input name="replaceWidgetSettings" type="checkbox" oninput="compoCache.SetAutoCache(this.checked)" data-slot="cacheOpt"/>
+            Automatically cache latest version.
+          </label>
+        </div>
+        <div class="hide-empty" data-slot="txtInfo"></div>
+        <pre class="hide-empty" data-slot="urls"></pre>
       </section>
       <hr/>
 
@@ -1331,8 +1347,8 @@
   
   <script src="js/app.js"></script>
   <script src="index.js" type="module"></script>
-  <script src="pwa.js"></script>
-  
+  <script src="js/application/components/cache-component.js"></script>
+
   <script type="module">
     import init, { transform, } from 'https://esm.sh/lightningcss-wasm@1.22.1';
   

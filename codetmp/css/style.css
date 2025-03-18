@@ -15,7 +15,7 @@
 .text-right{text-align:right}.text-center{text-align:center}
 
 .void{display:flex}
-.void-tenth{margin-bottom:0.1rem}.void-quarter{margin-bottom:0.25rem}.void-half{margin-bottom:0.5rem}.void-full,.void-1x{margin-bottom:1rem}.void-2x{margin-bottom:2rem}
+.void-tenth{margin-bottom:0.1rem}.void-quarter{margin-bottom:0.25rem}.void-half,.void-50{margin-bottom:0.5rem}.void-1,.void-full,.void-1x{margin-bottom:1rem}.void-2x{margin-bottom:2rem}
 
 /* fallback */
 @font-face {
